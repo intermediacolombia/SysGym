@@ -1,0 +1,77 @@
+/* CSS Document */
+.measurements-layout {
+      display: flex;
+      gap: 120px;
+      padding: 0px 90px 0px 90px;
+      justify-content: center;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    /*.wrapper {
+      position: relative;
+      width: 180px;
+      flex-shrink: 0;
+    }*/
+
+.wrapper {
+  /* en lugar de fixed o relative */
+  position: sticky;
+  top: 90px;      /* mismo espacio que el padding-top de measurements-layout */
+  width: 180px;
+  flex-shrink: 0;
+  align-self: flex-start; /* para que no se estire */
+  /* opcional z-index si necesitas que esté por encima de otros elementos */
+  z-index: 10;
+}
+
+    .wrapper img {
+      width: 100%;
+      display: block;
+    }
+    .label {
+      position: absolute;
+      width: 90px;
+      padding: 4px 6px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #fff;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      font-size: .85rem;
+    }
+    .label input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      text-align: center;
+      /*font-size: 10px;*/
+      padding: 0;
+    }
+    .hombros    { top:15%; left:50%; transform:translateX(-50%); }
+    .pecho      { top:22%; left:50%; transform:translateX(-50%); }
+    .abdomen    { top:34%; left:50%; transform:translateX(-50%); }
+    .cintura    { top:40%; left:50%; transform:translateX(-50%); }
+    .cadera     { top:46%; left:50%; transform:translateX(-50%); }
+    .izq-brazo       { top:25%; left:-55px; }
+    .izq-antebrazo   { top:36%; left:-55px; }
+    .izq-muneca      { top:43%; left:-55px; }
+    .izq-muslo       { top:62%; left:-30px; }
+    .izq-pantorrilla { top:78%; left:-30px; }
+    .der-brazo       { top:25%; right:-55px; }
+    .der-antebrazo   { top:36%; right:-55px; }
+    .der-muneca      { top:43%; right:-55px; }
+    .der-muslo       { top:62%; right:-30px; }
+    .der-pantorrilla { top:78%; right:-30px; }
+	  
+	  /* Chrome, Safari, Edge, Opera */
+.wrapper input[type=number]::-webkit-outer-spin-button,
+.wrapper input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.wrapper input[type=number] {
+  -moz-appearance: textfield;
+}
+

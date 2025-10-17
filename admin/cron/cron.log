@@ -1,0 +1,67 @@
+03:08 No es la hora programada.
+
+
+Warning: include(../../inc/config.php): failed to open stream: No such file or directory in /home/activgym/app.activgym.com.co/admin/cron/birthday.php on line 2
+
+Warning: include(): Failed opening '../../inc/config.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/activgym/app.activgym.com.co/admin/cron/birthday.php on line 2
+
+Notice: Undefined variable: host in /home/activgym/app.activgym.com.co/admin/cron/birthday.php on line 6
+
+Notice: Undefined variable: dbname in /home/activgym/app.activgym.com.co/admin/cron/birthday.php on line 6
+
+Notice: Undefined variable: username in /home/activgym/app.activgym.com.co/admin/cron/birthday.php on line 6
+
+Notice: Undefined variable: password in /home/activgym/app.activgym.com.co/admin/cron/birthday.php on line 6
+
+Warning: Cannot modify header information - headers already sent by (output started at /home/activgym/app.activgym.com.co/admin/cron/birthday.php:2) in /home/activgym/app.activgym.com.co/admin/cron/birthday.php on line 18
+{"status":"error","message":"Error en la conexi\u00f3n: SQLSTATE[28000] [1045] Access denied for user 'activgym'@'localhost' (using password: NO)"}03:10 No es la hora programada.
+
+03:11 No es la hora programada.
+
+03:12 No es la hora programada.
+
+
+Warning: include(../../whatsapp/hbd.php): failed to open stream: No such file or directory in /home/activgym/app.activgym.com.co/admin/cron/birthday.php on line 25
+
+Warning: include(): Failed opening '../../whatsapp/hbd.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/activgym/app.activgym.com.co/admin/cron/birthday.php on line 25
+Se han actualizado a inactivo 1 clientes cuyo plan venció ayer.<br>
+Warning: include(../../whatsapp/notify_expired.php): failed to open stream: No such file or directory in /home/activgym/app.activgym.com.co/admin/cron/inactive_client.php on line 32
+
+Warning: include(): Failed opening '../../whatsapp/notify_expired.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/activgym/app.activgym.com.co/admin/cron/inactive_client.php on line 32
+
+
+Warning: include(../../whatsapp/paymentReminder.php): failed to open stream: No such file or directory in /home/activgym/app.activgym.com.co/admin/cron/reminderMain.php on line 30
+
+Warning: include(): Failed opening '../../whatsapp/paymentReminder.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/activgym/app.activgym.com.co/admin/cron/reminderMain.php on line 30
+
+
+
+
+
+Warning: include(../../whatsapp/hbd.php): failed to open stream: No such file or directory in /home/activgym/app.activgym.com.co/admin/cron/birthday.php on line 25
+
+Warning: include(): Failed opening '../../whatsapp/hbd.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/activgym/app.activgym.com.co/admin/cron/birthday.php on line 25
+Se han actualizado a inactivo 1 clientes cuyo plan venció ayer.<br>
+Warning: include(../../whatsapp/notify_expired.php): failed to open stream: No such file or directory in /home/activgym/app.activgym.com.co/admin/cron/inactive_client.php on line 32
+
+Warning: include(): Failed opening '../../whatsapp/notify_expired.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/activgym/app.activgym.com.co/admin/cron/inactive_client.php on line 32
+
+
+Warning: include(../../whatsapp/paymentReminder.php): failed to open stream: No such file or directory in /home/activgym/app.activgym.com.co/admin/cron/reminderMain.php on line 30
+
+Warning: include(): Failed opening '../../whatsapp/paymentReminder.php' for inclusion (include_path='.:/opt/alt/php74/usr/share/pear') in /home/activgym/app.activgym.com.co/admin/cron/reminderMain.php on line 30
+
+
+
+
+03:15 No es la hora programada.
+
+03:16 No es la hora programada.
+
+Cliente ID 9 - HTTP Code: 201<br>Response: {"success":true,"statusCode":201,"timestamp":"2025-02-28 08:17:02","data":{"phonenumber":"57314 7165269","id":"9cec1c44-3077-48fe-8b07-119a32743dc6"}}<br><br>Cliente ID 10 - HTTP Code: 201<br>Response: {"success":true,"statusCode":201,"timestamp":"2025-02-28 08:17:03","data":{"phonenumber":"57317 2998776","id":"e6d86264-7437-44a0-96be-2f096a5dae9d"}}<br><br>Se han actualizado a inactivo 1 clientes cuyo plan venció ayer.<br>Cliente ID 10 - HTTP Code: 201<br>Response: {"success":true,"statusCode":201,"timestamp":"2025-02-28 08:17:03","data":{"phonenumber":"57317 2998776","id":"528346dd-588f-4dc1-aff7-098662a17150"}}<br><br>
+
+
+
+
+03:18 No es la hora programada.
+

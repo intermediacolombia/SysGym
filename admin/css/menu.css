@@ -1,0 +1,80 @@
+.menu {
+    width: 220px;
+    background: #3A0102;
+    border-radius: 5px;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    -ms-overflow-style: none; /* IE y Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+.menu::-webkit-scrollbar {
+    display: none; /* Chrome, Safari y Opera */
+}
+
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 7px 15px;
+            text-decoration: none!important;
+            color: white!important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            transition: background 0.3s;
+			border-radius: 10px;
+			background: #E21F0C;
+        }
+        .menu a:hover {
+            background: #000000;
+        }
+        .menu a i {
+            margin-right: 10px;
+        }
+        .submenu {
+            background: #3A0102;
+            padding-left: 20px;
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.5s ease-in-out, padding 0.3s ease-in-out;
+        }
+        .submenu a {
+            border-bottom: none;
+            padding: 5px 15px;
+            display: block;
+			background: #3A0102;
+			text-align: left;
+        }
+        .menu .has-submenu {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .menu .has-submenu i.fa-chevron-down {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+        }
+        .menu .has-submenu.active + .submenu {
+            max-height: 200px;
+            padding: 5px 0;
+        }
+        .menu .has-submenu.active i.fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+		.menu .logo-container {
+            text-align: center;
+            padding: 15px;
+            background: #ffffff;
+        }
+        .menu .logo-container img {
+            max-width: 150px;
+            height: auto;
+        }
+        

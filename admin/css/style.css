@@ -1,0 +1,217 @@
+@charset "utf-8";
+/* CSS Document */
+body {
+    font-family: Arial, sans-serif;
+    /*background: #c9d8e6!important;*/
+	background: url("/admin/images/background.png") no-repeat fixed !important;
+	background-size: cover !important;
+    height: 100vh;
+    margin: 0;
+    padding-left: 240px; /* En lugar de margin-left en .container */
+}
+
+
+
+.portada {
+  position: relative;
+  padding: 25px;
+	max-width: 100%;
+  border-radius: 5px 5px 0px 0px; /* Bordes redondeados */
+ /* box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.75);
+-webkit-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.75);
+-moz-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.75);
+  /*background: #1a1a2e;  Fondo oscuro elegante */
+	background: url("/admin/images/portada2.png") no-repeat;
+	background-size: cover;
+	background-position: center;
+  color: #ffffff; /* Texto blanco */
+  border: none; /* Eliminamos el borde rojo */
+  transition: all 0.3s ease; /* Transición suave para efectos hover */
+}
+
+/* Efecto hover para dar interactividad */
+.portada:hover {
+ /* box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.75);
+-webkit-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.75);
+-moz-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.75);
+  transform: translateY(-2px);*/
+}
+
+/* Estilo para el título */
+.portada h1 {
+  color: #000; /* Color destacado para el título */
+  margin-bottom: 20px;
+  font-weight: 600;
+  border-bottom: 2px solid #E21F0C;
+  padding-bottom: 10px;
+  display: inline-block;
+}
+
+
+
+
+.container {
+    padding: 20px;
+    background: white;
+    border-radius:0px 0px 5px 5px;
+	
+    max-width: 100%!important;
+}
+
+.col-sm-12 {
+    font-size: 14px;
+}
+
+
+/* Estilos para la tabla */
+    #formularios tbody tr,
+    #formularios tbody tr td {
+      cursor: pointer !important;
+      transition: background-color 0.1s ease;
+    }
+    #formularios thead th {
+      background-color: #214A82;
+      color: white;
+    }
+    #formularios tbody tr:hover {
+      background-color: #4972AA !important;
+    }
+    #formularios tbody tr:hover td {
+      color: white !important;
+    }
+    /* La columna de checkboxes no dispara redirección */
+    .no-click {
+      cursor: default !important;
+    }
+    /* Contenedor de botones de acción: espacio fijo */
+    #actionButtons {
+      min-height: 60px;
+    }
+    #actionButtons.inactive {
+      visibility: hidden;
+    }
+    #actionButtons.active {
+      visibility: visible;
+    }
+
+/* Estilo para las filas y celdas */
+tbody tr,
+tbody tr td {
+  cursor: pointer !important;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Estilo para el encabezado */
+thead th {
+  background-color: #E21F0C!important;
+  color: white!important;
+}
+
+/* Cambio de color de fondo y texto cuando se pasa el ratón sobre la fila */
+tbody tr:hover {
+  background-color: #4972AA!important;
+}
+
+tbody tr:hover td {
+  color: white !important; /* Cambiar el color del texto a blanco */
+	background:#B3B3B3;
+	
+}
+
+/* La columna de acción no dispara redirección */
+.no-click {
+  cursor: default !important;
+}
+
+/* Establecer el cursor de pointer en todas las filas */
+table tbody tr {
+  cursor: pointer;
+}
+
+
+/* La columna de acción no dispara redirección */
+.no-click {
+  cursor: default !important;
+}
+
+/* Aseguramos que todas las filas tengan el cursor de pointer */
+table tbody tr {
+  cursor: pointer;
+}
+
+    /* Contenedor del switch reducido */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;  /* ancho más pequeño */
+      height: 20px; /* alto más pequeño */
+    }
+
+    /* Oculta el checkbox real */
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    /* El slider */
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+    }
+
+    /* El círculo del slider */
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;  /* tamaño reducido */
+      width: 16px;   /* tamaño reducido */
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: 0.4s;
+    }
+
+    /* Cambios cuando el checkbox está marcado */
+    input:checked + .slider {
+      background-color: #2196F3;
+    }
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    /* Bordes redondeados para un efecto "pill" */
+    .slider.round {
+      border-radius: 20px;
+    }
+    .slider.round:before {
+      border-radius: 50%;
+    }
+  table.table-bordered.dataTable thead tr:first-child th, table.table-bordered.dataTable thead tr:first-child td {
+   
+    border-radius: 5px!important;
+}
+
+/* CSS para animar la apertura y cierre del modal */
+.modal.fade .modal-dialog {
+  transform: translate(0, -25%)!important;
+  opacity: 0!important;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out!important;
+}
+
+.modal.fade.show .modal-dialog {
+  transform: translate(0, 0)!important;
+  opacity: 1!important;
+}
+
+
+
+
+
+

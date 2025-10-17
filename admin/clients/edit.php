@@ -1,0 +1,686 @@
+<?php require_once __DIR__ . '/../login/session.php';?>
+<?php
+session_start();
+require_once __DIR__ . '/../../inc/config.php';
+$permisopage = 'Editar Clientes';
+include('../login/restriction.php');
+// Verificar que se envíe el id del cliente
+if (!isset($_GET['id']) || empty($_GET['id'])) {
+    $_SESSION['error'] = "No se proporcionó el id del cliente.";
+    header("Location: index.php");
+    exit;
+}
+$id = trim($_GET['id']);
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    $_SESSION['error'] = "Error en la conexión: " . $e->getMessage();
+    header("Location: index.php");
+    exit;
+}
+// Obtener los planes disponibles (no borrados, estado activo) y con su frecuencia
+try {
+    $stmtPlan = $pdo->query("SELECT * FROM planes WHERE borrado = 0 AND estado = 'activo' ORDER BY nombre ASC");
+    $planes = $stmtPlan->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $planes = [];
+}
+// Procesar el formulario (POST) para actualizar el cliente
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $identificacion        = trim($_POST['identificacion']);
+    $nombres               = trim($_POST['nombres']);
+    $apellidos             = trim($_POST['apellidos']);
+    $direccion             = trim($_POST['direccion']);
+    $dialCode              = trim($_POST['dialCode']);  // Se guarda sin '+'
+    $telefono              = trim($_POST['telefono']);
+    $genero                = trim($_POST['genero']);
+    $email                 = trim($_POST['email']);
+    $fecha_nacimiento      = trim($_POST['fecha_nacimiento']);
+	$contacto_emergencia   = trim($_POST['contacto_emergencia']);
+	$dialCodeEmergencia 	= trim($_POST['dialCodeEmergencia']);
+	$numero_emergencia     = trim($_POST['numero_emergencia']);
+	$notificaciones		   = trim($_POST['notificaciones']);
+	$rh                    = trim($_POST['rh']);
+    $eps                   = trim($_POST['eps']);
+    $estado                = trim($_POST['estado']); // Estado del cliente
+    $fracturas             = trim($_POST['fracturas'])             ?: 'No';
+    $alergias              = trim($_POST['alergias'])              ?: 'No';
+    $enfermedades_actuales = trim($_POST['enfermedades_actuales']) ?: 'No';
+    $observaciones         = trim($_POST['observaciones'])         ?: 'No';
+    $plan                  = trim($_POST['plan']); // id del plan
+    $pago_plan             = trim($_POST['pago_plan']); // nuevo campo: fecha de pago
+    $vencimiento_plan      = trim($_POST['vencimiento_plan']);
+    try {
+        $stmt = $pdo->prepare("UPDATE clientes SET 
+            identificacion = :identificacion,
+            nombres = :nombres,
+            apellidos = :apellidos,
+            direccion = :direccion,
+            dialCode = :dialCode,
+            telefono = :telefono,
+            genero = :genero,
+            email = :email,
+            fecha_nacimiento = :fecha_nacimiento,			
+			contacto_emergencia = :contacto_emergencia,
+			dialCodeEmergencia = :dialCodeEmergencia,
+			numero_emergencia = :numero_emergencia,
+			notificaciones = :notificaciones,
+			rh = :rh,
+            eps = :eps,
+            estado = :estado,
+            fracturas = :fracturas,
+            alergias = :alergias,
+            enfermedades_actuales = :enfermedades_actuales,
+            observaciones = :observaciones,
+            plan = :plan,
+            pago_plan = :pago_plan,
+            vencimiento_plan = :vencimiento_plan,
+            updated_at = NOW()
+            WHERE id = :id");
+        $stmt->execute([
+            ':identificacion'        => $identificacion,
+            ':nombres'               => $nombres,
+            ':apellidos'             => $apellidos,
+            ':direccion'             => $direccion,
+            ':dialCode'              => $dialCode,
+            ':telefono'              => $telefono,
+            ':genero'                => $genero,
+            ':email'                 => $email,
+            ':fecha_nacimiento'      => $fecha_nacimiento,
+			':contacto_emergencia'   => $contacto_emergencia,
+			':dialCodeEmergencia' 	 => $dialCodeEmergencia,
+			':numero_emergencia'	 => $numero_emergencia,
+			':notificaciones'		 => $notificaciones,
+			':rh'					 => $rh,
+            ':eps'                   => $eps,
+            ':estado'                => $estado,
+            ':fracturas'             => $fracturas,
+            ':alergias'              => $alergias,
+            ':enfermedades_actuales' => $enfermedades_actuales,
+            ':observaciones'         => $observaciones,
+            ':plan'                  => $plan,
+            ':pago_plan'             => $pago_plan,
+            ':vencimiento_plan'      => $vencimiento_plan,
+            ':id'                    => $id
+        ]);
+		
+		
+		
+		
+			// LOGS
+require_once __DIR__ . '/../inc/log_action.php';
+
+$desc = json_encode([
+			'cliente_id' => $id,
+			'accion' => 'Cliente editado',
+			'identificacion'        => $identificacion,
+           'nombres'               => $nombres,
+            'apellidos'             => $apellidos,
+            'direccion'             => $direccion,
+            'dialCode'              => $dialCode,
+            'telefono'              => $telefono,
+            'genero'                => $genero,
+            'email'                 => $email,
+            'fecha_nacimiento'      => $fecha_nacimiento,
+			'contacto_emergencia'   => $contacto_emergencia,
+			'dialCodeEmergencia' 	 => $dialCodeEmergencia,
+			'numero_emergencia'	 => $numero_emergencia,
+			'notificaciones'		 => $notificaciones,
+			'rh'					 => $rh,
+            'eps'                   => $eps,
+            'estado'                => $estado,
+            'fracturas'             => $fracturas,
+            'alergias'              => $alergias,
+            'enfermedades_actuales' => $enfermedades_actuales,
+            'observaciones'         => $observaciones,
+            'plan'                  => $plan,
+            'pago_plan'             => $pago_plan,
+            'vencimiento_plan'      => $vencimiento_plan
+], JSON_UNESCAPED_UNICODE);
+
+log_action('Editar Clientes', $desc, 'Clientes');
+// END LOGS
+		
+		
+
+		
+		
+        $_SESSION['success'] = "Cliente actualizado correctamente.";
+        header("Location: detail.php?id=" . urlencode($id));
+        exit;
+    } catch (PDOException $e) {
+        $_SESSION['error'] = "Error al actualizar el cliente: " . $e->getMessage();
+        header("Location: edit.php?id=" . urlencode($id));
+        exit;
+    }
+} else {
+    // Si es GET, obtener los datos del cliente para prellenar el formulario, solo si no está borrado
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM clientes WHERE id = :id AND borrado = 0 AND congelado = 0");
+        $stmt->execute([':id' => $id]);
+        $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$cliente) {
+            $_SESSION['error'] = "Cliente no encontrado.";
+            header("Location: index.php");
+            exit;
+        }
+    } catch (PDOException $e) {
+        $_SESSION['error'] = "Error en la consulta: " . $e->getMessage();
+        header("Location: index.php");
+        exit;
+    }
+}
+
+$headerColor = ($cliente['estado'] === 'activo') ? '#28a745' : '#FD2D23';
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Cliente</title>
+  <?php include('../inc/header.php'); ?>
+  <style>
+  
+    .section-title {
+        font-size: 1.5rem;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 5px;
+    }
+    .card-header {
+        background-color: <?php echo $headerColor; ?>;
+        color: #fff;
+    }
+    .detail-item {
+        margin-bottom: 0.5rem;
+    }
+    .badge-vencido {
+        background-color: red;
+        color: white;
+        border-radius: 50px;
+        padding: 5px 10px;
+        font-size: 0.9rem;
+        margin-left: 10px;
+    }
+    /* Estilo para los campos obligatorios */
+    .form-label::after {
+        content: " *";
+        color: red;
+    }
+  </style>
+</head>
+<body>
+<div class="container" style="padding: 0px; background:rgba(0,0,0,0.00)">
+  <div class="portada">
+    <h1>Editar Cliente <?php echo htmlspecialchars($cliente['nombres'] . " " . $cliente['apellidos']); ?></h1>
+  </div>
+</div>
+  <?php include('../inc/menu.php'); ?>
+  <div class="container my-5">
+   
+    <div class="card shadow mb-4">
+      <!-- Encabezado -->
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="mb-0"><i class="fa fa-user"></i> <?php echo htmlspecialchars($cliente['nombres'] . " " . $cliente['apellidos']); ?></h3>
+        <span class="badge <?php echo ($cliente['estado'] === 'activo') ? 'bg-success' : 'bg-danger'; ?>">
+          <?php echo ($cliente['estado'] === 'activo') ? 'Activo' : 'Inactivo'; ?>
+        </span>
+      </div>
+      <div class="card-body">
+        <!-- Formulario de Edición -->
+        <form action="edit.php?id=<?php echo urlencode($id); ?>" method="post" id="editForm">
+          <div class="row">
+            <!-- Datos Personales -->
+            <div class="col-md-6">
+              <div class="section-title"><i class="fa fa-id-card-o"></i> Datos Personales</div>
+              <div class="mb-3">
+                <label for="identificacion" class="form-label">Identificación</label>
+                <input type="text" name="identificacion" id="identificacion" class="form-control" 
+                       value="<?php echo htmlspecialchars($cliente['identificacion']); ?>" required>
+              </div>
+              <div class="mb-3">
+                <label for="nombres" class="form-label">Nombres</label>
+                <input type="text" name="nombres" id="nombres" class="form-control" 
+                       value="<?php echo htmlspecialchars($cliente['nombres']); ?>" required>
+              </div>
+              <div class="mb-3">
+                <label for="apellidos" class="form-label">Apellidos</label>
+                <input type="text" name="apellidos" id="apellidos" class="form-control" 
+                       value="<?php echo htmlspecialchars($cliente['apellidos']); ?>" required>
+              </div>
+              <div class="mb-3">
+                <label for="direccion" class="form-label">Dirección</label>
+                <input type="text" name="direccion" id="direccion" class="form-control" 
+                       value="<?php echo htmlspecialchars($cliente['direccion']); ?>" required>
+              </div>
+              <!-- Campo oculto para dialCode -->
+              <input type="hidden" name="dialCode" id="dialCode" value="<?php echo htmlspecialchars($cliente['dialCode']); ?>">
+				
+              <div class="mb-3">
+                <label for="telefono" class="form-label">Teléfono</label><br>
+                <input type="tel" name="telefono" id="telefono" class="form-control" 
+                       value="<?php echo htmlspecialchars($cliente['telefono']); ?>" maxlength="13" required>
+              </div>
+              <div class="mb-3">
+                <label for="genero" class="form-label">Género</label>
+                <select class="form-control" id="genero" name="genero" required>
+                  <option value="">Seleccione...</option>
+                  <option value="masculino" <?php echo ($cliente['genero'] === 'masculino') ? 'selected' : ''; ?>>Masculino</option>
+                  <option value="femenino" <?php echo ($cliente['genero'] === 'femenino') ? 'selected' : ''; ?>>Femenino</option>
+                  <option value="otro" <?php echo ($cliente['genero'] === 'otro') ? 'selected' : ''; ?>>Otro</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" name="email" id="email" class="form-control" 
+                       value="<?php echo htmlspecialchars($cliente['email']); ?>">
+              </div>
+              <div class="mb-3">
+                <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                <input type="text" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control" 
+                       value="<?php echo htmlspecialchars($cliente['fecha_nacimiento']); ?>" required>
+              </div>
+				
+				<div class="mb-3">
+                <label for="contacto_emergencia" class="form-label">Contacto de Emergencia</label>
+                <input type="text" name="contacto_emergencia" id="contacto_emergencia" class="form-control" 
+                       value="<?php echo htmlspecialchars($cliente['contacto_emergencia']); ?>">
+              </div>
+				
+				
+			<div class="mb-3">
+                <!-- Para el teléfono de emergencia -->
+				<label for="numero_emergencia" class="form-label">Tel. Contacto de Emergencia</label>
+<input type="tel" name="numero_emergencia" id="numero_emergencia" class="form-control" 
+       value="<?php echo htmlspecialchars($cliente['numero_emergencia']); ?>" maxlength="11">
+				
+<input type="hidden" id="dialCodeEmergencia" name="dialCodeEmergencia" 
+       value="<?php echo htmlspecialchars($cliente['dialCodeEmergencia']); ?>">
+
+              </div>
+				
+			<div class="form-group">
+  <!-- Campo oculto para enviar 0 si no se marca -->
+  <input type="hidden" name="notificaciones" value="0">
+  <label class="switch">
+    <input type="checkbox" id="notificaciones" name="notificaciones" value="1" <?php echo (isset($cliente['notificaciones']) && $cliente['notificaciones'] == 1) ? 'checked' : ''; ?>>
+    <span class="slider round"></span>
+  </label>
+  <span>Recibir Notificaciones Por WhatsApp?</span>
+</div>
+
+             
+            </div>
+            <!-- Plan y Datos Médicos -->
+            <div class="col-md-6">
+              <!-- Plan y Membresía -->
+              <div class="section-title"><i class='fas fa-fire-alt'></i> Plan y Membresía</div>
+              <div class="mb-3">
+                <label for="estado" class="form-label">Estado</label>
+                <select class="form-control" id="estado" name="estado" required>
+                  <option value="">Seleccione...</option>
+                  <option value="activo" <?php echo ($cliente['estado'] === 'activo') ? 'selected' : ''; ?>>Activo</option>
+                  <option value="inactivo" <?php echo ($cliente['estado'] === 'inactivo') ? 'selected' : ''; ?>>Inactivo</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="plan" class="form-label">Plan</label>
+                <select class="form-control" id="plan" name="plan" required>
+					
+                  <option value="">Seleccione...</option>
+<?php foreach ($planes as $plan): ?>
+  <option value="<?php echo $plan['id']; ?>" 
+          data-precio="<?php echo $plan['precio']; ?>" 
+          data-frecuencia="<?php echo $plan['frecuencia']; ?>"
+          data-dias="<?php echo $plan['dias']; ?>"
+    <?php echo ($cliente['plan'] == $plan['id']) ? 'selected' : ''; ?>>
+    <?php echo htmlspecialchars($plan['nombre']); ?>
+  </option>
+<?php endforeach; ?>
+
+					
+					
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="precio_mensual" class="form-label">Precio Plan</label>
+                <input type="text" class="form-control" id="precio_mensual" name="precio_mensual" readonly>
+              </div>
+              <div class="mb-3">
+                <label for="pago_plan" class="form-label">Fecha de Pago</label>
+                <input type="text" class="form-control" id="pago_plan" name="pago_plan" 
+                       value="<?php echo isset($cliente['pago_plan']) ? htmlspecialchars($cliente['pago_plan']) : ''; ?>">
+              </div>
+              <div class="mb-3">
+                <label for="vencimiento_plan" class="form-label">Fecha de Vencimiento</label>
+                <input type="text" class="form-control" id="vencimiento_plan" name="vencimiento_plan" 
+                       value="<?php echo isset($cliente['vencimiento_plan']) ? htmlspecialchars($cliente['vencimiento_plan']) : ''; ?>">
+              </div>
+              <!-- Información Médica -->
+              <div class="section-title"><i class="fa fa-user-md"></i> Información Médica</div>
+				
+				<div class="mb-3">
+  <label for="rh" class="form-label">RH</label>
+  <select name="rh" id="rh" class="form-control">
+    <option value="">Seleccione...</option>
+    <option value="O+" <?php echo ($cliente['rh'] === 'O+') ? 'selected' : ''; ?>>O+</option>
+    <option value="O-" <?php echo ($cliente['rh'] === 'O-') ? 'selected' : ''; ?>>O-</option>
+    <option value="A+" <?php echo ($cliente['rh'] === 'A+') ? 'selected' : ''; ?>>A+</option>
+    <option value="A-" <?php echo ($cliente['rh'] === 'A-') ? 'selected' : ''; ?>>A-</option>
+    <option value="B+" <?php echo ($cliente['rh'] === 'B+') ? 'selected' : ''; ?>>B+</option>
+    <option value="B-" <?php echo ($cliente['rh'] === 'B-') ? 'selected' : ''; ?>>B-</option>
+    <option value="AB+" <?php echo ($cliente['rh'] === 'AB+') ? 'selected' : ''; ?>>AB+</option>
+    <option value="AB-" <?php echo ($cliente['rh'] === 'AB-') ? 'selected' : ''; ?>>AB-</option>
+  </select>
+</div>
+
+				
+				 <div class="mb-3">
+                <label for="eps" class="form-label">EPS</label>
+                <input type="text" name="eps" id="eps" class="form-control" 
+                       value="<?php echo htmlspecialchars($cliente['eps']); ?>">
+              </div>
+				
+              <div class="mb-3">
+                <label for="fracturas" class="form-label">Fracturas</label>
+                <textarea name="fracturas" id="fracturas" rows="2" class="form-control" required><?php echo ($cliente['fracturas'] ?: 'No'); ?></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="alergias" class="form-label">Alergias</label>
+                <textarea name="alergias" id="alergias" rows="2" class="form-control" required><?php echo ($cliente['alergias'] ?: 'No'); ?></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="enfermedades_actuales" class="form-label">Enfermedades Actuales</label>
+                <textarea name="enfermedades_actuales" id="enfermedades_actuales" rows="2" class="form-control" required><?php echo ($cliente['enfermedades_actuales'] ?: 'No'); ?></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="observaciones" class="form-label">Observaciones</label>
+                <textarea name="observaciones" id="observaciones" rows="2" class="form-control" required><?php echo ($cliente['observaciones'] ?: 'No'); ?></textarea>
+              </div>
+            </div>
+          </div>
+          <!-- Botones del formulario -->
+          <div class="mt-4">
+            <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Guardar cambios</button>
+            <a href="detail.php?id=<?php echo urlencode($id); ?>" class="btn btn-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <?php
+    // Consulta para obtener el formulario asociado al cliente
+    $stmtForm = $pdo->prepare("SELECT id FROM formularios WHERE cliente_id = :cliente_id ORDER BY id DESC LIMIT 1");
+    $stmtForm->execute([':cliente_id' => $id]);
+    $formulario = $stmtForm->fetch(PDO::FETCH_ASSOC);
+    $formId = $formulario ? $formulario['id'] : null;
+    ?>
+    
+    
+  </div>
+  
+  <?php include('../inc/menu-footer.php'); ?>
+  
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+  <script>
+  $(document).ready(function() {
+  <?php if(isset($_SESSION['success'])): ?>
+    Swal.fire({
+      icon: 'success',
+      title: 'Éxito',
+      text: '<?php echo $_SESSION['success']; ?>'
+    });
+    <?php unset($_SESSION['success']); ?>
+  <?php endif; ?>
+  <?php if(isset($_SESSION['error'])): ?>
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: '<?php echo $_SESSION['error']; ?>'
+    });
+    <?php unset($_SESSION['error']); ?>
+  <?php endif; ?>
+
+  /********************************************************
+   * TELÉFONO PRINCIPAL
+   ********************************************************/
+  var phoneInput = document.querySelector("#telefono");
+  var iti = window.intlTelInput(phoneInput, {
+    separateDialCode: true,
+    nationalMode: false,
+    formatOnDisplay: true,
+    autoPlaceholder: "polite",
+    initialCountry: "auto",
+    geoIpLookup: function(callback) {
+      $.get("https://ipinfo.io", function() {}, "jsonp").always(function(resp) {
+        var countryCode = (resp && resp.country) ? resp.country : "us";
+        callback(countryCode);
+      });
+    },
+    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+  });
+
+  // Preseleccionar el teléfono si existe en la BD
+  var storedDialCode = $("#dialCode").val();
+  var storedPhone = $("#telefono").val();
+  if (storedDialCode && storedPhone) {
+    if (storedDialCode.charAt(0) !== '+') {
+      storedDialCode = '+' + storedDialCode;
+    }
+    var fullNumber = storedDialCode + storedPhone;
+    setTimeout(function() {
+      iti.setNumber(fullNumber);
+    }, 800);
+  }
+
+  /********************************************************
+   * TELÉFONO DE EMERGENCIA
+   ********************************************************/
+  var emergencyInput = document.querySelector("#numero_emergencia");
+  var itiEmergencia = window.intlTelInput(emergencyInput, {
+    separateDialCode: true,
+    nationalMode: false,
+    formatOnDisplay: true,
+    autoPlaceholder: "polite",
+    initialCountry: "auto",
+    geoIpLookup: function(callback) {
+      $.get("https://ipinfo.io", function() {}, "jsonp").always(function(resp) {
+        var countryCode = (resp && resp.country) ? resp.country : "us";
+        callback(countryCode);
+      });
+    },
+    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+  });
+
+  // Preseleccionar el teléfono de emergencia si existe en la BD
+  var storedDialCodeEmergencia = $("#dialCodeEmergencia").val();
+  var storedEmergencyPhone = $("#numero_emergencia").val();
+  if (storedDialCodeEmergencia && storedEmergencyPhone) {
+    if (storedDialCodeEmergencia.charAt(0) !== '+') {
+      storedDialCodeEmergencia = '+' + storedDialCodeEmergencia;
+    }
+    var fullEmergencyNumber = storedDialCodeEmergencia + storedEmergencyPhone;
+    setTimeout(function() {
+      itiEmergencia.setNumber(fullEmergencyNumber);
+    }, 800);
+  }
+
+  /********************************************************
+   * AL ENVIAR EL FORMULARIO, ACTUALIZAR AMBOS DIAL CODES
+   ********************************************************/
+  $("#editForm").on("submit", function() {
+    // Actualizar para teléfono principal
+    var selectedCountry = iti.getSelectedCountryData();
+    $("#dialCode").val(selectedCountry.dialCode);
+    
+    // Actualizar para teléfono de emergencia
+    var selectedEmergencyCountry = itiEmergencia.getSelectedCountryData();
+    $("#dialCodeEmergencia").val(selectedEmergencyCountry.dialCode);
+  });
+
+  /********************************************************
+   * PLAN Y VENCIMIENTO
+   ********************************************************/
+  /*function updatePrecio() {
+    var precio = $("#plan option:selected").data("precio");
+    if (precio !== undefined) {
+      $("#precio_mensual").val(precio);
+    } else {
+      $("#precio_mensual").val('');
+    }
+  }
+
+  updatePrecio();
+  $("#plan").on("change", function(){
+    updatePrecio();
+    updateVencimiento();
+  });
+  $("#pago_plan").on("change", function(){
+    updateVencimiento();
+  });*/
+});
+
+  </script>
+	
+	
+	<script>
+$(function () {
+
+  /* ============ 1. Instancias Flatpickr ============ */
+  const fpNacimiento = flatpickr("#fecha_nacimiento", {
+    dateFormat : "Y-m-d",
+    altInput   : true,
+    altFormat  : "d \\de F \\de Y",
+    locale     : "es",
+    maxDate    : "today"
+  });
+
+  const fpPago = flatpickr("#pago_plan", {
+    dateFormat : "Y-m-d",
+    altInput   : true,
+    altFormat  : "d \\de F \\de Y",
+    locale     : "es"
+  });
+
+  const fpVenci = flatpickr("#vencimiento_plan", {
+    dateFormat : "Y-m-d",
+    altInput   : true,
+    altFormat  : "d \\de F \\de Y",
+    locale     : "es"
+  });
+
+  /* ============ 2. Precio según plan ============ */
+  function updatePrecio () {
+    const precio = $("#plan option:selected").data("precio");
+    $("#precio_mensual").val(precio !== undefined ? precio : "");
+  }
+
+  /* ============ 3. Calcular vencimiento ============ */
+  function getPagoDate () {
+    /* 1) Si Flatpickr ya tiene selectedDates úsalo */
+    if (fpPago.selectedDates.length) return fpPago.selectedDates[0];
+
+    /* 2) Si viene del servidor: lee el valor ISO del input */
+    const iso = $("#pago_plan").val();
+    return iso ? fpPago.parseDate(iso, "Y-m-d") : null;
+  }
+
+  function updateVencimiento () {
+    const pagoDate = getPagoDate();
+    if (!pagoDate) { fpVenci.clear(); return; }   // sin pago → vacío
+
+    const $opt  = $("#plan option:selected");
+    const meses = parseInt($opt.data("frecuencia")) || 0;  // meses
+    const dias  = parseInt($opt.data("dias"))        || 0; // días
+
+    /* pago + meses + (dias-1) */
+    const due = new Date(pagoDate);
+    due.setMonth(due.getMonth() + meses);
+    due.setDate (due.getDate()  + dias - 1);
+
+    /* setDate: actualiza valor oculto + visible */
+    fpVenci.setDate(due, true);
+  }
+
+  /* ============ 4. Enlaces de eventos ============ */
+  // Cambio de plan → precio + vencimiento
+  $("#plan").on("change", function () {
+    updatePrecio();
+    updateVencimiento();
+  });
+
+  // Cambio de fecha de pago vía calendario
+  fpPago.config.onChange.push(updateVencimiento);
+
+  // Cambio de fecha de pago si el usuario escribe manualmente
+  $("#pago_plan").on("input change", updateVencimiento);
+
+  /* ============ 5. Inicialización al cargar ============ */
+  /* ============ 5. Inicialización al cargar ============ */
+updatePrecio();
+
+// Solo recalcula si NO existe vencimiento ya definido
+const tieneVencimiento = $("#vencimiento_plan").val().trim() !== "";
+if (!tieneVencimiento) {
+  updateVencimiento();
+}
+
+});
+</script>
+	
+	
+	<script>
+  function toTitleCase(str) {
+    // Convertir todo a minúsculas
+    str = str.toLowerCase();
+    
+    // Separar por espacios y convertir la primera letra de cada palabra
+    const palabras = str.split(/\s+/).map(palabra => {
+      if (!palabra) return palabra; // Para evitar problemas con cadenas vacías
+      return palabra[0].toUpperCase() + palabra.slice(1);
+    });
+    
+    // Unir las palabras de nuevo con espacios
+    return palabras.join(' ');
+  }
+
+  const campos = ['nombres', 'apellidos', 'contacto_emergencia'];
+  
+  campos.forEach(id => {
+    const input = document.getElementById(id);
+    if (input) {
+      input.addEventListener('input', function() {
+        this.value = toTitleCase(this.value);
+      });
+    }
+  });
+</script>
+
+
+	
+<script>
+  const emailField = document.getElementById('email');
+  emailField.addEventListener('input', function() {
+    this.value = this.value.toLowerCase();
+  });
+</script>	
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

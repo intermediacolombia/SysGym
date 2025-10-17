@@ -1,0 +1,4 @@
+[31-Mar-2025 15:17:30 America/Bogota] PHP Notice:  Undefined variable: username in /home/activgym/sysgym.intermediacolombia.com/admin/cron/expirations.php on line 6
+[31-Mar-2025 15:17:30 America/Bogota] PHP Notice:  Undefined variable: password in /home/activgym/sysgym.intermediacolombia.com/admin/cron/expirations.php on line 6
+[31-Mar-2025 15:18:46 America/Bogota] PHP Notice:  Undefined variable: username in /home/activgym/sysgym.intermediacolombia.com/admin/cron/expirations.php on line 6
+[31-Mar-2025 15:18:46 America/Bogota] PHP Notice:  Undefined variable: password in /home/activgym/sysgym.intermediacolombia.com/admin/cron/expirations.php on line 6

@@ -1,0 +1,69 @@
+.card-soft {
+  position: relative;
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+  min-height: 120px;
+}
+
+.card-soft .card-body {
+  position: relative;
+  z-index: 2;
+}
+
+/* Fondo de ícono tipo marca de agua */
+.card-soft::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 3.5rem;
+  color: rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+}
+
+/* Colores pastel amigables */
+.bg-soft-blue    { background-color: #d0e7ff !important; color: #005c99!important; }
+.bg-soft-green   { background-color: #d4edda !important; color: #155724!important; }
+.bg-soft-yellow  { background-color: #fff3cd !important; color: #856404!important; }
+.bg-soft-red     { background-color: #f8d7da !important; color: #721c24!important; }
+
+/* Íconos de fondo por tarjeta */
+.vencimientos::before       { content: '\f073'; } /* calendario */
+.clientes-activos::before   { content: '\f0c0'; } /* usuarios */
+.nuevos-clientes::before    { content: '\f234'; } /* user-plus */
+.asistencias::before        { content: '\f2f1'; } /* id-badge o asistencia */
+
+.bg-soft-purple {
+  background-color: #e4d7f5 !important;
+  color: #5d3b7d !important;
+}
+
+.asistencias-hoy::before {
+  content: '\f017'; /* ícono reloj Font Awesome */
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 3.5rem;
+  color: rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+}
+
+.card-soft {
+  position: relative;
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+  min-height: 120px;
+}
+
+.card-soft .card-body {
+  position: relative;
+  z-index: 2;
+}
+
+
