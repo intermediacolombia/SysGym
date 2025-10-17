@@ -56,11 +56,11 @@ $stmtUpdate = $pdo->prepare($sqlUpdate);
 require_once __DIR__ . '/../inc/log_action.php';
 
 $desc = json_encode([
+			'id_caja'		=> $cajaAbierta['id'],
 			'fecha_cierre'  => $fecha_cierre,
 			'hora_cierre'   => $hora_cierre,
 			'total_vendido' => $totalVentas,
-			'total_cierre'  => $totalCierre,
-			'id'            => $cajaAbierta['id']	
+			'total_cierre'  => $totalCierre	
 			
 ], JSON_UNESCAPED_UNICODE);
 
