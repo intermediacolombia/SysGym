@@ -53,6 +53,15 @@ if ($openCaja) {
 
 // Proceder a abrir la caja actual actualizando su estado a 1
 $stmtUpdate = $pdo->prepare("UPDATE cajas SET estado = 1 WHERE id = :id");
+
+// LOGS
+require_once __DIR__ . '/../inc/log_action.php';
+$desc = json_encode([
+			'caja_id'     => $caja_id	
+], JSON_UNESCAPED_UNICODE);
+log_action('Abrir Caja', $desc, 'Caja');
+// END LOGS
+
 if ($stmtUpdate->execute([':id' => $caja_id])) {
     echo json_encode(['status' => 'success', 'message' => 'Caja abierta exitosamente.']);
 } else {

@@ -79,6 +79,21 @@ try {
 
     // Obtener el ID del crédito recién creado
     $credito_id = $pdo->lastInsertId();
+	
+	
+	// LOGS
+require_once __DIR__ . '/../inc/log_action.php';
+$desc = json_encode([
+			'credito_id'     => $credito_id,
+			'idCliente' => $cliente_id,
+			'fecha' => date('Y-m-d'),
+			'valor' => $credito_restante, // Valor restante del crédito
+			'fecha_limite' => $fecha_limite,
+			'descripcion' => $producto['nombre']
+			
+], JSON_UNESCAPED_UNICODE);
+log_action('Registrar Creditos', $desc, 'Caja');
+// END LOGS
 
     // 2. Registrar la venta en la tabla ventas
     $fecha = $hoy;

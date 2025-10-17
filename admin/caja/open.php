@@ -25,6 +25,17 @@ $hora_apertura  = date('H:i:s');
 $sqlInsert = "INSERT INTO cajas (usuario_id, monto_inicial, fecha_apertura, hora_apertura, estado) VALUES (:usuario_id, :monto_inicial, :fecha_apertura, :hora_apertura, 1)";
 $stmtInsert = $pdo->prepare($sqlInsert);
 
+// LOGS
+require_once __DIR__ . '/../inc/log_action.php';
+$desc = json_encode([
+			'usuario_id'     => $id_user,
+			'monto_inicial'  => $monto_inicial,
+			'fecha_apertura' => $fecha_apertura,
+			'hora_apertura'  => $hora_apertura		
+], JSON_UNESCAPED_UNICODE);
+log_action('Abrir Caja', $desc, 'Caja');
+// END LOGS
+
 if ($stmtInsert->execute([
     ':usuario_id'     => $id_user,
     ':monto_inicial'  => $monto_inicial,
