@@ -52,7 +52,21 @@ if($stmtInsert->execute([
     ':valor'    => $valor,
     ':fecha'    => $fecha,
     ':hora'     => $hora
-])){
+]))	
+{
+		// LOGS
+require_once __DIR__ . '/../inc/log_action.php';
+$desc = json_encode([
+			'caja_id'  => $caja_id,
+			'detalle'  => $detalle,
+			'cantidad' => $cantidad,
+			'valor'    => $valor,
+			'fecha'    => $fecha,
+			'hora'     => $hora
+			
+], JSON_UNESCAPED_UNICODE);
+log_action('Registrar Creditos', $desc, 'Caja');
+// END LOGS
     echo json_encode(['status'=>'success', 'message'=>'Egreso registrado correctamente.']);
 } else {
     echo json_encode(['status'=>'error', 'message'=>'Error al registrar el egreso.']);
