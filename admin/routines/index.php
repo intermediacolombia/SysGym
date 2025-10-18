@@ -49,6 +49,20 @@ if(isset($_POST['action'])){
             ':estado' => $_POST['estado']
         ]);
         $rutina_id = $pdo->lastInsertId();
+		
+		// LOGS
+require_once __DIR__ . '/../inc/log_action.php';
+$desc = json_encode([
+    'rutina_id'   => $rutina_id,
+    'nombre'      => $_POST['nombre'],
+    'descripcion' => $_POST['descripcion'],
+    'estado'      => $_POST['estado'],
+    'ejercicios'  => json_decode($_POST['ejercicios'] ?? '[]', true)
+], JSON_UNESCAPED_UNICODE);
+
+log_action('Crear rutina', $desc, 'Rutinas');
+// END LOGS
+
 
         if($success && isset($_POST['ejercicios'])){
             $ejercicios = json_decode($_POST['ejercicios'], true);
@@ -78,6 +92,20 @@ if(isset($_POST['action'])){
             ':estado' => $_POST['estado'],
             ':id' => $_POST['id']
         ]);
+		
+		// LOGS
+require_once __DIR__ . '/../inc/log_action.php';
+$desc = json_encode([
+    'rutina_id'   => $_POST['id'],
+    'nombre'      => $_POST['nombre'],
+    'descripcion' => $_POST['descripcion'],
+    'estado'      => $_POST['estado'],
+    'ejercicios'  => json_decode($_POST['ejercicios'] ?? '[]', true)
+], JSON_UNESCAPED_UNICODE);
+
+log_action('Editar rutina', $desc, 'Rutinas');
+// END LOGS
+
 
         if ($success) {
             $pdo->prepare("DELETE FROM rutina_ejercicio WHERE rutina_id = :id")->execute([':id' => $_POST['id']]);
@@ -106,6 +134,18 @@ if(isset($_POST['action'])){
     if($action == "delete"){
         $stmt = $pdo->prepare("UPDATE rutinas SET borrado = 1 WHERE id = :id");
         $success = $stmt->execute([':id' => $_POST['id']]);
+		
+		// LOGS
+require_once __DIR__ . '/../inc/log_action.php';
+$desc = json_encode([
+    'rutina_id' => $_POST['id'],
+    'accion'    => 'Rutina marcada como borrada'
+], JSON_UNESCAPED_UNICODE);
+
+log_action('Eliminar rutina', $desc, 'Rutinas');
+// END LOGS
+
+		
         echo json_encode(['status' => $success ? 'success' : 'error']);
         exit;
     }

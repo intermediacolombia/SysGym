@@ -49,6 +49,19 @@ if(isset($_POST['action'])){
             // Reactivar y actualizar si está borrado
             $stmtUpdate = $pdo->prepare("UPDATE planes SET precio = :precio, frecuencia = :frecuencia, dias = :dias, estado = :estado, borrado = 0 WHERE id = :id");
             if($stmtUpdate->execute([':precio'=>$precio, ':frecuencia'=>$frecuencia, ':dias'=>$dias, ':estado'=>$estado, ':id'=>$existing['id']])) {
+				
+				// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';		
+		$desc = json_encode([
+				'precio'=>$precio, 
+				'frecuencia'=>$frecuencia, 
+				'dias'=>$dias, 
+				'estado'=>$estado, 
+				'id'=>$existing['id']		
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Agregar Planes', $desc, 'Planes');
+		// END LOGS	
+				
                 echo json_encode(['status'=>'success', 'message'=>'Plan reactivado y actualizado correctamente']);
             } else {
                 echo json_encode(['status'=>'error', 'message'=>'Error al reactivar el plan']);
@@ -73,7 +86,22 @@ if(isset($_POST['action'])){
     $estado = trim($_POST['estado']);
     $stmt = $pdo->prepare("UPDATE planes SET nombre = :nombre, precio = :precio, frecuencia = :frecuencia, dias = :dias, estado = :estado WHERE id = :id");
     if($stmt->execute([':nombre'=>$nombre, ':precio'=>$precio, ':frecuencia'=>$frecuencia, ':dias'=>$dias, ':estado'=>$estado, ':id'=>$id])){
-        echo json_encode(['status'=>'success', 'message'=>'Plan actualizado correctamente']);
+        
+		// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';		
+		$desc = json_encode([
+				'nombre'=>$nombre, 
+				'precio'=>$precio, 
+				'frecuencia'=>$frecuencia, 
+				'dias'=>$dias, 
+				'estado'=>$estado, 
+				'id'=>$id
+			
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Agregar Planes', $desc, 'Planes');
+		// END LOGS	
+		
+		echo json_encode(['status'=>'success', 'message'=>'Plan actualizado correctamente']);
     } else {
         echo json_encode(['status'=>'error', 'message'=>'Error al actualizar el plan']);
     }
@@ -83,6 +111,15 @@ if(isset($_POST['action'])){
         // Marcar el plan como borrado (borrado = 1)
         $stmt = $pdo->prepare("UPDATE planes SET borrado = 1 WHERE id = :id");
         if($stmt->execute([':id'=>$id])){
+			
+			// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';		
+		$desc = json_encode([
+				'id'=>$id,			
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Borrar Planes', $desc, 'Planes');
+		// END LOGS	
+			
             echo json_encode(['status'=>'success', 'message'=>'Plan borrado correctamente']);
         } else {
             echo json_encode(['status'=>'error', 'message'=>'Error al borrar el plan']);

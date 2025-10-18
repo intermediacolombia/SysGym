@@ -68,6 +68,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     ':estado'   => $estado,
                     ':id'       => $existingUser['id']
                 ]);
+				
+				// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';
+		$desc = json_encode([
+					'nombre'   => $nombre,
+                    'apellido' => $apellido,
+                    'correo'   => $correo,
+                    'username' => $username,
+                    'rol_id'   => $rol,
+                    'estado'   => $estado,
+                    'id'       => $existingUser['id']
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Crear Usuario', $desc, 'Usuarios');
+		// END LOGS	
+				
+				
+				
                 $_SESSION['success'] = "Usuario registrado correctamente.";
             } catch (PDOException $e) {
                 $_SESSION['error'] = "Error al actualizar el usuario: " . $e->getMessage();
@@ -91,6 +108,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 ':rol_id'      => $rol,
                 ':estado'   => $estado
             ]);
+			
+			// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';
+		$desc = json_encode([
+					'nombre'   => $nombre,
+                    'apellido' => $apellido,
+                    'correo'   => $correo,
+                    'username' => $username,
+                    'rol_id'   => $rol,
+                    'estado'   => $estado
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Crear Usuario', $desc, 'Usuarios');
+		// END LOGS	
+			
             $_SESSION['success'] = "Usuario registrado correctamente.";
         } catch (PDOException $e) {
             $_SESSION['error'] = "Error al registrar el usuario: " . $e->getMessage();

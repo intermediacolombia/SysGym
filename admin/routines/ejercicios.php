@@ -28,6 +28,23 @@ if(isset($_POST['action'])){
             ':descripcion' => $_POST['descripcion'],
             ':url_video' => $_POST['url_video']
         ]);
+		
+		// LOGS
+if ($success) {
+    require_once __DIR__ . '/../inc/log_action.php';
+    $desc = json_encode([
+        'ejercicio_id' => $pdo->lastInsertId(),
+        'nombre'       => $_POST['nombre'],
+        'descripcion'  => $_POST['descripcion'],
+        'url_video'    => $_POST['url_video'],
+        'usuario'      => $_SESSION['user']['nombre'] ?? 'Desconocido'
+    ], JSON_UNESCAPED_UNICODE);
+
+    log_action('Crear ejercicio', $desc, 'Ejercicios');
+}
+// END LOGS
+
+		
         echo json_encode(['status' => $success ? 'success' : 'error']);
         exit;
     }
@@ -40,6 +57,23 @@ if(isset($_POST['action'])){
             ':url_video' => $_POST['url_video'],
             ':id' => $_POST['id']
         ]);
+		
+		// LOGS
+if ($success) {
+    require_once __DIR__ . '/../inc/log_action.php';
+    $desc = json_encode([
+        'ejercicio_id' => $_POST['id'],
+        'nombre'       => $_POST['nombre'],
+        'descripcion'  => $_POST['descripcion'],
+        'url_video'    => $_POST['url_video'],
+        'usuario'      => $_SESSION['user']['nombre'] ?? 'Desconocido'
+    ], JSON_UNESCAPED_UNICODE);
+
+    log_action('Editar ejercicio', $desc, 'Ejercicios');
+}
+// END LOGS
+
+		
         echo json_encode(['status' => $success ? 'success' : 'error']);
         exit;
     }
@@ -47,6 +81,20 @@ if(isset($_POST['action'])){
     if($action == "delete"){
         $stmt = $pdo->prepare("DELETE FROM ejercicios WHERE id = :id");
         $success = $stmt->execute([':id' => $_POST['id']]);
+		
+		// LOGS
+if ($success) {
+    require_once __DIR__ . '/../inc/log_action.php';
+    $desc = json_encode([
+        'ejercicio_id' => $_POST['id'],
+        'accion'       => 'Ejercicio eliminado',
+        'usuario'      => $_SESSION['user']['nombre'] ?? 'Desconocido'
+    ], JSON_UNESCAPED_UNICODE);
+
+    log_action('Eliminar ejercicio', $desc, 'Ejercicios');
+}
+// END LOGS
+
         echo json_encode(['status' => $success ? 'success' : 'error']);
         exit;
     }

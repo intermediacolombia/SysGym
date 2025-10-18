@@ -52,6 +52,14 @@ try {
     $newPasswordHash = password_hash($newPassword, PASSWORD_DEFAULT);
     $stmtUpdate = $pdo->prepare("UPDATE usuarios SET password = :password WHERE id = :id");
     $stmtUpdate->execute([':password' => $newPasswordHash, ':id' => $userId]);
+	
+	// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';		
+		$desc = json_encode([
+			'id' => $userId			
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Editar Contraseña', $desc, 'Perfil');
+		// END LOGS	
     
     $_SESSION['success'] = "Contraseña actualizada correctamente.";
     header("Location: $url/admin/profile");

@@ -21,6 +21,17 @@ try {
     // Actualizar el campo "borrado" a 1 para el usuario con el id indicado
     $stmt = $pdo->prepare("UPDATE usuarios SET borrado = 1 WHERE id = :id");
     $stmt->execute([':id' => $id]);
+	
+	// LOGS
+require_once __DIR__ . '/../inc/log_action.php';
+$desc = json_encode([
+    'usuario_id' => $id,
+    'accion'     => 'Usuario marcado como borrado'
+], JSON_UNESCAPED_UNICODE);
+
+log_action('Eliminar usuario', $desc, 'Usuarios');
+// END LOGS
+
     
     if($stmt->rowCount() > 0) {
         $_SESSION['success'] = "Usuario borrado exitosamente.";

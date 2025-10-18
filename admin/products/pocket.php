@@ -42,6 +42,15 @@ if(isset($_POST['action'])){
                 // Reactivar el bolsillo que estaba borrado
                 $stmtUpdate = $pdo->prepare("UPDATE bolsillos SET borrado = 0 WHERE id = :id");
                 if($stmtUpdate->execute([':id' => $existing['id']])){
+					
+					// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';		
+		$desc = json_encode([			
+			'id'=>$existing['id']		
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Agregar Bolsillos', $desc, 'Bolsillos');
+		// END LOGS	
+					
                     echo json_encode(['status' => 'success', 'message' => 'Bolsillo reactivado correctamente']);
                 } else {
                     echo json_encode(['status' => 'error', 'message' => 'Error al reactivar el bolsillo']);
@@ -53,6 +62,15 @@ if(isset($_POST['action'])){
         // Insertar nuevo bolsillo
         $stmt = $pdo->prepare("INSERT INTO bolsillos (nombre, borrado) VALUES (:nombre, 0)");
         if($stmt->execute([':nombre' => $nombre])){
+			
+			// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';		
+		$desc = json_encode([			
+			'nombre'=>$nombre		
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Agregar Bolsillos', $desc, 'Bolsillos');
+		// END LOGS	
+			
             echo json_encode(['status' => 'success', 'message' => 'Bolsillo agregado correctamente']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al agregar el bolsillo']);
@@ -63,6 +81,16 @@ if(isset($_POST['action'])){
         $nombre = trim($_POST['nombre']);
         $stmt = $pdo->prepare("UPDATE bolsillos SET nombre = :nombre WHERE id = :id");
         if($stmt->execute([':nombre' => $nombre, ':id' => $id])){
+			
+			// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';		
+		$desc = json_encode([
+			'id' => $id,
+			'nombre'=>$nombre		
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Editar Bolsillos', $desc, 'Bolsillos');
+		// END LOGS	
+			
             echo json_encode(['status' => 'success', 'message' => 'Bolsillo actualizado correctamente']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al actualizar el bolsillo']);
@@ -73,6 +101,15 @@ if(isset($_POST['action'])){
         // Marcar el bolsillo como borrado
         $stmt = $pdo->prepare("UPDATE bolsillos SET borrado = 1 WHERE id = :id");
         if($stmt->execute([':id' => $id])){
+			
+			// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';		
+		$desc = json_encode([
+			'id' => $id				
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Borrar Bolsillos', $desc, 'Bolsillos');
+		// END LOGS	
+			
             echo json_encode(['status' => 'success', 'message' => 'Bolsillo borrado correctamente']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al borrar el bolsillo']);

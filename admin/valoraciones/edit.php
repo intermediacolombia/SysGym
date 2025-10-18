@@ -88,6 +88,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         $stmt->execute($params);
+		
+		// LOGS
+require_once __DIR__ . '/../inc/log_action.php';
+$desc = json_encode([
+    'valoracion_id' => $vid,
+    'accion'        => 'Valoración actualizada',
+    'peso'          => $peso,
+    'estatura'      => $estatura,
+    'fecha'         => $fecha,
+    'imc'           => $imc,
+    'porcentaje_grasa_corporal'     => $porc_grasa,
+    'porcentaje_musculo_esqueletico'=> $porc_musculo,
+    'metabolismo_basal'             => $met_basal,
+    'edad_corporal'                 => $edad_corporal,
+    'nivel_grasa_visceral'          => $niv_grasa_visceral
+], JSON_UNESCAPED_UNICODE);
+
+log_action('Editar valoración', $desc, 'Valoraciones');
+// END LOGS
+
+		
+		
         $_SESSION['success'] = 'Valoración actualizada correctamente.';
     } catch (PDOException $e) {
         $_SESSION['error'] = 'Error actualizando: ' . $e->getMessage();

@@ -157,6 +157,20 @@ $sheet->getStyle("B{$primeraFilaDatos}:B{$ultimaFilaDatos}")
 /* –– 4.8  Enviar archivo –– */
 if (ob_get_length()) { ob_end_clean(); }
 
+	
+// LOGS
+require_once __DIR__ . '/../inc/log_action.php';
+$desc = json_encode([
+    'valoracion_id' => $id,
+    'cliente'       => "{$cli['nombres']} {$cli['apellidos']}",
+    'accion'        => 'Exportación de valoración a Excel'
+], JSON_UNESCAPED_UNICODE);
+
+log_action('Exportar valoración', $desc, 'Valoraciones');
+// END LOGS
+
+	
+	
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 header('Content-Disposition: attachment; filename="valoracion_'.$id.'.xlsx"');
 header('Cache-Control: max-age=0');

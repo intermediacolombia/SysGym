@@ -74,6 +74,19 @@ try {
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
 
+	// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';
+		$desc = json_encode([
+					'id'       => $id,
+					'nombre'   => $nombre,
+                    'apellido' => $apellido,
+                    'correo'   => $correo,
+                    'rol_id'   => $rol,
+                    'estado'   => $estado
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Usuario Empleado', $desc, 'Usuarios');
+		// END LOGS	
+	
     $_SESSION['success'] = "Usuario actualizado correctamente.";
     header("Location: $url/admin/users");
     exit();

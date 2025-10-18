@@ -92,6 +92,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
       $stmt->execute($params);
+		
+		// LOGS
+require_once __DIR__ . '/../inc/log_action.php';
+$valoracion_id = $pdo->lastInsertId();
+
+$desc = json_encode([
+    'valoracion_id' => $valoracion_id,
+    'cliente_id'    => $c,
+    'accion'        => 'Valoración creada',
+    'peso'          => $peso,
+    'estatura'      => $estatura,
+    'fecha'         => $fecha,
+    'imc'           => $imc,
+    'porcentaje_grasa_corporal'      => $porcentaje_grasa,
+    'porcentaje_musculo_esqueletico' => $porcentaje_musculo,
+    'metabolismo_basal'              => $metabolismo_basal,
+    'edad_corporal'                  => $edad_corporal,
+    'nivel_grasa_visceral'           => $nivel_grasa_visceral,
+    'usuario'       => $_SESSION['user']['nombre'] ?? 'Desconocido'
+], JSON_UNESCAPED_UNICODE);
+
+log_action('Crear valoración', $desc, 'Valoraciones');
+// END LOGS
+
+		
+		
       $_SESSION['success'] = 'Valoración guardada correctamente.';
     } catch (PDOException $e) {
       $_SESSION['error'] = 'Error guardando: ' . $e->getMessage();
