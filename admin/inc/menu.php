@@ -177,7 +177,12 @@ if (
 	
 	<?php if (isset($_SESSION["user_permissions"]) && in_array('Configurar Sistema', $_SESSION["user_permissions"])): ?>
 	<a href="<?php echo $url;?>/admin/config/" onclick="closeSubmenus()"><i class="fas fa-cog"></i> Configuraciones</a>
-	<?php endif; ?>   
+	<?php endif; ?> 
+	
+	<?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Logs del Sistema', $_SESSION["user_permissions"])): ?>
+	<a href="<?php echo $url;?>/admin/system/logs.php" onclick="closeSubmenus()"><i class="fa fa-history" aria-hidden="true"></i> Logs del Sistema</a>
+	<?php endif; ?> 
+	
     <a href="<?php echo $url;?>/admin/support/" onclick="closeSubmenus()"><i class="fas fa-headset"></i> Soporte </a>
     <a href="https://app.360messenger.com/index.php?rp=/login" target="_blank" onclick="closeSubmenus()"><i class="fa fa-whatsapp"></i> API </a>
 	<!-- Si la caja está cerrada -->
