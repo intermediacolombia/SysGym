@@ -43,6 +43,17 @@ if (isset($_POST['action'])) {
         // ✅ Sin validación de duplicados
         $stmt = $pdo->prepare("INSERT INTO egresos (fecha, descripcion, valor, borrado) VALUES (:fecha, :descripcion, :valor, 0)");
         if ($stmt->execute([':fecha' => $hoy, ':descripcion' => $descripcion, ':valor' => $valor])) {
+			
+					// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';
+		$desc = json_encode([
+					'fecha' => $hoy, 
+					'descripcion' => $descripcion, 
+					'valor' => $valor
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Registrar Egreso', $desc, 'Contabilidad');
+		// END LOGS
+
             echo json_encode(['status' => 'success', 'message' => 'Egreso agregado correctamente']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al agregar']);

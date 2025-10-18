@@ -44,6 +44,14 @@ try {
     $stmt->bindParam(':wa_creditReminder_hour', $_POST['wa_creditReminder_hour'], PDO::PARAM_STR);
     
     $stmt->execute();
+	
+	// LOGS
+require_once __DIR__ . '/../inc/log_action.php';
+$desc = json_encode([
+			'accion' => 'Actualizo COnfiguraciones del sistema'			
+], JSON_UNESCAPED_UNICODE);
+log_action('Actualizar Configuraciones', $desc, 'Configuraciones');
+// END LOGS
     
     echo json_encode([
          "success" => true,

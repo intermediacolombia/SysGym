@@ -24,7 +24,7 @@ $desc = json_encode([
     		'caja_id' => $caja_id
 			
 ], JSON_UNESCAPED_UNICODE);
-log_action('Registrar Creditos', $desc, 'Caja');
+log_action('Transferir Caja', $desc, 'Caja');
 // END LOGS
 
   echo json_encode(['status' => 'success', 'message' => 'Caja transferida correctamente.']);
