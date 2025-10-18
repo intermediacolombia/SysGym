@@ -56,13 +56,13 @@ if (isset($_GET['action']) && $_GET['action'] === 'get' && isset($_GET['id'])) {
 <?php include('../inc/header.php'); ?>
 </head>
 <body>
-<div class="container">
-  <div class="portada">
-    <div class="d-flex justify-content-between align-items-center px-3 pb-2">
-      <h1>Logs del Sistema</h1>
-    </div>
-  </div>
-</div>
+<div class="container" style="padding: 0px; background:rgba(0,0,0,0.00)">
+<div class="portada">
+	<h1>Logs del Sistema</h1>
+	
+	<button class="btn btn-success float-end" id="btnAddPlan"><i class="fa fa-plus"></i> Agregar Nuevo Plan</button>
+	</div>
+	</div>
 
 <?php include('../inc/menu.php'); ?>
 
