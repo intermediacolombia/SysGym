@@ -65,7 +65,7 @@ $desc = json_encode([
 			'hora'     => $hora
 			
 ], JSON_UNESCAPED_UNICODE);
-log_action('Registrar Creditos', $desc, 'Caja');
+log_action('Registrar Egresos', $desc, 'Caja');
 // END LOGS
     echo json_encode(['status'=>'success', 'message'=>'Egreso registrado correctamente.']);
 } else {
