@@ -16,6 +16,17 @@ try {
     ':nuevo' => $nuevo_usuario_id,
     ':id' => $caja_id
   ]);
+	
+	// LOGS
+require_once __DIR__ . '/../inc/log_action.php';
+$desc = json_encode([
+			'transferida_a' => $nuevo_usuario_id,
+    		'caja_id' => $caja_id
+			
+], JSON_UNESCAPED_UNICODE);
+log_action('Registrar Creditos', $desc, 'Caja');
+// END LOGS
+
   echo json_encode(['status' => 'success', 'message' => 'Caja transferida correctamente.']);
 } catch (Exception $e) {
   echo json_encode(['status' => 'error', 'message' => 'Error al transferir la caja.']);
