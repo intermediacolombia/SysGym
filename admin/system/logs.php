@@ -21,7 +21,19 @@ try {
 if (isset($_GET['action']) && $_GET['action'] === 'fetch') {
     header('Content-Type: application/json; charset=utf-8');
     try {
-        $stmt = $pdo->query("SELECT id, fecha, hora, usuario_nombre, accion, modulo, ip FROM system_logs ORDER BY id DESC");
+        $stmt = $pdo->query("
+            SELECT 
+                id,
+                fecha,
+                hora,
+                usuario_nombre,
+                accion,
+                modulo,
+                ip,
+                LEFT(REPLACE(REPLACE(REPLACE(descripcion, '\r', ' '), '\n', ' '), '\t', ' '), 200) AS resumen
+            FROM system_logs
+            ORDER BY id DESC
+        ");
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         echo json_encode(['data'=>$data], JSON_UNESCAPED_UNICODE);
     } catch(PDOException $e) {
@@ -54,15 +66,24 @@ if (isset($_GET['action']) && $_GET['action'] === 'get' && isset($_GET['id'])) {
 <meta charset="UTF-8">
 <title>Logs del Sistema</title>
 <?php include('../inc/header.php'); ?>
+<style>
+/* Truncado visual de la columna Detalle */
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 380px;
+  display: inline-block;
+  vertical-align: middle;
+}
+</style>
 </head>
 <body>
 <div class="container" style="padding: 0px; background:rgba(0,0,0,0.00)">
-<div class="portada">
-	<h1>Logs del Sistema</h1>
-	
-	<button class="btn btn-success float-end" id="btnAddPlan"><i class="fa fa-plus"></i> Agregar Nuevo Plan</button>
-	</div>
-	</div>
+  <div class="portada d-flex justify-content-between align-items-center">
+    <h1>Logs del Sistema</h1>
+  </div>
+</div>
 
 <?php include('../inc/menu.php'); ?>
 
@@ -76,6 +97,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'get' && isset($_GET['id'])) {
         <th>Usuario</th>
         <th>Acción</th>
         <th>Módulo</th>
+        <th>Detalle</th>
         <th>IP</th>
       </tr>
     </thead>
@@ -85,11 +107,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'get' && isset($_GET['id'])) {
 
 <!-- Modal Detalle -->
 <div class="modal fade" id="modalDetalle" tabindex="-1" aria-labelledby="modalDetalleLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="modal-header bg-primary text-white">
         <h5 class="modal-title" id="modalDetalleLabel">Detalle del Log</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
         <div class="mb-3">
@@ -102,7 +124,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'get' && isset($_GET['id'])) {
         </div>
         <hr>
         <h6>Descripción detallada</h6>
-        <div id="descripcion_contenido"></div>
+        <div id="descripcion_contenido" class="table-responsive"></div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -124,7 +146,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'get' && isset($_GET['id'])) {
 $(function(){
   /* ========== DataTable ========== */
   var table = $('#logs-table').DataTable({
-    ajax: "logs.php?action=fetch", // ✅ ruta correcta
+    ajax: "logs.php?action=fetch",
     columns: [
       { data: "id" },
       { data: "fecha" },
@@ -132,6 +154,17 @@ $(function(){
       { data: "usuario_nombre" },
       { data: "accion" },
       { data: "modulo" },
+      { 
+        data: "resumen",
+        render: function(data, type) {
+          if (!data) return '';
+          const clean = $('<div>').text(data).html();
+          if (type === 'display') {
+            return `<span class="truncate" title="${clean}">${clean}</span>`;
+          }
+          return clean;
+        }
+      },
       { data: "ip" }
     ],
     order: [[0, "desc"]],
@@ -157,15 +190,15 @@ $(function(){
         let html = '';
         try {
           const json = JSON.parse(d.descripcion);
-          html += '<table class="table table-sm table-bordered">';
-          html += '<thead><tr><th>Campo</th><th>Valor</th></tr></thead><tbody>';
+          html += '<table class="table table-sm table-bordered mb-0">';
+          html += '<thead class="table-light"><tr><th>Campo</th><th>Valor</th></tr></thead><tbody>';
           for (const [k, v] of Object.entries(json)) {
             let val = typeof v === 'object' ? JSON.stringify(v) : v;
             html += `<tr><td>${k}</td><td>${val}</td></tr>`;
           }
           html += '</tbody></table>';
         } catch(e){
-          html = `<pre>${d.descripcion}</pre>`;
+          html = `<pre style="white-space:pre-wrap;">${d.descripcion}</pre>`;
         }
         $('#descripcion_contenido').html(html);
         $('#modalDetalle').modal('show');
