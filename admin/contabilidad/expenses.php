@@ -47,7 +47,7 @@ if (isset($_POST['action'])) {
 					// LOGS
 		require_once __DIR__ . '/../inc/log_action.php';
 		$desc = json_encode([
-					'fecha' => $hoy, 
+					
 					'descripcion' => $descripcion, 
 					'valor' => $valor
 		], JSON_UNESCAPED_UNICODE);
@@ -73,6 +73,18 @@ if (isset($_POST['action'])) {
 
         $stmt = $pdo->prepare("UPDATE egresos SET descripcion = :descripcion, valor = :valor WHERE id = :id");
         if ($stmt->execute([':descripcion' => $descripcion, ':valor' => $valor, ':id' => $id])) {
+			
+			
+			// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';
+		$desc = json_encode([
+					'id' => $id, 					
+					'descripcion' => $descripcion, 
+					'valor' => $valor
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Editar Egreso', $desc, 'Contabilidad');
+		// END LOGS
+			
             echo json_encode(['status' => 'success', 'message' => 'Egreso actualizado']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al actualizar']);
@@ -89,6 +101,17 @@ if (isset($_POST['action'])) {
 
         $stmt = $pdo->prepare("UPDATE egresos SET borrado = 1 WHERE id = :id");
         if ($stmt->execute([':id' => $id])) {
+			
+			// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';
+		$desc = json_encode([
+					'id' => $id, 					
+					'descripcion' => $descripcion, 
+					'valor' => $valor
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Eliminar Egreso', $desc, 'Contabilidad');
+		// END LOGS
+			
             echo json_encode(['status' => 'success', 'message' => 'Egreso eliminado']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error al eliminar']);
