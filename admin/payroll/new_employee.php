@@ -98,6 +98,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':fecha_ingreso' => $fecha_ingreso, // Nuevo campo
                     ':id' => $existingEmployee['id']
                 ]);
+				
+				
+				
+			// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';
+		$desc = json_encode([
+					'documento' => $documento,
+                    'nombre' => $nombre,
+                    'apellido' => $apellido,
+                    'correo' => $correo,
+                    'telefono' => $telefono,
+                    'dialCode' => $dialCode,
+                    'cargo' => $cargo,
+                    'salario' => $salario,
+                    'estado' => $estado,
+                    'fecha_ingreso' => $fecha_ingreso, // Nuevo campo
+                    'id' => $existingEmployee['id']
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Registrar Empleado', $desc, 'Nomina');
+		// END LOGS		
+				
                 $_SESSION['success'] = "Empleado registrado correctamente.";
                 header("Location: employees.php");
                 exit;
@@ -123,6 +144,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':estado' => $estado,
                 ':fecha_ingreso' => $fecha_ingreso // Nuevo campo
             ]);
+			
+			// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';
+		$desc = json_encode([
+					'documento' => $documento,
+                'nombre' => $nombre,
+                'apellido' => $apellido,
+                'correo' => $correo,
+                'telefono' => $telefono,
+                'dialCode' => $dialCode,
+                'cargo' => $cargo,
+                'salario' => $salario,
+                'estado' => $estado,
+                'fecha_ingreso' => $fecha_ingreso
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Registrar Empleado', $desc, 'Nomina');
+		// END LOGS		
+			
+			
             $_SESSION['success'] = "Empleado registrado correctamente.";
             header("Location: employees.php");
             exit;

@@ -12,6 +12,14 @@ if (isset($_GET['id'])) {
         $sql = "UPDATE empleados SET borrado = 1 WHERE id = :id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([':id' => $id]);
+		
+		// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';
+		$desc = json_encode([
+			'id' => $id
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Borrar Empleado', $desc, 'Nomina');
+		// END LOGS	
 
         $_SESSION['success'] = "Empleado borrado correctamente.";
     } catch (PDOException $e) {

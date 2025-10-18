@@ -77,6 +77,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':fecha_ingreso' => $fecha_ingreso, // Nuevo campo
             ':id' => $id
         ]);
+		
+		// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';
+		$desc = json_encode([
+			'documento' => $documento,
+            'nombre' => $nombre,
+            'apellido' => $apellido,
+            'correo' => $correo,
+            'telefono' => $telefono,
+            'dialCode' => $dialCode,
+            'cargo' => $cargo,
+            'salario' => $salario,
+            'estado' => $estado,
+            'fecha_ingreso' => $fecha_ingreso, // Nuevo campo
+            'id' => $id
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Editar Empleado', $desc, 'Nomina');
+		// END LOGS		
 
         $_SESSION['success'] = "Empleado actualizado correctamente.";
     } catch (PDOException $e) {

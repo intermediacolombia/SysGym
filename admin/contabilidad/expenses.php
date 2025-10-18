@@ -105,9 +105,7 @@ if (isset($_POST['action'])) {
 			// LOGS
 		require_once __DIR__ . '/../inc/log_action.php';
 		$desc = json_encode([
-					'id' => $id, 					
-					'descripcion' => $descripcion, 
-					'valor' => $valor
+					'id' => $id
 		], JSON_UNESCAPED_UNICODE);
 		log_action('Eliminar Egreso', $desc, 'Contabilidad');
 		// END LOGS

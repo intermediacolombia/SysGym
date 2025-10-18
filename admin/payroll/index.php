@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         // Obtener el ID de la nómina generada
-        $id_nomina = $pdo->lastInsertId();
+        $id_nomina = $pdo->lastInsertId();		
 
         // Preparar los datos para enviar el mensaje por WhatsApp
         $cp_nombres = $empleado['nombre'];
@@ -85,6 +85,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Incluir el archivo que maneja el envío por WhatsApp
         include('../../whatsapp/employee-payroll.php');
+		
+		// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';		
+		$desc = json_encode([
+			'nombre_empleado' => $empleado['nombre'] . ' ' . $empleado['apellido'],
+            'fecha_inicio_pago' => $fecha_inicio_pago,
+            'fecha_fin_pago' => $fecha_fin_pago,
+            'total_dias_pagados' => $dias_pagados,
+            'valor_pagado' => $valor_pagado			
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Pago Nomina', $desc, 'Nomina');
+		// END LOGS	
 
         // Mensaje de éxito
         $_SESSION['success'] = "Nómina generada y enviada correctamente.";
@@ -95,7 +107,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: index.php");
         exit;
     }
+	
 }
+
+
 ?>
 
 <!DOCTYPE html>
@@ -129,6 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	<div class="container" style="padding: 0px; background:rgba(0,0,0,0.00)">
 <div class="portada">
     <h1>Pago de Nómina</h1>
+	
 	</div>
 	</div>
 <?php include('../inc/menu.php'); ?>

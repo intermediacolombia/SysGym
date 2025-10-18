@@ -48,7 +48,7 @@ try {
 	// LOGS
 require_once __DIR__ . '/../inc/log_action.php';
 $desc = json_encode([
-			'accion' => 'Actualizo COnfiguraciones del sistema'			
+			'accion' => 'Actualizo Configuraciones del sistema'			
 ], JSON_UNESCAPED_UNICODE);
 log_action('Actualizar Configuraciones', $desc, 'Configuraciones');
 // END LOGS
