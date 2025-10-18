@@ -84,7 +84,7 @@ try {
                     'rol_id'   => $rol,
                     'estado'   => $estado
 		], JSON_UNESCAPED_UNICODE);
-		log_action('Edición de Usuario', $desc, 'Usuarios');
+		log_action('Edición de Usuarios', $desc, 'Usuarios');
 		// END LOGS	
 	
     $_SESSION['success'] = "Usuario actualizado correctamente.";
