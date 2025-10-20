@@ -317,8 +317,8 @@ $cli = $stmt->fetch(PDO::FETCH_ASSOC);
 $edad = '';
 if (!empty($cli['fecha_nacimiento'])) {
     $nac = new DateTime($cli['fecha_nacimiento']);
-    $hoy = new DateTime();
-    $edad = $nac->diff($hoy)->y;
+    $hoyDate = new DateTime();
+    $edad = $nac->diff($hoyDate)->y;
 }
 
 
