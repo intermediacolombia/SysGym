@@ -1,5 +1,5 @@
 <?php
-// --- Barra Superior Global (segura en todas las páginas) ---
+// --- Barra Superior Global (funciona en todas las páginas) ---
 
 // Traer datos mínimos del usuario
 $nombreCompleto = htmlspecialchars(($nombre ?? '') . ' ' . ($apellido ?? ''));
@@ -18,12 +18,31 @@ try {
     $stmtCaja->execute([':uid' => $id_user]);
     $caja = $stmtCaja->fetch(PDO::FETCH_ASSOC);
     $caja_id = $caja['id'] ?? null;
+    $base = (float)($caja['monto_inicial'] ?? 0);
+
+    $totalCaja = 0;
+    if ($caja_id) {
+        // Calcular totales desde la base de datos
+        $stmt = $pdo->prepare("
+            SELECT 
+                IFNULL(SUM(CASE WHEN payment_method='Efectivo' THEN valor ELSE 0 END),0) AS efectivo,
+                IFNULL(SUM(CASE WHEN payment_method='Transferencia' THEN valor ELSE 0 END),0) AS transferencias
+            FROM ventas 
+            WHERE caja_id = :caja_id
+        ");
+        $stmt->execute([':caja_id' => $caja_id]);
+        $totales = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $stmtEgr = $pdo->prepare("SELECT IFNULL(SUM(valor),0) FROM egresos WHERE caja_id = :caja_id");
+        $stmtEgr->execute([':caja_id' => $caja_id]);
+        $egresos = (float)$stmtEgr->fetchColumn();
+
+        $totalCaja = $base + (float)$totales['efectivo'] + (float)$totales['transferencias'] - $egresos;
+    }
 } catch (Exception $e) {
     $caja_id = null;
+    $totalCaja = 0;
 }
-
-// Valor inicial seguro
-$totalCaja = $totalCaja ?? 0;
 ?>
 
 <?php if ($caja_id): ?>
@@ -73,7 +92,7 @@ body { padding-top: 55px !important; }
 
 <script>
 $(function() {
-  // Hora en vivo
+  // Actualizar hora en tiempo real
   function actualizarHora() {
     const ahora = new Date();
     const h = ahora.getHours().toString().padStart(2, '0');
@@ -84,7 +103,7 @@ $(function() {
   setInterval(actualizarHora, 1000);
   actualizarHora();
 
-  // Refrescar total caja si hay una abierta
+  // Actualizar total cada 10 segundos usando el mismo endpoint AJAX
   function actualizarTotalCaja() {
     $.getJSON('<?php echo $url; ?>/admin/caja/get_total_caja.php', { caja_id: '<?php echo $caja_id; ?>' }, function(res) {
       if (res.status === 'success') {
