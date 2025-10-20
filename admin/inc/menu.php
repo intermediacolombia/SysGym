@@ -1,7 +1,32 @@
 <?php
-// --- Barra Superior Global ---
-if (isset($caja_id) && $caja_id) {
+// --- Barra Superior Global (segura en todas las páginas) ---
+
+// Traer datos mínimos del usuario
+$nombreCompleto = htmlspecialchars(($nombre ?? '') . ' ' . ($apellido ?? ''));
+$rol = htmlspecialchars($rolUser ?? '');
+
+// Intentar obtener la caja abierta del usuario
+try {
+    if (!isset($pdo)) {
+        require __DIR__ . '/../../inc/config.php';
+        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ]);
+    }
+
+    $stmtCaja = $pdo->prepare("SELECT id, monto_inicial FROM cajas WHERE usuario_id = :uid AND estado = 1 LIMIT 1");
+    $stmtCaja->execute([':uid' => $id_user]);
+    $caja = $stmtCaja->fetch(PDO::FETCH_ASSOC);
+    $caja_id = $caja['id'] ?? null;
+} catch (Exception $e) {
+    $caja_id = null;
+}
+
+// Valor inicial seguro
+$totalCaja = $totalCaja ?? 0;
 ?>
+
+<?php if ($caja_id): ?>
 <style>
 .topbar {
   position: fixed;
@@ -31,7 +56,7 @@ if (isset($caja_id) && $caja_id) {
   font-weight: 600;
 }
 .topbar .right a:hover { text-decoration: underline; }
-body { padding-top: 55px !important; } /* Empuja el contenido hacia abajo */
+body { padding-top: 55px !important; }
 </style>
 
 <div class="topbar">
@@ -39,7 +64,7 @@ body { padding-top: 55px !important; } /* Empuja el contenido hacia abajo */
     💵 Caja actual: <span id="topbarTotal">$<?php echo number_format($totalCaja, 0, '', '.'); ?></span>
   </div>
   <div class="right">
-    <span>👤 <?php echo htmlspecialchars($nombre . " " . $apellido); ?></span>
+    <span>👤 <?php echo $nombreCompleto; ?></span>
     <span id="topbarHora"></span>
     <a href="<?php echo $url; ?>/admin/caja/">Ir a mi Caja</a>
     <a href="<?php echo $url; ?>/admin/login/logout.php"><i class="fas fa-sign-out-alt"></i> Salir</a>
@@ -48,18 +73,18 @@ body { padding-top: 55px !important; } /* Empuja el contenido hacia abajo */
 
 <script>
 $(function() {
-  // Actualizar la hora local cada segundo
+  // Hora en vivo
   function actualizarHora() {
     const ahora = new Date();
-    const horas = ahora.getHours().toString().padStart(2, '0');
-    const minutos = ahora.getMinutes().toString().padStart(2, '0');
-    const segundos = ahora.getSeconds().toString().padStart(2, '0');
-    $('#topbarHora').text(`🕒 ${horas}:${minutos}:${segundos}`);
+    const h = ahora.getHours().toString().padStart(2, '0');
+    const m = ahora.getMinutes().toString().padStart(2, '0');
+    const s = ahora.getSeconds().toString().padStart(2, '0');
+    $('#topbarHora').text(`🕒 ${h}:${m}:${s}`);
   }
   setInterval(actualizarHora, 1000);
   actualizarHora();
 
-  // Actualizar total de caja cada 10 segundos
+  // Refrescar total caja si hay una abierta
   function actualizarTotalCaja() {
     $.getJSON('<?php echo $url; ?>/admin/caja/get_total_caja.php', { caja_id: '<?php echo $caja_id; ?>' }, function(res) {
       if (res.status === 'success') {
@@ -78,12 +103,10 @@ $(function() {
     });
   }
   actualizarTotalCaja();
-  setInterval(actualizarTotalCaja, 10000); // refrescar cada 10s
+  setInterval(actualizarTotalCaja, 10000);
 });
 </script>
-<?php
-}
-?>
+<?php endif; ?>
 
 
 
