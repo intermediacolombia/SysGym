@@ -732,6 +732,60 @@ function calcularBMR() {
 // recalcular automáticamente cuando cambien peso, estatura o edad
 $('#peso, #estatura').on('input', calcularBMR);
 
+	
+	// =======================
+// Calcular Edad Corporal estimada
+// =======================
+function calcularEdadCorporal() {
+  const edadReal = parseFloat($('#edad').val());
+  const bmr = parseFloat($('#metabolismo_basal').val());
+  const peso = parseFloat($('#peso').val());
+  const estatura = parseFloat($('#estatura').val());
+  const grasa = parseFloat($('#porcentaje_grasa_corporal').val());
+  const genero = gender;
+
+  if (isNaN(edadReal) || isNaN(bmr) || isNaN(peso) || isNaN(estatura)) return;
+
+  // Metabolismo basal esperado según edad y género (referencia promedio)
+  const alturaCm = estatura * 100;
+  let bmrEsperado;
+  if (genero === 'femenino') {
+    bmrEsperado = (10 * peso) + (6.25 * alturaCm) - (5 * edadReal) - 161;
+  } else {
+    bmrEsperado = (10 * peso) + (6.25 * alturaCm) - (5 * edadReal) + 5;
+  }
+
+  // Diferencia porcentual entre el metabolismo real y esperado
+  const diff = ((bmrEsperado - bmr) / bmrEsperado) * 100;
+
+  // Base: edad real
+  let edadCorporal = edadReal;
+
+  // Si su metabolismo es menor → edad corporal mayor
+  if (diff > 10) edadCorporal += 5;
+  else if (diff > 5) edadCorporal += 3;
+  else if (diff < -10) edadCorporal -= 5;
+  else if (diff < -5) edadCorporal -= 3;
+
+  // Ajuste adicional por grasa corporal (si el valor existe)
+  if (!isNaN(grasa)) {
+    if (genero === 'femenino') {
+      if (grasa > 30) edadCorporal += 5;
+      else if (grasa < 18) edadCorporal -= 3;
+    } else {
+      if (grasa > 25) edadCorporal += 5;
+      else if (grasa < 12) edadCorporal -= 3;
+    }
+  }
+
+  $('input[name="edad_corporal"]').val(Math.round(edadCorporal)).trigger('input');
+}
+
+// recalcular cuando cambien metabolismo o grasa
+$('#metabolismo_basal, #porcentaje_grasa_corporal').on('input', calcularEdadCorporal);
+
+	
+	
 });
 </script>
 	
