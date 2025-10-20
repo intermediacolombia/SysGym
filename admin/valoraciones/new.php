@@ -3,10 +3,7 @@
 require_once __DIR__ . '/../login/session.php';
 $permisopage = 'Manejar Valoraciones';
 include('../login/restriction.php');
-
 require_once __DIR__ . '/../../inc/config.php';
-
-$hoy = date('Y-m-d');
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8",
