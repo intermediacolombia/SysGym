@@ -454,7 +454,7 @@ $silueta = (strtolower($cli['genero']) === 'femenino')
 	  
     <!-- Fecha -->
     <div class="mb-3">
-      <label for="fecha" class="form-label">Fecha del registro <?php echo $hoy;?></label>
+      <label for="fecha" class="form-label">Fecha del registro</label>
       <input id="fecha" name="fecha" type="text" class="form-control" value="<?php echo $hoy;?>">
     </div>
 	  
