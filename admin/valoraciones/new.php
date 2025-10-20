@@ -6,6 +6,8 @@ include('../login/restriction.php');
 session_start();
 require_once __DIR__ . '/../../inc/config.php';
 
+$hoy = date('Y-m-d');
+
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8",
                    $dbuser,$dbpass,
