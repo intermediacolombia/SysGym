@@ -310,6 +310,9 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([':id' => $cid]);
 $cli = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$hoy = date('Y-m-d');
+
 // Después de hacer fetch() de $cli:
 $edad = '';
 if (!empty($cli['fecha_nacimiento'])) {
