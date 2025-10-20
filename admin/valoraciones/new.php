@@ -311,13 +311,13 @@ $stmt = $pdo->prepare("
 $stmt->execute([':id' => $cid]);
 $cli = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$hoy = date('Y-m-d');
+//$hoy = date('Y-m-d');
 
 // Después de hacer fetch() de $cli:
 $edad = '';
 if (!empty($cli['fecha_nacimiento'])) {
     $nac = new DateTime($cli['fecha_nacimiento']);
-    //$hoy = new DateTime();
+    $hoy = new DateTime();
     $edad = $nac->diff($hoy)->y;
 }
 
