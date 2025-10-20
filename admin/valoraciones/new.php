@@ -698,13 +698,40 @@ $(function(){
   });
 
   // Recalcular IMC al cambiar peso o estatura
-  $('#peso, #estatura').on('input', function(){
-    const h = parseFloat($('#peso').val());
-    const w = parseFloat($('#estatura').val());
-    const imc = (h>0 && w>0) ? h/(w*w) : NaN;
-    $('input[name="imc"]').val(isNaN(imc)? '' : imc.toFixed(2))
-                         .trigger('input');
-  });
+$('#peso, #estatura').on('input', function(){
+  const h = parseFloat($('#peso').val());
+  const w = parseFloat($('#estatura').val());
+  const imc = (h>0 && w>0) ? h/(w*w) : NaN;
+  $('input[name="imc"]').val(isNaN(imc)? '' : imc.toFixed(2))
+                       .trigger('input');
+});
+
+// =======================
+// Calcular Metabolismo Basal automáticamente (Mifflin-St Jeor)
+// =======================
+function calcularBMR() {
+  const peso = parseFloat($('#peso').val());
+  const estatura = parseFloat($('#estatura').val()); // en metros
+  const edad = parseFloat($('#edad').val());
+  const genero = gender; // ya definida más arriba
+
+  if (isNaN(peso) || isNaN(estatura) || isNaN(edad)) return;
+
+  const alturaCm = estatura * 100;
+  let bmr = 0;
+
+  if (genero === 'femenino') {
+    bmr = (10 * peso) + (6.25 * alturaCm) - (5 * edad) - 161;
+  } else {
+    bmr = (10 * peso) + (6.25 * alturaCm) - (5 * edad) + 5;
+  }
+
+  $('input[name="metabolismo_basal"]').val(bmr.toFixed(0)).trigger('input');
+}
+
+// recalcular automáticamente cuando cambien peso, estatura o edad
+$('#peso, #estatura').on('input', calcularBMR);
+
 });
 </script>
 	
