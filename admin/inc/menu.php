@@ -1,3 +1,92 @@
+<?php
+// --- Barra Superior Global ---
+if (isset($caja_id) && $caja_id) {
+?>
+<style>
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  background: #E21F0C;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 9999;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  font-size: 14px;
+}
+.topbar .left span { font-weight: 600; }
+.topbar .right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.topbar .right a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+}
+.topbar .right a:hover { text-decoration: underline; }
+body { padding-top: 55px !important; } /* Empuja el contenido hacia abajo */
+</style>
+
+<div class="topbar">
+  <div class="left">
+    💵 Caja actual: <span id="topbarTotal">$<?php echo number_format($totalCaja, 0, '', '.'); ?></span>
+  </div>
+  <div class="right">
+    <span>👤 <?php echo htmlspecialchars($nombre . " " . $apellido); ?></span>
+    <span id="topbarHora"></span>
+    <a href="<?php echo $url; ?>/admin/caja/">Ir a mi Caja</a>
+    <a href="<?php echo $url; ?>/admin/login/logout.php"><i class="fas fa-sign-out-alt"></i> Salir</a>
+  </div>
+</div>
+
+<script>
+$(function() {
+  // Actualizar la hora local cada segundo
+  function actualizarHora() {
+    const ahora = new Date();
+    const horas = ahora.getHours().toString().padStart(2, '0');
+    const minutos = ahora.getMinutes().toString().padStart(2, '0');
+    const segundos = ahora.getSeconds().toString().padStart(2, '0');
+    $('#topbarHora').text(`🕒 ${horas}:${minutos}:${segundos}`);
+  }
+  setInterval(actualizarHora, 1000);
+  actualizarHora();
+
+  // Actualizar total de caja cada 10 segundos
+  function actualizarTotalCaja() {
+    $.getJSON('<?php echo $url; ?>/admin/caja/get_total_caja.php', { caja_id: '<?php echo $caja_id; ?>' }, function(res) {
+      if (res.status === 'success') {
+        const base = parseFloat(res.base || 0);
+        const efectivo = parseFloat(res.efectivo || 0);
+        const egresos = parseFloat(res.egresos || 0);
+        const trans = res.Transferencias ? (
+          parseFloat(res.Transferencias.Bancolombia) +
+          parseFloat(res.Transferencias.Daviplata) +
+          parseFloat(res.Transferencias.Nequi) +
+          parseFloat(res.Transferencias.Davivienda)
+        ) : 0;
+        const total = base + efectivo + trans - egresos;
+        $('#topbarTotal').text('$' + total.toLocaleString('es-CO'));
+      }
+    });
+  }
+  actualizarTotalCaja();
+  setInterval(actualizarTotalCaja, 10000); // refrescar cada 10s
+});
+</script>
+<?php
+}
+?>
+
+
+
 <div class="menu">
         <div class="logo-container">
             <img src="<?php echo $url;?>/admin/images/logo-black.png" alt="Logo">
