@@ -317,7 +317,7 @@ $hoy = date('Y-m-d');
 $edad = '';
 if (!empty($cli['fecha_nacimiento'])) {
     $nac = new DateTime($cli['fecha_nacimiento']);
-    $hoy = new DateTime();
+    //$hoy = new DateTime();
     $edad = $nac->diff($hoy)->y;
 }
 
