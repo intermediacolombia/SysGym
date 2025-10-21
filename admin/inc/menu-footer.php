@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
   verificarCumpleanios();
 
   // (Opcional) Revisar cada cierto tiempo, por ejemplo cada 30 segundos:
-  setInterval(verificarCumpleanios, 30000);
+  setInterval(verificarCumpleanios, 5000);
 });
 </script>
 
