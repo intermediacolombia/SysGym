@@ -26,12 +26,12 @@
         <a href="https://www.youtube.com/results?search_query=cumplea%C3%B1os+feliz" 
            target="_blank" 
            class="btn btn-danger px-4 d-flex align-items-center gap-2">
-          <i class="bi bi-youtube fs-5"></i> Ver en YouTube
+          <i class="fa fa-youtube-play"></i> Poner Canción
         </a>
         <button type="button" 
                 class="btn btn-success px-4 d-flex align-items-center gap-2" 
                 data-bs-dismiss="modal">
-          <i class="bi bi-check-circle fs-5"></i> Cerrar
+          <i class='far fa-check-circle'></i> Cerrar
         </button>
       </div>
     </div>
