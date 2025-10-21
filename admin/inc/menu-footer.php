@@ -10,19 +10,34 @@
      data-bs-keyboard="false">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content text-center border-0 shadow-lg">
+      
       <div class="modal-header bg-success text-white">
-        <h5 class="modal-title w-100" id="cumpleTitle">🎉 ¡Cliente de Cumpleaños! 🎂</h5>
+        <h5 class="modal-title w-100" id="cumpleTitle">
+          🎉 ¡Cliente de Cumpleaños! 🎂
+        </h5>
       </div>
+      
       <div class="modal-body">
-        <p class="fw-bold" id="cumpleLista"></p>
+        <p class="fw-bold fs-5" id="cumpleLista"></p>
         <p class="mb-0">Acaba de ingresar un cliente que está cumpliendo años hoy.</p>
       </div>
+      
       <div class="modal-footer justify-content-center">
-        <button type="button" class="btn btn-success px-4" data-bs-dismiss="modal">Cerrar</button>
+        <a href="https://www.youtube.com/results?search_query=cumplea%C3%B1os+feliz" 
+           target="_blank" 
+           class="btn btn-danger px-4 d-flex align-items-center gap-2">
+          <i class="bi bi-youtube fs-5"></i> Ver en YouTube
+        </a>
+        <button type="button" 
+                class="btn btn-success px-4 d-flex align-items-center gap-2" 
+                data-bs-dismiss="modal">
+          <i class="bi bi-check-circle fs-5"></i> Cerrar
+        </button>
       </div>
     </div>
   </div>
 </div>
+
 
 
     
