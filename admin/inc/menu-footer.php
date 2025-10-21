@@ -36,23 +36,42 @@
     </script>
 
 <script>
-	function verificarCumpleanios() {
-  fetch('<?php echo $url; ?>/admin/cumple_hoy.php')
-    .then(r => r.json())
-    .then(data => {
-      if (data.success && data.cumpleaneros.length > 0) {
-        const mostrados = JSON.parse(localStorage.getItem('cumpleMostrados') || '[]');
-        const nuevos = data.cumpleaneros.filter(n => !mostrados.includes(n));
-        if (nuevos.length > 0) {
-          document.getElementById('cumpleLista').innerHTML = nuevos.join('<br>');
-          new bootstrap.Modal(document.getElementById('modalCumple')).show();
-          localStorage.setItem('cumpleMostrados', JSON.stringify([...mostrados, ...nuevos]));
-        }
-      }
-    });
-}
+document.addEventListener('DOMContentLoaded', function() {
+  function verificarCumpleanios() {
+    const hoy = new Date().toISOString().slice(0,10);
+    const ultimaFecha = localStorage.getItem('cumpleFecha');
 
+    // Reinicia el registro si cambió el día
+    if (ultimaFecha !== hoy) {
+      localStorage.removeItem('cumpleMostrados');
+      localStorage.setItem('cumpleFecha', hoy);
+    }
+
+    fetch('<?php echo $url; ?>/admin/cumple_hoy.php')
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.cumpleaneros) && data.cumpleaneros.length > 0) {
+          const mostrados = JSON.parse(localStorage.getItem('cumpleMostrados') || '[]');
+          const nuevos = data.cumpleaneros.filter(n => !mostrados.includes(n));
+          if (nuevos.length > 0) {
+            document.getElementById('cumpleLista').innerHTML = nuevos.join('<br>');
+            const modal = new bootstrap.Modal(document.getElementById('modalCumple'));
+            modal.show();
+            localStorage.setItem('cumpleMostrados', JSON.stringify([...mostrados, ...nuevos]));
+          }
+        }
+      })
+      .catch(err => console.error('Error al verificar cumpleaños:', err));
+  }
+
+  // Llamar al cargar la página
+  verificarCumpleanios();
+
+  // (Opcional) Revisar cada cierto tiempo, por ejemplo cada 30 segundos:
+  setInterval(verificarCumpleanios, 30000);
+});
 </script>
+
 
 <!-- Asegúrate de tener jQuery incluido previamente -->
 
