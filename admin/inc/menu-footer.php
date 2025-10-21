@@ -1,7 +1,13 @@
 </div>
 
 <!-- Modal Cumpleaños -->
-<div class="modal fade" id="modalCumple" tabindex="-1" aria-labelledby="cumpleTitle" aria-hidden="true">
+<div class="modal fade" 
+     id="modalCumple" 
+     tabindex="-1" 
+     aria-labelledby="cumpleTitle" 
+     aria-hidden="true"
+     data-bs-backdrop="static" 
+     data-bs-keyboard="false">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content text-center border-0 shadow-lg">
       <div class="modal-header bg-success text-white">
@@ -17,6 +23,7 @@
     </div>
   </div>
 </div>
+
 
     
      <script>
