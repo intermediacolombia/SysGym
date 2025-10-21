@@ -37,7 +37,7 @@
 
 <script>
 	function verificarCumpleanios() {
-  fetch('cumple_hoy.php')
+  fetch('<?php echo $url; ?>/admin/cumple_hoy.php')
     .then(r => r.json())
     .then(data => {
       if (data.success && data.cumpleaneros.length > 0) {
