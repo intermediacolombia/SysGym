@@ -52,22 +52,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pago_plan             = trim($_POST['pago_plan']); // nuevo campo: fecha de pago
     $vencimiento_plan      = trim($_POST['vencimiento_plan']);
 	
-	// === Manejo de imagen de perfil ===
-$imagenPerfil = $cliente['imagen_perfil'] ?? null;
+	    // === MANEJO DE IMAGEN DE PERFIL ===
+    $imagenPerfil = $cliente['imagen_perfil'] ?? null;
 
-if (isset($_FILES['imagen_perfil']) && $_FILES['imagen_perfil']['error'] === UPLOAD_ERR_OK) {
-    $nombreTmp = $_FILES['imagen_perfil']['tmp_name'];
-    $nombreArchivo = 'cliente_' . $id . '_' . time() . '.jpg';
-    $rutaDestino = __DIR__ . '/../../uploads/clientes/' . $nombreArchivo;
+    // 1. Si se sube una imagen nueva (archivo o captura desde cámara)
+    if (isset($_FILES['imagen_perfil']) && $_FILES['imagen_perfil']['error'] === UPLOAD_ERR_OK) {
+        $nombreTmp = $_FILES['imagen_perfil']['tmp_name'];
+        $nombreArchivo = 'cliente_' . $id . '_' . time() . '.jpg';
+        $rutaDirectorio = __DIR__ . '/../../uploads/clientes/';
+        $rutaDestino = $rutaDirectorio . $nombreArchivo;
 
-    if (!is_dir(__DIR__ . '/../../uploads/clientes/')) {
-        mkdir(__DIR__ . '/../../uploads/clientes/', 0775, true);
+        // Crear carpeta si no existe
+        if (!is_dir($rutaDirectorio)) {
+            mkdir($rutaDirectorio, 0775, true);
+        }
+
+        // Eliminar la imagen anterior si existe
+        if (!empty($imagenPerfil) && file_exists($rutaDirectorio . $imagenPerfil)) {
+            unlink($rutaDirectorio . $imagenPerfil);
+        }
+
+        // Mover la nueva imagen
+        if (move_uploaded_file($nombreTmp, $rutaDestino)) {
+            $imagenPerfil = $nombreArchivo;
+        } else {
+            $_SESSION['error'] = "No se pudo guardar la imagen del cliente.";
+        }
     }
 
-    if (move_uploaded_file($nombreTmp, $rutaDestino)) {
-        $imagenPerfil = $nombreArchivo;
-    }
-}
 
 	
 	
@@ -277,7 +289,7 @@ $headerColor = ($cliente['estado'] === 'activo') ? '#28a745' : '#FD2D23';
       </div>
       <div class="card-body">
         <!-- Formulario de Edición -->
-        <form action="edit.php?id=<?php echo urlencode($id); ?>" method="post" id="editForm">
+        <form action="edit.php?id=<?php echo urlencode($id); ?>" method="post" id="editForm" enctype="multipart/form-data">
           <div class="row">
             <!-- Datos Personales -->
             <div class="col-md-6">
