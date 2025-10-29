@@ -243,11 +243,18 @@ $headerColor = ($cliente['estado'] === 'activo') ? '#28a745' : '#FD2D23';
   border-radius: 50%;
   object-fit: cover;
   border: 4px solid #fff;
-  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  box-shadow: 0 0 8px rgba(0,0,0,0.25);
+  transition: transform 0.2s ease-in-out;
 }
-.profile-photo-container .btn-group {
-  margin-top: 8px;
+
+.profile-photo:hover {
+  transform: scale(1.05);
 }
+
+.modal-backdrop.show {
+  opacity: 0.45 !important; /* Fondo más suave */
+}
+
 
   </style>
 </head>
@@ -275,24 +282,27 @@ $headerColor = ($cliente['estado'] === 'activo') ? '#28a745' : '#FD2D23';
             <!-- Datos Personales -->
             <div class="col-md-6">
 				
-				<!-- Imagen de Perfil -->
-<div class="text-center mb-4">
-  <div class="profile-photo-container">
-    <img id="previewImage" 
-         src="<?php echo !empty($cliente['imagen_perfil']) ? '../../uploads/clientes/' . htmlspecialchars($cliente['imagen_perfil']) : '../../assets/img/default-user.png'; ?>" 
-         alt="Foto de perfil" 
-         class="profile-photo shadow-sm">
-    <div class="btn-group mt-2">
-      <label for="imagen_perfil" class="btn btn-outline-primary btn-sm">
-        <i class="fa fa-upload"></i> Subir Archivo
-      </label>
-      <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#cameraModal">
-        <i class="fa fa-camera"></i> Tomar Foto
-      </button>
-    </div>
-    <input type="file" id="imagen_perfil" name="imagen_perfil" accept="image/*" hidden>
-  </div>
-</div>
+			<!-- Imagen de Perfil -->
+			<div class="text-center mb-4">
+			  <div class="profile-photo-container d-inline-block">
+				<img id="previewImage" 
+					 src="<?php echo !empty($cliente['imagen_perfil']) ? '../../uploads/clientes/' . htmlspecialchars($cliente['imagen_perfil']) : '../../assets/img/default-user.png'; ?>" 
+					 alt="Foto de perfil" 
+					 class="profile-photo shadow-sm">
+			  </div>
+
+			  <div class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
+				<label for="imagen_perfil" class="btn btn-outline-primary btn-sm">
+				  <i class="fa fa-upload"></i> Subir Archivo
+				</label>
+				<button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#cameraModal">
+				  <i class="fa fa-camera"></i> Tomar Foto
+				</button>
+			  </div>
+
+			  <input type="file" id="imagen_perfil" name="imagen_perfil" accept="image/*" hidden>
+			</div>
+
 
 				
               <div class="section-title"><i class="fa fa-id-card-o"></i> Datos Personales</div>
@@ -469,33 +479,32 @@ $headerColor = ($cliente['estado'] === 'activo') ? '#28a745' : '#FD2D23';
           </div>
         </form>
       </div>
-		
-		
-		<!-- Modal para Cámara -->
+	 </div>
+	  
+	<!-- Modal para Cámara -->
 <div class="modal fade" id="cameraModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header bg-success text-white">
         <h5 class="modal-title"><i class="fa fa-camera"></i> Tomar Foto</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body text-center">
-        <video id="cameraStream" width="100%" autoplay></video>
+        <video id="cameraStream" width="100%" autoplay playsinline></video>
         <canvas id="cameraCanvas" style="display:none;"></canvas>
       </div>
       <div class="modal-footer justify-content-center">
-        <button type="button" id="captureBtn" class="btn btn-success"><i class="fa fa-check"></i> Capturar</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" id="captureBtn" class="btn btn-success">
+          <i class="fa fa-check"></i> Capturar
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cerrar
+        </button>
       </div>
     </div>
   </div>
 </div>
 
-		
-		
-		
-		
-    </div>
     
     <?php
     // Consulta para obtener el formulario asociado al cliente
@@ -758,22 +767,19 @@ if (!tieneVencimiento) {
   });
 </script>
 	
-	<script>
+<script>
 /* ==== Previsualizar archivo cargado ==== */
 document.getElementById('imagen_perfil').addEventListener('change', function(e) {
   const file = e.target.files[0];
   if (file && file.type.startsWith('image/')) {
     const reader = new FileReader();
-    reader.onload = function(ev) {
-      document.getElementById('previewImage').src = ev.target.result;
-    };
+    reader.onload = ev => document.getElementById('previewImage').src = ev.target.result;
     reader.readAsDataURL(file);
   }
 });
 
 /* ==== Cámara ==== */
 let videoStream = null;
-
 const cameraModal = document.getElementById('cameraModal');
 const video = document.getElementById('cameraStream');
 const canvas = document.getElementById('cameraCanvas');
@@ -784,25 +790,20 @@ cameraModal.addEventListener('shown.bs.modal', async () => {
     videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
     video.srcObject = videoStream;
   } catch (err) {
-    alert("No se pudo acceder a la cámara: " + err.message);
-  }
-});
-
-cameraModal.addEventListener('hidden.bs.modal', () => {
-  if (videoStream) {
-    videoStream.getTracks().forEach(track => track.stop());
+    Swal.fire('Error', 'No se pudo acceder a la cámara: ' + err.message, 'error');
   }
 });
 
 captureBtn.addEventListener('click', () => {
-  const context = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d');
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
-  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
   const dataUrl = canvas.toDataURL('image/jpeg');
   document.getElementById('previewImage').src = dataUrl;
 
-  // Crear un archivo simulado para enviar en POST
+  // Crear archivo virtual para enviar en POST
   fetch(dataUrl)
     .then(res => res.blob())
     .then(blob => {
@@ -811,9 +812,29 @@ captureBtn.addEventListener('click', () => {
       dataTransfer.items.add(file);
       document.getElementById('imagen_perfil').files = dataTransfer.files;
     });
-  
-  const modal = bootstrap.Modal.getInstance(cameraModal);
-  modal.hide();
+
+  // Cerrar modal correctamente
+  const modalInstance = bootstrap.Modal.getInstance(cameraModal);
+  modalInstance.hide();
+
+  // Detener cámara y eliminar el backdrop oscuro restante
+  if (videoStream) {
+    videoStream.getTracks().forEach(track => track.stop());
+    videoStream = null;
+  }
+  document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+  document.body.classList.remove('modal-open');
+  document.body.style.removeProperty('overflow');
+});
+
+cameraModal.addEventListener('hidden.bs.modal', () => {
+  if (videoStream) {
+    videoStream.getTracks().forEach(track => track.stop());
+    videoStream = null;
+  }
+  document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+  document.body.classList.remove('modal-open');
+  document.body.style.removeProperty('overflow');
 });
 </script>
 
