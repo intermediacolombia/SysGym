@@ -51,14 +51,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $plan                  = trim($_POST['plan']); // id del plan
     $pago_plan             = trim($_POST['pago_plan']); // nuevo campo: fecha de pago
     $vencimiento_plan      = trim($_POST['vencimiento_plan']);
+	
+	// === Manejo de imagen de perfil ===
+$imagenPerfil = $cliente['imagen_perfil'] ?? null;
+
+if (isset($_FILES['imagen_perfil']) && $_FILES['imagen_perfil']['error'] === UPLOAD_ERR_OK) {
+    $nombreTmp = $_FILES['imagen_perfil']['tmp_name'];
+    $nombreArchivo = 'cliente_' . $id . '_' . time() . '.jpg';
+    $rutaDestino = __DIR__ . '/../../uploads/clientes/' . $nombreArchivo;
+
+    if (!is_dir(__DIR__ . '/../../uploads/clientes/')) {
+        mkdir(__DIR__ . '/../../uploads/clientes/', 0775, true);
+    }
+
+    if (move_uploaded_file($nombreTmp, $rutaDestino)) {
+        $imagenPerfil = $nombreArchivo;
+    }
+}
+
+	
+	
     try {
         $stmt = $pdo->prepare("UPDATE clientes SET 
             identificacion = :identificacion,
             nombres = :nombres,
             apellidos = :apellidos,
+			imagen_perfil = :imagen_perfil,
             direccion = :direccion,
             dialCode = :dialCode,
-            telefono = :telefono,
+            telefono = :telefono,			
             genero = :genero,
             email = :email,
             fecha_nacimiento = :fecha_nacimiento,			
@@ -82,6 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':identificacion'        => $identificacion,
             ':nombres'               => $nombres,
             ':apellidos'             => $apellidos,
+			':imagen_perfil' => $imagenPerfil,
             ':direccion'             => $direccion,
             ':dialCode'              => $dialCode,
             ':telefono'              => $telefono,
@@ -209,6 +231,24 @@ $headerColor = ($cliente['estado'] === 'activo') ? '#28a745' : '#FD2D23';
         content: " *";
         color: red;
     }
+	  
+	  
+	  .profile-photo-container {
+  position: relative;
+  display: inline-block;
+}
+.profile-photo {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #fff;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+}
+.profile-photo-container .btn-group {
+  margin-top: 8px;
+}
+
   </style>
 </head>
 <body>
@@ -234,6 +274,27 @@ $headerColor = ($cliente['estado'] === 'activo') ? '#28a745' : '#FD2D23';
           <div class="row">
             <!-- Datos Personales -->
             <div class="col-md-6">
+				
+				<!-- Imagen de Perfil -->
+<div class="text-center mb-4">
+  <div class="profile-photo-container">
+    <img id="previewImage" 
+         src="<?php echo !empty($cliente['imagen_perfil']) ? '../../uploads/clientes/' . htmlspecialchars($cliente['imagen_perfil']) : '../../assets/img/default-user.png'; ?>" 
+         alt="Foto de perfil" 
+         class="profile-photo shadow-sm">
+    <div class="btn-group mt-2">
+      <label for="imagen_perfil" class="btn btn-outline-primary btn-sm">
+        <i class="fa fa-upload"></i> Subir Archivo
+      </label>
+      <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#cameraModal">
+        <i class="fa fa-camera"></i> Tomar Foto
+      </button>
+    </div>
+    <input type="file" id="imagen_perfil" name="imagen_perfil" accept="image/*" hidden>
+  </div>
+</div>
+
+				
               <div class="section-title"><i class="fa fa-id-card-o"></i> Datos Personales</div>
               <div class="mb-3">
                 <label for="identificacion" class="form-label">Identificación</label>
@@ -408,6 +469,32 @@ $headerColor = ($cliente['estado'] === 'activo') ? '#28a745' : '#FD2D23';
           </div>
         </form>
       </div>
+		
+		
+		<!-- Modal para Cámara -->
+<div class="modal fade" id="cameraModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title"><i class="fa fa-camera"></i> Tomar Foto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <video id="cameraStream" width="100%" autoplay></video>
+        <canvas id="cameraCanvas" style="display:none;"></canvas>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button type="button" id="captureBtn" class="btn btn-success"><i class="fa fa-check"></i> Capturar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+		
+		
+		
+		
     </div>
     
     <?php
@@ -669,7 +756,68 @@ if (!tieneVencimiento) {
   emailField.addEventListener('input', function() {
     this.value = this.value.toLowerCase();
   });
-</script>	
+</script>
+	
+	<script>
+/* ==== Previsualizar archivo cargado ==== */
+document.getElementById('imagen_perfil').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file && file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      document.getElementById('previewImage').src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+/* ==== Cámara ==== */
+let videoStream = null;
+
+const cameraModal = document.getElementById('cameraModal');
+const video = document.getElementById('cameraStream');
+const canvas = document.getElementById('cameraCanvas');
+const captureBtn = document.getElementById('captureBtn');
+
+cameraModal.addEventListener('shown.bs.modal', async () => {
+  try {
+    videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = videoStream;
+  } catch (err) {
+    alert("No se pudo acceder a la cámara: " + err.message);
+  }
+});
+
+cameraModal.addEventListener('hidden.bs.modal', () => {
+  if (videoStream) {
+    videoStream.getTracks().forEach(track => track.stop());
+  }
+});
+
+captureBtn.addEventListener('click', () => {
+  const context = canvas.getContext('2d');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const dataUrl = canvas.toDataURL('image/jpeg');
+  document.getElementById('previewImage').src = dataUrl;
+
+  // Crear un archivo simulado para enviar en POST
+  fetch(dataUrl)
+    .then(res => res.blob())
+    .then(blob => {
+      const file = new File([blob], "captura.jpg", { type: "image/jpeg" });
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      document.getElementById('imagen_perfil').files = dataTransfer.files;
+    });
+  
+  const modal = bootstrap.Modal.getInstance(cameraModal);
+  modal.hide();
+});
+</script>
+
+	
 </body>
 </html>
 
