@@ -221,6 +221,27 @@ table{
 .nav-link.active {
     color: #000!important;
 }
+		
+		.foto-perfil {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.foto-perfil:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(0,0,0,0.3);
+}
+
+#fotoModal img {
+  max-height: 90vh;
+  object-fit: contain;
+}
+
 </style>
 	
 </head>
@@ -228,6 +249,19 @@ table{
 <div class="container" style="padding: 0px; background:rgba(0,0,0,0.00)">
   <div class="portada">
     <h1>Perfil del Cliente <?php echo htmlspecialchars($cliente['nombres'] . " " . $cliente['apellidos']); ?></h1>
+	  <!-- Foto de perfil del cliente -->
+<div class="text-center my-4">
+  <div class="position-relative d-inline-block">
+    <img 
+      id="clienteFoto"
+      src="<?php echo !empty($cliente['imagen_perfil']) ? '../../uploads/clientes/' . htmlspecialchars($cliente['imagen_perfil']) : '../../assets/img/default-user.png'; ?>"
+      alt="Foto de perfil"
+      class="foto-perfil shadow-sm"
+      data-bs-toggle="modal"
+      data-bs-target="#fotoModal">
+  </div>
+</div>
+
   </div>
 </div>
   <?php include('../inc/menu.php'); ?>
@@ -408,6 +442,23 @@ table{
   </div>
 </div>
 <?php endif; ?>
+	  
+	  <!-- Modal para mostrar foto en grande -->
+<div class="modal fade" id="fotoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-dark">
+      <div class="modal-body text-center p-0">
+        <img id="fotoAmpliada" src="" alt="Foto del cliente" class="w-100 h-auto">
+      </div>
+      <div class="modal-footer justify-content-center bg-dark border-0">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+          <i class="fa fa-times"></i> Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 
 
@@ -1429,6 +1480,22 @@ if ( ! $.fn.DataTable.isDataTable('#asistencias-table') ) {
 </script>
 
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const clienteFoto = document.getElementById('clienteFoto');
+  const fotoAmpliada = document.getElementById('fotoAmpliada');
+  const fotoModal = document.getElementById('fotoModal');
+
+  clienteFoto.addEventListener('click', function() {
+    const src = this.getAttribute('src');
+    fotoAmpliada.src = src;
+  });
+
+  fotoModal.addEventListener('hidden.bs.modal', function() {
+    fotoAmpliada.src = '';
+  });
+});
+</script>
 	
 
 </body>
