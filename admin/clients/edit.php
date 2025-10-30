@@ -499,18 +499,24 @@ $headerColor = ($cliente['estado'] === 'activo') ? '#28a745' : '#FD2D23';
     <div class="modal-content">
       <div class="modal-header bg-success text-white">
         <h5 class="modal-title"><i class="fa fa-camera"></i> Tomar Foto</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body text-center">
         <video id="cameraStream" width="100%" autoplay playsinline></video>
         <canvas id="cameraCanvas" style="display:none;"></canvas>
       </div>
       <div class="modal-footer justify-content-center">
-        <button type="button" id="captureBtn" class="btn btn-success">
-          <i class="fa fa-check"></i> Capturar
+        <button type="button" id="captureBtn" class="btn btn-primary">
+          <i class="fa fa-camera"></i> Capturar
+        </button>
+        <button type="button" id="acceptPhotoBtn" class="btn btn-success" style="display:none;">
+          <i class="fa fa-check"></i> Aceptar Foto
+        </button>
+        <button type="button" id="retakePhotoBtn" class="btn btn-warning" style="display:none;">
+          <i class="fa fa-repeat"></i> Repetir
         </button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          Cerrar
+          <i class="fa fa-times"></i> Cerrar
         </button>
       </div>
     </div>
@@ -780,17 +786,6 @@ if (!tieneVencimiento) {
 </script>
 	
 <script>
-/* ==== Previsualizar archivo cargado ==== */
-document.getElementById('imagen_perfil').addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (file && file.type.startsWith('image/')) {
-    const reader = new FileReader();
-    reader.onload = ev => document.getElementById('previewImage').src = ev.target.result;
-    reader.readAsDataURL(file);
-  }
-});
-
-
 /* ==== Cámara ==== */
 let videoStream = null;
 const cameraModal = document.getElementById('cameraModal');
@@ -835,6 +830,11 @@ cameraModal.addEventListener('show.bs.modal', async () => {
   // Limpiar primero cualquier estado anterior
   cleanupModal();
   
+  // Asegurar que los botones estén en su estado inicial
+  captureBtn.style.display = 'inline-block';
+  document.getElementById('acceptPhotoBtn').style.display = 'none';
+  document.getElementById('retakePhotoBtn').style.display = 'none';
+  
   try {
     // Pequeño delay para asegurar que todo esté limpio
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -852,6 +852,8 @@ cameraModal.addEventListener('show.bs.modal', async () => {
 });
 
 /* --- Capturar la foto --- */
+let capturedDataUrl = null;
+
 captureBtn.addEventListener('click', () => {
   if (!video.videoWidth || !video.videoHeight) {
     Swal.fire('Error', 'La cámara aún no está lista. Intenta de nuevo.', 'warning');
@@ -863,26 +865,63 @@ captureBtn.addEventListener('click', () => {
   canvas.height = video.videoHeight;
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
-  document.getElementById('previewImage').src = dataUrl;
-
-  // Crear archivo virtual para el formulario
-  fetch(dataUrl)
-    .then(res => res.blob())
-    .then(blob => {
-      const file = new File([blob], "captura.jpg", { type: "image/jpeg" });
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(file);
-      document.getElementById('imagen_perfil').files = dataTransfer.files;
-    });
-
-  // Detener cámara inmediatamente
+  capturedDataUrl = canvas.toDataURL('image/jpeg', 0.95);
+  
+  // Mostrar la foto capturada en el canvas
+  canvas.style.display = 'block';
+  video.style.display = 'none';
+  
+  // Detener la cámara
   stopCamera();
+  
+  // Cambiar los botones
+  captureBtn.style.display = 'none';
+  document.getElementById('acceptPhotoBtn').style.display = 'inline-block';
+  document.getElementById('retakePhotoBtn').style.display = 'inline-block';
+});
 
+/* --- Aceptar la foto --- */
+document.getElementById('acceptPhotoBtn').addEventListener('click', () => {
+  if (capturedDataUrl) {
+    document.getElementById('previewImage').src = capturedDataUrl;
+    
+    // Crear archivo virtual para el formulario
+    fetch(capturedDataUrl)
+      .then(res => res.blob())
+      .then(blob => {
+        const file = new File([blob], "captura.jpg", { type: "image/jpeg" });
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        document.getElementById('imagen_perfil').files = dataTransfer.files;
+      });
+  }
+  
   // Cerrar modal
   const modalInstance = bootstrap.Modal.getInstance(cameraModal);
   if (modalInstance) {
     modalInstance.hide();
+  }
+});
+
+/* --- Repetir la foto --- */
+document.getElementById('retakePhotoBtn').addEventListener('click', async () => {
+  // Ocultar canvas y mostrar video
+  canvas.style.display = 'none';
+  video.style.display = 'block';
+  
+  // Restaurar botones
+  captureBtn.style.display = 'inline-block';
+  document.getElementById('acceptPhotoBtn').style.display = 'none';
+  document.getElementById('retakePhotoBtn').style.display = 'none';
+  
+  // Reiniciar la cámara
+  try {
+    videoStream = await navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: 'user' } 
+    });
+    video.srcObject = videoStream;
+  } catch (err) {
+    Swal.fire('Error', 'No se pudo reiniciar la cámara: ' + err.message, 'error');
   }
 });
 
