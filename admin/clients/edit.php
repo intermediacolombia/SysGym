@@ -266,6 +266,55 @@ $headerColor = ($cliente['estado'] === 'activo') ? '#28a745' : '#FD2D23';
 .modal-backdrop.show {
   opacity: 0.45 !important; /* Fondo más suave */
 }
+	  
+	  /* Estilos para el modal de cámara */
+#cameraModal .modal-body {
+  padding: 1rem;
+  overflow: hidden;
+  background-color: #000;
+}
+
+#cameraStream, #cameraCanvas {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  display: block;
+  margin: 0 auto;
+}
+
+#cameraCanvas {
+  background-color: #000;
+}
+
+#cameraModal .modal-dialog {
+  max-width: 600px;
+}
+
+#cameraModal .modal-footer {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+#cameraModal .modal-footer .btn {
+  margin: 0;
+}
+
+/* Responsive para móviles */
+@media (max-width: 576px) {
+  #cameraModal .modal-dialog {
+    margin: 0.5rem;
+    max-width: calc(100% - 1rem);
+  }
+  
+  #cameraModal .modal-body {
+    padding: 0.5rem;
+  }
+  
+  #cameraModal .modal-footer .btn {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
 
 
   </style>
@@ -860,16 +909,18 @@ captureBtn.addEventListener('click', () => {
     return;
   }
 
-  const ctx = canvas.getContext('2d');
+  // Configurar canvas con las dimensiones del video
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
+  
+  const ctx = canvas.getContext('2d');
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
   capturedDataUrl = canvas.toDataURL('image/jpeg', 0.95);
   
   // Mostrar la foto capturada en el canvas
-  canvas.style.display = 'block';
   video.style.display = 'none';
+  canvas.style.display = 'block';
   
   // Detener la cámara
   stopCamera();
