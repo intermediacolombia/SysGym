@@ -223,19 +223,29 @@ table{
 }
 		
 		.foto-perfil {
-  width: 140px;
-  height: 140px;
+  width: 160px;
+  height: 160px;
   object-fit: cover;
   border-radius: 50%;
-  border: 4px solid #fff;
+  border: 5px solid #00b16a;
   cursor: pointer;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .foto-perfil:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 12px rgba(0,0,0,0.3);
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
 }
+
+.card-header {
+  border-top-left-radius: 0.5rem !important;
+  border-top-right-radius: 0.5rem !important;
+}
+
+.card-body p {
+  margin-bottom: 0.4rem;
+}
+
 
 #fotoModal img {
   max-height: 90vh;
@@ -432,22 +442,7 @@ table{
 </div>
 <?php endif; ?>
 	  
-	  <!-- Modal para mostrar foto en grande -->
-<div class="modal fade" id="fotoModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content bg-dark">
-      <div class="modal-body text-center p-0">
-        <img id="fotoAmpliada" src="" alt="Foto del cliente" class="w-100 h-auto">
-      </div>
-      <div class="modal-footer justify-content-center bg-dark border-0">
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-          <i class="fa fa-times"></i> Cerrar
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
+	 
 
 
 
