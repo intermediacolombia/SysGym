@@ -797,35 +797,28 @@ const cameraModal = document.getElementById('cameraModal');
 const video = document.getElementById('cameraStream');
 const canvas = document.getElementById('cameraCanvas');
 const captureBtn = document.getElementById('captureBtn');
-const openCameraBtns = document.querySelectorAll('[data-bs-target="#cameraModal"]');
 
-/* --- Asegurar que todo se limpie antes de abrir --- */
-openCameraBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    // Forzar cierre previo si quedó algún rastro
-    const existingInstance = bootstrap.Modal.getInstance(cameraModal);
-    if (existingInstance) existingInstance.hide();
-
-    // Reiniciar stream si quedó activo
+/* --- Cuando se abre el modal --- */
+cameraModal.addEventListener('show.bs.modal', async () => {
+  try {
+    // Si había una cámara previa, se detiene primero
     if (videoStream) {
       videoStream.getTracks().forEach(track => track.stop());
       videoStream = null;
     }
-  });
-});
 
-/* --- Cuando se abre el modal --- */
-cameraModal.addEventListener('shown.bs.modal', async () => {
-  try {
-    // Reiniciar el canvas y video
+    // Limpiar y preparar video
+    video.srcObject = null;
     canvas.style.display = 'none';
     video.style.display = 'block';
 
-    // Solicitar acceso a la cámara
+    // Acceder a la cámara
     videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
     video.srcObject = videoStream;
   } catch (err) {
     Swal.fire('Error', 'No se pudo acceder a la cámara: ' + err.message, 'error');
+    const modalInstance = bootstrap.Modal.getInstance(cameraModal);
+    if (modalInstance) modalInstance.hide();
   }
 });
 
@@ -849,19 +842,29 @@ captureBtn.addEventListener('click', () => {
       document.getElementById('imagen_perfil').files = dataTransfer.files;
     });
 
-  // Cerrar el modal correctamente
+  // Cerrar modal correctamente
   const modalInstance = bootstrap.Modal.getInstance(cameraModal);
   modalInstance.hide();
 });
 
-/* --- Cuando se cierra el modal --- */
+/* --- Cuando se cierra el modal (por captura o manualmente) --- */
 cameraModal.addEventListener('hidden.bs.modal', () => {
-  // Detener cámara completamente
+  // Detener la cámara correctamente
   if (videoStream) {
     videoStream.getTracks().forEach(track => track.stop());
     videoStream = null;
   }
+
+  // Eliminar cualquier backdrop residual (por seguridad)
+  const backdrops = document.querySelectorAll('.modal-backdrop');
+  backdrops.forEach(el => el.remove());
+
+  // Restaurar el scroll y clases del body
+  document.body.classList.remove('modal-open');
+  document.body.style.overflow = '';
+  document.body.style.paddingRight = '';
 });
+
 
 
 </script>
