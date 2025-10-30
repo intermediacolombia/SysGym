@@ -798,21 +798,21 @@ const video = document.getElementById('cameraStream');
 const canvas = document.getElementById('cameraCanvas');
 const captureBtn = document.getElementById('captureBtn');
 
-/* --- Cuando se abre el modal --- */
+/* --- Abrir el modal --- */
 cameraModal.addEventListener('show.bs.modal', async () => {
   try {
-    // Si había una cámara previa, se detiene primero
+    // Detener si ya hay una cámara activa
     if (videoStream) {
       videoStream.getTracks().forEach(track => track.stop());
       videoStream = null;
     }
 
-    // Limpiar y preparar video
+    // Reiniciar elementos visuales
     video.srcObject = null;
-    canvas.style.display = 'none';
     video.style.display = 'block';
+    canvas.style.display = 'none';
 
-    // Acceder a la cámara
+    // Solicitar acceso a la cámara
     videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
     video.srcObject = videoStream;
   } catch (err) {
@@ -832,7 +832,7 @@ captureBtn.addEventListener('click', () => {
   const dataUrl = canvas.toDataURL('image/jpeg');
   document.getElementById('previewImage').src = dataUrl;
 
-  // Crear archivo virtual para enviar
+  // Crear archivo virtual para el formulario
   fetch(dataUrl)
     .then(res => res.blob())
     .then(blob => {
@@ -847,22 +847,23 @@ captureBtn.addEventListener('click', () => {
   modalInstance.hide();
 });
 
-/* --- Cuando se cierra el modal (por captura o manualmente) --- */
+/* --- Cuando se cierra el modal --- */
 cameraModal.addEventListener('hidden.bs.modal', () => {
-  // Detener la cámara correctamente
+  // Detener cámara
   if (videoStream) {
     videoStream.getTracks().forEach(track => track.stop());
     videoStream = null;
   }
 
-  // Eliminar cualquier backdrop residual (por seguridad)
-  const backdrops = document.querySelectorAll('.modal-backdrop');
-  backdrops.forEach(el => el.remove());
-
-  // Restaurar el scroll y clases del body
-  document.body.classList.remove('modal-open');
-  document.body.style.overflow = '';
-  document.body.style.paddingRight = '';
+  // Esperar a que Bootstrap termine su animación antes de limpiar
+  setTimeout(() => {
+    // Eliminar backdrop residual
+    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+    // Restaurar body
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+  }, 300); // 300 ms coincide con la duración del fade de Bootstrap
 });
 
 
