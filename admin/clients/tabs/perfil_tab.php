@@ -82,62 +82,71 @@
         </div>
 
         <!-- PLAN -->
-        <div class="col-12">
-          <div class="card shadow-sm border-0">
-            <div class="card-header bg-success text-white fw-bold">Plan Actual</div>
-            <div class="card-body small">
-              <?php if ($planInfo): ?>
-                <div class="row">
-                  <div class="col-md-6">
-                    <p><strong>Nombre:</strong> <?php echo htmlspecialchars($planInfo['nombre']); ?></p>
-                    <p><strong>Precio:</strong> $<?php echo htmlspecialchars($planInfo['precio']); ?></p>
-                    <p><strong>Certificado:</strong>
-                      <?php if ($cliente['estado'] == 'activo' && isset($_SESSION["user_permissions"]) && in_array('Generear Certificados', $_SESSION["user_permissions"])): ?>
-                        <a href="/pdf/?type=cert&id=<?php echo $cliente['id']; ?>" class="text-success fw-bold"><i class="fa fa-file-pdf-o"></i> Generar</a>
-                      <?php endif; ?>
-                    </p>
-                  </div>
-                  <div class="col-md-6">
-                    <p><strong>Pago:</strong> <span id="fecha_pago_display"><?php echo !empty($cliente['pago_plan']) ? htmlspecialchars($cliente['pago_plan']) : 'No registrado'; ?></span></p>
-                    <p><strong>Vencimiento:</strong>
-                      <?php if (!empty($cliente['vencimiento_plan'])): ?>
-                        <span id="fecha_vencimiento_display" class="<?php echo ($vencido) ? 'text-danger fw-bold' : ''; ?>">
-                          <?php echo htmlspecialchars($cliente['vencimiento_plan']); ?>
-                        </span>
-                      <?php else: ?> No registrado <?php endif; ?>
-                    </p>
-                  </div>
-                </div>
-
-                <!-- BOTONES DEL PLAN -->
-                <div class="mt-3 d-flex flex-wrap gap-2">
-                  <?php if ($cliente['congelado'] == 1): ?>
-                    <button id="btnUnFreezePlan" class="btn btn-info"><i class="fa fa-thermometer-4"></i> Descongelar Plan</button>
-                    <p class="mb-0 ms-2"><strong>Fecha de Congelado:</strong> <?php echo htmlspecialchars($cliente['fecha_congelado']); ?></p>
-                  <?php else: ?>
-                    <?php if (isset($_SESSION["user_permissions"]) && in_array('Usar Cajas', $_SESSION["user_permissions"]) && $caja_id): ?>
-                      <button id="btnPago" class="btn btn-success"><i class="fa fa-money"></i> Marcar Pago</button>
-                    <?php endif; ?>
-
-                    <?php if ($cliente['estado'] == 'activo'): ?>
-                      <?php if (isset($_SESSION["user_permissions"]) && in_array('Congelar Planes', $_SESSION["user_permissions"])): ?>
-                        <button id="btnFreezePlan" class="btn btn-info text-white"><i class="fa fa-snowflake-o"></i> Congelar Plan</button>
-                      <?php endif; ?>
-                      <?php if (isset($_SESSION["user_permissions"]) && in_array('Anular Planes', $_SESSION["user_permissions"])): ?>
-                        <button id="btnNullPlan" class="btn btn-warning"><i class="fa fa-ban"></i> Anular Plan</button>
-                      <?php endif; ?>
-                      <?php if (isset($_SESSION["user_permissions"]) && in_array('Transferir Planes', $_SESSION["user_permissions"])): ?>
-                        <button id="btnTransferPlan" class="btn btn-outline-secondary"><i class="fas fa-random"></i> Transferir Plan</button>
-                      <?php endif; ?>
-                    <?php endif; ?>
-                  <?php endif; ?>
-                </div>
-              <?php else: ?>
-                <p>Sin plan asignado</p>
+<div class="col-12">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-success text-white fw-bold">Plan Actual</div>
+    <div class="card-body small">
+      <?php if ($planInfo): ?>
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Nombre:</strong> <?php echo htmlspecialchars($planInfo['nombre']); ?></p>
+            <p><strong>Precio:</strong> $<?php echo htmlspecialchars($planInfo['precio']); ?></p>
+            <p><strong>Certificado:</strong>
+              <?php if ($cliente['estado'] == 'activo' && isset($_SESSION["user_permissions"]) && in_array('Generear Certificados', $_SESSION["user_permissions"])): ?>
+                <a href="/pdf/?type=cert&id=<?php echo $cliente['id']; ?>" class="text-success fw-bold"><i class="fa fa-file-pdf-o"></i> Generar</a>
               <?php endif; ?>
-            </div>
+            </p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Pago:</strong> <span id="fecha_pago_display"><?php echo !empty($cliente['pago_plan']) ? htmlspecialchars($cliente['pago_plan']) : 'No registrado'; ?></span></p>
+            <p><strong>Vencimiento:</strong>
+              <?php if (!empty($cliente['vencimiento_plan'])): ?>
+                <span id="fecha_vencimiento_display" class="<?php echo ($vencido) ? 'text-danger fw-bold' : ''; ?>">
+                  <?php echo htmlspecialchars($cliente['vencimiento_plan']); ?>
+                </span>
+              <?php else: ?> No registrado <?php endif; ?>
+            </p>
           </div>
         </div>
+
+        <!-- ALERTA DE CAJA CERRADA -->
+        <?php if (isset($_SESSION["user_permissions"]) && in_array('Usar Cajas', $_SESSION["user_permissions"])): ?>
+          <?php if(!$caja_id): ?>
+            <div class="alert alert-danger mt-3 mb-0">
+              No tienes una caja abierta. Por favor abre la caja para continuar con las ventas.
+            </div>
+          <?php endif; ?>
+        <?php endif; ?>
+
+        <!-- BOTONES DEL PLAN -->
+        <div class="mt-3 d-flex flex-wrap gap-2">
+          <?php if ($cliente['congelado'] == 1): ?>
+            <button id="btnUnFreezePlan" class="btn btn-info"><i class="fa fa-thermometer-4"></i> Descongelar Plan</button>
+            <p class="mb-0 ms-2"><strong>Fecha de Congelado:</strong> <?php echo htmlspecialchars($cliente['fecha_congelado']); ?></p>
+          <?php else: ?>
+            <?php if (isset($_SESSION["user_permissions"]) && in_array('Usar Cajas', $_SESSION["user_permissions"]) && $caja_id): ?>
+              <button id="btnPago" class="btn btn-success"><i class="fa fa-money"></i> Marcar Pago</button>
+            <?php endif; ?>
+
+            <?php if ($cliente['estado'] == 'activo'): ?>
+              <?php if (isset($_SESSION["user_permissions"]) && in_array('Congelar Planes', $_SESSION["user_permissions"])): ?>
+                <button id="btnFreezePlan" class="btn btn-info text-white"><i class="fa fa-snowflake-o"></i> Congelar Plan</button>
+              <?php endif; ?>
+              <?php if (isset($_SESSION["user_permissions"]) && in_array('Anular Planes', $_SESSION["user_permissions"])): ?>
+                <button id="btnNullPlan" class="btn btn-warning"><i class="fa fa-ban"></i> Anular Plan</button>
+              <?php endif; ?>
+              <?php if (isset($_SESSION["user_permissions"]) && in_array('Transferir Planes', $_SESSION["user_permissions"])): ?>
+                <button id="btnTransferPlan" class="btn btn-outline-secondary"><i class="fas fa-random"></i> Transferir Plan</button>
+              <?php endif; ?>
+            <?php endif; ?>
+          <?php endif; ?>
+        </div>
+      <?php else: ?>
+        <p>Sin plan asignado</p>
+      <?php endif; ?>
+    </div>
+  </div>
+</div>
 
         <!-- CONSENTIMIENTO Y NOTIFICACIONES -->
         <div class="col-12">
