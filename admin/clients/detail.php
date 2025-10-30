@@ -249,18 +249,7 @@ table{
 <div class="container" style="padding: 0px; background:rgba(0,0,0,0.00)">
   <div class="portada">
     <h1>Perfil del Cliente <?php echo htmlspecialchars($cliente['nombres'] . " " . $cliente['apellidos']); ?></h1>
-	  <!-- Foto de perfil del cliente -->
-<div class="text-center my-4">
-  <div class="position-relative d-inline-block">
-    <img 
-      id="clienteFoto"
-      src="<?php echo !empty($cliente['imagen_perfil']) ? '../../uploads/clientes/' . htmlspecialchars($cliente['imagen_perfil']) : '../../assets/img/default-user.png'; ?>"
-      alt="Foto de perfil"
-      class="foto-perfil shadow-sm"
-      data-bs-toggle="modal"
-      data-bs-target="#fotoModal">
-  </div>
-</div>
+	 
 
   </div>
 </div>
