@@ -798,22 +798,51 @@ const video = document.getElementById('cameraStream');
 const canvas = document.getElementById('cameraCanvas');
 const captureBtn = document.getElementById('captureBtn');
 
+// Función para detener la cámara
+function stopCamera() {
+  if (videoStream) {
+    videoStream.getTracks().forEach(track => track.stop());
+    videoStream = null;
+  }
+  if (video) {
+    video.srcObject = null;
+  }
+}
+
+// Función para limpiar el modal completamente
+function cleanupModal() {
+  stopCamera();
+  
+  // Eliminar todos los backdrops
+  document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+  
+  // Restaurar body
+  document.body.classList.remove('modal-open');
+  document.body.style.overflow = '';
+  document.body.style.paddingRight = '';
+  
+  // Reiniciar elementos visuales
+  if (video) {
+    video.style.display = 'block';
+  }
+  if (canvas) {
+    canvas.style.display = 'none';
+  }
+}
+
 /* --- Abrir el modal --- */
 cameraModal.addEventListener('show.bs.modal', async () => {
+  // Limpiar primero cualquier estado anterior
+  cleanupModal();
+  
   try {
-    // Detener si ya hay una cámara activa
-    if (videoStream) {
-      videoStream.getTracks().forEach(track => track.stop());
-      videoStream = null;
-    }
-
-    // Reiniciar elementos visuales
-    video.srcObject = null;
-    video.style.display = 'block';
-    canvas.style.display = 'none';
-
+    // Pequeño delay para asegurar que todo esté limpio
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     // Solicitar acceso a la cámara
-    videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+    videoStream = await navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: 'user' } 
+    });
     video.srcObject = videoStream;
   } catch (err) {
     Swal.fire('Error', 'No se pudo acceder a la cámara: ' + err.message, 'error');
@@ -824,12 +853,17 @@ cameraModal.addEventListener('show.bs.modal', async () => {
 
 /* --- Capturar la foto --- */
 captureBtn.addEventListener('click', () => {
+  if (!video.videoWidth || !video.videoHeight) {
+    Swal.fire('Error', 'La cámara aún no está lista. Intenta de nuevo.', 'warning');
+    return;
+  }
+
   const ctx = canvas.getContext('2d');
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  const dataUrl = canvas.toDataURL('image/jpeg');
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
   document.getElementById('previewImage').src = dataUrl;
 
   // Crear archivo virtual para el formulario
@@ -842,28 +876,30 @@ captureBtn.addEventListener('click', () => {
       document.getElementById('imagen_perfil').files = dataTransfer.files;
     });
 
-  // Cerrar modal correctamente
+  // Detener cámara inmediatamente
+  stopCamera();
+
+  // Cerrar modal
   const modalInstance = bootstrap.Modal.getInstance(cameraModal);
-  modalInstance.hide();
+  if (modalInstance) {
+    modalInstance.hide();
+  }
 });
 
 /* --- Cuando se cierra el modal --- */
 cameraModal.addEventListener('hidden.bs.modal', () => {
-  // Detener cámara
-  if (videoStream) {
-    videoStream.getTracks().forEach(track => track.stop());
-    videoStream = null;
-  }
-
-  // Esperar a que Bootstrap termine su animación antes de limpiar
+  // Asegurar que la cámara se detiene
+  stopCamera();
+  
+  // Limpiar después de la animación
   setTimeout(() => {
-    // Eliminar backdrop residual
-    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-    // Restaurar body
-    document.body.classList.remove('modal-open');
-    document.body.style.overflow = '';
-    document.body.style.paddingRight = '';
-  }, 300); // 300 ms coincide con la duración del fade de Bootstrap
+    cleanupModal();
+  }, 350);
+});
+
+/* --- Cuando se oculta el modal (antes de hidden) --- */
+cameraModal.addEventListener('hide.bs.modal', () => {
+  stopCamera();
 });
 
 
