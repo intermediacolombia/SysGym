@@ -223,27 +223,24 @@ table{
 }
 		
 		.foto-perfil {
-  width: 160px;
-  height: 160px;
+  width: 180px;
+  height: 180px;
   object-fit: cover;
   border-radius: 50%;
-  border: 5px solid #00b16a;
+  border: 6px solid #00b16a;
   cursor: pointer;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-
 .foto-perfil:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  box-shadow: 0 0 20px rgba(0,0,0,0.25);
 }
-
 .card-header {
-  border-top-left-radius: 0.5rem !important;
-  border-top-right-radius: 0.5rem !important;
+  border-top-left-radius: .5rem !important;
+  border-top-right-radius: .5rem !important;
 }
-
 .card-body p {
-  margin-bottom: 0.4rem;
+  margin-bottom: .4rem;
 }
 
 

@@ -1,9 +1,9 @@
 <div class="container-fluid py-4">
   <div class="row g-4 align-items-start">
 
-    <!-- COLUMNA IZQUIERDA (Foto + Datos básicos) -->
-    <div class="col-lg-4 col-md-5 text-center">
-      <div class="card border-0 shadow-sm p-4 h-100">
+    <!-- COLUMNA IZQUIERDA (Foto + Nombre + Estado + Contacto) -->
+    <div class="col-lg-4 col-md-5">
+      <div class="card border-0 shadow-sm p-4 text-center h-100">
         <!-- Foto circular -->
         <div class="position-relative mx-auto mb-3">
           <img
@@ -16,52 +16,57 @@
         </div>
 
         <!-- Nombre -->
-        <h3 class="fw-bold mb-1">
-          <?php echo htmlspecialchars($cliente['nombres'] . " " . $cliente['apellidos']); ?>
-        </h3>
+        <h3 class="fw-bold mb-1"><?php echo htmlspecialchars($cliente['nombres'] . " " . $cliente['apellidos']); ?></h3>
 
         <!-- Estado -->
-        <span class="badge fs-6 px-3 py-2 mt-2 <?php echo ($cliente['congelado'] == 1) ? '' : (($cliente['estado'] === 'activo') ? 'bg-success' : 'bg-danger'); ?>"
+        <span class="badge fs-6 px-3 py-2 mb-3 <?php echo ($cliente['congelado'] == 1) ? '' : (($cliente['estado'] === 'activo') ? 'bg-success' : 'bg-danger'); ?>"
           <?php echo ($cliente['congelado'] == 1) ? 'style="background-color: #31D2F0;"' : ''; ?>>
           <?php echo ($cliente['congelado'] == 1) ? 'Congelado' : (($cliente['estado'] === 'activo') ? 'Activo' : 'Inactivo'); ?>
         </span>
 
-        <hr class="my-4">
+        <hr>
 
         <!-- Contacto -->
-        <div class="text-start px-3">
-          <p class="mb-2"><i class="fa fa-envelope text-success me-2"></i> <?php echo htmlspecialchars($cliente['email']); ?></p>
-          <p class="mb-2"><i class="fa fa-phone text-success me-2"></i> +<?php echo htmlspecialchars($cliente['dialCode']); ?> <?php echo htmlspecialchars($cliente['telefono']); ?></p>
-          <p class="mb-2"><i class="fa fa-map-marker text-success me-2"></i> <?php echo htmlspecialchars($cliente['direccion']); ?></p>
+        <div class="text-start px-3 small">
+          <p><i class="fa fa-envelope text-success me-2"></i><?php echo htmlspecialchars($cliente['email']); ?></p>
+          <p><i class="fa fa-phone text-success me-2"></i>+<?php echo htmlspecialchars($cliente['dialCode']); ?> <?php echo htmlspecialchars($cliente['telefono']); ?></p>
+          <p><i class="fa fa-map-marker text-success me-2"></i><?php echo htmlspecialchars($cliente['direccion']); ?></p>
+        </div>
+
+        <hr>
+
+        <!-- Datos de emergencia -->
+        <div class="text-start px-3 small">
+          <p><i class="fa fa-user-md text-success me-2"></i><strong>Contacto Emergencia:</strong> <?php echo htmlspecialchars($cliente['contacto_emergencia']); ?></p>
+          <p><i class="fa fa-phone-square text-success me-2"></i>+<?php echo htmlspecialchars($cliente['dialCodeEmergencia']); ?> <?php echo htmlspecialchars($cliente['numero_emergencia']); ?></p>
         </div>
       </div>
     </div>
 
-    <!-- COLUMNA DERECHA (Tarjetas informativas) -->
+    <!-- COLUMNA DERECHA (tarjetas de info) -->
     <div class="col-lg-8 col-md-7">
       <div class="row g-3">
 
-        <!-- Datos personales -->
+        <!-- DATOS PERSONALES -->
         <div class="col-md-6">
           <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-success text-white fw-bold">Datos Personales</div>
             <div class="card-body small">
               <p><strong>Identificación:</strong> <?php echo htmlspecialchars($cliente['identificacion']); ?></p>
-              <p><strong>Género:</strong> <?php echo htmlspecialchars($cliente['genero']); ?></p>
-              <p><strong>Fecha Nac.:</strong>
-                <?php
-                  $fechaNacimiento = new DateTime($cliente['fecha_nacimiento']);
-                  echo strftime("%d de %B de %Y", $fechaNacimiento->getTimestamp());
-                ?>
+              <p><strong>Fecha Nacimiento:</strong>
+                <?php $fechaNacimiento = new DateTime($cliente['fecha_nacimiento']); echo strftime("%d de %B de %Y", $fechaNacimiento->getTimestamp()); ?>
               </p>
               <?php if($edad !== ""): ?>
                 <p><strong>Edad:</strong> <?php echo $edad; ?> años</p>
               <?php endif; ?>
+              <p><strong>Género:</strong> <?php echo htmlspecialchars($cliente['genero']); ?></p>
+              <p><strong>Registro:</strong> <?php $fecha = new DateTime($cliente['created_at']); echo strftime("%d de %B de %Y", $fecha->getTimestamp()); ?></p>
+              <p><strong>Última actualización:</strong> <?php $fecha = new DateTime($cliente['updated_at']); echo strftime("%d de %B de %Y", $fecha->getTimestamp()); ?></p>
             </div>
           </div>
         </div>
 
-        <!-- Información médica -->
+        <!-- INFORMACIÓN MÉDICA -->
         <div class="col-md-6">
           <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-success text-white fw-bold">Información Médica</div>
@@ -70,28 +75,63 @@
               <p><strong>EPS:</strong> <?php echo htmlspecialchars($cliente['eps']); ?></p>
               <p><strong>Fracturas:</strong> <?php echo htmlspecialchars($cliente['fracturas']); ?></p>
               <p><strong>Alergias:</strong> <?php echo htmlspecialchars($cliente['alergias']); ?></p>
+              <p><strong>Enfermedades:</strong> <?php echo htmlspecialchars($cliente['enfermedades_actuales']); ?></p>
+              <p><strong>Observaciones:</strong> <?php echo htmlspecialchars($cliente['observaciones']); ?></p>
             </div>
           </div>
         </div>
 
-        <!-- Plan -->
-        <div class="col-md-6">
-          <div class="card shadow-sm border-0 h-100">
+        <!-- PLAN -->
+        <div class="col-12">
+          <div class="card shadow-sm border-0">
             <div class="card-header bg-success text-white fw-bold">Plan Actual</div>
             <div class="card-body small">
               <?php if ($planInfo): ?>
-                <p><strong>Nombre:</strong> <?php echo htmlspecialchars($planInfo['nombre']); ?></p>
-                <p><strong>Precio:</strong> $<?php echo htmlspecialchars($planInfo['precio']); ?></p>
-                <p><strong>Pago:</strong> <?php echo htmlspecialchars($cliente['pago_plan']); ?></p>
-                <p><strong>Vence:</strong>
-                  <?php if (!empty($cliente['vencimiento_plan'])): ?>
-                    <span class="<?php echo ($vencido) ? 'text-danger' : ''; ?>">
-                      <?php echo htmlspecialchars($cliente['vencimiento_plan']); ?>
-                    </span>
+                <div class="row">
+                  <div class="col-md-6">
+                    <p><strong>Nombre:</strong> <?php echo htmlspecialchars($planInfo['nombre']); ?></p>
+                    <p><strong>Precio:</strong> $<?php echo htmlspecialchars($planInfo['precio']); ?></p>
+                    <p><strong>Certificado:</strong>
+                      <?php if ($cliente['estado'] == 'activo' && isset($_SESSION["user_permissions"]) && in_array('Generear Certificados', $_SESSION["user_permissions"])): ?>
+                        <a href="/pdf/?type=cert&id=<?php echo $cliente['id']; ?>" class="text-success fw-bold"><i class="fa fa-file-pdf-o"></i> Generar</a>
+                      <?php endif; ?>
+                    </p>
+                  </div>
+                  <div class="col-md-6">
+                    <p><strong>Pago:</strong> <span id="fecha_pago_display"><?php echo !empty($cliente['pago_plan']) ? htmlspecialchars($cliente['pago_plan']) : 'No registrado'; ?></span></p>
+                    <p><strong>Vencimiento:</strong>
+                      <?php if (!empty($cliente['vencimiento_plan'])): ?>
+                        <span id="fecha_vencimiento_display" class="<?php echo ($vencido) ? 'text-danger fw-bold' : ''; ?>">
+                          <?php echo htmlspecialchars($cliente['vencimiento_plan']); ?>
+                        </span>
+                      <?php else: ?> No registrado <?php endif; ?>
+                    </p>
+                  </div>
+                </div>
+
+                <!-- BOTONES DEL PLAN -->
+                <div class="mt-3 d-flex flex-wrap gap-2">
+                  <?php if ($cliente['congelado'] == 1): ?>
+                    <button id="btnUnFreezePlan" class="btn btn-info"><i class="fa fa-thermometer-4"></i> Descongelar Plan</button>
+                    <p class="mb-0 ms-2"><strong>Fecha de Congelado:</strong> <?php echo htmlspecialchars($cliente['fecha_congelado']); ?></p>
                   <?php else: ?>
-                    No registrado
+                    <?php if (isset($_SESSION["user_permissions"]) && in_array('Usar Cajas', $_SESSION["user_permissions"]) && $caja_id): ?>
+                      <button id="btnPago" class="btn btn-success"><i class="fa fa-money"></i> Marcar Pago</button>
+                    <?php endif; ?>
+
+                    <?php if ($cliente['estado'] == 'activo'): ?>
+                      <?php if (isset($_SESSION["user_permissions"]) && in_array('Congelar Planes', $_SESSION["user_permissions"])): ?>
+                        <button id="btnFreezePlan" class="btn btn-info text-white"><i class="fa fa-snowflake-o"></i> Congelar Plan</button>
+                      <?php endif; ?>
+                      <?php if (isset($_SESSION["user_permissions"]) && in_array('Anular Planes', $_SESSION["user_permissions"])): ?>
+                        <button id="btnNullPlan" class="btn btn-warning"><i class="fa fa-ban"></i> Anular Plan</button>
+                      <?php endif; ?>
+                      <?php if (isset($_SESSION["user_permissions"]) && in_array('Transferir Planes', $_SESSION["user_permissions"])): ?>
+                        <button id="btnTransferPlan" class="btn btn-outline-secondary"><i class="fas fa-random"></i> Transferir Plan</button>
+                      <?php endif; ?>
+                    <?php endif; ?>
                   <?php endif; ?>
-                </p>
+                </div>
               <?php else: ?>
                 <p>Sin plan asignado</p>
               <?php endif; ?>
@@ -99,29 +139,33 @@
           </div>
         </div>
 
-        <!-- Consentimiento y notificaciones -->
-        <div class="col-md-6">
-          <div class="card shadow-sm border-0 h-100">
+        <!-- CONSENTIMIENTO Y NOTIFICACIONES -->
+        <div class="col-12">
+          <div class="card shadow-sm border-0">
             <div class="card-header bg-success text-white fw-bold">Consentimiento y Notificaciones</div>
             <div class="card-body small">
-              <p><strong>Notificaciones:</strong> <?php echo ($cliente['notificaciones'] == 0) ? 'NO' : 'SÍ'; ?></p>
-              <p><strong>Consentimiento:</strong>
+              <p><strong>Recibe Notificaciones:</strong> <?php echo ($cliente['notificaciones'] == 0) ? 'NO' : 'SÍ'; ?></p>
+              <p><strong>Consentimiento informado:</strong>
                 <?php if ($formId): ?>
-                  <a href="/pdf/?type=consent&id=<?php echo urlencode($formId); ?>" class="text-success fw-bold">
-                    <i class="fa fa-file-pdf-o"></i> Descargar
-                  </a>
+                  <a href="/pdf/?type=consent&id=<?php echo urlencode($formId); ?>" class="text-success fw-bold"><i class="fa fa-file-pdf-o"></i> Descargar</a>
+                  <?php if (isset($_SESSION["user_permissions"]) && in_array('Reenviar Consentimiento informado', $_SESSION["user_permissions"])): ?>
+                    <button id="resendConsent" class="btn btn-link text-success"><i class="fa fa-paper-plane"></i> Reenviar</button>
+                  <?php endif; ?>
                 <?php else: ?>
                   <span>No disponible</span>
                 <?php endif; ?>
               </p>
+              <button type="button" class="btn btn-success mt-2" data-bs-toggle="modal" data-bs-target="#messagesModal" <?php echo ($cliente['congelado'] == 1) ? 'disabled' : ''; ?>>
+                <i class="fa fa-whatsapp"></i> Ver Mensajes Enviados
+              </button>
             </div>
           </div>
         </div>
 
-      </div> <!-- /row -->
-    </div> <!-- /col derecha -->
+      </div>
+    </div>
 
-  </div> <!-- /row general -->
+  </div>
 </div>
 
 
