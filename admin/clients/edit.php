@@ -797,17 +797,31 @@ const cameraModal = document.getElementById('cameraModal');
 const video = document.getElementById('cameraStream');
 const canvas = document.getElementById('cameraCanvas');
 const captureBtn = document.getElementById('captureBtn');
+const openCameraBtns = document.querySelectorAll('[data-bs-target="#cameraModal"]');
 
-/* --- Cuando se abre el modal --- */
-cameraModal.addEventListener('shown.bs.modal', async () => {
-  try {
-    // Si ya hay un stream previo, detenerlo primero
+/* --- Asegurar que todo se limpie antes de abrir --- */
+openCameraBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Forzar cierre previo si quedó algún rastro
+    const existingInstance = bootstrap.Modal.getInstance(cameraModal);
+    if (existingInstance) existingInstance.hide();
+
+    // Reiniciar stream si quedó activo
     if (videoStream) {
       videoStream.getTracks().forEach(track => track.stop());
       videoStream = null;
     }
+  });
+});
 
-    // Pedir acceso a la cámara
+/* --- Cuando se abre el modal --- */
+cameraModal.addEventListener('shown.bs.modal', async () => {
+  try {
+    // Reiniciar el canvas y video
+    canvas.style.display = 'none';
+    video.style.display = 'block';
+
+    // Solicitar acceso a la cámara
     videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
     video.srcObject = videoStream;
   } catch (err) {
@@ -815,7 +829,7 @@ cameraModal.addEventListener('shown.bs.modal', async () => {
   }
 });
 
-/* --- Cuando se captura la foto --- */
+/* --- Capturar la foto --- */
 captureBtn.addEventListener('click', () => {
   const ctx = canvas.getContext('2d');
   canvas.width = video.videoWidth;
@@ -825,7 +839,7 @@ captureBtn.addEventListener('click', () => {
   const dataUrl = canvas.toDataURL('image/jpeg');
   document.getElementById('previewImage').src = dataUrl;
 
-  // Crear archivo virtual para enviar con el formulario
+  // Crear archivo virtual para enviar
   fetch(dataUrl)
     .then(res => res.blob())
     .then(blob => {
@@ -835,20 +849,20 @@ captureBtn.addEventListener('click', () => {
       document.getElementById('imagen_perfil').files = dataTransfer.files;
     });
 
-  // Cerrar el modal correctamente con Bootstrap
+  // Cerrar el modal correctamente
   const modalInstance = bootstrap.Modal.getInstance(cameraModal);
   modalInstance.hide();
 });
 
-/* --- Cuando se cierra el modal (por botón o captura) --- */
+/* --- Cuando se cierra el modal --- */
 cameraModal.addEventListener('hidden.bs.modal', () => {
-  // Detener la cámara completamente
+  // Detener cámara completamente
   if (videoStream) {
     videoStream.getTracks().forEach(track => track.stop());
     videoStream = null;
   }
-  // No manipular backdrop ni clases del body
 });
+
 
 </script>
 
