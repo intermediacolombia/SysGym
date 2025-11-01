@@ -22,8 +22,19 @@
     </tr>
   </thead>
   <tbody>
-    <!-- Aquí se cargan dinámicamente tus créditos -->
-  </tbody>
+  <?php foreach ($creditos as $credito): ?>
+  <tr>
+    <td>
+      <input type="checkbox" class="credit-checkbox" data-id="<?= $credito['id'] ?>">
+    </td>
+    <td><?= htmlspecialchars($credito['fecha']) ?></td>
+    <td>$<?= number_format($credito['valor'], 0, ',', '.') ?></td>
+    <td><?= htmlspecialchars($credito['fecha_limite']) ?></td>
+    <td><?= htmlspecialchars($credito['descripcion']) ?></td>
+  </tr>
+  <?php endforeach; ?>
+</tbody>
+
 </table>
 <?php endif; ?>
 
