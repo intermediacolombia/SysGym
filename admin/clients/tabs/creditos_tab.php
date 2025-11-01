@@ -21,9 +21,6 @@
   </thead>
   <tbody>
     <?php
-    // ======================================================
-    // Cargar créditos activos o pendientes desde la base
-    // ======================================================
     try {
         $stmtCreditos = $pdo->prepare("
             SELECT id, fecha, valor, fecha_limite, descripcion
@@ -117,34 +114,26 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">
-          <!-- Campo oculto para el ID del crédito -->
           <input type="hidden" id="editCreditId" name="credit_id">
-
-          <!-- Mostrar detalle y valor original -->
           <div class="mb-3">
             <label class="form-label">Deuda Actual</label>
             <h2><p id="originalCreditValue" class="form-control-plaintext"></p></h2>
           </div>
-
           <div class="mb-3">
             <label for="editCreditFecha" class="form-label">Fecha</label>
             <input type="date" class="form-control" id="editCreditFecha" name="fecha" readonly>
           </div>
-
           <div class="mb-3">
             <label class="form-label">Detalle</label>
             <p id="creditDetail" class="form-control-plaintext"></p>
           </div>
-
           <div class="mb-3">
             <label for="editPago" class="form-label">Pago</label>
             <input type="number" id="editPago" name="pago" class="form-control" step="any" min="0" placeholder="Ingrese el pago" required>
           </div>
-
           <div class="mb-3">
             <h2><p id="remainingValueDisplay" class="form-control-plaintext"></p></h2>
           </div>
-
           <div class="mb-3">
             <label for="editCreditPaymentMethod" class="form-label">Medio de Pago</label>
             <select name="paymentMethod" id="editCreditPaymentMethod" class="form-select" required>
@@ -153,7 +142,6 @@
               <option value="Transferencia">Transferencia</option>
             </select>
           </div>
-
           <div class="mb-3" id="editCreditBankDiv" style="display: none;">
             <label for="editCreditBankSelection" class="form-label">Seleccione Banco</label>
             <select name="bank" id="editCreditBankSelection" class="form-select">
@@ -164,13 +152,11 @@
               <option value="Davivienda">Davivienda</option>
             </select>
           </div>
-
           <div class="mb-3">
             <label for="editCreditFechaLimite" class="form-label">Fecha Límite</label>
             <input type="date" class="form-control" id="editCreditFechaLimite" name="fecha_limite">
           </div>
         </div>
-
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
           <?php if(!$caja_id): ?>
@@ -193,29 +179,24 @@
 <script>
 $(document).ready(function(){
 
-  // === 1. Seleccionar/deseleccionar todos ===
+  // Seleccionar/deseleccionar todos
   $('#selectAllCredits').on('change', function(){
     const checked = this.checked;
     $('#creditos-table tbody input[type="checkbox"]').prop('checked', checked);
     togglePagoMasivoButton();
   });
 
-  // === 2. Mostrar botón de pago solo si hay 2+ seleccionados ===
-  $(document).on('change', '#creditos-table tbody input[type="checkbox"]', function(){
-    togglePagoMasivoButton();
-  });
+  // Mostrar botón solo si hay más de 1 seleccionado
+  $(document).on('change', '#creditos-table tbody input[type="checkbox"]', togglePagoMasivoButton);
 
   function togglePagoMasivoButton(){
     const count = $('#creditos-table tbody input[type="checkbox"]:checked').length;
     $('#btnPagarCreditosWrapper').toggle(count >= 2);
   }
 
-  // === 3. Abrir modal de pago masivo (CORREGIDO) ===
+  // Abrir modal de pago masivo
   $('#btnPagarCreditos').on('click', function(e){
-    e.preventDefault(); // Prevenir comportamiento por defecto
-    
-    console.log('Botón pagar créditos clickeado'); // Debug
-    
+    e.preventDefault();
     const seleccionados = [];
 
     $('#creditos-table tbody input[type="checkbox"]:checked').each(function(){
@@ -229,8 +210,6 @@ $(document).ready(function(){
       seleccionados.push({ id, fecha, valor, limite, desc });
     });
 
-    console.log('Créditos seleccionados:', seleccionados); // Debug
-
     if (seleccionados.length < 2) {
       Swal.fire('Atención', 'Debes seleccionar al menos 2 créditos.', 'warning');
       return;
@@ -239,7 +218,7 @@ $(document).ready(function(){
     // Generar tabla dentro del modal
     let html = `<table class="table table-sm table-bordered mb-0">
       <thead class="table-success">
-        <tr><th>ID</th><th>Fecha</th><th>Valor</th><th>Fecha Límite</th><th>Descripción</th></tr>
+        <tr><th>ID</th><th>Fecha</<th><th>Valor</th><th>Fecha Límite</th><th>Descripción</th></tr>
       </thead><tbody>`;
     let total = 0;
     seleccionados.forEach(c => {
@@ -260,42 +239,23 @@ $(document).ready(function(){
     $('#creditosSeleccionadosContainer').html(html);
     window.creditosSeleccionadosIds = seleccionados.map(c => c.id);
 
-    // MÉTODO CORREGIDO PARA ABRIR EL MODAL
-    try {
-      // Resetear el modal antes de abrirlo
-      $('#pagoMasivoMetodo').val('');
-      $('#pagoMasivoBanco').val('');
-      $('#pagoMasivoBancoDiv').hide();
-      
-      // Obtener o crear instancia del modal
-      let modalElement = document.getElementById('pagoMasivoModal');
-      let modal = bootstrap.Modal.getInstance(modalElement);
-      
-      if (!modal) {
-        modal = new bootstrap.Modal(modalElement);
-      }
-      
-      console.log('Abriendo modal...'); // Debug
-      modal.show();
-    } catch (error) {
-      console.error('Error al abrir modal:', error);
-      Swal.fire('Error', 'No se pudo abrir el modal de pago. Intenta nuevamente.', 'error');
-    }
+    // Abrir modal
+    const modalElement = document.getElementById('pagoMasivoModal');
+    let modal = bootstrap.Modal.getInstance(modalElement);
+    if (!modal) modal = new bootstrap.Modal(modalElement);
+    modal.show();
   });
 
-  // === 4. Mostrar banco solo si es Transferencia ===
+  // Mostrar banco si es transferencia
   $('#pagoMasivoMetodo').on('change', function(){
     const isTransferencia = $(this).val() === 'Transferencia';
     $('#pagoMasivoBancoDiv').toggle(isTransferencia);
-    if (!isTransferencia) {
-      $('#pagoMasivoBanco').val('');
-    }
+    if (!isTransferencia) $('#pagoMasivoBanco').val('');
   });
 
-  // === 5. Enviar pago masivo por AJAX ===
+  // Enviar pago masivo
   $('#formPagoMasivo').on('submit', function(e){
     e.preventDefault();
-
     const metodo = $('#pagoMasivoMetodo').val();
     const banco = $('#pagoMasivoBanco').val();
     const ids = window.creditosSeleccionadosIds;
@@ -305,7 +265,6 @@ $(document).ready(function(){
       return;
     }
 
-    // Validar banco si es transferencia
     if (metodo === 'Transferencia' && !banco) {
       Swal.fire('Error', 'Debe seleccionar un banco para transferencia.', 'error');
       return;
@@ -330,17 +289,14 @@ $(document).ready(function(){
           if (res.status === 'success') {
             Swal.fire('Éxito', res.message, 'success').then(()=>{
               const modal = bootstrap.Modal.getInstance(document.getElementById('pagoMasivoModal'));
-              if (modal) {
-                modal.hide();
-              }
+              if (modal) modal.hide();
               location.reload();
             });
           } else {
             Swal.fire('Error', res.message, 'error');
           }
         },
-        error: function(xhr, status, error){
-          console.error('Error AJAX:', error);
+        error: function(){
           Swal.fire('Error', 'Error en la comunicación con el servidor.', 'error');
         }
       });
@@ -348,5 +304,6 @@ $(document).ready(function(){
   });
 });
 </script>
+
 
 
