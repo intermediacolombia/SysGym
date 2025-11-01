@@ -1,8 +1,9 @@
-<?php require_once __DIR__ . '/../login/session.php';?>
 <?php 
+
+require_once __DIR__ . '/../login/session.php';
+
 $permisopage = 'Ver Clientes';
 include('../login/restriction.php');
-session_start();
 
 // Incluir la configuración de la base de datos
 require_once __DIR__ . '/../../inc/config.php';
@@ -25,49 +26,49 @@ try {
 <head>
   <meta charset="UTF-8">
   <title>Listado de Clientes</title>
+  
+  <!-- ✅ ORDEN CORRECTO: Primero header.php -->
   <?php include('../inc/header.php'); ?>
-  <!-- Bootstrap 5 CSS -->
+  
+  <!-- ✅ Solo cargar si header.php NO incluye Bootstrap 5 -->
+  <!-- Verifica esto y comenta estas líneas si ya están en header.php -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
   <!-- DataTables Bootstrap 5 CSS -->
   <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-	
-	
+  
+  <!-- SweetAlert2 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 </head>
 <body>
 
 <div class="container" style="padding: 0px; background:rgba(0,0,0,0.00)">
   <div class="portada">
-  <h1>Listado de Clientes</h1>
+    <h1>Listado de Clientes</h1>
 
-  <?php if (isset($_SESSION["user_permissions"]) && in_array('Agregar Clientes', $_SESSION["user_permissions"])): ?>
-    <button class="btn btn-success float-end ms-2" onclick="window.location='new.php'">
-      <i class="fa fa-plus"></i> Nuevo Cliente
+    <?php if (isset($_SESSION["user_permissions"]) && in_array('Agregar Clientes', $_SESSION["user_permissions"])): ?>
+      <button class="btn btn-success float-end ms-2" onclick="window.location='new.php'">
+        <i class="fa fa-plus"></i> Nuevo Cliente
+      </button>
+    <?php endif; ?>
+
+    <button class="btn btn-primary float-end" onclick="window.location='client_search.php'">
+      <i class="fa fa-search me-1"></i> Búsqueda Avanzada
     </button>
-  <?php endif; ?>
-
-  <button class="btn btn-primary float-end" onclick="window.location='client_search.php'">
-    <i class="fa fa-search me-1"></i> Búsqueda Avanzada
-  </button>
-</div>
-
+  </div>
 </div>
 
 <?php include('../inc/menu.php'); ?>
 
-
-
+<div class="container mt-3">
+  <div class="form-check form-switch mb-3">
+    <input class="form-check-input" type="checkbox" id="toggleInactiveSwitch">
+    <label class="form-check-label" for="toggleInactiveSwitch">
+      Ocultar clientes inactivos (<span id="inactiveCount">0</span>)
+    </label>
+  </div>
 
   <table id="clients-table" class="table table-striped table-bordered">
-	  
-	  
-	 <div class="form-check form-switch mb-3">
-  <input class="form-check-input" type="checkbox" id="toggleInactiveSwitch">
-  <label class="form-check-label" for="toggleInactiveSwitch">
-    Ocultar clientes inactivos (<span id="inactiveCount">0</span>)
-  </label>
-</div>
-
-	  
     <thead>
       <tr>
         <th>Identificación</th>
@@ -118,63 +119,40 @@ try {
 
 <?php include('../inc/menu-footer.php'); ?>
 
-<!-- SweetAlert2 CSS -->
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-
-<!-- jQuery, Bootstrap, DataTables, SweetAlert2 JS -->
+<!-- ✅ ORDEN CORRECTO DE SCRIPTS -->
+<!-- 1. jQuery PRIMERO -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- 2. Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+<!-- 3. DataTables -->
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
-<!--script>
-  $(document).ready(function() {
-    $('#clients-table').DataTable({
-      pageLength: 50,
-      language: {
-        url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
-      }
-    });
+<!-- 4. SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
-    $('#clients-table tbody').on('click', 'tr', function() {
-      var id = $(this).data('id');
-      if (id) {
-        window.location.href = "detail.php?id=" + encodeURIComponent(id);
-      }
-    });
-
-    <?php if(isset($_SESSION['success'])): ?>
-    Swal.fire({
-      icon: 'success',
-      title: 'Éxito',
-      text: '<?= addslashes($_SESSION['success']) ?>'
-    });
-    <?php unset($_SESSION['success']); endif; ?>
-
-    <?php if(isset($_SESSION['error'])): ?>
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: '<?= addslashes($_SESSION['error']) ?>'
-    });
-    <?php unset($_SESSION['error']); endif; ?>
-  });
-</script-->
-	<script>
+<!-- 5. TU SCRIPT (debe ir AL FINAL) -->
+<script>
 $(document).ready(function() {
+  console.log('🔍 Verificación inicial:');
+  console.log('jQuery:', typeof jQuery !== 'undefined');
+  console.log('Bootstrap:', typeof bootstrap !== 'undefined');
+  console.log('Swal:', typeof Swal !== 'undefined');
+
   // 1) Inicializa DataTable
   var table = $('#clients-table').DataTable({
     pageLength: 50,
     language: { url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json" }
   });
 
-  // 2) Función que cuenta cuántos "Inactivo" hay en la columna 6 (índice 6)
+  // 2) Función que cuenta cuántos "Inactivo" hay
   function updateInactiveCount() {
     var allStatus = table
-      .column(6, { search: 'none' })    // toma todos, sin filtro
+      .column(6, { search: 'none' })
       .data()
-      .toArray();                        // convierte a array JS
+      .toArray();
     var count = allStatus.filter(function(v){
       return v.indexOf('Inactivo') !== -1;
     }).length;
@@ -184,43 +162,43 @@ $(document).ready(function() {
   // Ejecutar al inicio
   updateInactiveCount();
 
-  // 3) Al cambiar el switch, aplicar o quitar el filtro
+  // 3) Al cambiar el switch
   $('#toggleInactiveSwitch').on('change', function() {
-  if (this.checked) {
-    // Mostrar solo 'Activo' → busca exactamente esa palabra
-    table.column(6).search('^Activo$', true, false).draw();
-  } else {
-    // Mostrar todo
-    table.column(6).search('', false, true).draw();
-  }
-});
-
-
-  // 4) Opcional: si quisieras que el contador se vuelva a recalcular al filtrar,
-  //    conecta updateInactiveCount al evento 'draw':
-  // table.on('draw', updateInactiveCount);
-
-  // 5) Click en fila → detalle
-  $('#clients-table tbody').on('click', 'tr', function() {
-    var d = table.row(this).data();
-    if (d && d[0]) {
-      // como usas DOM, d es array; la primera celda es ID oculto o data-id
-      // si quieres usar data-id en el <tr>:
-      var id = $(this).data('id');
-      if (id) window.location.href = 'detail.php?id=' + encodeURIComponent(id);
+    if (this.checked) {
+      table.column(6).search('^Activo$', true, false).draw();
+    } else {
+      table.column(6).search('', false, true).draw();
     }
   });
 
-  // 6) Tus SweetAlerts de sesión…
+  // 4) Click en fila → detalle
+  $('#clients-table tbody').on('click', 'tr', function() {
+    var id = $(this).data('id');
+    if (id) {
+      window.location.href = 'detail.php?id=' + encodeURIComponent(id);
+    }
+  });
+
+  // 5) SweetAlerts de sesión
   <?php if(isset($_SESSION['success'])): ?>
-    Swal.fire({ icon: 'success', title: 'Éxito', text: '<?= addslashes($_SESSION['success']) ?>' });
-  <?php unset($_SESSION['success']); endif; ?>
+    Swal.fire({ 
+      icon: 'success', 
+      title: 'Éxito', 
+      text: '<?= addslashes($_SESSION['success']) ?>' 
+    });
+    <?php unset($_SESSION['success']); ?>
+  <?php endif; ?>
+
   <?php if(isset($_SESSION['error'])): ?>
-    Swal.fire({ icon: 'error', title: 'Error', text: '<?= addslashes($_SESSION['error']) ?>' });
-  <?php unset($_SESSION['error']); endif; ?>
+    Swal.fire({ 
+      icon: 'error', 
+      title: 'Error', 
+      text: '<?= addslashes($_SESSION['error']) ?>' 
+    });
+    <?php unset($_SESSION['error']); ?>
+  <?php endif; ?>
 });
 </script>
-
 
 </body>
 </html>
