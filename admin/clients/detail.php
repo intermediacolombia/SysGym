@@ -221,6 +221,34 @@ table{
 .nav-link.active {
     color: #000!important;
 }
+		
+		.foto-perfil {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 6px solid #00b16a;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.foto-perfil:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(0,0,0,0.25);
+}
+.card-header {
+  border-top-left-radius: .5rem !important;
+  border-top-right-radius: .5rem !important;
+}
+.card-body p {
+  margin-bottom: .4rem;
+}
+
+
+#fotoModal img {
+  max-height: 90vh;
+  object-fit: contain;
+}
+
 </style>
 	
 </head>
@@ -228,6 +256,8 @@ table{
 <div class="container" style="padding: 0px; background:rgba(0,0,0,0.00)">
   <div class="portada">
     <h1>Perfil del Cliente <?php echo htmlspecialchars($cliente['nombres'] . " " . $cliente['apellidos']); ?></h1>
+	 
+
   </div>
 </div>
   <?php include('../inc/menu.php'); ?>
@@ -408,6 +438,8 @@ table{
   </div>
 </div>
 <?php endif; ?>
+	  
+	 
 
 
 
@@ -960,7 +992,6 @@ if ( ! $.fn.DataTable.isDataTable('#creditos-table') ) {
     $('#remainingValueDisplay').text("Valor Restante: $" + restante.toLocaleString('es-CO'));
   });
 
-
   /*───────────────────────────────────────────────
    * Pago individual vía AJAX
    *───────────────────────────────────────────────*/
@@ -1430,6 +1461,22 @@ if ( ! $.fn.DataTable.isDataTable('#asistencias-table') ) {
 </script>
 
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const clienteFoto = document.getElementById('clienteFoto');
+  const fotoAmpliada = document.getElementById('fotoAmpliada');
+  const fotoModal = document.getElementById('fotoModal');
+
+  clienteFoto.addEventListener('click', function() {
+    const src = this.getAttribute('src');
+    fotoAmpliada.src = src;
+  });
+
+  fotoModal.addEventListener('hidden.bs.modal', function() {
+    fotoAmpliada.src = '';
+  });
+});
+</script>
 	
 
 </body>
