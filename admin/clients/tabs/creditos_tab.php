@@ -210,8 +210,12 @@ $(document).ready(function(){
     $('#btnPagarCreditosWrapper').toggle(count >= 2);
   }
 
-  // === 3. Abrir modal de pago masivo ===
-  $('#btnPagarCreditos').on('click', function(){
+  // === 3. Abrir modal de pago masivo (CORREGIDO) ===
+  $('#btnPagarCreditos').on('click', function(e){
+    e.preventDefault(); // Prevenir comportamiento por defecto
+    
+    console.log('Botón pagar créditos clickeado'); // Debug
+    
     const seleccionados = [];
 
     $('#creditos-table tbody input[type="checkbox"]:checked').each(function(){
@@ -224,6 +228,8 @@ $(document).ready(function(){
       const desc = tr.find('td:eq(4)').text().trim();
       seleccionados.push({ id, fecha, valor, limite, desc });
     });
+
+    console.log('Créditos seleccionados:', seleccionados); // Debug
 
     if (seleccionados.length < 2) {
       Swal.fire('Atención', 'Debes seleccionar al menos 2 créditos.', 'warning');
@@ -254,13 +260,36 @@ $(document).ready(function(){
     $('#creditosSeleccionadosContainer').html(html);
     window.creditosSeleccionadosIds = seleccionados.map(c => c.id);
 
-    const modal = new bootstrap.Modal(document.getElementById('pagoMasivoModal'));
-    modal.show();
+    // MÉTODO CORREGIDO PARA ABRIR EL MODAL
+    try {
+      // Resetear el modal antes de abrirlo
+      $('#pagoMasivoMetodo').val('');
+      $('#pagoMasivoBanco').val('');
+      $('#pagoMasivoBancoDiv').hide();
+      
+      // Obtener o crear instancia del modal
+      let modalElement = document.getElementById('pagoMasivoModal');
+      let modal = bootstrap.Modal.getInstance(modalElement);
+      
+      if (!modal) {
+        modal = new bootstrap.Modal(modalElement);
+      }
+      
+      console.log('Abriendo modal...'); // Debug
+      modal.show();
+    } catch (error) {
+      console.error('Error al abrir modal:', error);
+      Swal.fire('Error', 'No se pudo abrir el modal de pago. Intenta nuevamente.', 'error');
+    }
   });
 
   // === 4. Mostrar banco solo si es Transferencia ===
   $('#pagoMasivoMetodo').on('change', function(){
-    $('#pagoMasivoBancoDiv').toggle($(this).val() === 'Transferencia');
+    const isTransferencia = $(this).val() === 'Transferencia';
+    $('#pagoMasivoBancoDiv').toggle(isTransferencia);
+    if (!isTransferencia) {
+      $('#pagoMasivoBanco').val('');
+    }
   });
 
   // === 5. Enviar pago masivo por AJAX ===
@@ -273,6 +302,12 @@ $(document).ready(function(){
 
     if (!metodo || !ids || ids.length < 2) {
       Swal.fire('Error', 'Debe seleccionar al menos 2 créditos y un método de pago.', 'error');
+      return;
+    }
+
+    // Validar banco si es transferencia
+    if (metodo === 'Transferencia' && !banco) {
+      Swal.fire('Error', 'Debe seleccionar un banco para transferencia.', 'error');
       return;
     }
 
@@ -295,14 +330,17 @@ $(document).ready(function(){
           if (res.status === 'success') {
             Swal.fire('Éxito', res.message, 'success').then(()=>{
               const modal = bootstrap.Modal.getInstance(document.getElementById('pagoMasivoModal'));
-              modal.hide();
+              if (modal) {
+                modal.hide();
+              }
               location.reload();
             });
           } else {
             Swal.fire('Error', res.message, 'error');
           }
         },
-        error: function(){
+        error: function(xhr, status, error){
+          console.error('Error AJAX:', error);
           Swal.fire('Error', 'Error en la comunicación con el servidor.', 'error');
         }
       });
