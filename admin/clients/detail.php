@@ -462,6 +462,141 @@ table{
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
+	  
+	  
+<script>
+$(document).ready(function(){
+
+  /*───────────────────────────────────────────────
+   * 1. SELECCIONAR / DESELECCIONAR TODOS
+   *───────────────────────────────────────────────*/
+  $('#selectAllCredits').on('change', function(){
+    const checked = this.checked;
+    $('#creditos-table tbody input[type="checkbox"]').prop('checked', checked);
+    togglePagoMasivoButton();
+  });
+
+  /*───────────────────────────────────────────────
+   * 2. MOSTRAR BOTÓN SOLO SI HAY 2+ SELECCIONADOS
+   *───────────────────────────────────────────────*/
+  $(document).on('change', '#creditos-table tbody input[type="checkbox"]', function(){
+    togglePagoMasivoButton();
+  });
+
+  function togglePagoMasivoButton(){
+    const count = $('#creditos-table tbody input[type="checkbox"]:checked').length;
+    $('#btnPagarCreditosWrapper').toggle(count >= 2);
+  }
+
+  /*───────────────────────────────────────────────
+   * 3. ABRIR MODAL DE PAGO MASIVO
+   *───────────────────────────────────────────────*/
+  $('#btnPagarCreditos').on('click', function(){
+    const seleccionados = [];
+    $('#creditos-table tbody input[type="checkbox"]:checked').each(function(){
+      const tr = $(this).closest('tr');
+      const id = $(this).data('id');
+      const fecha = tr.find('td:eq(1)').text().trim();
+      const valorTxt = tr.find('td:eq(2)').text().replace(/[^\d,.-]/g, '').trim();
+      const valor = parseFloat(valorTxt.replace('.', '').replace(',', '.')) || 0;
+      const limite = tr.find('td:eq(3)').text().trim();
+      const desc = tr.find('td:eq(4)').text().trim();
+      seleccionados.push({ id, fecha, valor, limite, desc });
+    });
+
+    if (seleccionados.length < 2) {
+      Swal.fire('Atención', 'Debes seleccionar al menos 2 créditos.', 'warning');
+      return;
+    }
+
+    // Generar tabla HTML dentro del modal
+    let html = `<table class="table table-sm table-bordered mb-0">
+      <thead class="table-success">
+        <tr><th>ID</th><th>Fecha</th><th>Valor</th><th>Fecha Límite</th><th>Descripción</th></tr>
+      </thead><tbody>`;
+    let total = 0;
+    seleccionados.forEach(c => {
+      total += c.valor;
+      html += `<tr>
+        <td>${c.id}</td>
+        <td>${c.fecha}</td>
+        <td>$${c.valor.toLocaleString('es-CO')}</td>
+        <td>${c.limite}</td>
+        <td>${c.desc}</td>
+      </tr>`;
+    });
+    html += `</tbody></table>
+      <div class="text-end mt-3">
+        <h4>Total a Pagar: <span class="text-success">$${total.toLocaleString('es-CO')}</span></h4>
+      </div>`;
+
+    $('#creditosSeleccionadosContainer').html(html);
+
+    // Guardar IDs seleccionados globalmente
+    window.creditosSeleccionadosIds = seleccionados.map(c => c.id);
+
+    const modal = new bootstrap.Modal(document.getElementById('pagoMasivoModal'));
+    modal.show();
+  });
+
+  /*───────────────────────────────────────────────
+   * 4. MOSTRAR BANCO SOLO SI ES TRANSFERENCIA
+   *───────────────────────────────────────────────*/
+  $('#pagoMasivoMetodo').on('change', function(){
+    $('#pagoMasivoBancoDiv').toggle($(this).val() === 'Transferencia');
+  });
+
+  /*───────────────────────────────────────────────
+   * 5. ENVIAR PAGO MASIVO POR AJAX
+   *───────────────────────────────────────────────*/
+  $('#formPagoMasivo').on('submit', function(e){
+    e.preventDefault();
+
+    const metodo = $('#pagoMasivoMetodo').val();
+    const banco = $('#pagoMasivoBanco').val();
+    const ids = window.creditosSeleccionadosIds;
+
+    if (!metodo || !ids || ids.length < 2) {
+      Swal.fire('Error', 'Debe seleccionar al menos 2 créditos y un método de pago.', 'error');
+      return;
+    }
+
+    Swal.fire({
+      title: 'Confirmar Pago',
+      text: `Se aplicará el pago a ${ids.length} crédito(s) seleccionados.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, confirmar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+
+      $.ajax({
+        url: 'pagar_creditos_masivo.php',
+        method: 'POST',
+        data: { ids: ids, paymentMethod: metodo, bank: banco },
+        dataType: 'json',
+        success: function(res){
+          if (res.status === 'success') {
+            Swal.fire('Éxito', res.message, 'success').then(()=>{
+              $('#pagoMasivoModal').modal('hide');
+              $('#creditos-table').DataTable().ajax.reload(null, false);
+            });
+          } else {
+            Swal.fire('Error', res.message, 'error');
+          }
+        },
+        error: function(){
+          Swal.fire('Error', 'Error en la comunicación con el servidor.', 'error');
+        }
+      });
+    });
+  });
+});
+
+</script>
+
+
 
 	<!-- Pasar la variable PHP a JS -->
  <script>
