@@ -1,7 +1,6 @@
 <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver y Crear Creditos', $_SESSION["user_permissions"])): ?>
 <h3><i class="fa fa-credit-card"></i> Créditos Activos</h3>
 
-
 <!-- Botón visible solo si hay créditos seleccionados -->
 <div id="btnPagarCreditosWrapper" style="display:none; text-align:right; margin-bottom:10px;">
   <button id="btnPagarCreditos" class="btn btn-success">
@@ -9,7 +8,6 @@
   </button>
 </div>
 <hr>
-
 
 <table id="creditos-table" class="table table-striped table-bordered align-middle">
   <thead style="background-color:#d81f1f; color:white;">
@@ -22,25 +20,46 @@
     </tr>
   </thead>
   <tbody>
-  <?php foreach ($creditos as $credito): ?>
-  <tr>
-    <td>
-      <input type="checkbox" class="credit-checkbox" data-id="<?= $credito['id'] ?>">
-    </td>
-    <td><?= htmlspecialchars($credito['fecha']) ?></td>
-    <td>$<?= number_format($credito['valor'], 0, ',', '.') ?></td>
-    <td><?= htmlspecialchars($credito['fecha_limite']) ?></td>
-    <td><?= htmlspecialchars($credito['descripcion']) ?></td>
-  </tr>
-  <?php endforeach; ?>
-</tbody>
+    <?php
+    // ======================================================
+    // Cargar créditos activos o pendientes desde la base
+    // ======================================================
+    try {
+        $stmtCreditos = $pdo->prepare("
+            SELECT id, fecha, valor, fecha_limite, descripcion
+            FROM creditos
+            WHERE cliente_id = :cliente_id
+              AND estado = 'pendiente'
+            ORDER BY fecha DESC
+        ");
+        $stmtCreditos->execute([':cliente_id' => $cliente_id]);
+        $creditos = $stmtCreditos->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo '<tr><td colspan="5" class="text-danger">Error al cargar créditos: ' . htmlspecialchars($e->getMessage()) . '</td></tr>';
+        $creditos = [];
+    }
 
+    if ($creditos):
+      foreach ($creditos as $credito): ?>
+        <tr>
+          <td><input type="checkbox" class="credit-checkbox" data-id="<?= $credito['id'] ?>"></td>
+          <td><?= htmlspecialchars($credito['fecha']) ?></td>
+          <td>$<?= number_format($credito['valor'], 0, ',', '.') ?></td>
+          <td><?= htmlspecialchars($credito['fecha_limite']) ?></td>
+          <td><?= htmlspecialchars($credito['descripcion']) ?></td>
+        </tr>
+      <?php endforeach;
+    else: ?>
+      <tr><td colspan="5" class="text-center text-muted">No hay créditos pendientes</td></tr>
+    <?php endif; ?>
+  </tbody>
 </table>
 <?php endif; ?>
 
 
-
-<!-- Modal: Pago Masivo de Créditos -->
+<!-- ======================================================
+     Modal: Pago Masivo de Créditos
+====================================================== -->
 <div class="modal fade" id="pagoMasivoModal" tabindex="-1" aria-labelledby="pagoMasivoModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -72,20 +91,23 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-			<?php if(!$caja_id): ?>
-				<div class="alert alert-danger">
-      			No tienes una caja abierta. Por favor abre la caja para continuar con las ventas.
-    			</div>
-			<?php else: ?>
-          <button type="submit" class="btn btn-success"><i class="fa fa-check"></i> Confirmar Pago</button>
-			<?php endif; ?>
+          <?php if(!$caja_id): ?>
+            <div class="alert alert-danger mb-0">
+              No tienes una caja abierta. Por favor abre la caja para continuar con las ventas.
+            </div>
+          <?php else: ?>
+            <button type="submit" class="btn btn-success"><i class="fa fa-check"></i> Confirmar Pago</button>
+          <?php endif; ?>
         </div>
       </form>
     </div>
   </div>
 </div>
 
-<!-- Modal para Editar Crédito -->
+
+<!-- ======================================================
+     Modal: Editar Crédito
+====================================================== -->
 <div class="modal fade" id="editCreditModal" tabindex="-1" aria-labelledby="editCreditModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -97,32 +119,32 @@
         <div class="modal-body">
           <!-- Campo oculto para el ID del crédito -->
           <input type="hidden" id="editCreditId" name="credit_id">
-          <!-- Mostrar detalle y valor original (solo lectura) -->
+
+          <!-- Mostrar detalle y valor original -->
           <div class="mb-3">
             <label class="form-label">Deuda Actual</label>
             <h2><p id="originalCreditValue" class="form-control-plaintext"></p></h2>
           </div>
+
           <div class="mb-3">
             <label for="editCreditFecha" class="form-label">Fecha</label>
             <input type="date" class="form-control" id="editCreditFecha" name="fecha" readonly>
           </div>
+
           <div class="mb-3">
             <label class="form-label">Detalle</label>
             <p id="creditDetail" class="form-control-plaintext"></p>
           </div>
-			
-			<!-- Campo para ingresar el pago -->
+
           <div class="mb-3">
             <label for="editPago" class="form-label">Pago</label>
             <input type="number" id="editPago" name="pago" class="form-control" step="any" min="0" placeholder="Ingrese el pago" required>
           </div>
-			
-		<!-- Mostrar el valor restante (calculado en tiempo real) -->
+
           <div class="mb-3">
             <h2><p id="remainingValueDisplay" class="form-control-plaintext"></p></h2>
           </div>
-			
-          <!-- Nuevo: Selección de Medio de Pago -->
+
           <div class="mb-3">
             <label for="editCreditPaymentMethod" class="form-label">Medio de Pago</label>
             <select name="paymentMethod" id="editCreditPaymentMethod" class="form-select" required>
@@ -131,7 +153,7 @@
               <option value="Transferencia">Transferencia</option>
             </select>
           </div>
-          <!-- Nuevo: Selección de Banco (se muestra solo si es Transferencia) -->
+
           <div class="mb-3" id="editCreditBankDiv" style="display: none;">
             <label for="editCreditBankSelection" class="form-label">Seleccione Banco</label>
             <select name="bank" id="editCreditBankSelection" class="form-select">
@@ -142,47 +164,43 @@
               <option value="Davivienda">Davivienda</option>
             </select>
           </div>
-          
-          
-          <!-- Otros campos editables -->
+
           <div class="mb-3">
             <label for="editCreditFechaLimite" class="form-label">Fecha Límite</label>
             <input type="date" class="form-control" id="editCreditFechaLimite" name="fecha_limite">
           </div>
         </div>
+
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-			
-			<?php if(!$caja_id): ?>
-				<div class="alert alert-danger">
-      			No tienes una caja abierta. Por favor abre la caja para continuar con las ventas.
-    			</div>
-			<?php else: ?>
-          		<button type="submit" class="btn btn-primary">Aplicar Pago</button>			
-			<?php endif; ?>
-			
-			
-			
+          <?php if(!$caja_id): ?>
+            <div class="alert alert-danger">
+              No tienes una caja abierta. Por favor abre la caja para continuar con las ventas.
+            </div>
+          <?php else: ?>
+            <button type="submit" class="btn btn-primary">Aplicar Pago</button>
+          <?php endif; ?>
         </div>
       </form>
     </div>
   </div>
 </div>
+
+
+<!-- ======================================================
+     SCRIPT PRINCIPAL
+====================================================== -->
 <script>
 $(document).ready(function(){
 
-  /*───────────────────────────────────────────────
-   * 1. SELECCIONAR / DESELECCIONAR TODOS
-   *───────────────────────────────────────────────*/
+  // === 1. Seleccionar/deseleccionar todos ===
   $('#selectAllCredits').on('change', function(){
     const checked = this.checked;
     $('#creditos-table tbody input[type="checkbox"]').prop('checked', checked);
     togglePagoMasivoButton();
   });
 
-  /*───────────────────────────────────────────────
-   * 2. MOSTRAR BOTÓN SOLO SI HAY 2+ SELECCIONADOS
-   *───────────────────────────────────────────────*/
+  // === 2. Mostrar botón de pago solo si hay 2+ seleccionados ===
   $(document).on('change', '#creditos-table tbody input[type="checkbox"]', function(){
     togglePagoMasivoButton();
   });
@@ -192,17 +210,16 @@ $(document).ready(function(){
     $('#btnPagarCreditosWrapper').toggle(count >= 2);
   }
 
-  /*───────────────────────────────────────────────
-   * 3. ABRIR MODAL DE PAGO MASIVO
-   *───────────────────────────────────────────────*/
+  // === 3. Abrir modal de pago masivo ===
   $('#btnPagarCreditos').on('click', function(){
     const seleccionados = [];
+
     $('#creditos-table tbody input[type="checkbox"]:checked').each(function(){
       const tr = $(this).closest('tr');
       const id = $(this).data('id');
       const fecha = tr.find('td:eq(1)').text().trim();
       const valorTxt = tr.find('td:eq(2)').text().replace(/[^\d,.-]/g, '').trim();
-      const valor = parseFloat(valorTxt.replace('.', '').replace(',', '.')) || 0;
+      const valor = parseFloat(valorTxt.replace(/\./g, '').replace(',', '.')) || 0;
       const limite = tr.find('td:eq(3)').text().trim();
       const desc = tr.find('td:eq(4)').text().trim();
       seleccionados.push({ id, fecha, valor, limite, desc });
@@ -213,7 +230,7 @@ $(document).ready(function(){
       return;
     }
 
-    // Generar tabla HTML dentro del modal
+    // Generar tabla dentro del modal
     let html = `<table class="table table-sm table-bordered mb-0">
       <thead class="table-success">
         <tr><th>ID</th><th>Fecha</th><th>Valor</th><th>Fecha Límite</th><th>Descripción</th></tr>
@@ -235,24 +252,18 @@ $(document).ready(function(){
       </div>`;
 
     $('#creditosSeleccionadosContainer').html(html);
-
-    // Guardar IDs seleccionados globalmente
     window.creditosSeleccionadosIds = seleccionados.map(c => c.id);
 
     const modal = new bootstrap.Modal(document.getElementById('pagoMasivoModal'));
     modal.show();
   });
 
-  /*───────────────────────────────────────────────
-   * 4. MOSTRAR BANCO SOLO SI ES TRANSFERENCIA
-   *───────────────────────────────────────────────*/
+  // === 4. Mostrar banco solo si es Transferencia ===
   $('#pagoMasivoMetodo').on('change', function(){
     $('#pagoMasivoBancoDiv').toggle($(this).val() === 'Transferencia');
   });
 
-  /*───────────────────────────────────────────────
-   * 5. ENVIAR PAGO MASIVO POR AJAX
-   *───────────────────────────────────────────────*/
+  // === 5. Enviar pago masivo por AJAX ===
   $('#formPagoMasivo').on('submit', function(e){
     e.preventDefault();
 
@@ -283,8 +294,9 @@ $(document).ready(function(){
         success: function(res){
           if (res.status === 'success') {
             Swal.fire('Éxito', res.message, 'success').then(()=>{
-              $('#pagoMasivoModal').modal('hide');
-              $('#creditos-table').DataTable().ajax.reload(null, false);
+              const modal = bootstrap.Modal.getInstance(document.getElementById('pagoMasivoModal'));
+              modal.hide();
+              location.reload();
             });
           } else {
             Swal.fire('Error', res.message, 'error');
@@ -297,6 +309,6 @@ $(document).ready(function(){
     });
   });
 });
-
 </script>
+
 
