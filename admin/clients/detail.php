@@ -221,34 +221,6 @@ table{
 .nav-link.active {
     color: #000!important;
 }
-		
-		.foto-perfil {
-  width: 180px;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 6px solid #00b16a;
-  cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-.foto-perfil:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(0,0,0,0.25);
-}
-.card-header {
-  border-top-left-radius: .5rem !important;
-  border-top-right-radius: .5rem !important;
-}
-.card-body p {
-  margin-bottom: .4rem;
-}
-
-
-#fotoModal img {
-  max-height: 90vh;
-  object-fit: contain;
-}
-
 </style>
 	
 </head>
@@ -256,8 +228,6 @@ table{
 <div class="container" style="padding: 0px; background:rgba(0,0,0,0.00)">
   <div class="portada">
     <h1>Perfil del Cliente <?php echo htmlspecialchars($cliente['nombres'] . " " . $cliente['apellidos']); ?></h1>
-	 
-
   </div>
 </div>
   <?php include('../inc/menu.php'); ?>
@@ -356,7 +326,7 @@ table{
 <div class="tab-content mt-3" id="clientTabsContent">
 	
 	<div class="tab-pane fade show active" id="perfil" role="tabpanel" aria-labelledby="perfil-tab">
-		<?php //include('tabs/perfil_tab.php');?>	
+		<?php include('tabs/perfil_tab.php');?>	
     </div>
 
 	<div class="tab-pane fade" id="asistencias" role="tabpanel" aria-labelledby="asistencias-tab">	
@@ -438,8 +408,6 @@ table{
   </div>
 </div>
 <?php endif; ?>
-	  
-	 
 
 
 
@@ -462,7 +430,7 @@ table{
   <!-- SweetAlert2 JS -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>	
 	<!-- jQuery -->
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- DataTables JS -->
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script><br>
@@ -992,6 +960,7 @@ if ( ! $.fn.DataTable.isDataTable('#creditos-table') ) {
     $('#remainingValueDisplay').text("Valor Restante: $" + restante.toLocaleString('es-CO'));
   });
 
+
   /*───────────────────────────────────────────────
    * Pago individual vía AJAX
    *───────────────────────────────────────────────*/
@@ -1461,22 +1430,6 @@ if ( ! $.fn.DataTable.isDataTable('#asistencias-table') ) {
 </script>
 
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const clienteFoto = document.getElementById('clienteFoto');
-  const fotoAmpliada = document.getElementById('fotoAmpliada');
-  const fotoModal = document.getElementById('fotoModal');
-
-  clienteFoto.addEventListener('click', function() {
-    const src = this.getAttribute('src');
-    fotoAmpliada.src = src;
-  });
-
-  fotoModal.addEventListener('hidden.bs.modal', function() {
-    fotoAmpliada.src = '';
-  });
-});
-</script>
 	
 
 </body>
