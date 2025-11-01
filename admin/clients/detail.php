@@ -356,7 +356,7 @@ table{
 <div class="tab-content mt-3" id="clientTabsContent">
 	
 	<div class="tab-pane fade show active" id="perfil" role="tabpanel" aria-labelledby="perfil-tab">
-		<?php include('tabs/perfil_tab.php');?>	
+		<?php //include('tabs/perfil_tab.php');?>	
     </div>
 
 	<div class="tab-pane fade" id="asistencias" role="tabpanel" aria-labelledby="asistencias-tab">	
