@@ -306,59 +306,112 @@ $(document).ready(function(){
 </script-->
 <script>
 	$(document).ready(function(){
+  // ===== DEBUG SETUP =====
+  const DEBUG = true;
+  const TAG = '[Creditos]';
+  function log(){ if(DEBUG) console.log(TAG, ...arguments); }
+  function warn(){ if(DEBUG) console.warn(TAG, ...arguments); }
+  function err(){ console.error(TAG, ...arguments); }
 
-  // === Seleccionar/deseleccionar todos ===
+  // Reportar errores JS globales
+  window.onerror = function(message, source, lineno, colno, error){
+    err('window.onerror =>', {message, source, lineno, colno, error});
+  };
+  window.addEventListener('unhandledrejection', e => {
+    err('unhandledrejection =>', e.reason || e);
+  });
+
+  // Chequeos rápidos de entorno
+  if (typeof $ === 'undefined') { err('jQuery NO está cargado'); return; } else { log('jQuery OK'); }
+  if (typeof bootstrap === 'undefined' || !bootstrap.Modal) { err('Bootstrap 5 JS o Modal NO está cargado'); }
+  if (typeof Swal === 'undefined') { warn('SweetAlert2 NO está cargado (solo afecta alertas bonitas)'); }
+
+  // Verificar existencia de elementos clave
+  const table = document.getElementById('creditos-table');
+  if (!table) { err('No existe #creditos-table en DOM'); }
+  const btnPagar = document.getElementById('btnPagarCreditos');
+  if (!btnPagar) { err('No existe #btnPagarCreditos en DOM'); }
+  const modalEl = document.getElementById('pagoMasivoModal');
+  if (!modalEl) { err('No existe #pagoMasivoModal en DOM'); }
+
+  // ===== Seleccionar/deseleccionar todos =====
   $('#selectAllCredits').on('change', function(){
     const checked = this.checked;
+    log('#selectAllCredits change =>', checked);
     $('#creditos-table tbody input[type="checkbox"]').prop('checked', checked);
+    togglePagoMasivoButton();
+    log('Checkboxes marcados:', $('#creditos-table tbody input[type="checkbox"]:checked').length);
+  });
+
+  // ===== Mostrar botón solo si hay más de 1 seleccionado =====
+  $(document).on('change', '#creditos-table tbody input[type="checkbox"]', function(){
+    log('Cambio en checkbox individual. Marcados:',
+        $('#creditos-table tbody input[type="checkbox"]:checked').length);
     togglePagoMasivoButton();
   });
 
-  // === Mostrar botón solo si hay más de 1 seleccionado ===
-  $(document).on('change', '#creditos-table tbody input[type="checkbox"]', togglePagoMasivoButton);
-
   function togglePagoMasivoButton(){
     const count = $('#creditos-table tbody input[type="checkbox"]:checked').length;
+    log('togglePagoMasivoButton => count:', count);
     $('#btnPagarCreditosWrapper').toggle(count >= 2);
   }
 
-  // === Función auxiliar para leer números en formato COP ===
+  // ===== Helper: parsear $xxx.xxx,yy a float =====
   function parseValorCO(txt) {
     const limpio = (txt || '').replace(/[^\d,.-]/g, '').trim();
-    return parseFloat(limpio.replace(/\./g, '').replace(',', '.')) || 0;
+    const val = parseFloat(limpio.replace(/\./g, '').replace(',', '.')) || 0;
+    return val;
   }
 
-  // === Función auxiliar para obtener la instancia del modal ===
+  // ===== Helper: obtener instancia Modal (BS5) =====
   function getBsModal(modalId) {
     const el = document.getElementById(modalId);
-    if (!el) return null;
+    if (!el) { err('getBsModal: no existe #' + modalId); return null; }
     let modal = bootstrap.Modal.getInstance(el);
     if (!modal) modal = new bootstrap.Modal(el);
     return modal;
   }
 
-  // === Abrir modal de pago masivo (corregido) ===
-  $('#btnPagarCreditos').off('click').on('click', function(e){
+  // Hook para verificar si el handler se enlaza
+  $('#btnPagarCreditos').off('click.debug').on('click.debug', function(){
+    log('#btnPagarCreditos: handler DEBUG enlazado OK');
+  });
+
+  // ===== Abrir modal de pago masivo (con logs) =====
+  $('#btnPagarCreditos').off('click.main').on('click.main', function(e){
     e.preventDefault();
+    log('#btnPagarCreditos click');
 
     const seleccionados = [];
+    const $checks = $('#creditos-table tbody input[type="checkbox"]:checked');
 
-    $('#creditos-table tbody input[type="checkbox"]:checked').each(function(){
-      const tr = $(this).closest('tr');
-      const id = $(this).data('id');
-      const fecha = tr.find('td:eq(1)').text().trim();
-      const valor = parseValorCO(tr.find('td:eq(2)').text());
-      const limite = tr.find('td:eq(3)').text().trim();
-      const desc = tr.find('td:eq(4)').text().trim();
+    log('Checks seleccionados:', $checks.length);
+    if ($checks.length === 0) {
+      warn('No hay créditos marcados');
+    }
+
+    $checks.each(function(){
+      const $tr    = $(this).closest('tr');
+      const id     = $(this).data('id');
+      const fecha  = $tr.find('td:eq(1)').text().trim();
+      const valTxt = $tr.find('td:eq(2)').text();
+      const valor  = parseValorCO(valTxt);
+      const limite = $tr.find('td:eq(3)').text().trim();
+      const desc   = $tr.find('td:eq(4)').text().trim();
       seleccionados.push({ id, fecha, valor, limite, desc });
     });
 
+    log('Seleccionados =>', seleccionados);
+    if (console.table && seleccionados.length) console.table(seleccionados);
+
     if (seleccionados.length < 2) {
-      Swal.fire('Atención', 'Debes seleccionar al menos 2 créditos.', 'warning');
+      const msg = 'Debes seleccionar al menos 2 créditos.';
+      log(msg);
+      if (typeof Swal !== 'undefined') Swal.fire('Atención', msg, 'warning'); else alert(msg);
       return;
     }
 
-    // === Generar tabla dentro del modal ===
+    // Construir HTML
     let total = 0;
     let html = `
       <table class="table table-sm table-bordered mb-0">
@@ -383,7 +436,8 @@ $(document).ready(function(){
           <td>$${c.valor.toLocaleString('es-CO')}</td>
           <td>${c.limite}</td>
           <td>${c.desc}</td>
-        </tr>`;
+        </tr>
+      `;
     });
 
     html += `
@@ -396,79 +450,119 @@ $(document).ready(function(){
 
     $('#creditosSeleccionadosContainer').html(html);
     window.creditosSeleccionadosIds = seleccionados.map(c => c.id);
+    log('IDs seleccionados =>', window.creditosSeleccionadosIds);
 
-    // === Abrir el modal correctamente (Bootstrap 5) ===
-    const modal = getBsModal('pagoMasivoModal');
-    if (!modal) {
-      Swal.fire('Error', 'No se encontró el modal #pagoMasivoModal en el DOM.', 'error');
-      return;
+    // Abrir modal con try/catch
+    try {
+      const modal = getBsModal('pagoMasivoModal');
+      if (!modal) {
+        err('No se obtuvo instancia de #pagoMasivoModal');
+        return;
+      }
+
+      // Reset selects antes de abrir
+      $('#pagoMasivoMetodo').val('');
+      $('#pagoMasivoBanco').val('');
+      $('#pagoMasivoBancoDiv').hide();
+
+      log('Mostrando modal #pagoMasivoModal…');
+      modal.show();
+
+      // Verificar evento de mostrado
+      $(modalEl).one('shown.bs.modal', function(){
+        log('#pagoMasivoModal => shown.bs.modal');
+      });
+
+    } catch (ex) {
+      err('Excepción al abrir modal:', ex);
+      if (typeof Swal !== 'undefined') Swal.fire('Error', 'No se pudo abrir el modal de pago.', 'error');
     }
-
-    $('#pagoMasivoMetodo').val('');
-    $('#pagoMasivoBanco').val('');
-    $('#pagoMasivoBancoDiv').hide();
-
-    modal.show();
   });
 
-  // === Mostrar banco si es transferencia ===
+  // ===== Mostrar banco si es transferencia =====
   $('#pagoMasivoMetodo').on('change', function(){
     const isTransferencia = $(this).val() === 'Transferencia';
+    log('#pagoMasivoMetodo change =>', $(this).val());
     $('#pagoMasivoBancoDiv').toggle(isTransferencia);
     if (!isTransferencia) $('#pagoMasivoBanco').val('');
   });
 
-  // === Enviar pago masivo ===
+  // ===== Enviar pago masivo =====
   $('#formPagoMasivo').on('submit', function(e){
     e.preventDefault();
-
     const metodo = $('#pagoMasivoMetodo').val();
     const banco  = $('#pagoMasivoBanco').val();
     const ids    = window.creditosSeleccionadosIds;
 
+    log('#formPagoMasivo submit =>', { metodo, banco, ids });
+
     if (!metodo || !ids || ids.length < 2) {
-      Swal.fire('Error', 'Debe seleccionar al menos 2 créditos y un método de pago.', 'error');
+      const msg = 'Debe seleccionar al menos 2 créditos y un método de pago.';
+      log(msg);
+      if (typeof Swal !== 'undefined') Swal.fire('Error', msg, 'error'); else alert(msg);
       return;
-
     }
-
     if (metodo === 'Transferencia' && !banco) {
-      Swal.fire('Error', 'Debe seleccionar un banco para transferencia.', 'error');
+      const msg = 'Debe seleccionar un banco para transferencia.';
+      log(msg);
+      if (typeof Swal !== 'undefined') Swal.fire('Error', msg, 'error'); else alert(msg);
       return;
     }
 
-    Swal.fire({
-      title: 'Confirmar Pago',
-      text: `Se aplicará el pago a ${ids.length} crédito(s) seleccionados.`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, confirmar',
-      cancelButtonText: 'Cancelar'
-    }).then((result) => {
-      if (!result.isConfirmed) return;
-
-      $.ajax({
-        url: 'pagar_creditos_masivo.php',
-        method: 'POST',
-        data: { ids: ids, paymentMethod: metodo, bank: banco },
-        dataType: 'json',
-        success: function(res){
-          if (res.status === 'success') {
-            Swal.fire('Éxito', res.message, 'success').then(()=>{
-              const modal = bootstrap.Modal.getInstance(document.getElementById('pagoMasivoModal'));
-              if (modal) modal.hide();
-              location.reload();
-            });
-          } else {
-            Swal.fire('Error', res.message, 'error');
-          }
-        },
-        error: function(){
-          Swal.fire('Error', 'Error en la comunicación con el servidor.', 'error');
-        }
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        title: 'Confirmar Pago',
+        text: `Se aplicará el pago a ${ids.length} crédito(s) seleccionados.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, confirmar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        log('Confirm dialog result =>', result);
+        if (!result.isConfirmed) return;
+        enviarPagoMasivo(metodo, banco, ids);
       });
-    });
+    } else {
+      if (confirm(`Se aplicará el pago a ${ids.length} crédito(s) seleccionados. ¿Confirmar?`)) {
+        enviarPagoMasivo(metodo, banco, ids);
+      }
+    }
   });
+
+  function enviarPagoMasivo(metodo, banco, ids){
+    log('AJAX -> pagar_creditos_masivo.php', { metodo, banco, ids });
+    $.ajax({
+      url: 'pagar_creditos_masivo.php',
+      method: 'POST',
+      data: { ids: ids, paymentMethod: metodo, bank: banco },
+      dataType: 'json'
+    })
+    .done(function(res){
+      log('AJAX OK', res);
+      if (res && res.status === 'success') {
+        if (typeof Swal !== 'undefined') {
+          Swal.fire('Éxito', res.message || 'Pago aplicado.', 'success').then(()=>{
+            const modal = bootstrap.Modal.getInstance(document.getElementById('pagoMasivoModal'));
+            if (modal) modal.hide();
+            location.reload();
+          });
+        } else {
+          alert('Pago aplicado.');
+          const modal = bootstrap.Modal.getInstance(document.getElementById('pagoMasivoModal'));
+          if (modal) modal.hide();
+          location.reload();
+        }
+      } else {
+        const msg = (res && res.message) ? res.message : 'Error desconocido del servidor.';
+        if (typeof Swal !== 'undefined') Swal.fire('Error', msg, 'error'); else alert(msg);
+      }
+    })
+    .fail(function(xhr, status, error){
+      err('AJAX FAIL', {status, error, response: xhr && xhr.responseText});
+      if (typeof Swal !== 'undefined') Swal.fire('Error', 'Error en la comunicación con el servidor.', 'error');
+      else alert('Error en la comunicación con el servidor.');
+    });
+  }
 });
 
 </script>
