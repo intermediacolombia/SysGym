@@ -75,10 +75,10 @@ try {
     <!-- ======== TABS ======== -->
     <ul class="nav nav-tabs" id="configTabs" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="sistema-tab" data-bs-toggle="tab" data-bs-target="#sistema" type="button" role="tab">⚙️ Sistema</button>
+        <button class="nav-link active" id="sistema-tab" data-bs-toggle="tab" data-bs-target="#sistema" type="button" role="tab"><i class="fas fa-cog"></i> Sistema </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="whatsapp-tab" data-bs-toggle="tab" data-bs-target="#whatsapp" type="button" role="tab">💬 WhatsApp</button>
+        <button class="nav-link" id="whatsapp-tab" data-bs-toggle="tab" data-bs-target="#whatsapp" type="button" role="tab"><i class="fa fa-whatsapp"></i> WhatsApp</button>
       </li>
     </ul>
 
