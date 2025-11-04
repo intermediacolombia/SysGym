@@ -8,7 +8,7 @@ require_once __DIR__ . '/url_bd.php';
 if (!defined('URLBASE'))   define('URLBASE', $url_site);
 if (!defined('BASE_PATH')) define('BASE_PATH', dirname(__DIR__));
 
-define('SITE_LOGO', '/admin/images/logo-black.png');
+
 
 $url  = URLBASE;
 $hoy  = date('Y-m-d');
@@ -41,6 +41,9 @@ try {
     $wa_creditReminder      = $settings['wa_creditReminder'] ?? '';
     $wa_creditReminder_day  = $settings['wa_creditReminder_day'] ?? '';
     $wa_creditReminder_hour = $settings['wa_creditReminder_hour'] ?? '';
+	
+	
+	define('SITE_LOGO', '/admin/uploads/'.$settings['system_logo'].'') ;
 
 } catch (PDOException $e) {
     echo "Error de conexión: " . $e->getMessage();
