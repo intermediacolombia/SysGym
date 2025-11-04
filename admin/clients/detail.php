@@ -251,6 +251,97 @@ table{
 
 </style>
 	
+<style>
+/* =======================
+   ESTILOS MODERNOS PARA TABS
+   ======================= */
+
+.nav-tabs {
+  border-bottom: 2px solid #e9ecef;
+  background: #fff;
+  border-radius: .5rem .5rem 0 0;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+
+.nav-tabs .nav-item {
+  margin: 0;
+}
+
+.nav-tabs .nav-link {
+  color: #555;
+  font-weight: 600;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 12px 18px;
+  background-color: transparent;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+}
+
+.nav-tabs .nav-link i,
+.nav-tabs .nav-link .material-icons {
+  font-size: 17px;
+  vertical-align: middle;
+  transition: color .25s ease;
+}
+
+/* Hover elegante */
+.nav-tabs .nav-link:hover {
+  background-color: #f7f7f7;
+  color: #007bff;
+  border-bottom: 3px solid #007bff;
+}
+
+/* Pestaña activa */
+.nav-tabs .nav-link.active {
+  color: #212529;
+  border: none;
+  border-bottom: 3px solid #007bff;
+  background-color: #f8f9fa;
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,.05);
+}
+
+/* Suaviza el cambio */
+.tab-content {
+  background: #fff;
+  border-radius: 0 0 .5rem .5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  padding: 25px;
+  animation: fadeIn .3s ease-in-out;
+}
+
+/* Animación de entrada */
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(5px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+/* Iconos activos */
+.nav-tabs .nav-link.active i,
+.nav-tabs .nav-link.active .material-icons {
+  color: #007bff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-tabs {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .nav-tabs .nav-link {
+    flex: 1 1 50%;
+    justify-content: center;
+    text-align: center;
+    font-size: 14px;
+  }
+}
+</style>
+
+	
 </head>
 <body>
 <div class="container" style="padding: 0px; background:rgba(0,0,0,0.00)">
