@@ -1,6 +1,6 @@
 <div class="menu">
         <div class="logo-container">
-            <img src="<?php echo $url;?>/admin/images/logo-black.png" alt="Logo">
+            <img src="<?php echo $url;?>/<?php echo SITE_LOGO;?>" alt="Logo">
 			 <br><br>
    <?php echo htmlspecialchars($nombre . " " . $apellido); ?>
     <p><strong><?php echo htmlspecialchars($rolUser); ?></strong></p>			
