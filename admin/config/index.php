@@ -80,13 +80,20 @@ try {
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="whatsapp-tab" data-bs-toggle="tab" data-bs-target="#whatsapp" type="button" role="tab"><i class="fa fa-whatsapp"></i> WhatsApp</button>
       </li>
+		
+		<li class="nav-item" role="presentation">
+    <button class="nav-link" id="consent-tab" data-bs-toggle="tab" data-bs-target="#consent" type="button" role="tab">
+      <i class="fas fa-file-signature"></i> Consentimiento Informado
+    </button>
+  </li>
     </ul>
 
     <!-- ======== CONTENIDO DE TABS ======== -->
     <div class="tab-content" id="configTabsContent">
 
      <?php require_once __DIR__ . '/tabs/system.php';?>	
-     <?php require_once __DIR__ . '/tabs/whatsapp.php';?>	
+     <?php require_once __DIR__ . '/tabs/whatsapp.php';?>
+	<?php require_once __DIR__ . '/tabs/consent.php'; ?>
 
      
      
@@ -142,6 +149,65 @@ $(document).ready(function(){
   });
 });
 </script>
+	
+	
+	<!-- Summernote CSS & JS -->
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
+
+<script>
+$(document).ready(function() {
+  // Inicializar Summernote solo cuando se muestre la pestaña
+  $('#wa_consent_html').summernote({
+    placeholder: 'Escribe aquí el consentimiento informado...',
+    tabsize: 2,
+    height: 300,
+    toolbar: [
+      ['style', ['bold', 'italic', 'underline', 'clear']],
+      ['font', ['fontsize', 'color']],
+      ['para', ['ul', 'ol', 'paragraph']],
+      ['insert', ['link', 'picture', 'video']],
+      ['view', ['fullscreen', 'codeview']]
+    ]
+  });
+
+  // Guardar por AJAX
+  $("#configForm").off('submit').on('submit', function(e){
+    e.preventDefault();
+
+    // Asegurar que el contenido HTML de Summernote se incluya
+    const htmlContent = $('#wa_consent_html').summernote('code');
+    const formData = new FormData(this);
+    formData.set('wa_consent_html', htmlContent);
+
+    $.ajax({
+      url: $(this).attr("action"),
+      type: "POST",
+      data: formData,
+      contentType: false,
+      processData: false,
+      dataType: "json",
+      success: function(res){
+        Swal.fire({
+          icon: res.success ? 'success' : 'error',
+          title: res.success ? 'Éxito' : 'Error',
+          text: res.message
+        }).then(() => {
+          if(res.success) location.reload();
+        });
+      },
+      error: function(){
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo guardar la configuración.'
+        });
+      }
+    });
+  });
+});
+</script>
+
 
 </body>
 </html>
