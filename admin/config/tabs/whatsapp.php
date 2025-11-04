@@ -3,9 +3,7 @@
 
   <div class="card border-0 shadow-sm mt-3">
     <div class="card-body">
-      <h5 class="card-title text-success mb-4">
-        <i class="fa fa-whatsapp me-2"></i>Configuración de WhatsApp
-      </h5>
+     
 
       <!-- API -->
       <div class="mb-3">
