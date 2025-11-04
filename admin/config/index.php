@@ -32,7 +32,7 @@ try {
           background-color: #f8f9fa;
       }
       .nav-tabs .nav-link.active {
-          background-color: #0d6efd;
+          background-color: #E21F0C
           color: #fff !important;
           border: none;
       }
@@ -60,7 +60,7 @@ try {
 <body>
 	<div class="container" style="padding: 0px; background:rgba(0,0,0,0.00)">
 <div class="portada">
-    <h1 class="text-center fw-bold text-primary">Configuraciones del Sistema</h1>
+    <h1>Configuraciones del Sistema</h1>
   </div>
   </div>
 
