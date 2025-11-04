@@ -2,7 +2,7 @@
 
   <div class="card border-0 shadow-sm mt-3">
     <div class="card-body">
-      <h5 class="card-title text-info mb-4"><i class="fas fa-file-signature me-2"></i> Consentimiento Informado</h5>
+      
 
       <div class="mb-3">
         <label class="form-label"><strong>Contenido del consentimiento</strong></label>

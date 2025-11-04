@@ -131,22 +131,9 @@ $logoDataURI = 'data:image/png;base64,' . $logoData;
 
   <h4 style="text-align: center; color: #000;">CONSENTIMIENTO INFORMADO</h4>
 	<strong>Fecha:</strong> <?php echo $formFecha; ?>
-  <p><strong>ACTIV GYM</strong> ofrece servicios para la práctica de la actividad física y ejercicio individualizado, para esto dispone de instalaciones, equipos de alta calidad y talento humano profesional idóneo para guiar dichas prácticas con el fin de brindar seguridad y comodidad a los afiliados.</p>
-  <p>Cualquier actividad física conlleva beneficios y algunos riesgos, principalmente de lesiones óseas y musculares, y en forma más rara, problemas cardiacos como infartos, arritmias y la muerte súbita. Con el fin de minimizar al máximo los riesgos y potencializar los beneficios del ejercicio físico, <strong>ACTIV GYM</strong> ofrece como centro de acondicionamiento físico, dirección y acompañamiento de:</p>
-  <ul>
-    <li>Valoración Física</li>
-    <li>Orientación en Programas de Entrenamiento individualizado según aptitud física del afiliado.</li>
-    <li>Asesoría Nutricional</li>
-    <li>Equipos en óptimas condiciones</li>
-  </ul>
-  <p><strong>ACTIV GYM</strong>, no se hace responsable por los accidentes o enfermedades derivados de la omisión de las recomendaciones realizadas por el equipo interdisciplinario de profesionales ACTIV GYM en la práctica de la actividad física en sus instalaciones, responsabilidad que es asumida en su totalidad por el afiliado.</p>
-  <p>En forma libre y voluntaria yo, como aparezco identificado al pie de este documento, declaro y certifico que entiendo que la actividad física que practico implica la posibilidad de sufrir lesiones y/o riesgos, según fui informado en detalle por parte de <strong>ACTIV GYM</strong>.</p>
-  <p>Estoy de acuerdo con las recomendaciones, obligaciones y sugerencias arriba descritas en cuanto al cuidado de mi salud y las formas a seguir previas y durante la actividad y entiendo que no me eximo de la responsabilidad de atender tales recomendaciones y respetarlas para reducir todo riesgo al máximo posible y es mi obligación informar inmediatamente al personal asistencial o de profesores sobre dolor, incomodidad, fatiga u otro síntoma que considere que pueda afectar mi salud o la ponga en riesgo, los mismos que puedan presentarse antes, durante y después de mi participación en cualquiera de las actividades y servicios ofrecidos por ACTIV GYM.</p>
-  <strong>
-    <p>Exonero de toda responsabilidad a <strong>ACTIV GYM</strong>, por cualquier situación desencadenada por el NO cumplimiento de la instrucción que me fue dada y decido no asistir a la valoración clínica de <strong>ACTIV GYM</strong> que determina mi aptitud física para iniciar mi entrenamiento.</p>
-    <p><strong>Nota:</strong> Después de cancelar, <strong>ACTIV GYM</strong> no hace devolución de dinero ni transferencias a otras personas y tampoco nos hacemos responsables de sus objetos personales.</p>
-    <p>Declaro que he leído, entiendo y acepto los términos de este acuerdo en su totalidad.</p>
-  </strong>
+	
+  <?php echo CONSENT;?>
+	
   <table border="1">
     <tr>
       <td><strong>NOMBRE:</strong></td>
