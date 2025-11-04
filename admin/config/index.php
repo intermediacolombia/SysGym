@@ -53,7 +53,7 @@ try {
           resize: vertical;
       }
       label strong {
-          color: #0d6efd;
+          color: #000;
       }
   </style>
 </head>
