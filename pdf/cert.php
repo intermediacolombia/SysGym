@@ -53,7 +53,7 @@ try {
 }
 
 // Convertir automáticamente el logo a base64 usando la ruta local
-$logoPath = URLBASE . SITE_LOGO;
+$logoPath = $_SERVER['DOCUMENT_ROOT'] . SITE_LOGO;
 // Para depurar, puedes descomentar la siguiente línea y verificar la ruta:
 // echo "Ruta logo: " . $logoPath; exit;
 if (!file_exists($logoPath)) {
