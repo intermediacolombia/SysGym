@@ -72,7 +72,7 @@ try {
   left: 240px; /* ?? alinea con el contenido */
   right: 0;
   height: 50px;
-  background: #E21F0C;
+  background: var(--system-color-primary);
   color: #fff;
   display: flex;
   align-items: center;

@@ -211,7 +211,7 @@ table{
 }
 		
 .nav-link {
-    color: #E21F0C!important;
+    color: var(--system-color-primary)!important;
 }
 		
 .nav-link:focus, .nav-link:hover {

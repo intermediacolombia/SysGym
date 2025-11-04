@@ -200,7 +200,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'clientes') {
     .list-group-item + .list-group-item { margin-top: .5rem; }
 	 
 	 .input-group>:not(:first-child):not(.dropdown-menu):not(.valid-tooltip):not(.valid-feedback):not(.invalid-tooltip):not(.invalid-feedback) {
-    background-color: #E21F0C!important;
+    background-color: var(--system-color-primary)!important;
     color: #fff;
 }
   </style>

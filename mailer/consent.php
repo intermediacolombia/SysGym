@@ -89,7 +89,7 @@ $mail->Body = '
     }
     .header {
       background-color: #E0E0E0;
-      color: #E21F0C;
+      color: var(--system-color-primary);
       padding: 20px;
       text-align: center;
     }
@@ -106,7 +106,7 @@ $mail->Body = '
       color: #333333;
     }
     .content h2 {
-      color: #E21F0C;
+      color: var(--system-color-primary);
       font-size: 18px;
       margin-bottom: 10px;
     }
@@ -120,7 +120,7 @@ $mail->Body = '
       margin: 20px 0;
     }
     .cta a {
-      background-color: #E21F0C;
+      background-color: var(--system-color-primary);
       color: #ffffff;
       text-decoration: none;
       padding: 10px 20px;
@@ -140,7 +140,7 @@ $mail->Body = '
       border-top: 1px solid #eaeaea;
     }
     .footer a {
-      color: #E21F0C;
+      color: var(--system-color-primary);
       text-decoration: none;
       margin: 0 5px;
     }
@@ -148,7 +148,7 @@ $mail->Body = '
       text-decoration: underline;
     }
     .social-icons a {
-      color: #E21F0C;
+      color: var(--system-color-primary);
       margin: 0 5px;
       font-size: 24px;
       text-decoration: none;

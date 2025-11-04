@@ -125,7 +125,7 @@ table{
 	font-size:.9rem;
 	margin-top:32px
 	}
-th{background:#E21F0C;
+th{background:var(--system-color-primary);
 	color:#fff;
 	padding:6px 4px
 	}

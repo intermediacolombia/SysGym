@@ -71,7 +71,7 @@ require_once __DIR__ . '/../inc/config.php';
   top: 50%;                           /* centrado vertical respecto al h1 */
   transform: translateY(-50%);        /* ajusta al centro exacto */
   width: 250px;
-  background: linear-gradient(135deg,#E21F0C 0%,#8A0002 100%);
+  background: linear-gradient(135deg,var(--system-color-primary) 0%,#8A0002 100%);
   border-radius: 12px;
   color: #fff;
   box-shadow: 0 4px 10px rgba(0,0,0,.15);
@@ -112,7 +112,7 @@ if(isset($_SESSION['error'])): ?>
     <!-- ——— Bienvenida + contador en una sola línea ——— -->
 <div class="welcome-wrapper position-relative mb-4">
   <h1 class="welcome-title text-primary text-center m-0">
-    Bienvenido, <br><span style="color:#E21F0C;"><?php echo htmlspecialchars($nombre . " " . $apellido); ?></span>
+    Bienvenido, <br><span style="color:var(--system-color-primary);"><?php echo htmlspecialchars($nombre . " " . $apellido); ?></span>
   </h1>
 <?php include('statistics_home.php'); ?>
 	

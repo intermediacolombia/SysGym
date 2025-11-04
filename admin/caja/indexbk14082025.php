@@ -84,7 +84,7 @@ $tab-border-radius: 35px;
 	&:after{
 		content: "";
 		width: 50%;
-		background: #E21F0C;
+		background: var(--system-color-primary);
 		height: 100%;
 		position: absolute;
 		top: 0;

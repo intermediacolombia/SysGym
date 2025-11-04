@@ -42,7 +42,7 @@ body {
   color: #000; /* Color destacado para el título */
   margin-bottom: 20px;
   font-weight: 600;
-  border-bottom: 2px solid #E21F0C;
+  border-bottom: 2px solid var(--system-color-primary);
   padding-bottom: 10px;
   display: inline-block;
 }
@@ -103,7 +103,7 @@ tbody tr td {
 
 /* Estilo para el encabezado */
 thead th {
-  background-color: #E21F0C!important;
+  background-color: var(--system-color-primary)!important;
   color: white!important;
 }
 

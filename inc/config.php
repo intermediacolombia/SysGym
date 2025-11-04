@@ -45,7 +45,9 @@ try {
 	
 	define('SITE_LOGO', '/admin/uploads/'.$settings['system_logo'].'') ;
 	define('SITE_ICON', '/admin/uploads/'.$settings['system_favicon'].'') ;
-	define('CONSENT', $settings['wa_consent_html'] ?? '');
+	define('SITE_ICON', '/admin/uploads/'.$settings['system_favicon'].'') ;
+	
+	define('SYSTEM_COLOR_PRIMARY', $settings['system_color_primary'] ?? '#000');
 
 } catch (PDOException $e) {
     echo "Error de conexión: " . $e->getMessage();

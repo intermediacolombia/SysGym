@@ -18,6 +18,12 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/material_red.css">
+<style>
+        :root {
+            --system-color-primary: <?= SYSTEM_COLOR_PRIMARY ?>;
+            --color-hover-link: <?= $sys['color-hover-link'] ?? '#0056b3' ?>;
+        }
+    </style>
 
 
 

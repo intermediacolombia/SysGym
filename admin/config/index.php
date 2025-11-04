@@ -32,7 +32,7 @@ try {
           background-color: #f8f9fa;
       }
       .nav-tabs .nav-link.active {
-          background-color: #E21F0C;
+          background-color: var(--system-color-primary);
           color: #fff !important;
           border: none;
       }
