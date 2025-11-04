@@ -212,7 +212,7 @@ table tbody tr {
 
 .bg-danger {
     --bs-bg-opacity: 1;
-    background-color: rgba(var(--system-color-primary),var(--bs-bg-opacity))!important;
+    background-color: rgba(var(--system-color-primary)!importan,var(--bs-bg-opacity))!important;
 }
 
 
