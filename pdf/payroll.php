@@ -47,7 +47,7 @@ $fechaFinPago = formatearFecha($nomina['fecha_fin_pago']);
 $valorPagadoFormateado = number_format($nomina['valor_pagado'], 2, ',', '.');
 
 // Cargar el logo (verifica que la ruta sea correcta)
-$logoPath = $_SERVER['DOCUMENT_ROOT'] . '/pdf/images/logo-activ.png';
+$logoPath = $_SERVER['DOCUMENT_ROOT'] . SITE_LOGO;
 if (!file_exists($logoPath)) {
     die("Error: No se encontró el logo en la ruta: " . $logoPath);
 }

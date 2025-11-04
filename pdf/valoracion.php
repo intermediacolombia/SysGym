@@ -174,7 +174,7 @@ td .fa{
 </head><body>
   <!-- Mostrar el logo usando el data URI generado -->
   <div class="logo">
-    <img src="<?php echo $url; ?>/pdf/images/logo-activ.png" width="150" alt="Logo ACTIVGYM">
+    <img src="<?php echo $_SERVER['DOCUMENT_ROOT'] . SITE_LOGO; ?>" width="150" alt="Logo ACTIVGYM">
   </div>
 
 

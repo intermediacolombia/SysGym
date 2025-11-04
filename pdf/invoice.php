@@ -27,7 +27,7 @@ if (!$factura) {
 $valorFormateado = number_format($factura['valor'], 0, ',', '.');
 
 // Cargar el logo (verifica que la ruta sea correcta)
-$logoPath = $_SERVER['DOCUMENT_ROOT'] . '/pdf/images/logo-activ.png';
+$logoPath = $_SERVER['DOCUMENT_ROOT'] . SITE_LOGO;
 if (!file_exists($logoPath)) {
     die("Error: No se encontró el logo en la ruta: " . $logoPath);
 }
