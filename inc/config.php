@@ -44,6 +44,7 @@ try {
 	
 	
 	define('SITE_LOGO', '/admin/uploads/'.$settings['system_logo'].'') ;
+	define('SITE_ICON', '/admin/uploads/'.$settings['system_favicon'].'') ;
 
 } catch (PDOException $e) {
     echo "Error de conexión: " . $e->getMessage();
