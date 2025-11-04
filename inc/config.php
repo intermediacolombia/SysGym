@@ -48,6 +48,7 @@ try {
 	define('SITE_ICON', '/admin/uploads/'.$settings['system_favicon'].'') ;
 	
 	define('SYSTEM_COLOR_PRIMARY', $settings['system_color_primary'] ?? '#000');
+	define('SYSTEM_COLOR_SECONDARY', $settings['system_color_secondary'] ?? '#000');
 
 } catch (PDOException $e) {
     echo "Error de conexión: " . $e->getMessage();

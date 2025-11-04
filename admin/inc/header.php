@@ -21,7 +21,8 @@
 <style>
         :root {
             --system-color-primary: <?= SYSTEM_COLOR_PRIMARY ?>;
-            --color-hover-link: <?= $sys['color-hover-link'] ?? '#0056b3' ?>;
+            --system-color-secondary: <?= SYSTEM_COLOR_SECONDARY ?>;
+            
         }
     </style>
 

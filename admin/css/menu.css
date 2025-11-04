@@ -1,6 +1,6 @@
 .menu {
     width: 220px;
-    background: #3A0102;
+    background: var(--system-color-secondary);
     border-radius: 5px;
     padding: 0;
     overflow-x: hidden;
@@ -37,7 +37,7 @@
             margin-right: 10px;
         }
         .submenu {
-            background: #3A0102;
+            background: var(--system-color-secondary);;
             padding-left: 20px;
             overflow: hidden;
             max-height: 0;
@@ -47,7 +47,7 @@
             border-bottom: none;
             padding: 5px 15px;
             display: block;
-			background: #3A0102;
+			background: var(--system-color-secondary);;
 			text-align: left;
         }
         .menu .has-submenu {
