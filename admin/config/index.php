@@ -58,14 +58,14 @@ try {
   </style>
 </head>
 <body>
-
-<div class="container py-4">
-  <div class="portada mb-4">
+	<div class="container" style="padding: 0px; background:rgba(0,0,0,0.00)">
+<div class="portada">
     <h1 class="text-center fw-bold text-primary">Configuraciones del Sistema</h1>
+  </div>
   </div>
 
   <?php include('../inc/menu.php'); ?>
-
+<div class="container mt-4">
   <?php if (isset($error)): ?>
     <div class="alert alert-danger"><?= $error ?></div>
   <?php endif; ?>
