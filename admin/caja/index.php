@@ -235,7 +235,8 @@ $tab-border-radius: 35px;
             <li class="tab-slider--trigger" rel="tab2"><i class='far fa-money-bill-alt'></i> Ventas</li>
           </ul>
         </div>
-		  <button class="btn btn-warning" id="btnEgreso"><i class='fas fa-comment-dollar'></i> Registrar Egreso</button>
+		  <button class="btn btn-success" id="btnIngreso"><i class='fas fa-hand-holding-usd'></i> Registrar Ingreso</button>
+			<button class="btn btn-warning" id="btnEgreso"><i class='fas fa-comment-dollar'></i> Registrar Egreso</button>
         <div class="tab-slider--container">
           <div id="tab1" class="tab-slider--body">
             <h5>Productos Disponibles</h5>
@@ -355,6 +356,59 @@ $tab-border-radius: 35px;
 </div>
 	
 
+<!-- Modal para registrar ingreso -->
+<div class="modal fade" id="modalIngreso" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="formIngreso">
+        <div class="modal-header">
+          <h5 class="modal-title">Registrar Ingreso</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="ingresoDetalle" class="form-label">Detalle</label>
+            <input type="text" class="form-control" id="ingresoDetalle" name="detalle" placeholder="Descripción del ingreso" required>
+          </div>
+          <div class="mb-3">
+            <label for="ingresoValor" class="form-label">Valor</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" class="form-control" id="ingresoValor" name="valor" min="1" required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="ingresoMetodo" class="form-label">Método de Pago</label>
+            <select class="form-select" id="ingresoMetodo" name="metodo" required>
+              <option value="Efectivo" selected>Efectivo</option>
+              <option value="Transferencia">Transferencia</option>
+            </select>
+          </div>
+
+          <div class="mb-3 d-none" id="ingresoBancoWrap">
+            <label for="ingresoBanco" class="form-label">Banco</label>
+            <select class="form-select" id="ingresoBanco" name="banco">
+              <option value="">Seleccione banco</option>
+              <option value="Bancolombia">Bancolombia</option>
+              <option value="Daviplata">Daviplata</option>
+              <option value="Nequi">Nequi</option>
+              <option value="Davivienda">Davivienda</option>
+            </select>
+          </div>
+
+          <p class="text-muted">El valor ingresado se sumará al total de la caja.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Registrar Ingreso</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+	
 	
 <!-- Modal para registrar egreso -->
 <div class="modal fade" id="modalEgreso" tabindex="-1" aria-hidden="true">
@@ -1265,6 +1319,49 @@ $(function () {
 });
 </script>
 
+<script>
+$(document).ready(function(){
+  // Mostrar modal al hacer clic en el botón Ingreso
+  $('#btnIngreso').click(function(){
+    $('#modalIngreso').modal('show');
+  });
+
+  // Mostrar/ocultar selector de banco según método
+  $('#ingresoMetodo').on('change', function(){
+    if ($(this).val() === 'Transferencia') {
+      $('#ingresoBancoWrap').removeClass('d-none');
+    } else {
+      $('#ingresoBancoWrap').addClass('d-none');
+      $('#ingresoBanco').val('');
+    }
+  });
+
+  // Enviar formulario de ingreso
+  $('#formIngreso').submit(function(e){
+    e.preventDefault();
+    var formData = $(this).serialize();
+
+    $.ajax({
+      url: 'register_ingreso.php',
+      type: 'POST',
+      data: formData,
+      dataType: 'json',
+      success: function(res){
+        if(res.status === 'success'){
+          Swal.fire('Ingreso Registrado', res.message, 'success').then(function(){
+            location.reload();
+          });
+        } else {
+          Swal.fire('Error', res.message, 'error');
+        }
+      },
+      error: function(){
+        Swal.fire('Error', 'No se pudo registrar el ingreso (error de red).', 'error');
+      }
+    });
+  });
+});
+</script>
 	
 
 	
