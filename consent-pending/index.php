@@ -89,21 +89,22 @@ canvas {
 .text-primary-custom {
   color: <?= SYSTEM_COLOR_PRIMARY; ?> !important;
 }
+.swal2-confirm {
+  background-color: <?= SYSTEM_COLOR_PRIMARY; ?> !important;
+}
 </style>
 </head>
 <body class="py-5">
 <div class="container">
   <div class="card shadow mx-auto" style="max-width:600px;">
     <div class="card-body">
-		<center><img src="<?php echo $url;?>/<?php echo SITE_LOGO;?>" alt="Logo" width="250px"></center><br>
-
       <h4 class="text-center mb-4 text-primary-custom">Consentimiento Informado</h4>
       <p>Hola <strong><?= htmlspecialchars($tokenData['nombres'] . ' ' . $tokenData['apellidos']) ?></strong>,</p>
       <p>Por favor lee atentamente el siguiente consentimiento y firma para confirmar tu aceptación.</p>
       <div class="border p-3 mb-3 bg-light rounded" style="max-height:250px; overflow-y:auto;">
         <?= defined('CONSENT') ? CONSENT : '<p>No se encontró el texto del consentimiento.</p>'; ?>
       </div>
-      <form id="consentForm" method="POST" action="submit.php">
+      <form id="consentForm">
         <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
         <input type="hidden" name="firma_digital_cliente" id="firma_digital_cliente">
         
@@ -121,17 +122,18 @@ canvas {
         <div class="text-center">
           <img id="firma_preview" src="" alt="Firma del cliente" class="img-fluid mb-3" style="display:none; max-height:120px;">
         </div>
-        <button type="submit" class="btn btn-primary-custom w-100" disabled>Enviar Consentimiento</button>
+        <button type="submit" class="btn btn-primary-custom w-100" disabled id="btnSubmit">Enviar Consentimiento</button>
       </form>
     </div>
   </div>
 </div>
+
 <!-- Modal Firma -->
 <div class="modal fade" id="modalFirma" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Firma Digital del Clientesss</h5>
+        <h5 class="modal-title">Firma Digital del Cliente</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body text-center">
@@ -145,22 +147,19 @@ canvas {
   </div>
 </div>
 
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// === Lógica de firma en canvas (CORREGIDA) ===
+// === Lógica de firma en canvas ===
 const canvas = document.getElementById('canvasFirma');
 const ctx = canvas.getContext('2d');
 let drawing = false;
 let lastX = 0;
 let lastY = 0;
 
-// Configuración del estilo de dibujo
 ctx.lineWidth = 2;
 ctx.lineCap = 'round';
 ctx.strokeStyle = '#000';
 
-// Función para obtener coordenadas correctas
 function getMousePos(e) {
   const rect = canvas.getBoundingClientRect();
   return {
@@ -177,7 +176,6 @@ function getTouchPos(e) {
   };
 }
 
-// Eventos para mouse
 canvas.addEventListener('mousedown', (e) => {
   drawing = true;
   const pos = getMousePos(e);
@@ -188,25 +186,17 @@ canvas.addEventListener('mousedown', (e) => {
 canvas.addEventListener('mousemove', (e) => {
   if (!drawing) return;
   const pos = getMousePos(e);
-  
   ctx.beginPath();
   ctx.moveTo(lastX, lastY);
   ctx.lineTo(pos.x, pos.y);
   ctx.stroke();
-  
   lastX = pos.x;
   lastY = pos.y;
 });
 
-canvas.addEventListener('mouseup', () => {
-  drawing = false;
-});
+canvas.addEventListener('mouseup', () => { drawing = false; });
+canvas.addEventListener('mouseout', () => { drawing = false; });
 
-canvas.addEventListener('mouseout', () => {
-  drawing = false;
-});
-
-// Eventos para touch (móviles/tablets)
 canvas.addEventListener('touchstart', (e) => {
   e.preventDefault();
   drawing = true;
@@ -219,12 +209,10 @@ canvas.addEventListener('touchmove', (e) => {
   e.preventDefault();
   if (!drawing) return;
   const pos = getTouchPos(e);
-  
   ctx.beginPath();
   ctx.moveTo(lastX, lastY);
   ctx.lineTo(pos.x, pos.y);
   ctx.stroke();
-  
   lastX = pos.x;
   lastY = pos.y;
 });
@@ -243,23 +231,116 @@ $('#clearFirma').on('click', function(){
 $('#saveFirma').on('click', function(){
   const dataURL = canvas.toDataURL('image/png');
   if (dataURL.length < 3000) {
-    Swal.fire('Atención', 'Por favor realiza tu firma antes de guardar.', 'warning');
+    Swal.fire({
+      icon: 'warning',
+      title: 'Atención',
+      text: 'Por favor realiza tu firma antes de guardar.',
+      confirmButtonColor: '<?= SYSTEM_COLOR_PRIMARY; ?>'
+    });
     return;
   }
   $('#firma_digital_cliente').val(dataURL);
   $('#firma_preview').attr('src', dataURL).show();
   $('#modalFirma').modal('hide');
-  $('#consentForm button[type="submit"]').prop('disabled', false);
+  $('#btnSubmit').prop('disabled', false);
 });
 
-// Confirmación visual
+// === Envío del formulario con AJAX ===
 $('#consentForm').on('submit', function(e){
+  e.preventDefault();
+  
+  // Validar firma
   if (!$('#firma_digital_cliente').val()) {
-    e.preventDefault();
-    Swal.fire('Falta la firma', 'Debes firmar antes de enviar el consentimiento.', 'warning');
+    Swal.fire({
+      icon: 'warning',
+      title: 'Falta la firma',
+      text: 'Debes firmar antes de enviar el consentimiento.',
+      confirmButtonColor: '<?= SYSTEM_COLOR_PRIMARY; ?>'
+    });
+    return;
   }
+
+  // Validar checkbox
+  if (!$('#acepto').is(':checked')) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Atención',
+      text: 'Debes aceptar los términos del consentimiento.',
+      confirmButtonColor: '<?= SYSTEM_COLOR_PRIMARY; ?>'
+    });
+    return;
+  }
+
+  // Deshabilitar botón y mostrar loading
+  const $btn = $('#btnSubmit');
+  $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Enviando...');
+
+  // Enviar datos
+  $.ajax({
+    url: 'submit.php',
+    type: 'POST',
+    data: $(this).serialize(),
+    dataType: 'json',
+    success: function(response) {
+      if (response.status === 'success') {
+        Swal.fire({
+          icon: 'success',
+          title: '¡Éxito!',
+          text: response.message || 'Tu consentimiento ha sido registrado correctamente.',
+          confirmButtonColor: '<?= SYSTEM_COLOR_PRIMARY; ?>',
+          allowOutsideClick: false,
+          allowEscapeKey: false
+        }).then(() => {
+          // Limpiar formulario y deshabilitar
+          $('#consentForm')[0].reset();
+          $('#firma_preview').hide();
+          $('#firma_digital_cliente').val('');
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          $btn.html('✓ Consentimiento Enviado').removeClass('btn-primary-custom').addClass('btn-success');
+          
+          // Mensaje adicional
+          setTimeout(() => {
+            Swal.fire({
+              icon: 'info',
+              title: 'Proceso Completado',
+              text: 'Puedes cerrar esta ventana. Gracias por tu colaboración.',
+              confirmButtonColor: '<?= SYSTEM_COLOR_PRIMARY; ?>'
+            });
+          }, 1000);
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: response.message || 'Ocurrió un error al procesar tu solicitud.',
+          confirmButtonColor: '<?= SYSTEM_COLOR_PRIMARY; ?>'
+        });
+        $btn.prop('disabled', false).html('Enviar Consentimiento');
+      }
+    },
+    error: function(xhr) {
+      let errorMsg = 'Error de conexión. Por favor intenta nuevamente.';
+      
+      try {
+        const response = JSON.parse(xhr.responseText);
+        if (response.message) {
+          errorMsg = response.message;
+        }
+      } catch(e) {
+        console.error('Error parsing response:', e);
+      }
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: errorMsg,
+        confirmButtonColor: '<?= SYSTEM_COLOR_PRIMARY; ?>'
+      });
+      
+      $btn.prop('disabled', false).html('Enviar Consentimiento');
+    }
+  });
 });
 </script>
 </body>
 </html>
-
