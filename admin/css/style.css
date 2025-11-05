@@ -210,10 +210,10 @@ table tbody tr {
   opacity: 1!important;
 }
 
-.bg-danger {
-    --bs-bg-opacity: 1;
-    background-color: rgba(var(--system-color-primary)!importan,var(--bs-bg-opacity))!important;
+.card-header.bg-danger.text-white {
+    background: var(--bs-danger-rgb)!important;
 }
+
 
 
 
