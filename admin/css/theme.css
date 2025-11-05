@@ -1,20 +1,26 @@
 /* =============================================================
-   TEMA OSCURO / CLARO - capa independiente
-   No interfiere con DataTables ni scripts del panel
+   SISTEMA DE TEMA CLARO/OSCURO
+   Compatible con DataTables y scripts existentes
 ============================================================= */
 
-/* Oculta el contenido mientras se aplica el tema */
+/* Oculta el contenido solo durante un instante mientras se aplica el tema */
 body {
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.3s ease, background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Tema oscuro */
+/* Cuando el tema está listo, se muestra el contenido */
+body.theme-ready {
+  opacity: 1;
+}
+
+/* Estilo general del modo oscuro */
 body.dark-mode {
   background-color: #121212 !important;
   color: #f1f1f1 !important;
 }
 
+/* Contenedores principales */
 body.dark-mode .container,
 body.dark-mode .card,
 body.dark-mode .modal-content {
@@ -22,7 +28,7 @@ body.dark-mode .modal-content {
   color: #f1f1f1 !important;
 }
 
-/* Menú lateral oscuro */
+/* Menú lateral */
 body.dark-mode .menu {
   background: var(--system-color-secondary-dark, #2a2a2a) !important;
 }
@@ -57,8 +63,25 @@ body.dark-mode .alert-info {
   color: #d0e0ff;
 }
 
-/* Transición final al mostrar contenido */
-body.theme-ready {
-  opacity: 1;
+/* Switch del tema */
+#themeToggleContainer .form-check-input {
+  cursor: pointer;
+  width: 2.4rem;
+  height: 1.3rem;
+  background-color: #ccc;
+  border: none;
 }
+
+#themeToggleContainer .form-check-input:checked {
+  background-color: var(--system-color-primary);
+}
+
+body.dark-mode #themeToggleContainer .form-check-input:checked {
+  background-color: var(--system-color-primary-dark, #1e90ff);
+}
+
+body.dark-mode #themeToggleContainer {
+  background: rgba(255,255,255,0.08);
+}
+
 

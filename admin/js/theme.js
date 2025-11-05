@@ -4,35 +4,45 @@ document.addEventListener('DOMContentLoaded', () => {
   const icon = document.getElementById('themeIcon');
   const labelIcon = document.getElementById('themeLabelIcon');
 
-  // Leer modo guardado
+  // Leer estado guardado
   const savedTheme = localStorage.getItem('theme-mode');
 
-  // Aplicar modo oscuro si estaba guardado
+  // Aplicar tema guardado antes de mostrar contenido
   if (savedTheme === 'dark') {
     body.classList.add('dark-mode');
-    toggle.checked = true;
-    icon.className = 'fas fa-moon text-info';
-    labelIcon.className = 'fas fa-sun me-2 text-warning';
-  } else {
-    body.classList.remove('dark-mode');
-    toggle.checked = false;
-    icon.className = 'fas fa-sun text-warning';
-    labelIcon.className = 'fas fa-moon me-2 text-info';
+    if (toggle) toggle.checked = true;
   }
 
-  // Escuchar cambios del switch
-  toggle.addEventListener('change', function () {
-    if (this.checked) {
-      body.classList.add('dark-mode');
-      localStorage.setItem('theme-mode', 'dark');
+  // Marcar como listo (mostrar body)
+  setTimeout(() => body.classList.add('theme-ready'), 50);
+
+  // Sincronizar íconos
+  function updateIcons(isDark) {
+    if (!icon || !labelIcon) return;
+    if (isDark) {
       icon.className = 'fas fa-moon text-info';
       labelIcon.className = 'fas fa-sun me-2 text-warning';
     } else {
-      body.classList.remove('dark-mode');
-      localStorage.setItem('theme-mode', 'light');
       icon.className = 'fas fa-sun text-warning';
       labelIcon.className = 'fas fa-moon me-2 text-info';
     }
-  });
+  }
+
+  updateIcons(savedTheme === 'dark');
+
+  // Evento del switch
+  if (toggle) {
+    toggle.addEventListener('change', function () {
+      if (this.checked) {
+        body.classList.add('dark-mode');
+        localStorage.setItem('theme-mode', 'dark');
+        updateIcons(true);
+      } else {
+        body.classList.remove('dark-mode');
+        localStorage.setItem('theme-mode', 'light');
+        updateIcons(false);
+      }
+    });
+  }
 });
 
