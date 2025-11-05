@@ -211,7 +211,7 @@ table tbody tr {
 }
 
 .card-header.bg-danger.text-white {
-    background: var(--bs-danger-rgb)!important;
+    background: var(--system-color-primary)!important;
 }
 
 
