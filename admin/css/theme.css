@@ -302,6 +302,12 @@ body.dark-mode thead th {
     color: white!important;
 }
 
+body.dark-mode #modalDetalle td {
+	
+	background-color: #212e36;
+}
+
+
 
 
 
