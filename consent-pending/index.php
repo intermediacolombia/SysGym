@@ -129,7 +129,7 @@ canvas {
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Firma Digital del Cliente</h5>
+        <h5 class="modal-title">Firma Digital del Clientesss</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body text-center">
