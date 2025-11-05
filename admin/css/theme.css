@@ -85,8 +85,10 @@ body.dark-mode #themeToggleContainer {
 }
 
 
+
 /* ==========================================================
    COMPATIBILIDAD DATATABLES - MODO OSCURO
+   (Colores oscuros y coherentes con el sistema)
 ========================================================== */
 
 body.dark-mode table.dataTable {
@@ -104,11 +106,11 @@ body.dark-mode table.dataTable thead th {
 
 /* Filas alternadas */
 body.dark-mode table.dataTable tbody tr:nth-child(odd) {
-  background-color: #242424 !important; /* tono base */
+  background-color: #242424 !important;
 }
 
 body.dark-mode table.dataTable tbody tr:nth-child(even) {
-  background-color: #2b2b2b !important; /* tono alterno */
+  background-color: #2b2b2b !important;
 }
 
 /* Hover */
@@ -131,12 +133,13 @@ body.dark-mode table.dataTable tbody tr.selected td {
   color: #fff !important;
 }
 
-/* Buscador, paginación, info */
+/* Campos: buscador y cantidad de registros */
 body.dark-mode .dataTables_wrapper .dataTables_filter input,
 body.dark-mode .dataTables_wrapper .dataTables_length select {
   background-color: #2a2a2a !important;
   color: #f1f1f1 !important;
   border: 1px solid #3a3a3a !important;
+  border-radius: 4px;
 }
 
 body.dark-mode .dataTables_wrapper .dataTables_info,
@@ -146,95 +149,45 @@ body.dark-mode .dataTables_wrapper .dataTables_filter {
   color: #ddd !important;
 }
 
-
-body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current,
-body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-  background: var(--system-color-primary-dark, #1e90ff) !important;
-  color: #fff !important;
-  border-radius: 4px !important;
-}
-
-/* Bordes de la tabla */
+/* Bordes inferiores de tabla */
 body.dark-mode table.dataTable.no-footer {
   border-bottom: 1px solid #333 !important;
 }
 
 /* ==========================================================
-   DATATABLES – PAGINACIÓN MODO OSCURO (VERSIÓN ESTABLE)
+   DATATABLES – PAGINACIÓN MODO OSCURO (SOLO COLORES)
 ========================================================== */
 
-body.dark-mode .dataTables_wrapper .dataTables_paginate {
-  margin-top: 0.75rem;
-  text-align: right;
-}
-
-/* Botones base */
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button {
-  display: inline-block !important;
-  min-width: 1.8em;
-  padding: 5px 10px !important;
-  margin-left: 2px !important;
-  color: #ddd !important;
-  background: #2a2a2a !important;
-  border: 1px solid #3a3a3a !important;
-  border-radius: 4px !important;
-  text-align: center;
-  text-decoration: none !important;
-  transition: all 0.2s ease-in-out;
-  cursor: pointer;
+  color: #ccc !important;
+  background-color: #1f1f1f !important;
+  border: 1px solid #333 !important;
 }
 
-/* Hover */
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-  background: #3a3a3a !important;
+  background-color: #333 !important;
   color: #fff !important;
   border-color: #555 !important;
 }
 
-/* Botón actual (activo) */
+/* Botón activo (página actual) */
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current,
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
-  background: var(--system-color-primary-dark, #1e90ff) !important;
+  background-color: var(--system-color-primary-dark, #1e90ff) !important;
   color: #fff !important;
   border-color: var(--system-color-primary-dark, #1e90ff) !important;
-  font-weight: 600 !important;
-  box-shadow: 0 0 4px rgba(30,144,255,0.4);
 }
 
 /* Botones deshabilitados */
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
-  background: #1a1a1a !important;
   color: #666 !important;
-  border-color: #2a2a2a !important;
+  background-color: #141414 !important;
+  border-color: #222 !important;
   cursor: default !important;
-  opacity: 0.5;
+  opacity: 0.7;
 }
 
-/* Prev / Next íconos */
-body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.previous,
-body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.next {
-  font-weight: 600;
-}
-
-body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.previous:hover,
-body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.next:hover {
-  color: #fff !important;
-}
-
-/* Asegura alineación limpia */
-body.dark-mode .dataTables_wrapper .dataTables_paginate span a {
-  margin: 0 2px !important;
-}
-
-/* Quita subrayado y efectos feos */
-body.dark-mode .dataTables_wrapper .dataTables_paginate a,
-body.dark-mode .dataTables_wrapper .dataTables_paginate a:focus,
-body.dark-mode .dataTables_wrapper .dataTables_paginate a:active {
-  outline: none !important;
-  box-shadow: none !important;
-  text-decoration: none !important;
-}
 
 
 
