@@ -25,7 +25,7 @@
   padding: 7px 15px;
   text-decoration: none!important;
   color: #EFF3F5!important; /* Título */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   transition: background 0.3s, color 0.3s;
   border-radius: 10px;
   background: var(--system-color-primary);
@@ -52,6 +52,7 @@
   background: var(--system-color-secondary);
   text-align: left;
   color: #EFF3F5!important; /* Título */
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1) ;
 }
 /* ===== ITEMS CON SUBMENÚ ===== */
 .menu .has-submenu {
