@@ -28,19 +28,6 @@ body.dark-mode .modal-content {
   color: #EFF3F5 !important; /* Título */
 }
 
-/* Menú lateral */
-body.dark-mode .menu {
-  background: var(--system-color-secondary-dark, #2A3B47) !important; /* Border */
-}
-
-body.dark-mode .menu a {
-  background: var(--system-color-primary-dark, #52A5E0) !important; /* Principal */
-  color: #EFF3F5 !important; /* Título */
-}
-
-body.dark-mode .menu a:hover {
-  background: #A0A7AC !important; /* Claro */
-}
 
 /* Tablas */
 body.dark-mode table.dataTable thead th {
