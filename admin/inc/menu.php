@@ -23,7 +23,7 @@
       <span>Claro</span>
     </div>
     <div class="form-check form-switch m-0">
-      <input class="form-check-input" type="checkbox" role="switch" id="themeToggle" checked>
+      <input class="form-check-input" type="checkbox" role="switch" id="themeToggle">
     </div>
     <div class="option dark">
       <i class="fas fa-moon"></i>
