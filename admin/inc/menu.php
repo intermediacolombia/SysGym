@@ -12,16 +12,23 @@
     <p><strong><?php echo htmlspecialchars($rolUser); ?></strong></p>
 			
 <!-- ====== SWITCH MODO OSCURO ====== -->
-<div id="themeToggleContainer" class="d-flex align-items-center justify-content-between px-3 py-2 border-top border-secondary mt-3">
-  <span class="fw-semibold text-white">
-    <i id="themeLabelIcon" class="fas fa-moon me-2"></i> Modo oscuro
-  </span>
-
-  <div class="form-check form-switch m-0">
-    <input class="form-check-input" type="checkbox" role="switch" id="themeToggle">
-    <label class="form-check-label" for="themeToggle">
-      <i id="themeIcon" class="fas fa-sun text-warning"></i>
-    </label>
+<div id="themeToggleContainer">
+  <div class="theme-label">
+    <i class="fas fa-adjust"></i>
+    <span>Tema de la aplicación</span>
+  </div>
+  <div class="theme-options">
+    <div class="option light">
+      <i class="fas fa-sun"></i>
+      <span>Claro</span>
+    </div>
+    <div class="form-check form-switch m-0">
+      <input class="form-check-input" type="checkbox" role="switch" id="themeToggle" checked>
+    </div>
+    <div class="option dark">
+      <i class="fas fa-moon"></i>
+      <span>Oscuro</span>
+    </div>
   </div>
 </div>
 

@@ -63,18 +63,86 @@ body.dark-mode .alert-info {
   color: #EFF3F5 !important; /* Título */
 }
 
-/* Switch del tema */
+
+
+
+/*SwitchDark**/
+
+/* Switch mejorado */
+#themeToggleContainer {
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 12px 15px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin-top: 15px;
+}
+
+#themeToggleContainer .theme-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #EFF3F5;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+#themeToggleContainer .theme-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+#themeToggleContainer .option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #C8CDD0;
+  font-size: 13px;
+  flex: 1;
+}
+
+#themeToggleContainer .option i {
+  font-size: 16px;
+}
+
+#themeToggleContainer .option.light {
+  color: #FDB813;
+}
+
+#themeToggleContainer .option.dark {
+  color: #A0A7AC;
+}
+
+/* Switch personalizado */
 #themeToggleContainer .form-check-input {
   cursor: pointer;
-  width: 2.4rem;
-  height: 1.3rem;
-  background-color: #C8CDD0 !important; /* Contenido */
-  border: none;
+  width: 48px;
+  height: 24px;
+  background-color: #2A3B47;
+  border: 2px solid #A0A7AC;
+  transition: all 0.3s ease;
 }
 
 #themeToggleContainer .form-check-input:checked {
-  background-color: var(--system-color-primary) !important; /* Principal */
+  background-color: var(--system-color-primary-dark, #52A5E0);
+  border-color: var(--system-color-primary-dark, #52A5E0);
 }
+
+#themeToggleContainer .form-check-input:focus {
+  box-shadow: 0 0 0 0.25rem rgba(82, 165, 224, 0.25);
+}
+
+#themeToggleContainer:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+body.dark-mode #themeToggleContainer {
+  background: rgba(255,255,255,0.08);
+}
+
+
 
 body.dark-mode #themeToggleContainer .form-check-input:checked {
   background-color: var(--system-color-primary-dark, #52A5E0) !important; /* Principal */
@@ -391,6 +459,10 @@ body.dark-mode .form-control-plaintext {
     border: solid transparent;
     border-width: var(--bs-border-width) 0;
 }
+
+
+
+
 
 
 
