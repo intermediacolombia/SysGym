@@ -483,6 +483,13 @@ body.dark-mode .form-control-plaintext {
 }
 
 
+body.dark-mode .card-body {
+    flex: 1 1 auto;
+    padding: var(--bs-card-spacer-y) var(--bs-card-spacer-x);
+    color: var(--bs-card-color);
+}
+
+
 
 
 
