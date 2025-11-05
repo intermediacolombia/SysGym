@@ -1,16 +1,4 @@
 <?php require_once __DIR__ . '/../../inc/config.php'; ?>
-<script>
-(function() {
-  try {
-    const theme = localStorage.getItem('theme-mode');
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark-mode');
-      document.body?.classList.add('dark-mode');
-    }
-  } catch (e) {}
-})();
-</script>
-
 <link rel="icon" href="<?php echo URLBASE . SITE_ICON; ?>"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
