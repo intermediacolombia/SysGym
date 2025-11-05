@@ -153,6 +153,18 @@ body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button {
   border: none !important;
 }
 
+body.dark-mode .page-link {
+    position: relative;
+    display: block;
+    padding: var(--bs-pagination-padding-y) var(--bs-pagination-padding-x);
+    font-size: var(--bs-pagination-font-size);
+    color: var(--bs-pagination-color);
+    text-decoration: none;
+    background-color: #3a3a3a!important;
+    border: var(--bs-pagination-border-width) solid var(--bs-pagination-border-color);
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current,
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
   background: var(--system-color-primary-dark, #1e90ff) !important;
