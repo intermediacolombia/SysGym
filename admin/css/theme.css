@@ -165,6 +165,13 @@ body.dark-mode .page-link {
     transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
 
+body.dark-mode .active>.page-link, .page-link.active {
+    z-index: 3;
+    color: var(--bs-pagination-active-color);
+    background-color: #53A5E1!important;
+    border-color: var(--bs-pagination-active-border-color);
+}
+
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current,
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
   background: var(--system-color-primary-dark, #1e90ff) !important;
