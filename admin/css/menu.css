@@ -109,7 +109,7 @@ body.dark-mode .menu {
   background: var(--system-color-secondary-dark, #2A3B47) !important; /* Border */
 }
 body.dark-mode .menu a {
-  /*background: var(--system-color-primary-dark, #52A5E0) !important; /* Principal */
+  background: var(--system-color-primary-dark, #52A5E0) !important; /* Principal */
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
   color: #EFF3F5 !important; /* Título */
 }
