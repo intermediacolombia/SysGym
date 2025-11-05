@@ -22,6 +22,8 @@
         :root {
             --system-color-primary: <?= SYSTEM_COLOR_PRIMARY ?>;
             --system-color-secondary: <?= SYSTEM_COLOR_SECONDARY ?>;
+			--system-color-primary-dark: <?= SYSTEM_COLOR_PRIMARY_DARK ?>;
+			--system-color-secondary-dark: <?= SYSTEM_COLOR_SECONDARY_DARK ?>;
             
         }
     </style>

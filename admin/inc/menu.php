@@ -4,7 +4,21 @@
 			 <br><br>
    <?php echo htmlspecialchars($nombre . " " . $apellido); ?>
     <p><strong><?php echo htmlspecialchars($rolUser); ?></strong></p>			
-    <!-- Resto del contenido de tu dashboard -->  
+    <!-- Resto del contenido de tu dashboard -->
+			
+		
+<!-- ====== SWITCH MODO OSCURO ====== -->
+<div class="form-check form-switch ms-3" id="themeToggleContainer" style="user-select:none;">
+  <input class="form-check-input" type="checkbox" id="themeSwitch">
+  <label class="form-check-label d-flex align-items-center gap-2" for="themeSwitch" id="themeSwitchLabel" style="cursor:pointer;">
+    <i class="fas fa-sun" id="themeIcon"></i>
+    <span id="themeText">Modo Claro</span>
+  </label>
+</div>
+
+
+			
+			
         </div>      
 	<a href="<?php echo $url;?>/admin/" onclick="closeSubmenus()"><i class="fas fa-home"></i> Inicio</a>
 	

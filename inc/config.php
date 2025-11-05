@@ -49,6 +49,8 @@ try {
 	
 	define('SYSTEM_COLOR_PRIMARY', $settings['system_color_primary'] ?? '#000');
 	define('SYSTEM_COLOR_SECONDARY', $settings['system_color_secondary'] ?? '#000');
+	define('SYSTEM_COLOR_PRIMARY_DARK', $settings['system_color_primary_dark'] ?? '#000');
+	define('SYSTEM_COLOR_SECONDARY_DARK', $settings['system_color_secondary_dark'] ?? '#000');
 
 } catch (PDOException $e) {
     echo "Error de conexión: " . $e->getMessage();
