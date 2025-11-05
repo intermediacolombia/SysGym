@@ -31,7 +31,7 @@
   background: var(--system-color-primary);
 }
 .menu a:hover {
-  background: #A0A7AC; /* Claro */
+  background: var(--system-color-secondary); /* Claro */
 }
 .menu a i {
   margin-right: 10px;
