@@ -1,6 +1,6 @@
 /* =============================================================
    SISTEMA DE TEMA CLARO/OSCURO
-   Compatible con DataTables y scripts existentes
+   Paleta de colores optimizada
 ============================================================= */
 
 /* Oculta el contenido solo durante un instante mientras se aplica el tema */
@@ -16,51 +16,51 @@ body.theme-ready {
 
 /* Estilo general del modo oscuro */
 body.dark-mode {
-  background-color: #121212 !important;
-  color: #f1f1f1 !important;
+  background-color: #192229 !important; /* Body - mantenido */
+  color: #EFF3F5 !important; /* Título */
 }
 
 /* Contenedores principales */
 body.dark-mode .container,
 body.dark-mode .card,
 body.dark-mode .modal-content {
-  background-color: #1e1e1e !important;
-  color: #f1f1f1 !important;
+  background-color: #212E36 !important; /* Contenedor */
+  color: #EFF3F5 !important; /* Título */
 }
 
 /* Menú lateral */
 body.dark-mode .menu {
-  background: var(--system-color-secondary-dark, #2a2a2a) !important;
+  background: #2A3B47 !important; /* Border */
 }
 
 body.dark-mode .menu a {
-  background: var(--system-color-primary-dark, #1e90ff) !important;
-  color: #fff !important;
+  background: #52A5E0 !important; /* Principal */
+  color: #EFF3F5 !important; /* Título */
 }
 
 body.dark-mode .menu a:hover {
-  background: #2d2d2d !important;
+  background: #A0A7AC !important; /* Claro */
 }
 
 /* Tablas */
 body.dark-mode table.dataTable thead th {
-  background-color: var(--system-color-primary-dark, #1e90ff) !important;
-  color: #fff !important;
+  background-color: #52A5E0 !important; /* Principal */
+  color: #EFF3F5 !important; /* Título */
 }
 
 /* Formularios */
 body.dark-mode .form-control,
 body.dark-mode .form-select {
-  background-color: #2a2a2a;
-  color: #f1f1f1;
-  border-color: #3a3a3a;
+  background-color: #2A3B47 !important; /* Border */
+  color: #EFF3F5 !important; /* Título */
+  border-color: #A0A7AC !important; /* Claro */
 }
 
 /* Alertas */
 body.dark-mode .alert-info {
-  background-color: rgba(33,74,130,0.15);
-  border-color: rgba(33,74,130,0.3);
-  color: #d0e0ff;
+  background-color: rgba(82, 165, 224, 0.15); /* Principal con transparencia */
+  border-color: rgba(82, 165, 224, 0.3); /* Principal con transparencia */
+  color: #EFF3F5 !important; /* Título */
 }
 
 /* Switch del tema */
@@ -68,20 +68,20 @@ body.dark-mode .alert-info {
   cursor: pointer;
   width: 2.4rem;
   height: 1.3rem;
-  background-color: #ccc;
+  background-color: #C8CDD0 !important; /* Contenido */
   border: none;
 }
 
 #themeToggleContainer .form-check-input:checked {
-  background-color: var(--system-color-primary);
+  background-color: #52A5E0 !important; /* Principal */
 }
 
 body.dark-mode #themeToggleContainer .form-check-input:checked {
-  background-color: var(--system-color-primary-dark, #1e90ff);
+  background-color: #52A5E0 !important; /* Principal */
 }
 
 body.dark-mode #themeToggleContainer {
-  background: rgba(255,255,255,0.08);
+  background: rgba(160, 167, 172, 0.08); /* Claro con transparencia */
 }
 
 
@@ -90,66 +90,66 @@ body.dark-mode #themeToggleContainer {
 ========================================================== */
 
 body.dark-mode table.dataTable {
-  background-color: #1f1f1f !important;
-  color: #eaeaea !important;
-  border-color: #333 !important;
+  background-color: #212E36 !important; /* Contenedor */
+  color: #EFF3F5 !important; /* Título */
+  border-color: #2A3B47 !important; /* Border */
 }
 
 /* Encabezado */
 body.dark-mode table.dataTable thead th {
-  background-color: var(--system-color-primary-dark, #1e90ff) !important;
-  color: #fff !important;
-  border-color: #2b2b2b !important;
+  background-color: #52A5E0 !important; /* Principal */
+  color: #EFF3F5 !important; /* Título */
+  border-color: #2A3B47 !important; /* Border */
 }
 
 /* Filas alternadas */
 body.dark-mode table.dataTable tbody tr:nth-child(odd) {
-  background-color: #242424 !important; /* tono base */
+  background-color: #212E36 !important; /* Contenedor - tono base */
 }
 
 body.dark-mode table.dataTable tbody tr:nth-child(even) {
-  background-color: #2b2b2b !important; /* tono alterno */
+  background-color: #2A3B47 !important; /* Border - tono alterno */
 }
 
 /* Hover */
 body.dark-mode table.dataTable tbody tr:hover {
-  background-color: #3a3a3a !important;
-  color: #fff !important;
+  background-color: #A0A7AC !important; /* Claro */
+  color: #EFF3F5 !important; /* Título */
 }
 
 /* Celdas */
 body.dark-mode table.dataTable td {
   background-color: transparent !important;
-  color: #f1f1f1 !important;
-  border-color: #333 !important;
+  color: #EFF3F5 !important; /* Título */
+  border-color: #2A3B47 !important; /* Border */
 }
 
 /* Fila seleccionada */
 body.dark-mode table.dataTable tbody tr.selected,
 body.dark-mode table.dataTable tbody tr.selected td {
-  background-color: var(--system-color-primary-dark, #1e90ff) !important;
-  color: #fff !important;
+  background-color: #52A5E0 !important; /* Principal */
+  color: #EFF3F5 !important; /* Título */
 }
 
 /* Buscador, paginación, info */
 body.dark-mode .dataTables_wrapper .dataTables_filter input,
 body.dark-mode .dataTables_wrapper .dataTables_length select {
-  background-color: #2a2a2a !important;
-  color: #f1f1f1 !important;
-  border: 1px solid #3a3a3a !important;
+  background-color: #2A3B47 !important; /* Border */
+  color: #EFF3F5 !important; /* Título */
+  border: 1px solid #A0A7AC !important; /* Claro */
 }
 
 body.dark-mode .dataTables_wrapper .dataTables_info,
 body.dark-mode .dataTables_wrapper .dataTables_paginate,
 body.dark-mode .dataTables_wrapper .dataTables_length,
 body.dark-mode .dataTables_wrapper .dataTables_filter {
-  color: #ddd !important;
+  color: #C8CDD0 !important; /* Contenido */
 }
 
 /* Paginación */
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button {
-  color: #ccc !important;
-  background: #3a3a3a !important;
+  color: #C8CDD0 !important; /* Contenido */
+  background: #2A3B47 !important; /* Border */
   border: none !important;
 }
 
@@ -158,9 +158,9 @@ body.dark-mode .page-link {
     display: block;
     padding: var(--bs-pagination-padding-y) var(--bs-pagination-padding-x);
     font-size: var(--bs-pagination-font-size);
-    color: #fff!important;
+    color: #EFF3F5 !important; /* Título */
     text-decoration: none;
-    background-color: #3a3a3a!important;
+    background-color: #2A3B47 !important; /* Border */
     border: var(--bs-pagination-border-width) solid var(--bs-pagination-border-color);
     transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
@@ -168,20 +168,20 @@ body.dark-mode .page-link {
 body.dark-mode .active>.page-link, .page-link.active {
     z-index: 3;
     color: var(--bs-pagination-active-color);
-    background-color: #53A5E1!important;
+    background-color: #52A5E0 !important; /* Principal */
     border-color: var(--bs-pagination-active-border-color);
 }
 
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current,
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-  background: var(--system-color-primary-dark, #1e90ff) !important;
-  color: #fff !important;
+  background: #52A5E0 !important; /* Principal */
+  color: #EFF3F5 !important; /* Título */
   border-radius: 4px !important;
 }
 
 /* Bordes de la tabla */
 body.dark-mode table.dataTable.no-footer {
-  border-bottom: 1px solid #333 !important;
+  border-bottom: 1px solid #2A3B47 !important; /* Border */
 }
 
 
@@ -199,7 +199,7 @@ body.dark-mode .portada::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55); /* intensidad del oscurecido */
+  background: rgba(25, 34, 41, 0.55); /* Body con transparencia */
   backdrop-filter: brightness(80%) saturate(85%);
   z-index: 0;
 }
@@ -217,8 +217,8 @@ body.dark-mode .topbar {
     left: 240px;
     right: 0;
     height: 50px;
-    background: var(--system-color-primary-dark, #1e90ff);
-    color: #fff;
+    background: #52A5E0; /* Principal */
+    color: #EFF3F5; /* Título */
     display: flex;
     align-items: center;
     justify-content: space-between;
