@@ -43,6 +43,7 @@ try {
     $wa_creditReminder_hour = $settings['wa_creditReminder_hour'] ?? '';
 	
 	
+	define('CONSENT', $settings['wa_consent_html']);
 	define('SITE_LOGO', '/admin/uploads/'.$settings['system_logo'].'') ;
 	define('SITE_ICON', '/admin/uploads/'.$settings['system_favicon'].'') ;
 	define('SITE_ICON', '/admin/uploads/'.$settings['system_favicon'].'') ;
