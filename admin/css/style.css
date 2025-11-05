@@ -220,7 +220,7 @@ table tbody tr {
     color: #000!important;
 }
 
-.bg-primary {
+#modalDetalle .bg-primary {
     
     background-color: var(--system-color-primary)!important;
 }
