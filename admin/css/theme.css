@@ -250,13 +250,15 @@ body.dark-mode .nav-tabs .nav-link.active {
 }
 
 body.dark-mode .portada h1 {
-    color: #000;
+    color: #fff;
     margin-bottom: 20px;
     font-weight: 600;
     border-bottom: 2px solid var(--system-color-primary-dark);
     padding-bottom: 10px;
     display: inline-block;
 }
+
+
 
 
 
