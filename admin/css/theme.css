@@ -305,6 +305,8 @@ body.dark-mode thead th {
 body.dark-mode #modalDetalle td {
 	
 	background-color: #212e36;
+	border: #fff;
+	color: #fff;
 }
 
 
