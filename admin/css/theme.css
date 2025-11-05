@@ -168,7 +168,7 @@ body.dark-mode .page-link {
 body.dark-mode .active>.page-link, .page-link.active {
     z-index: 3;
     color: var(--bs-pagination-active-color);
-    background-color: var(--system-color-primary-dark, #52A5E0) !important; /* Principal */
+    background-color: #53A5E1 !important; /* Azul específico de paginación */
     border-color: var(--bs-pagination-active-border-color);
 }
 
