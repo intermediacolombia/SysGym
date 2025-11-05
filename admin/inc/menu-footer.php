@@ -122,7 +122,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const themeSwitch = document.getElementById('themeSwitch');
@@ -130,9 +129,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const themeText = document.getElementById('themeText');
   const body = document.body;
 
-  // === Cargar preferencia guardada ===
-  const savedTheme = localStorage.getItem('theme-mode');
+  if (!themeSwitch || !themeIcon || !themeText) {
+    console.warn('Switch de tema no encontrado en el DOM.');
+    return;
+  }
 
+  // Leer preferencia guardada
+  const savedTheme = localStorage.getItem('theme-mode');
   if (savedTheme === 'dark') {
     body.classList.add('dark-mode');
     themeSwitch.checked = true;
@@ -143,22 +146,21 @@ document.addEventListener('DOMContentLoaded', () => {
     themeSwitch.checked = false;
     themeIcon.className = 'fas fa-sun text-warning';
     themeText.textContent = 'Modo Claro';
-  } else {
-    // Si no hay preferencia, seguir el sistema
+  }
+
+  // Detectar configuración del sistema si no hay preferencia
+  if (!savedTheme) {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     if (prefersDark) {
       body.classList.add('dark-mode');
       themeSwitch.checked = true;
       themeIcon.className = 'fas fa-moon text-warning';
       themeText.textContent = 'Modo Oscuro';
-    } else {
-      themeIcon.className = 'fas fa-sun text-warning';
-      themeText.textContent = 'Modo Claro';
     }
   }
 
-  // === Cambiar tema al usar el switch ===
-  themeSwitch.addEventListener('change', function() {
+  // Evento de cambio
+  themeSwitch.addEventListener('change', function () {
     if (this.checked) {
       body.classList.add('dark-mode');
       localStorage.setItem('theme-mode', 'dark');
@@ -173,6 +175,5 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 </script>
-
 
 

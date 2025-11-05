@@ -291,6 +291,57 @@ body:not(.dark-mode) #themeToggleContainer .form-check-label i.fa-sun {
   transform: rotate(10deg);
 }
 
+/* ===== MODO OSCURO MANUAL (con switch) ===== */
+body.dark-mode {
+  background-color: #121212 !important;
+  color: #f1f1f1 !important;
+}
+
+body.dark-mode .container,
+body.dark-mode .card,
+body.dark-mode .modal-content {
+  background-color: #1e1e1e !important;
+  color: #f1f1f1 !important;
+}
+
+body.dark-mode .portada {
+  background: url("/admin/images/portada2-dark.png") no-repeat center/cover !important;
+}
+
+body.dark-mode .portada h1 {
+  color: #f1f1f1 !important;
+  border-bottom-color: var(--system-color-primary-dark);
+}
+
+body.dark-mode table thead th {
+  background-color: var(--system-color-primary-dark) !important;
+  color: #fff !important;
+}
+
+body.dark-mode table tbody tr:hover {
+  background-color: var(--system-color-secondary-dark) !important;
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+  background-color: #2a2a2a !important;
+  color: #f1f1f1 !important;
+  border-color: #3a3a3a !important;
+}
+
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
+  border-color: var(--system-color-primary-dark) !important;
+  box-shadow: 0 0 0 0.2rem rgba(33, 74, 130, 0.4) !important;
+}
+
+body.dark-mode .alert-info {
+  background-color: rgba(33,74,130,0.15) !important;
+  border-color: rgba(33,74,130,0.3) !important;
+  color: #d0e0ff !important;
+}
+
+
 
 
 
