@@ -192,3 +192,20 @@ body.dark-mode .portada > * {
 }
 
 
+body.dark-mode .topbar {
+    position: fixed;
+    top: 0;
+    left: 240px;
+    right: 0;
+    height: 50px;
+    background: var(--system-color-primary-dark, #1e90ff);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    font-size: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    z-index: 1050;
+}
+
