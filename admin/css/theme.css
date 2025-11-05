@@ -68,6 +68,9 @@ body.dark-mode .alert-info {
 
 /*SwitchDark**/
 
+
+
+
 /* Switch mejorado */
 #themeToggleContainer {
   background: rgba(255,255,255,0.05);
@@ -78,6 +81,25 @@ body.dark-mode .alert-info {
 }
 
 #themeToggleContainer .theme-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #000;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+#themeToggleContainer .form-check-input {
+    cursor: pointer;
+    width: 48px;
+    height: 24px;
+    background-color: #fff;
+    border: 2px solid #A0A7AC;
+    transition: all 0.3s ease;
+}
+
+body.dark-mode #themeToggleContainer .theme-label {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -116,7 +138,7 @@ body.dark-mode .alert-info {
 }
 
 /* Switch personalizado */
-#themeToggleContainer .form-check-input {
+body.dark-mode #themeToggleContainer .form-check-input {
   cursor: pointer;
   width: 48px;
   height: 24px;
