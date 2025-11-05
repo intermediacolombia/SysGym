@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="<?php echo URLBASE; ?>/admin/css/style.css?cache=<?php echo time(); ?>">
 <link rel="stylesheet" href="<?php echo URLBASE; ?>/admin/css/cards.css?cache=<?php echo time(); ?>">
 <link rel="stylesheet" href="<?php echo URLBASE; ?>/admin/css/siluet.css?cache=<?php echo time(); ?>">
+<link rel="stylesheet" href="<?php echo URLBASE; ?>/admin/css/theme.css?cache=<?php echo time(); ?>">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
 <!-- DataTables Bootstrap 5 CSS -->
   <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">

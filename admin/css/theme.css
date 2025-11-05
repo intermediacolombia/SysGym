@@ -1,0 +1,64 @@
+/* =============================================================
+   TEMA OSCURO / CLARO - capa independiente
+   No interfiere con DataTables ni scripts del panel
+============================================================= */
+
+/* Oculta el contenido mientras se aplica el tema */
+body {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Tema oscuro */
+body.dark-mode {
+  background-color: #121212 !important;
+  color: #f1f1f1 !important;
+}
+
+body.dark-mode .container,
+body.dark-mode .card,
+body.dark-mode .modal-content {
+  background-color: #1e1e1e !important;
+  color: #f1f1f1 !important;
+}
+
+/* Menú lateral oscuro */
+body.dark-mode .menu {
+  background: var(--system-color-secondary-dark, #2a2a2a) !important;
+}
+
+body.dark-mode .menu a {
+  background: var(--system-color-primary-dark, #1e90ff) !important;
+  color: #fff !important;
+}
+
+body.dark-mode .menu a:hover {
+  background: #2d2d2d !important;
+}
+
+/* Tablas */
+body.dark-mode table.dataTable thead th {
+  background-color: var(--system-color-primary-dark, #1e90ff) !important;
+  color: #fff !important;
+}
+
+/* Formularios */
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+  background-color: #2a2a2a;
+  color: #f1f1f1;
+  border-color: #3a3a3a;
+}
+
+/* Alertas */
+body.dark-mode .alert-info {
+  background-color: rgba(33,74,130,0.15);
+  border-color: rgba(33,74,130,0.3);
+  color: #d0e0ff;
+}
+
+/* Transición final al mostrar contenido */
+body.theme-ready {
+  opacity: 1;
+}
+

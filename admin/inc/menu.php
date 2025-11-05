@@ -3,7 +3,23 @@
             <img src="<?php echo $url;?>/<?php echo SITE_LOGO;?>" alt="Logo">
 			 <br><br>
    <?php echo htmlspecialchars($nombre . " " . $apellido); ?>
-    <p><strong><?php echo htmlspecialchars($rolUser); ?></strong></p>			
+    <p><strong><?php echo htmlspecialchars($rolUser); ?></strong></p>
+			
+			<!-- ====== SWITCH MODO OSCURO ====== -->
+<div id="themeToggleContainer" class="d-flex align-items-center justify-content-between px-3 py-2 border-top border-secondary mt-3">
+  <span class="fw-semibold text-white">
+    <i class="fas fa-moon me-2"></i> Modo oscuro
+  </span>
+  
+  <div class="form-check form-switch m-0">
+    <input class="form-check-input" type="checkbox" role="switch" id="themeToggle">
+    <label class="form-check-label" for="themeToggle">
+      <i class="fas fa-sun text-warning"></i>
+    </label>
+  </div>
+</div>
+
+			
     <!-- Resto del contenido de tu dashboard -->  
         </div>      
 	<a href="<?php echo $url;?>/admin/" onclick="closeSubmenus()"><i class="fas fa-home"></i> Inicio</a>
