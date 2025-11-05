@@ -277,8 +277,8 @@ body.dark-mode .text-muted {
     color: #fff!important;
 }
 
-li.list-group-item.px-0.d-flex.justify-content-between.align-items-center {
-    background: #2B3B48;
+body.dark-mode li.list-group-item.px-0.d-flex.justify-content-between.align-items-center {
+    background: #212E36;
 	color: #fff;
 }
 
