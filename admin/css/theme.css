@@ -146,12 +146,6 @@ body.dark-mode .dataTables_wrapper .dataTables_filter {
   color: #ddd !important;
 }
 
-/* Paginación */
-body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button {
-  color: #ccc !important;
-  background: transparent !important;
-  border: none !important;
-}
 
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current,
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
@@ -164,6 +158,74 @@ body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
 body.dark-mode table.dataTable.no-footer {
   border-bottom: 1px solid #333 !important;
 }
+
+/* ==========================================================
+   DATATABLES – PAGINACIÓN MODO OSCURO
+========================================================== */
+
+body.dark-mode .dataTables_wrapper .dataTables_paginate {
+  margin-top: 0.75rem;
+}
+
+/* Botones base */
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button {
+  color: #ddd !important;
+  background: #2a2a2a !important;
+  border: 1px solid #3a3a3a !important;
+  border-radius: 4px !important;
+  margin: 0 2px;
+  padding: 5px 10px;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hover */
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: #3a3a3a !important;
+  color: #fff !important;
+  border-color: #555 !important;
+}
+
+/* Botón actual (activo) */
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+  background: var(--system-color-primary-dark, #1e90ff) !important;
+  color: #fff !important;
+  border-color: var(--system-color-primary-dark, #1e90ff) !important;
+  font-weight: 600;
+  box-shadow: 0 0 4px rgba(30,144,255,0.4);
+}
+
+/* Botones deshabilitados */
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+  background: #1a1a1a !important;
+  color: #777 !important;
+  border-color: #2a2a2a !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Íconos prev/next */
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.previous,
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.next {
+  font-weight: 600;
+  color: #ccc !important;
+}
+
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.previous:hover,
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.next:hover {
+  color: #fff !important;
+  background: #333 !important;
+}
+
+/* Ajuste visual para alineación */
+body.dark-mode .dataTables_wrapper .dataTables_paginate {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 2px;
+}
+
 
 
 /* ==========================================================
