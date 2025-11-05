@@ -53,7 +53,7 @@ try {
       <h4 class="text-center mb-3">Consentimiento Informado</h4>
       <p>Hola <strong><?= htmlspecialchars($tokenData['nombres'] . ' ' . $tokenData['apellidos']) ?></strong>,</p>
       <p>Por favor confirma tu consentimiento informado antes de continuar:</p>
-
+		<?php echo CONSENT;?>
       <form method="POST" action="submit.php">
         <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
         <div class="form-check mb-3">
