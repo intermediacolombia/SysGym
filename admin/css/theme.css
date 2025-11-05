@@ -342,6 +342,10 @@ body.dark-mode .nav-tabs .nav-link {
   color: #C8CDD0; /* Contenido */
 }
 
+body.dark-mode .nav-link {
+    color: #5C5B5B!important;
+}
+
 /* Hover en modo oscuro */
 body.dark-mode .nav-tabs .nav-link:hover {
   background-color: #2A3B47; /* Border */
