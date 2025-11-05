@@ -166,3 +166,29 @@ body.dark-mode table.dataTable.no-footer {
 }
 
 
+/* ==========================================================
+   PORTADA - AJUSTE SOLO PARA MODO OSCURO
+========================================================== */
+
+body.dark-mode .portada {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Oscurecer la imagen solo en modo oscuro */
+body.dark-mode .portada::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55); /* intensidad del oscurecido */
+  backdrop-filter: brightness(80%) saturate(85%);
+  z-index: 0;
+}
+
+/* Asegurar que el contenido quede encima */
+body.dark-mode .portada > * {
+  position: relative;
+  z-index: 1;
+}
+
+
