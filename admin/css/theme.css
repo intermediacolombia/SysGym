@@ -87,14 +87,13 @@ body.dark-mode #themeToggleContainer {
 
 
 /* ==========================================================
-   COMPATIBILIDAD DATATABLES - MODO OSCURO
-   (Colores oscuros y coherentes con el sistema)
+   DATATABLES - MODO OSCURO (solo cambio de colores)
 ========================================================== */
 
+/* Fondo general de tabla */
 body.dark-mode table.dataTable {
-  background-color: #1f1f1f !important;
+  background-color: #1e1e1e !important;
   color: #eaeaea !important;
-  border-color: #333 !important;
 }
 
 /* Encabezado */
@@ -106,71 +105,56 @@ body.dark-mode table.dataTable thead th {
 
 /* Filas alternadas */
 body.dark-mode table.dataTable tbody tr:nth-child(odd) {
-  background-color: #242424 !important;
+  background-color: #232323 !important;
 }
-
 body.dark-mode table.dataTable tbody tr:nth-child(even) {
-  background-color: #2b2b2b !important;
+  background-color: #1c1c1c !important;
 }
 
 /* Hover */
 body.dark-mode table.dataTable tbody tr:hover {
-  background-color: #3a3a3a !important;
+  background-color: #333 !important;
   color: #fff !important;
 }
 
-/* Celdas */
+/* Texto de celdas */
 body.dark-mode table.dataTable td {
-  background-color: transparent !important;
-  color: #f1f1f1 !important;
-  border-color: #333 !important;
+  color: #e0e0e0 !important;
+  border-color: #2a2a2a !important;
 }
 
-/* Fila seleccionada */
-body.dark-mode table.dataTable tbody tr.selected,
-body.dark-mode table.dataTable tbody tr.selected td {
-  background-color: var(--system-color-primary-dark, #1e90ff) !important;
-  color: #fff !important;
-}
-
-/* Campos: buscador y cantidad de registros */
+/* Inputs del buscador y select de cantidad */
 body.dark-mode .dataTables_wrapper .dataTables_filter input,
 body.dark-mode .dataTables_wrapper .dataTables_length select {
   background-color: #2a2a2a !important;
   color: #f1f1f1 !important;
   border: 1px solid #3a3a3a !important;
-  border-radius: 4px;
 }
 
+/* Textos de info y labels */
 body.dark-mode .dataTables_wrapper .dataTables_info,
 body.dark-mode .dataTables_wrapper .dataTables_paginate,
 body.dark-mode .dataTables_wrapper .dataTables_length,
-body.dark-mode .dataTables_wrapper .dataTables_filter {
-  color: #ddd !important;
-}
-
-/* Bordes inferiores de tabla */
-body.dark-mode table.dataTable.no-footer {
-  border-bottom: 1px solid #333 !important;
+body.dark-mode .dataTables_wrapper .dataTables_filter label {
+  color: #ccc !important;
 }
 
 /* ==========================================================
-   DATATABLES – PAGINACIÓN MODO OSCURO (SOLO COLORES)
+   PAGINACIÓN (solo colores, sin tocar tamaños ni paddings)
 ========================================================== */
-
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button {
   color: #ccc !important;
-  background-color: #1f1f1f !important;
+  background-color: #1c1c1c !important;
   border: 1px solid #333 !important;
 }
 
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-  background-color: #333 !important;
   color: #fff !important;
+  background-color: #2f2f2f !important;
   border-color: #555 !important;
 }
 
-/* Botón activo (página actual) */
+/* Botón actual */
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current,
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
   background-color: var(--system-color-primary-dark, #1e90ff) !important;
@@ -178,14 +162,13 @@ body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current
   border-color: var(--system-color-primary-dark, #1e90ff) !important;
 }
 
-/* Botones deshabilitados */
+/* Deshabilitados */
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
-  color: #666 !important;
+  color: #777 !important;
   background-color: #141414 !important;
   border-color: #222 !important;
-  cursor: default !important;
-  opacity: 0.7;
+  opacity: 0.6 !important;
 }
 
 
