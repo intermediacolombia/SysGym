@@ -3,11 +3,11 @@
    Paleta de colores optimizada
 ============================================================= */
 
-/* Oculta el contenido solo durante un instante mientras se aplica el tema 
+/* Oculta el contenido solo durante un instante mientras se aplica el tema */
 body {
   opacity: 0;
   transition: opacity 0.3s ease, background-color 0.3s ease, color 0.3s ease;
-}*/
+}
 
 /* Cuando el tema está listo, se muestra el contenido */
 body.theme-ready {

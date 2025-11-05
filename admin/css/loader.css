@@ -1,0 +1,61 @@
+/* ==========================================================
+   LOADER CIRCULAR DE INICIO - INTERMEDIA COLOMBIA
+   Archivo: /admin/css/loader.css
+========================================================== */
+
+#page-loader {
+  position: fixed;
+  inset: 0;
+  background-color: #121212;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+#page-loader.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Círculo principal */
+.loader-circle {
+  width: 65px;
+  height: 65px;
+  border: 5px solid rgba(255, 255, 255, 0.15);
+  border-top-color: var(--system-color-primary-dark, #1e90ff);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  position: relative;
+}
+
+/* Efecto brillante interior */
+.loader-circle::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
+  border: 3px solid transparent;
+  border-top-color: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  animation: spin 1.5s linear reverse infinite;
+}
+
+/* Animación */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Modo claro */
+body:not(.dark-mode) #page-loader {
+  background-color: #f9f9f9;
+}
+
+body:not(.dark-mode) .loader-circle {
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-top-color: var(--system-color-primary, #214A82);
+}
+
