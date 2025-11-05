@@ -25,10 +25,11 @@
   padding: 7px 15px;
   text-decoration: none!important;
   color: #EFF3F5!important; /* Título */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
   transition: background 0.3s, color 0.3s;
   border-radius: 10px;
   background: var(--system-color-primary);
+
 }
 .menu a:hover {
   background: #000; /* Claro */
