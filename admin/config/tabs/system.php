@@ -31,49 +31,96 @@
 
       <hr class="my-4">
 
-      <!-- COLORES DEL SISTEMA -->
-      <h5 class="text-primary mb-3"><i class="fas fa-palette me-2"></i>Colores del Sistema</h5>
+     
+<!-- ===== COLORES DEL SISTEMA ===== -->
+<h5 class="text-primary mb-4"><i class="fas fa-palette me-2"></i>Colores del Sistema</h5>
 
-      <div class="row">
-        <!-- COLOR PRINCIPAL -->
-        <div class="col-md-6 mb-4">
-          <label class="form-label d-flex align-items-center gap-2">
-            <strong>Color Principal</strong>
-            <span id="previewPrimary" class="border rounded" style="display:inline-block; width:25px; height:25px; background: <?= htmlspecialchars($settings['system_color_primary'] ?? '#0d6efd') ?>;"></span>
-          </label>
-          <input type="color" class="form-control form-control-color" id="colorPrimary" name="system_color_primary"
-                 value="<?= htmlspecialchars($settings['system_color_primary'] ?? '#0d6efd') ?>">
-          <small class="text-muted">Se usa en botones, encabezados y acentos principales.</small>
-        </div>
+<div class="card border-0 shadow-sm">
+  <div class="card-body">
 
-        <!-- COLOR SECUNDARIO -->
-        <div class="col-md-6 mb-4">
-          <label class="form-label d-flex align-items-center gap-2">
-            <strong>Color Secundario</strong>
-            <span id="previewSecondary" class="border rounded" style="display:inline-block; width:25px; height:25px; background: <?= htmlspecialchars($settings['system_color_secondary'] ?? '#6c757d') ?>;"></span>
-          </label>
-          <input type="color" class="form-control form-control-color" id="colorSecondary" name="system_color_secondary"
-                 value="<?= htmlspecialchars($settings['system_color_secondary'] ?? '#6c757d') ?>">
-          <small class="text-muted">Se usa en textos, fondos secundarios y etiquetas.</small>
+    <p class="text-muted mb-4">Configura los colores base del sistema. Los tonos del modo oscuro se aplican automáticamente cuando el usuario activa el tema oscuro.</p>
+
+    <div class="row g-4">
+
+      <!-- ===== PALETA MODO CLARO ===== -->
+      <div class="col-lg-6">
+        <div class="border rounded p-3 h-100 bg-light">
+          <h6 class="fw-bold text-secondary mb-3"><i class="fas fa-sun me-1 text-warning"></i> Modo Claro</h6>
+
+          <div class="mb-3">
+            <label class="form-label d-flex align-items-center gap-2">
+              <strong>Color Primario</strong>
+              <span id="previewPrimary" class="border rounded-circle shadow-sm" 
+                    style="width: 28px; height: 28px; background: <?= htmlspecialchars(SYSTEM_COLOR_PRIMARY) ?>;"></span>
+            </label>
+            <input type="color" class="form-control form-control-color w-100" id="colorPrimary"
+                   name="system_color_primary" value="<?= htmlspecialchars(SYSTEM_COLOR_PRIMARY) ?>">
+          </div>
+
+          <div>
+            <label class="form-label d-flex align-items-center gap-2">
+              <strong>Color Secundario</strong>
+              <span id="previewSecondary" class="border rounded-circle shadow-sm" 
+                    style="width: 28px; height: 28px; background: <?= htmlspecialchars(SYSTEM_COLOR_SECONDARY) ?>;"></span>
+            </label>
+            <input type="color" class="form-control form-control-color w-100" id="colorSecondary"
+                   name="system_color_secondary" value="<?= htmlspecialchars(SYSTEM_COLOR_SECONDARY) ?>">
+          </div>
         </div>
       </div>
 
-      <div class="alert alert-info small mb-0">
-        <i class="fas fa-info-circle me-1"></i>Estos colores afectan el tema general del panel y de la aplicación.
+      <!-- ===== PALETA MODO OSCURO ===== -->
+      <div class="col-lg-6">
+        <div class="border rounded p-3 h-100 bg-dark text-white">
+          <h6 class="fw-bold mb-3"><i class="fas fa-moon me-1 text-info"></i> Modo Oscuro</h6>
+
+          <div class="mb-3">
+            <label class="form-label d-flex align-items-center gap-2">
+              <strong>Color Primario (Oscuro)</strong>
+              <span id="previewPrimaryDark" class="border rounded-circle shadow-sm" 
+                    style="width: 28px; height: 28px; background: <?= htmlspecialchars(SYSTEM_COLOR_PRIMARY_DARK) ?>;"></span>
+            </label>
+            <input type="color" class="form-control form-control-color w-100" id="colorPrimaryDark"
+                   name="system_color_primary_dark" value="<?= htmlspecialchars(SYSTEM_COLOR_PRIMARY_DARK) ?>">
+          </div>
+
+          <div>
+            <label class="form-label d-flex align-items-center gap-2">
+              <strong>Color Secundario (Oscuro)</strong>
+              <span id="previewSecondaryDark" class="border rounded-circle shadow-sm" 
+                    style="width: 28px; height: 28px; background: <?= htmlspecialchars(SYSTEM_COLOR_SECONDARY_DARK) ?>;"></span>
+            </label>
+            <input type="color" class="form-control form-control-color w-100" id="colorSecondaryDark"
+                   name="system_color_secondary_dark" value="<?= htmlspecialchars(SYSTEM_COLOR_SECONDARY_DARK) ?>">
+          </div>
+        </div>
       </div>
+
     </div>
+
+    <div class="alert alert-info small mt-4 mb-0">
+      <i class="fas fa-info-circle me-1"></i>Estos colores definen el aspecto general del panel, incluyendo menús, encabezados y botones.
+    </div>
+
   </div>
 </div>
 
-<!-- Script para actualizar las vistas previas -->
+<!-- Script para vistas previas -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const primary = document.getElementById('colorPrimary');
-  const secondary = document.getElementById('colorSecondary');
-  const previewP = document.getElementById('previewPrimary');
-  const previewS = document.getElementById('previewSecondary');
-
-  primary?.addEventListener('input', e => previewP.style.background = e.target.value);
-  secondary?.addEventListener('input', e => previewS.style.background = e.target.value);
+  const updates = [
+    ['colorPrimary', 'previewPrimary'],
+    ['colorSecondary', 'previewSecondary'],
+    ['colorPrimaryDark', 'previewPrimaryDark'],
+    ['colorSecondaryDark', 'previewSecondaryDark']
+  ];
+  updates.forEach(([inputId, previewId]) => {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    if (input && preview) {
+      input.addEventListener('input', e => preview.style.background = e.target.value);
+    }
+  });
 });
 </script>
+
