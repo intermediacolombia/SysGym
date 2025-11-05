@@ -380,6 +380,19 @@ body.dark-mode .nav-tabs .nav-link:hover .material-icons {
 }
 
 
+body.dark-mode .form-control-plaintext {
+    display: block;
+    width: 100%;
+    padding: .375rem 0;
+    margin-bottom: 0;
+    line-height: 1.5;
+    color: #fff;
+    background-color: transparent;
+    border: solid transparent;
+    border-width: var(--bs-border-width) 0;
+}
+
+
 
 
 
