@@ -48,7 +48,6 @@ try {
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <style>
 body {
   background-color: #f5f5f5;
@@ -62,25 +61,46 @@ canvas {
   border: 1px solid #ccc;
   border-radius: 5px;
   cursor: crosshair;
+  background-color: white;
 }
 .modal-header {
   background-color: <?= SYSTEM_COLOR_PRIMARY; ?>;
   color: white;
 }
+.btn-primary-custom {
+  background-color: <?= SYSTEM_COLOR_PRIMARY; ?> !important;
+  border-color: <?= SYSTEM_COLOR_PRIMARY; ?> !important;
+  color: white !important;
+}
+.btn-primary-custom:hover {
+  opacity: 0.9;
+  background-color: <?= SYSTEM_COLOR_PRIMARY; ?> !important;
+  border-color: <?= SYSTEM_COLOR_PRIMARY; ?> !important;
+}
+.btn-outline-primary-custom {
+  color: <?= SYSTEM_COLOR_PRIMARY; ?> !important;
+  border-color: <?= SYSTEM_COLOR_PRIMARY; ?> !important;
+}
+.btn-outline-primary-custom:hover {
+  background-color: <?= SYSTEM_COLOR_PRIMARY; ?> !important;
+  border-color: <?= SYSTEM_COLOR_PRIMARY; ?> !important;
+  color: white !important;
+}
+.text-primary-custom {
+  color: <?= SYSTEM_COLOR_PRIMARY; ?> !important;
+}
 </style>
 </head>
 <body class="py-5">
-
 <div class="container">
   <div class="card shadow mx-auto" style="max-width:600px;">
     <div class="card-body">
-      <h4 class="text-center mb-4 text-success">Consentimiento Informado</h4>
+      <h4 class="text-center mb-4 text-primary-custom">Consentimiento Informado</h4>
       <p>Hola <strong><?= htmlspecialchars($tokenData['nombres'] . ' ' . $tokenData['apellidos']) ?></strong>,</p>
       <p>Por favor lee atentamente el siguiente consentimiento y firma para confirmar tu aceptación.</p>
       <div class="border p-3 mb-3 bg-light rounded" style="max-height:250px; overflow-y:auto;">
         <?= defined('CONSENT') ? CONSENT : '<p>No se encontró el texto del consentimiento.</p>'; ?>
       </div>
-
       <form id="consentForm" method="POST" action="submit.php">
         <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
         <input type="hidden" name="firma_digital_cliente" id="firma_digital_cliente">
@@ -91,41 +111,38 @@ canvas {
             He leído y acepto los términos del consentimiento informado.
           </label>
         </div>
-
         <div class="mb-3 text-center">
-          <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalFirma">
+          <button type="button" class="btn btn-outline-primary-custom" data-bs-toggle="modal" data-bs-target="#modalFirma">
             <i class="fa fa-pen"></i> Firmar Digitalmente
           </button>
         </div>
-
         <div class="text-center">
           <img id="firma_preview" src="" alt="Firma del cliente" class="img-fluid mb-3" style="display:none; max-height:120px;">
         </div>
-
-        <button type="submit" class="btn btn-success w-100" style="background: <?= SYSTEM_COLOR_PRIMARY; ?>!important" disabled>Enviar Consentimiento</button>
+        <button type="submit" class="btn btn-primary-custom w-100" disabled>Enviar Consentimiento</button>
       </form>
     </div>
   </div>
 </div>
-
 <!-- Modal Firma -->
 <div class="modal fade" id="modalFirma" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header" style="background: <?= SYSTEM_COLOR_PRIMARY; ?>!important">
+      <div class="modal-header">
         <h5 class="modal-title">Firma Digital del Cliente</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body text-center">
         <canvas id="canvasFirma" width="350" height="150"></canvas>
         <div class="mt-3">
           <button type="button" id="clearFirma" class="btn btn-danger btn-sm">Borrar</button>
-          <button type="button" id="saveFirma" class="btn btn-primary btn-sm">Guardar Firma</button>
+          <button type="button" id="saveFirma" class="btn btn-primary-custom btn-sm">Guardar Firma</button>
         </div>
       </div>
     </div>
   </div>
 </div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
