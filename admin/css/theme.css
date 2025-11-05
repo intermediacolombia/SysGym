@@ -259,8 +259,14 @@ body.dark-mode .portada h1 {
 }
 
 
+body.dark-mode .text-primary {
+    color: #fff!important;
+}
+
 body.dark-mode .menu span.fw-semibold.text-white {
     color: #fff!important;
 }
+
+
 
 
