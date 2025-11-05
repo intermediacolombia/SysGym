@@ -69,7 +69,8 @@ try {
     $stmtMsg = $pdo->query("SELECT value FROM system_settings WHERE setting_name='wa_consent_pending' LIMIT 1");
     $mensajePlantilla = $stmtMsg->fetchColumn();
     if (!$mensajePlantilla) {
-        $mensajePlantilla = "Hola {nombres}, por favor completa tu consentimiento informado aquí: {link}";
+        $mensajePlantilla = $wa_consent_pending;
+        //$mensajePlantilla = "Hola {nombres}, por favor completa tu consentimiento informado aquí: {link}";
     }
 
     /* ──────────────────────────────────────────────

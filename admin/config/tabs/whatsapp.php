@@ -19,6 +19,9 @@
           'wa_consent' => [
             'label' => 'Mensaje de consentimiento informado',
             'campos' => '{nombres}, {apellidos}'
+          ],'wa_consent_pending' => [
+            'label' => 'Mensaje de consentimiento informado Pendiente',
+            'campos' => '{nombres}, {apellidos}, {cedula}, {link}'
           ],
           'wa_client_pay' => [
             'label' => 'Mensaje de pago mensualidad del cliente',
