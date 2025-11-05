@@ -268,5 +268,20 @@ body.dark-mode .menu span.fw-semibold.text-white {
 }
 
 
+body.dark-mode .card-header.bg-danger.text-white {
+    background: var(--system-color-primary-dark)!important;
+}
+
+body.dark-mode .text-muted {
+    --bs-text-opacity: 1;
+    color: #fff!important;
+}
+
+li.list-group-item.px-0.d-flex.justify-content-between.align-items-center {
+    background: #2B3B48;
+	color: #fff;
+}
+
+
 
 
