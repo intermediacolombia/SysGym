@@ -292,7 +292,7 @@ body.dark-mode .profile-card {
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-body.dark-mode .bg-primary {
+body.dark-mode #modalDetalle .bg-primary {
     --bs-bg-opacity: 1;
     background-color: rgba(var(--system-color-primary-dark)!important,var(--bs-bg-opacity))!important;
 }
