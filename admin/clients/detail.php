@@ -1337,6 +1337,42 @@ $('#valoraciones-table tbody').on('click', 'tr', function(){
       $("#editCreditBankSelection").val("");
     }
   });
+	
+	
+	
+	$('#sendConsentLink').on('click', function(){
+    const clientId = "<?php echo $id; ?>";
+    Swal.fire({
+        title: 'Enviar consentimiento',
+        text: '¿Deseas enviar el enlace de consentimiento pendiente al cliente por WhatsApp?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, enviar',
+        cancelButtonText: 'Cancelar'
+    }).then(result => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '/whatsapp/send_pending_consent.php',
+                type: 'POST',
+                dataType: 'json',
+                data: { cliente_id: clientId },
+                success: function(res){
+                    if (res.status === 'success') {
+                        Swal.fire('Enviado', res.message, 'success');
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+                },
+                error: function(){
+                    Swal.fire('Error', 'No se pudo contactar con el servidor.', 'error');
+                }
+            });
+        }
+    });
+});
+
+
+	
 
 });
 </script>

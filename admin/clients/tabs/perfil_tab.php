@@ -149,27 +149,41 @@
 </div>
 
         <!-- CONSENTIMIENTO Y NOTIFICACIONES -->
-        <div class="col-12">
-          <div class="card shadow-sm border-0">
-            <div class="card-header bg-success text-white fw-bold">Consentimiento y Notificaciones</div>
-            <div class="card-body small">
-              <p><strong>Recibe Notificaciones:</strong> <?php echo ($cliente['notificaciones'] == 0) ? 'NO' : 'SÍ'; ?></p>
-              <p><strong>Consentimiento informado:</strong>
-                <?php if ($formId): ?>
-                  <a href="/pdf/?type=consent&id=<?php echo urlencode($formId); ?>" class="text-success fw-bold"><i class="fa fa-file-pdf-o"></i> Descargar</a>
-                  <?php if (isset($_SESSION["user_permissions"]) && in_array('Reenviar Consentimiento informado', $_SESSION["user_permissions"])): ?>
-                    <button id="resendConsent" class="btn btn-link text-success"><i class="fa fa-paper-plane"></i> Reenviar</button>
-                  <?php endif; ?>
-                <?php else: ?>
-                  <span>No disponible</span>
-                <?php endif; ?>
-              </p>
-              <button type="button" class="btn btn-success mt-2" data-bs-toggle="modal" data-bs-target="#messagesModal" <?php echo ($cliente['congelado'] == 1) ? 'disabled' : ''; ?>>
-                <i class="fa fa-whatsapp"></i> Ver Mensajes Enviados
-              </button>
-            </div>
-          </div>
-        </div>
+  <div class="col-12">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-success text-white fw-bold">Consentimiento y Notificaciones</div>
+    <div class="card-body small">
+      <p><strong>Recibe Notificaciones:</strong> <?php echo ($cliente['notificaciones'] == 0) ? 'NO' : 'SÍ'; ?></p>
+      <p><strong>Consentimiento informado:</strong>
+        <?php if ($formId): ?>
+          <a href="/pdf/?type=consent&id=<?php echo urlencode($formId); ?>" class="text-success fw-bold">
+            <i class="fa fa-file-pdf-o"></i> Descargar
+          </a>
+          <?php if (isset($_SESSION["user_permissions"]) && in_array('Reenviar Consentimiento informado', $_SESSION["user_permissions"])): ?>
+            <button id="resendConsent" class="btn btn-link text-success">
+              <i class="fa fa-paper-plane"></i> Reenviar
+            </button>
+          <?php endif; ?>
+        <?php else: ?>
+          <span class="text-danger fw-bold">No firmado</span>
+          <?php if (isset($_SESSION["user_permissions"]) && in_array('Reenviar Consentimiento informado', $_SESSION["user_permissions"])): ?>
+            <button id="sendConsentLink" class="btn btn-link text-success">
+              <i class="fa fa-whatsapp"></i> Enviar por WhatsApp
+            </button>
+          <?php endif; ?>
+        <?php endif; ?>
+      </p>
+
+      <button type="button" class="btn btn-success mt-2"
+              data-bs-toggle="modal"
+              data-bs-target="#messagesModal"
+              <?php echo ($cliente['congelado'] == 1) ? 'disabled' : ''; ?>>
+        <i class="fa fa-whatsapp"></i> Ver Mensajes Enviados
+      </button>
+    </div>
+  </div>
+</div>
+
 
       </div>
     </div>
