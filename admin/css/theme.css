@@ -483,10 +483,56 @@ body.dark-mode .form-control-plaintext {
 }
 
 
-body.dark-mode .card-body {
-    flex: 1 1 auto;
-    padding: var(--bs-card-spacer-y) var(--bs-card-spacer-x);
-    color: var(--bs-card-color);
+/* ====== TARJETAS DE ESTADÍSTICAS - MODO OSCURO ====== */
+
+/* Mantener los colores de fondo suaves en modo oscuro */
+body.dark-mode .card-soft {
+  color: #EFF3F5 !important;
+}
+
+body.dark-mode .card-soft h3 {
+  color: #EFF3F5 !important;
+}
+
+body.dark-mode .card-soft p {
+  color: #C8CDD0 !important;
+}
+
+/* Ajustar cada color para modo oscuro manteniendo su identidad */
+body.dark-mode .bg-soft-blue {
+  background-color: rgba(82, 165, 224, 0.2) !important; /* Azul suave */
+  border: 1px solid rgba(82, 165, 224, 0.3);
+}
+
+body.dark-mode .bg-soft-green {
+  background-color: rgba(40, 167, 69, 0.2) !important; /* Verde suave */
+  border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+body.dark-mode .bg-soft-yellow {
+  background-color: rgba(253, 184, 19, 0.2) !important; /* Amarillo suave */
+  border: 1px solid rgba(253, 184, 19, 0.3);
+}
+
+body.dark-mode .bg-soft-purple {
+  background-color: rgba(111, 66, 193, 0.2) !important; /* Morado suave */
+  border: 1px solid rgba(111, 66, 193, 0.3);
+}
+
+body.dark-mode .bg-soft-red {
+  background-color: rgba(220, 53, 69, 0.2) !important; /* Rojo suave */
+  border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+/* Sombras más sutiles en modo oscuro */
+body.dark-mode .card-soft.shadow-sm {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Efecto hover en modo oscuro */
+body.dark-mode .card-soft:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease;
 }
 
 
