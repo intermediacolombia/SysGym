@@ -228,3 +228,11 @@ body.dark-mode .topbar {
     z-index: 1050;
 }
 
+body.dark-mode .tab-content {
+    background: #192229;
+    border-radius: 0 0 .5rem .5rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    padding: 25px;
+    animation: fadeIn .3s ease-in-out;
+}
+
