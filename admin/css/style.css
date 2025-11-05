@@ -216,7 +216,9 @@ table tbody tr {
 
 
 
-
+.menu span.fw-semibold.text-white {
+    color: #000!important;
+}
 
 
 
