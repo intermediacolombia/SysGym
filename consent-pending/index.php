@@ -129,26 +129,91 @@ canvas {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// === Lógica de firma en canvas ===
+// === Lógica de firma en canvas (CORREGIDA) ===
 const canvas = document.getElementById('canvasFirma');
 const ctx = canvas.getContext('2d');
 let drawing = false;
+let lastX = 0;
+let lastY = 0;
 
-canvas.addEventListener('mousedown', e => { drawing = true; draw(e); });
-canvas.addEventListener('mouseup', () => drawing = false);
-canvas.addEventListener('mouseout', () => drawing = false);
-canvas.addEventListener('mousemove', draw);
+// Configuración del estilo de dibujo
+ctx.lineWidth = 2;
+ctx.lineCap = 'round';
+ctx.strokeStyle = '#000';
 
-function draw(e) {
-  if (!drawing) return;
-  ctx.lineWidth = 2;
-  ctx.lineCap = 'round';
-  ctx.strokeStyle = '#000';
-  ctx.lineTo(e.offsetX, e.offsetY);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(e.offsetX, e.offsetY);
+// Función para obtener coordenadas correctas
+function getMousePos(e) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top
+  };
 }
+
+function getTouchPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: e.touches[0].clientX - rect.left,
+    y: e.touches[0].clientY - rect.top
+  };
+}
+
+// Eventos para mouse
+canvas.addEventListener('mousedown', (e) => {
+  drawing = true;
+  const pos = getMousePos(e);
+  lastX = pos.x;
+  lastY = pos.y;
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  if (!drawing) return;
+  const pos = getMousePos(e);
+  
+  ctx.beginPath();
+  ctx.moveTo(lastX, lastY);
+  ctx.lineTo(pos.x, pos.y);
+  ctx.stroke();
+  
+  lastX = pos.x;
+  lastY = pos.y;
+});
+
+canvas.addEventListener('mouseup', () => {
+  drawing = false;
+});
+
+canvas.addEventListener('mouseout', () => {
+  drawing = false;
+});
+
+// Eventos para touch (móviles/tablets)
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  drawing = true;
+  const pos = getTouchPos(e);
+  lastX = pos.x;
+  lastY = pos.y;
+});
+
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  if (!drawing) return;
+  const pos = getTouchPos(e);
+  
+  ctx.beginPath();
+  ctx.moveTo(lastX, lastY);
+  ctx.lineTo(pos.x, pos.y);
+  ctx.stroke();
+  
+  lastX = pos.x;
+  lastY = pos.y;
+});
+
+canvas.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  drawing = false;
+});
 
 // Limpiar firma
 $('#clearFirma').on('click', function(){
