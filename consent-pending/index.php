@@ -64,7 +64,7 @@ canvas {
   cursor: crosshair;
 }
 .modal-header {
-  background-color: #28a745;
+  background-color: <?= SYSTEM_COLOR_PRIMARY; ?>;
   color: white;
 }
 </style>
@@ -102,7 +102,7 @@ canvas {
           <img id="firma_preview" src="" alt="Firma del cliente" class="img-fluid mb-3" style="display:none; max-height:120px;">
         </div>
 
-        <button type="submit" class="btn btn-success w-100" disabled>Enviar Consentimiento</button>
+        <button type="submit" class="btn btn-success w-100" style="background: <?= SYSTEM_COLOR_PRIMARY; ?>!important" disabled>Enviar Consentimiento</button>
       </form>
     </div>
   </div>
@@ -112,7 +112,7 @@ canvas {
 <div class="modal fade" id="modalFirma" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="modal-header" style="background: <?= SYSTEM_COLOR_PRIMARY; ?>!important">
         <h5 class="modal-title">Firma Digital del Cliente</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
