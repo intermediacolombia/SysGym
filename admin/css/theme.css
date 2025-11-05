@@ -30,11 +30,11 @@ body.dark-mode .modal-content {
 
 /* Menú lateral */
 body.dark-mode .menu {
-  background: #2A3B47 !important; /* Border */
+  background: var(--system-color-secondary-dark, #2A3B47) !important; /* Border */
 }
 
 body.dark-mode .menu a {
-  background: #52A5E0 !important; /* Principal */
+  background: var(--system-color-primary-dark, #52A5E0) !important; /* Principal */
   color: #EFF3F5 !important; /* Título */
 }
 
@@ -44,7 +44,7 @@ body.dark-mode .menu a:hover {
 
 /* Tablas */
 body.dark-mode table.dataTable thead th {
-  background-color: #52A5E0 !important; /* Principal */
+  background-color: var(--system-color-primary-dark, #52A5E0) !important; /* Principal */
   color: #EFF3F5 !important; /* Título */
 }
 
@@ -73,11 +73,11 @@ body.dark-mode .alert-info {
 }
 
 #themeToggleContainer .form-check-input:checked {
-  background-color: #52A5E0 !important; /* Principal */
+  background-color: var(--system-color-primary) !important; /* Principal */
 }
 
 body.dark-mode #themeToggleContainer .form-check-input:checked {
-  background-color: #52A5E0 !important; /* Principal */
+  background-color: var(--system-color-primary-dark, #52A5E0) !important; /* Principal */
 }
 
 body.dark-mode #themeToggleContainer {
@@ -97,7 +97,7 @@ body.dark-mode table.dataTable {
 
 /* Encabezado */
 body.dark-mode table.dataTable thead th {
-  background-color: #52A5E0 !important; /* Principal */
+  background-color: var(--system-color-primary-dark, #52A5E0) !important; /* Principal */
   color: #EFF3F5 !important; /* Título */
   border-color: #2A3B47 !important; /* Border */
 }
@@ -127,7 +127,7 @@ body.dark-mode table.dataTable td {
 /* Fila seleccionada */
 body.dark-mode table.dataTable tbody tr.selected,
 body.dark-mode table.dataTable tbody tr.selected td {
-  background-color: #52A5E0 !important; /* Principal */
+  background-color: var(--system-color-primary-dark, #52A5E0) !important; /* Principal */
   color: #EFF3F5 !important; /* Título */
 }
 
@@ -168,13 +168,13 @@ body.dark-mode .page-link {
 body.dark-mode .active>.page-link, .page-link.active {
     z-index: 3;
     color: var(--bs-pagination-active-color);
-    background-color: #52A5E0 !important; /* Principal */
+    background-color: var(--system-color-primary-dark, #52A5E0) !important; /* Principal */
     border-color: var(--bs-pagination-active-border-color);
 }
 
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current,
 body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-  background: #52A5E0 !important; /* Principal */
+  background: var(--system-color-primary-dark, #52A5E0) !important; /* Principal */
   color: #EFF3F5 !important; /* Título */
   border-radius: 4px !important;
 }
@@ -217,7 +217,7 @@ body.dark-mode .topbar {
     left: 240px;
     right: 0;
     height: 50px;
-    background: #52A5E0; /* Principal */
+    background: var(--system-color-primary-dark, #52A5E0); /* Principal */
     color: #EFF3F5; /* Título */
     display: flex;
     align-items: center;
