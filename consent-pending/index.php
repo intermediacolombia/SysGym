@@ -95,7 +95,8 @@ canvas {
 <div class="container">
   <div class="card shadow mx-auto" style="max-width:600px;">
     <div class="card-body">
-		<center><img src="<?php echo $url;?>/<?php echo SITE_LOGO;?>" alt="Logo" width="150px"></center>
+		<center><img src="<?php echo $url;?>/<?php echo SITE_LOGO;?>" alt="Logo" width="250px"></center><br>
+
       <h4 class="text-center mb-4 text-primary-custom">Consentimiento Informado</h4>
       <p>Hola <strong><?= htmlspecialchars($tokenData['nombres'] . ' ' . $tokenData['apellidos']) ?></strong>,</p>
       <p>Por favor lee atentamente el siguiente consentimiento y firma para confirmar tu aceptación.</p>
