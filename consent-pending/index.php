@@ -24,7 +24,7 @@ try {
         die('<h3>El enlace ha expirado o no es válido.</h3>');
     }
 
-    // Verificar si el cliente ya firmó
+    // Verificar si ya firmó consentimiento
     $stmtForm = $pdo->prepare("SELECT id FROM formularios WHERE cliente_id = :id LIMIT 1");
     $stmtForm->execute([':id' => $tokenData['cliente_id']]);
     $form = $stmtForm->fetch();
@@ -44,30 +44,138 @@ try {
 <head>
 <meta charset="UTF-8">
 <title>Consentimiento Informado - SysGym</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+body {
+  background-color: #f5f5f5;
+  font-family: 'Segoe UI', sans-serif;
+}
+.card {
+  border: none;
+  border-radius: 10px;
+}
+canvas {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: crosshair;
+}
+.modal-header {
+  background-color: #28a745;
+  color: white;
+}
+</style>
 </head>
-<body class="bg-light py-5">
+<body class="py-5">
+
 <div class="container">
-  <div class="card mx-auto shadow-sm" style="max-width:600px;">
+  <div class="card shadow mx-auto" style="max-width:600px;">
     <div class="card-body">
-      <h4 class="text-center mb-3">Consentimiento Informado</h4>
+      <h4 class="text-center mb-4 text-success">Consentimiento Informado</h4>
       <p>Hola <strong><?= htmlspecialchars($tokenData['nombres'] . ' ' . $tokenData['apellidos']) ?></strong>,</p>
-      <p>Por favor confirma tu consentimiento informado antes de continuar:</p>
-		<?php echo CONSENT;?>
-      <form method="POST" action="submit.php">
+      <p>Por favor lee atentamente el siguiente consentimiento y firma para confirmar tu aceptación.</p>
+      <div class="border p-3 mb-3 bg-light rounded" style="max-height:250px; overflow-y:auto;">
+        <?= defined('CONSENT') ? CONSENT : '<p>No se encontró el texto del consentimiento.</p>'; ?>
+      </div>
+
+      <form id="consentForm" method="POST" action="submit.php">
         <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
+        <input type="hidden" name="firma_digital_cliente" id="firma_digital_cliente">
+        
         <div class="form-check mb-3">
-          <input class="form-check-input" type="checkbox" name="acepto" required>
-          <label class="form-check-label">He leído y acepto los términos del consentimiento informado.</label>
+          <input class="form-check-input" type="checkbox" name="acepto" id="acepto" required>
+          <label class="form-check-label" for="acepto">
+            He leído y acepto los términos del consentimiento informado.
+          </label>
         </div>
-        <div class="mb-3">
-          <label>Firma digital (nombre completo)</label>
-          <input type="text" name="firma" class="form-control" required placeholder="Escribe tu nombre completo">
+
+        <div class="mb-3 text-center">
+          <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalFirma">
+            <i class="fa fa-pen"></i> Firmar Digitalmente
+          </button>
         </div>
-        <button type="submit" class="btn btn-success w-100">Enviar</button>
+
+        <div class="text-center">
+          <img id="firma_preview" src="" alt="Firma del cliente" class="img-fluid mb-3" style="display:none; max-height:120px;">
+        </div>
+
+        <button type="submit" class="btn btn-success w-100" disabled>Enviar Consentimiento</button>
       </form>
     </div>
   </div>
 </div>
+
+<!-- Modal Firma -->
+<div class="modal fade" id="modalFirma" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Firma Digital del Cliente</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body text-center">
+        <canvas id="canvasFirma" width="350" height="150"></canvas>
+        <div class="mt-3">
+          <button type="button" id="clearFirma" class="btn btn-danger btn-sm">Borrar</button>
+          <button type="button" id="saveFirma" class="btn btn-primary btn-sm">Guardar Firma</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// === Lógica de firma en canvas ===
+const canvas = document.getElementById('canvasFirma');
+const ctx = canvas.getContext('2d');
+let drawing = false;
+
+canvas.addEventListener('mousedown', e => { drawing = true; draw(e); });
+canvas.addEventListener('mouseup', () => drawing = false);
+canvas.addEventListener('mouseout', () => drawing = false);
+canvas.addEventListener('mousemove', draw);
+
+function draw(e) {
+  if (!drawing) return;
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = '#000';
+  ctx.lineTo(e.offsetX, e.offsetY);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(e.offsetX, e.offsetY);
+}
+
+// Limpiar firma
+$('#clearFirma').on('click', function(){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+});
+
+// Guardar firma
+$('#saveFirma').on('click', function(){
+  const dataURL = canvas.toDataURL('image/png');
+  if (dataURL.length < 3000) {
+    Swal.fire('Atención', 'Por favor realiza tu firma antes de guardar.', 'warning');
+    return;
+  }
+  $('#firma_digital_cliente').val(dataURL);
+  $('#firma_preview').attr('src', dataURL).show();
+  $('#modalFirma').modal('hide');
+  $('#consentForm button[type="submit"]').prop('disabled', false);
+});
+
+// Confirmación visual
+$('#consentForm').on('submit', function(e){
+  if (!$('#firma_digital_cliente').val()) {
+    e.preventDefault();
+    Swal.fire('Falta la firma', 'Debes firmar antes de enviar el consentimiento.', 'warning');
+  }
+});
+</script>
 </body>
 </html>
+
