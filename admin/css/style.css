@@ -220,5 +220,10 @@ table tbody tr {
     color: #000!important;
 }
 
+.bg-primary {
+    --bs-bg-opacity: 1;
+    background-color: rgba(var(--system-color-primary)!important,var(--bs-bg-opacity))!important;
+}
+
 
 
