@@ -282,6 +282,16 @@ body.dark-mode li.list-group-item.px-0.d-flex.justify-content-between.align-item
 	color: #fff;
 }
 
+body.dark-mode .profile-card {
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 20px;
+    background: #2B3B48;
+	color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
 
 
 
