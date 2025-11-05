@@ -212,7 +212,7 @@ $(function () {
 
 	iniDT('#asistencias-hoy', 1, 'desc');  // ya lo tenías
 	iniDT('#cumpleanos-hoy', 0, 'asc');    // ← cumpleaños de hoy
-	//iniDT('#latest-clients', 0, 'desc');
+	iniDT('#latest-clients', 0, 'desc');
 	iniDT('#creditos-activos', 4, 'asc');   // ordena por fecha límite ascendente
 	iniDT('#planes-hoy', 0, 'asc');      // ordena por fecha (o ajusta como prefieras)
 	iniDT('#upcoming-payments', 4, 'asc');   // orden por fecha de vencimiento
