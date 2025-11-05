@@ -1,41 +1,38 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const cb = document.getElementById('themeToggle');
-  if (!cb) return;
-
-  const root = document.documentElement;
   const body = document.body;
+  const toggle = document.getElementById('themeToggle');
+  const icon = document.getElementById('themeIcon');
+  const labelIcon = document.getElementById('themeLabelIcon');
 
-  function applyTheme(mode, options = { persist: true, syncToggle: true }) {
-    if (mode === 'dark') {
-      root.classList.add('dark-mode');
+  // Leer modo guardado
+  const savedTheme = localStorage.getItem('theme-mode');
+
+  // Aplicar modo oscuro si estaba guardado
+  if (savedTheme === 'dark') {
+    body.classList.add('dark-mode');
+    toggle.checked = true;
+    icon.className = 'fas fa-moon text-info';
+    labelIcon.className = 'fas fa-sun me-2 text-warning';
+  } else {
+    body.classList.remove('dark-mode');
+    toggle.checked = false;
+    icon.className = 'fas fa-sun text-warning';
+    labelIcon.className = 'fas fa-moon me-2 text-info';
+  }
+
+  // Escuchar cambios del switch
+  toggle.addEventListener('change', function () {
+    if (this.checked) {
       body.classList.add('dark-mode');
-      if (options.syncToggle) cb.checked = true;
-      if (options.persist) localStorage.setItem('theme-mode', 'dark');
+      localStorage.setItem('theme-mode', 'dark');
+      icon.className = 'fas fa-moon text-info';
+      labelIcon.className = 'fas fa-sun me-2 text-warning';
     } else {
-      root.classList.remove('dark-mode');
       body.classList.remove('dark-mode');
-      if (options.syncToggle) cb.checked = false;
-      if (options.persist) localStorage.setItem('theme-mode', 'light');
+      localStorage.setItem('theme-mode', 'light');
+      icon.className = 'fas fa-sun text-warning';
+      labelIcon.className = 'fas fa-moon me-2 text-info';
     }
-  }
-
-  // 1) Determinar tema inicial
-  const saved = localStorage.getItem('theme-mode');
-  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const initialMode = saved ? saved : (prefersDark ? 'dark' : 'light');
-
-  // 2) Aplicar tema inicial y sincronizar el estado del switch
-  applyTheme(initialMode, { persist: false, syncToggle: true });
-
-  // 3) Responder a cambios del switch
-  cb.addEventListener('change', () => {
-    applyTheme(cb.checked ? 'dark' : 'light', { persist: true, syncToggle: false });
   });
-
-  // 4) (Opcional) Si el sistema cambia de tema, y no hay preferencia guardada, seguirlo
-  if (!saved && window.matchMedia) {
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-      applyTheme(e.matches ? 'dark' : 'light', { persist: false, syncToggle: true });
-    });
-  }
 });
+

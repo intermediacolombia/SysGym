@@ -5,19 +5,20 @@
    <?php echo htmlspecialchars($nombre . " " . $apellido); ?>
     <p><strong><?php echo htmlspecialchars($rolUser); ?></strong></p>
 			
-			<!-- ====== SWITCH MODO OSCURO ====== -->
+<!-- ====== SWITCH MODO OSCURO ====== -->
 <div id="themeToggleContainer" class="d-flex align-items-center justify-content-between px-3 py-2 border-top border-secondary mt-3">
   <span class="fw-semibold text-white">
-    <i class="fas fa-moon me-2"></i> Modo oscuro
+    <i id="themeLabelIcon" class="fas fa-moon me-2"></i> Modo oscuro
   </span>
-  
+
   <div class="form-check form-switch m-0">
     <input class="form-check-input" type="checkbox" role="switch" id="themeToggle">
     <label class="form-check-label" for="themeToggle">
-      <i class="fas fa-sun text-warning"></i>
+      <i id="themeIcon" class="fas fa-sun text-warning"></i>
     </label>
   </div>
 </div>
+
 
 			
     <!-- Resto del contenido de tu dashboard -->  
