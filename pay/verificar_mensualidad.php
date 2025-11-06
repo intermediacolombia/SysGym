@@ -61,7 +61,7 @@ if (empty($cliente['plan'])) {
 $html = '
 <div class="card p-3">
   <div class="d-flex align-items-center">
-    ' . (!empty($cliente['imagen_perfil']) ? '<img src="'.$url.'/'.$cliente['imagen_perfil'].'" class="rounded-circle me-3" style="width:70px;height:70px;object-fit:cover;">' : '') . '
+    ' . (!empty($cliente['imagen_perfil']) ? '<img src="'.$url.'/uploads/clientes/'.$cliente['imagen_perfil'].'" class="rounded-circle me-3" style="width:70px;height:70px;object-fit:cover;">' : '') . '
     <div>
       <h5 class="mb-0">'.htmlspecialchars($cliente['nombres'].' '.$cliente['apellidos']).'</h5>
       <small class="text-muted">'.htmlspecialchars($cliente['identificacion']).'</small>
