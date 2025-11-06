@@ -11,16 +11,10 @@ $cliente_id = $_GET['id'] ?? null;
 </head>
 <body class="text-center py-5">
   <div class="container">
-    <h2 class="text-warning">⚠️ Pago pendiente de aprobación</h2>
-    <p>Tu transacción se ha registrado correctamente, pero aún <strong>no fue confirmada por Mercado Pago</strong>.</p>
-    <p>En cuanto el pago sea aprobado, tu membresía será activada automáticamente.</p>
-    <?php if ($cliente_id): ?>
-      <a href="../pay/verificar_mensualidad.php?identificacion=<?= urlencode($cliente_id) ?>" class="btn btn-outline-primary mt-3">
-        <i class="fa fa-sync"></i> Verificar estado
-      </a>
-    <?php endif; ?>
-    <br><br>
-    <a href="../index.php" class="btn btn-secondary">Volver al inicio</a>
+    <h2 class="text-warning">⚠️ Pago pendiente</h2>
+    <p>Tu transacción está en proceso de verificación. En cuanto sea aprobada, tu membresía se activará automáticamente.</p>
+    <a href="../index.php" class="btn btn-secondary mt-3">Volver al inicio</a>
   </div>
 </body>
 </html>
+

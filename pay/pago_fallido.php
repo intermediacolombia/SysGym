@@ -11,11 +11,10 @@ $cliente_id = $_GET['id'] ?? null;
 </head>
 <body class="text-center py-5">
   <div class="container">
-    <h2 class="text-danger">❌ El pago no se completó</h2>
-    <p>Hubo un problema al procesar tu transacción. Puede deberse a un error en el medio de pago, cancelación voluntaria o datos incorrectos.</p>
-    <p>Por favor, inténtalo nuevamente o utiliza otro método de pago disponible.</p>
+    <h2 class="text-danger">❌ Pago no completado</h2>
+    <p>Tu transacción fue cancelada o falló. Puedes intentarlo nuevamente.</p>
     <?php if ($cliente_id): ?>
-      <a href="../pay/crear_pago.php?id=<?= urlencode($cliente_id) ?>" class="btn btn-success mt-3">
+      <a href="crear_pago.php?id=<?= urlencode($cliente_id) ?>" class="btn btn-success mt-3">
         <i class="fa fa-credit-card"></i> Reintentar pago
       </a>
     <?php endif; ?>
