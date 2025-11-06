@@ -33,11 +33,13 @@ if (!$cliente) {
 $estado = '';
 $color = '';
 $mensaje = '';
+$mostrarBotonPago = false;
 
 if (empty($cliente['plan'])) {
     $estado = 'Sin plan asignado';
     $color = 'secondary';
     $mensaje = 'Este cliente no tiene ningún plan activo.';
+    $mostrarBotonPago = true;
 } else {
     $fechaVenc = new DateTime($cliente['vencimiento_plan']);
     $hoy = new DateTime();
@@ -47,15 +49,22 @@ if (empty($cliente['plan'])) {
         $estado = 'Plan vencido';
         $color = 'danger';
         $mensaje = 'La mensualidad venció el ' . $fechaVenc->format('d/m/Y') . '.';
+        $mostrarBotonPago = true;
     } elseif ($diasRestantes <= 7) {
         $estado = 'Por vencer';
         $color = 'warning';
         $mensaje = 'El plan vence en ' . $diasRestantes . ' día(s) (' . $fechaVenc->format('d/m/Y') . ').';
+        $mostrarBotonPago = true;
     } else {
         $estado = 'Al día';
         $color = 'success';
         $mensaje = 'El plan está vigente hasta el ' . $fechaVenc->format('d/m/Y') . '.';
     }
+}
+
+// Si el cliente está inactivo, también mostrar botón de pago
+if ($cliente['estado'] === 'inactivo') {
+    $mostrarBotonPago = true;
 }
 
 $html = '
@@ -74,9 +83,44 @@ $html = '
   <p><strong>Vencimiento:</strong> ' . ($cliente['vencimiento_plan'] ?? '-') . '</p>
   <div class="alert alert-' . $color . ' mt-3">
     <strong>' . strtoupper($estado) . ':</strong> ' . $mensaje . '
-  </div>
-</div>
+  </div>';
+
+if ($mostrarBotonPago) {
+    $html .= '
+    <div class="text-center mt-3">
+      <button class="btn btn-success" id="btnSimularPago" data-id="'.$cliente['id'].'">
+        <i class="fa fa-dollar-sign"></i> Simular Pago
+      </button>
+    </div>';
+}
+
+$html .= '</div>';
+
+$html .= '
+<script>
+$("#btnSimularPago").on("click", function(){
+  Swal.fire({
+    title: "Confirmar pago simulado",
+    text: "¿Deseas registrar un pago simulado para este cliente?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonColor: "'.SYSTEM_COLOR_PRIMARY.'",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Sí, registrar pago"
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        icon: "success",
+        title: "Pago simulado",
+        text: "Se ha registrado el pago simulado correctamente.",
+        confirmButtonColor: "'.SYSTEM_COLOR_PRIMARY.'"
+      });
+    }
+  });
+});
+</script>
 ';
 
 echo json_encode(['status' => 'success', 'html' => $html]);
+
 
