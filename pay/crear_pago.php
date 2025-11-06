@@ -14,7 +14,7 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Obtener datos del cliente y plan
+    // === Obtener datos del cliente y su plan ===
     $stmt = $pdo->prepare("
         SELECT c.*, p.nombre AS plan_nombre, p.precio AS plan_precio
         FROM clientes c
@@ -26,12 +26,28 @@ try {
 
     if (!$cliente) die("Cliente no encontrado.");
 
-    // Datos del pago
+    // === Definir datos del pago ===
     $monto = (float)($cliente['plan_precio'] ?? 0);
-    if ($monto <= 0) $monto = 50000; // valor base si el plan no tiene precio
+    if ($monto <= 0) $monto = 50000; // Valor base si el plan no tiene precio
     $descripcion = "Pago de mensualidad SysGym - " . ($cliente['plan_nombre'] ?? 'Plan General');
+    $referencia = "pago_{$cliente_id}_" . time();
 
-    // Crear preferencia
+    // === Registrar intento de pago en la base de datos ===
+    $stmtCheck = $pdo->prepare("SELECT id FROM pagos WHERE referencia = :ref LIMIT 1");
+    $stmtCheck->execute([':ref' => $referencia]);
+    if (!$stmtCheck->fetchColumn()) {
+        $stmtInsert = $pdo->prepare("
+            INSERT INTO pagos (cliente_id, referencia, monto, estado, metodo_pago, raw_response)
+            VALUES (:cid, :ref, :monto, 'iniciado', 'mercadopago', NULL)
+        ");
+        $stmtInsert->execute([
+            ':cid' => $cliente_id,
+            ':ref' => $referencia,
+            ':monto' => $monto
+        ]);
+    }
+
+    // === Crear preferencia de Mercado Pago ===
     $preferenceClient = new PreferenceClient();
     $preference = $preferenceClient->create([
         "items" => [[
@@ -45,7 +61,7 @@ try {
             "surname" => $cliente['apellidos'],
             "email" => $cliente['email'] ?: "cliente@sysgym.com"
         ],
-        "external_reference" => "pago_{$cliente_id}_" . time(),
+        "external_reference" => $referencia,
         "back_urls" => [
             "success" => $url . "/pay/pago_exitoso.php?id=" . $cliente_id,
             "failure" => $url . "/pay/pago_fallido.php?id=" . $cliente_id,
@@ -55,9 +71,11 @@ try {
         "notification_url" => $url . "/pay/webhook_mp.php"
     ]);
 
+    // === Redirigir al checkout ===
     header("Location: " . $preference->init_point);
     exit;
 
 } catch (Exception $e) {
     die("Error al generar el pago: " . $e->getMessage());
 }
+
