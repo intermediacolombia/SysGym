@@ -88,7 +88,7 @@ $html = '
 if ($mostrarBotonPago) {
     $html .= '
     <div class="text-center mt-3">
-      <a href="pay/crear_pago.php?id=' . $cliente['id'] . '" class="btn btn-success">
+      <a href="crear_pago.php?id=' . $cliente['id'] . '" class="btn btn-success">
         <i class="fa fa-credit-card"></i> Pagar Mensualidad
       </a>
     </div>';
