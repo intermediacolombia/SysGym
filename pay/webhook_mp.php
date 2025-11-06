@@ -4,6 +4,9 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use MercadoPago\Client\Payment\PaymentClient;
 
+/* ==========================================================
+   REGISTRO INICIAL DEL EVENTO WEBHOOK
+========================================================== */
 $data = json_decode(file_get_contents('php://input'), true);
 file_put_contents(__DIR__ . '/webhook_log.txt', date('Y-m-d H:i:s') . " " . json_encode($data) . "\n", FILE_APPEND);
 
@@ -20,21 +23,23 @@ try {
             cliente_id INT NOT NULL,
             referencia VARCHAR(100) NOT NULL,
             monto DECIMAL(10,2) NOT NULL DEFAULT 0,
-            estado ENUM('pending','approved','rejected') DEFAULT 'pending',
+            estado ENUM('iniciado','pending','approved','rejected') DEFAULT 'pending',
             metodo_pago VARCHAR(50) DEFAULT NULL,
             fecha_pago DATETIME DEFAULT CURRENT_TIMESTAMP,
             raw_response JSON NULL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ");
 } catch (Exception $e) {
-    file_put_contents(__DIR__ . '/webhook_log.txt', date('Y-m-d H:i:s') . " [DB ERROR] " . $e->getMessage() . "\n", FILE_APPEND);
+    file_put_contents(__DIR__ . '/webhook_log.txt',
+        date('Y-m-d H:i:s') . " [DB ERROR] " . $e->getMessage() . "\n", FILE_APPEND);
     http_response_code(500);
     exit;
 }
 
 /* ==========================================================
-   PROCESAR NOTIFICACIÓN MERCADO PAGO
+   PROCESAR NOTIFICACIÓN DE MERCADO PAGO
 ========================================================== */
 if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']['id'])) {
     try {
@@ -46,28 +51,59 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
         $estadoPago = $payment->status ?? 'unknown';
         $montoPago = $payment->transaction_amount ?? 0;
 
-        // === Registrar siempre el pago (sin duplicar referencia) ===
-        $stmt = $pdo->prepare("SELECT id FROM pagos WHERE referencia = :ref LIMIT 1");
-        $stmt->execute([':ref' => $ref]);
-        $existe = $stmt->fetchColumn();
-
-        if (!$existe && preg_match('/pago_(\d+)_/', $ref, $match)) {
+        /* ==========================================================
+           ACTUALIZAR O INSERTAR REGISTRO EN PAGOS
+        =========================================================== */
+        if (preg_match('/pago_(\d+)_/', $ref, $match)) {
             $cliente_id = (int)$match[1];
 
-            $stmtInsert = $pdo->prepare("
-                INSERT INTO pagos (cliente_id, referencia, monto, estado, metodo_pago, raw_response)
-                VALUES (:cid, :ref, :monto, :estado, 'mercadopago', :raw)
-            ");
-            $stmtInsert->execute([
-                ':cid' => $cliente_id,
-                ':ref' => $ref,
-                ':monto' => $montoPago,
-                ':estado' => $estadoPago,
-                ':raw' => json_encode($payment, JSON_UNESCAPED_UNICODE)
-            ]);
+            // ¿Existe ya el pago?
+            $stmtCheck = $pdo->prepare("SELECT id FROM pagos WHERE referencia = :ref LIMIT 1");
+            $stmtCheck->execute([':ref' => $ref]);
+            $existe = $stmtCheck->fetchColumn();
+
+            if ($existe) {
+                // 🔄 Actualizar registro existente
+                $stmtUpdatePago = $pdo->prepare("
+                    UPDATE pagos 
+                    SET estado = :estado, monto = :monto, raw_response = :raw, fecha_pago = NOW()
+                    WHERE referencia = :ref
+                ");
+                $stmtUpdatePago->execute([
+                    ':estado' => $estadoPago,
+                    ':monto'  => $montoPago,
+                    ':raw'    => json_encode($payment, JSON_UNESCAPED_UNICODE),
+                    ':ref'    => $ref
+                ]);
+
+                file_put_contents(__DIR__ . '/webhook_log.txt',
+                    date('Y-m-d H:i:s') . " 🔄 Pago actualizado | Ref=$ref | Estado=$estadoPago | Monto=$montoPago\n",
+                    FILE_APPEND
+                );
+            } else {
+                // 🆕 Insertar nuevo registro
+                $stmtInsert = $pdo->prepare("
+                    INSERT INTO pagos (cliente_id, referencia, monto, estado, metodo_pago, raw_response)
+                    VALUES (:cid, :ref, :monto, :estado, 'mercadopago', :raw)
+                ");
+                $stmtInsert->execute([
+                    ':cid' => $cliente_id,
+                    ':ref' => $ref,
+                    ':monto' => $montoPago,
+                    ':estado' => $estadoPago,
+                    ':raw' => json_encode($payment, JSON_UNESCAPED_UNICODE)
+                ]);
+
+                file_put_contents(__DIR__ . '/webhook_log.txt',
+                    date('Y-m-d H:i:s') . " 🆕 Pago insertado | Ref=$ref | Estado=$estadoPago | Monto=$montoPago\n",
+                    FILE_APPEND
+                );
+            }
         }
 
-        // === Procesar solo pagos aprobados ===
+        /* ==========================================================
+           PROCESAR SOLO PAGOS APROBADOS
+        =========================================================== */
         if ($estadoPago === 'approved' && preg_match('/pago_(\d+)_/', $ref, $match)) {
             $cliente_id = (int)$match[1];
 
@@ -101,13 +137,7 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
                 };
 
                 $estaVencido = (!$vencAnterior) || ($vencAnterior <= $hoy);
-                if ($estaVencido) {
-                    $inicio = clone $hoy;
-                } else {
-                    $inicio = clone $vencAnterior;
-                    $inicio->modify('+1 day');
-                }
-
+                $inicio = $estaVencido ? clone $hoy : (clone $vencAnterior)->modify('+1 day');
                 $nuevoVenc = $calcFechaFin($inicio, $planMeses, $planDias);
 
                 // === Actualizar cliente ===
@@ -169,13 +199,17 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
         }
 
     } catch (Exception $ex) {
+        $errorDetails = method_exists($ex, 'getApiResponse')
+            ? json_encode($ex->getApiResponse(), JSON_UNESCAPED_UNICODE)
+            : $ex->getMessage();
         file_put_contents(__DIR__ . '/webhook_log.txt',
-            date('Y-m-d H:i:s') . " [PROCESS ERROR] " . $ex->getMessage() . "\n",
+            date('Y-m-d H:i:s') . " [PROCESS ERROR] " . $errorDetails . "\n",
             FILE_APPEND
         );
     }
 }
 
 http_response_code(200);
+
 
 
