@@ -56,8 +56,8 @@ body {
 
       <form id="buscarForm">
         <div class="mb-3">
-          <label for="documento" class="form-label">Número de Documento</label>
-          <input type="text" id="documento" name="documento" class="form-control" placeholder="Ejemplo: 1024589623" required>
+          <label for="identificacion" class="form-label">Número de Documento</label>
+          <input type="text" id="identificacion" name="identificacion" class="form-control" placeholder="Ejemplo: 1024589623" required>
         </div>
         <button type="submit" class="btn btn-primary-custom w-100">Buscar Cliente</button>
       </form>
@@ -75,7 +75,7 @@ body {
 $('#buscarForm').on('submit', function(e){
   e.preventDefault();
 
-  const doc = $('#documento').val().trim();
+  const doc = $('#identificacion').val().trim();
   if (!doc) {
     Swal.fire({
       icon: 'warning',
@@ -96,7 +96,7 @@ $('#buscarForm').on('submit', function(e){
     url: 'verificar_mensualidad.php',
     type: 'POST',
     dataType: 'json',
-    data: { documento: doc },
+    data: { identificacion: doc },
     success: function(response) {
       Swal.close();
 
@@ -127,3 +127,4 @@ $('#buscarForm').on('submit', function(e){
 </script>
 </body>
 </html>
+
