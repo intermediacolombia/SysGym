@@ -43,6 +43,47 @@ try {
     }
 
     /* ──────────────────────────────────────────────
+       VALIDAR SI YA EXISTE UN TOKEN PENDIENTE VÁLIDO
+    ────────────────────────────────────────────── */
+    $stmtCheck = $pdo->prepare("
+        SELECT token, fecha_expiracion, 
+               TIMESTAMPDIFF(MINUTE, NOW(), fecha_expiracion) as minutos_restantes,
+               TIMESTAMPDIFF(HOUR, NOW(), fecha_expiracion) as horas_restantes
+        FROM tokens_consent 
+        WHERE cliente_id = :cliente_id 
+        AND usado = 0 
+        AND fecha_expiracion > NOW()
+        ORDER BY fecha_creacion DESC
+        LIMIT 1
+    ");
+    $stmtCheck->execute([':cliente_id' => $cliente['id']]);
+    $tokenPendiente = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+
+    if ($tokenPendiente) {
+        $horas = $tokenPendiente['horas_restantes'];
+        $minutos = $tokenPendiente['minutos_restantes'] % 60;
+        
+        $tiempoRestante = '';
+        if ($horas > 0) {
+            $tiempoRestante = $horas . ' hora' . ($horas > 1 ? 's' : '');
+            if ($minutos > 0) {
+                $tiempoRestante .= ' y ' . $minutos . ' minuto' . ($minutos > 1 ? 's' : '');
+            }
+        } else {
+            $tiempoRestante = $minutos . ' minuto' . ($minutos > 1 ? 's' : '');
+        }
+
+        echo json_encode([
+            'status' => 'warning',
+            'message' => 'Ya existe un enlace pendiente de consentimiento para este cliente.',
+            'tiempo_restante' => $tiempoRestante,
+            'expira_en' => $tokenPendiente['fecha_expiracion'],
+            'token_existente' => $tokenPendiente['token']
+        ]);
+        exit;
+    }
+
+    /* ──────────────────────────────────────────────
        CREAR TOKEN ALEATORIO Y REGISTRAR EN BD
     ────────────────────────────────────────────── */
     $token = bin2hex(random_bytes(16)); // token único de 32 caracteres
@@ -70,7 +111,6 @@ try {
     $mensajePlantilla = $stmtMsg->fetchColumn();
     if (!$mensajePlantilla) {
         $mensajePlantilla = $wa_consent_pending;
-        //$mensajePlantilla = "Hola {nombres}, por favor completa tu consentimiento informado aquí: {link}";
     }
 
     /* ──────────────────────────────────────────────
@@ -139,4 +179,3 @@ try {
         'message' => 'Error interno: ' . $e->getMessage()
     ]);
 }
-
