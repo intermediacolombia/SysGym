@@ -2,6 +2,7 @@
     "require": {
         "dompdf/dompdf": "^3.1",
         "masterminds/html5": "^2.9",
-        "phpoffice/phpspreadsheet": "^4.3"
+        "phpoffice/phpspreadsheet": "^4.3",
+        "mercadopago/dx-php": "3.*"
     }
 }

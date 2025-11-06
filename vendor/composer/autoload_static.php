@@ -25,6 +25,7 @@ class ComposerStaticInitac2d307f4ed514763a8119f3523066bb
         ),
         'M' => 
         array (
+            'MercadoPago\\' => 12,
             'Matrix\\' => 7,
             'Masterminds\\' => 12,
         ),
@@ -62,8 +63,8 @@ class ComposerStaticInitac2d307f4ed514763a8119f3523066bb
         ),
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-message/src',
-            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
         'Psr\\Http\\Client\\' => 
         array (
@@ -72,6 +73,10 @@ class ComposerStaticInitac2d307f4ed514763a8119f3523066bb
         'PhpOffice\\PhpSpreadsheet\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet',
+        ),
+        'MercadoPago\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/mercadopago/dx-php/src/MercadoPago',
         ),
         'Matrix\\' => 
         array (
