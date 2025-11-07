@@ -167,8 +167,23 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
                 $payment_method     = 'Pago en Linea';
                 $bank               = 'Mercado Pago';
                 $credit             = 0;
-                $valorPagado        = $montoPago;
-				$nombre				= 'Pasarela Pago';
+                
+				
+				// === Calcular valor con el % adicional antes de enviar a la factura ===
+$adicionalPorc = defined('ADDITIONAL_PERCENTAGE_PAYMENT') ? (float)ADDITIONAL_PERCENTAGE_PAYMENT : 0.0;
+
+// Si el montoPago (recibido desde MercadoPago) NO incluye el adicional
+// podemos recalcular aquÌ para que la factura lo registre correctamente.
+if ($adicionalPorc > 0 && $montoPago > 0) {
+    // Esto garantiza que la factura tenga el total ya con el recargo.
+    $montoConAdicional = round($montoPago, 2);
+} else {
+    $montoConAdicional = $montoPago;
+}
+
+$valorPagado = $montoConAdicional;
+$nombre      = 'Pasarela Pago';
+
 
                 ob_start();
                 // Ajusta la ruta si tu generate_factura.php est√° en otra carpeta:
