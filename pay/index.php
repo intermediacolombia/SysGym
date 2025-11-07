@@ -9,152 +9,122 @@ header('Content-Type: text/html; charset=utf-8');
 <title>Verificar Mensualidad - SysGym</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
 :root {
-  --primary-color: <?= SYSTEM_COLOR_PRIMARY; ?>;
+  --primary: <?= SYSTEM_COLOR_PRIMARY; ?>;
 }
-
 body {
-  background-color: #b7d9f3;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(180deg, #6f00ff 0%, #c300ff 100%);
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
   margin: 0;
 }
-
-.app-card {
-  background-color: #fff;
+.app-container {
   width: 360px;
-  border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-  overflow: hidden;
-}
-
-.app-header {
-  background-color: var(--primary-color);
-  height: 90px;
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 18px;
-}
-
-.app-header .menu {
-  font-size: 24px;
-  color: #fff;
-}
-
-.app-header .dots {
-  display: flex;
-  gap: 6px;
-}
-.app-header .dots span {
-  width: 8px;
-  height: 8px;
-  background-color: rgba(255,255,255,0.8);
-  border-radius: 50%;
-}
-
-.app-header .avatar {
-  position: absolute;
-  left: 50%;
-  bottom: -35px;
-  transform: translateX(-50%);
-  background-color: #fff;
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-
-.app-header .avatar i {
-  font-size: 32px;
-  color: var(--primary-color);
-}
-
-.app-body {
-  padding: 60px 25px 25px;
-}
-
-.app-body h5 {
+  background: rgba(255,255,255,0.12);
+  border-radius: 25px;
+  padding: 40px 30px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+  backdrop-filter: blur(15px);
   text-align: center;
-  color: var(--primary-color);
+  color: white;
+}
+.app-container .avatar {
+  background: rgba(255,255,255,0.15);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin: 0 auto 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.app-container .avatar i {
+  font-size: 36px;
+  color: white;
+}
+h4 {
   font-weight: 600;
   margin-bottom: 25px;
+  letter-spacing: 0.5px;
 }
-
 .form-control {
-  border-radius: 8px;
-  padding: 10px 12px;
-  border: 1px solid #ccc;
+  background: transparent;
+  border: 2px solid rgba(255,255,255,0.6);
+  border-radius: 30px;
+  color: white;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  text-align: center;
+  transition: 0.3s;
 }
 .form-control:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 0.2rem rgba(95, 202, 0, 0.25);
+  background: rgba(255,255,255,0.15);
+  border-color: white;
+  outline: none;
+  box-shadow: none;
 }
-
+::placeholder {
+  color: rgba(255,255,255,0.7);
+}
 .btn-send {
-  background-color: var(--primary-color);
+  width: 100%;
   border: none;
   border-radius: 25px;
-  width: 100%;
-  padding: 10px;
-  color: white;
+  background-color: white;
+  color: #6f00ff;
   font-weight: 600;
+  padding: 10px;
   letter-spacing: 1px;
-  transition: all 0.3s ease;
+  transition: 0.3s;
 }
 .btn-send:hover {
-  opacity: 0.9;
-  transform: scale(1.02);
+  transform: scale(1.03);
+  background: #f0f0f0;
 }
-
 #resultado {
   display: none;
-  margin-top: 20px;
-  border-radius: 10px;
-  background-color: #f8f9fa;
+  margin-top: 25px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 15px;
   padding: 15px;
+  color: white;
+}
+footer {
+  color: rgba(255,255,255,0.7);
+  text-align: center;
+  font-size: 0.9rem;
+  margin-top: 25px;
 }
 </style>
 </head>
 
 <body>
-  <div class="app-card">
-    <div class="app-header">
-      <div class="dots">
-        <span></span><span></span><span></span>
-      </div>
-      <div class="avatar">
-        <i class="bi bi-person"></i>
-      </div>
-      <div class="menu">☰</div>
-    </div>
-    <div class="app-body">
-      <h5>Verificar Mensualidad</h5>
-      <form id="buscarForm">
-        <div class="mb-3">
-          <input type="text" id="identificacion" name="identificacion" class="form-control text-center" placeholder="Número de Documento" required>
-        </div>
-        <button type="submit" class="btn btn-send">BUSCAR</button>
-      </form>
-
-      <div id="resultado">
-        <h6 class="text-primary mt-2">Resultado</h6>
-        <div id="infoCliente"></div>
-      </div>
-    </div>
+<div class="app-container">
+  <div class="avatar">
+    <i class="bi bi-person-fill"></i>
   </div>
+  <h4>Verificar Mensualidad</h4>
+
+  <form id="buscarForm">
+    <input type="text" id="identificacion" name="identificacion" class="form-control" placeholder="Número de Documento" required>
+    <button type="submit" class="btn btn-send">Buscar</button>
+  </form>
+
+  <div id="resultado">
+    <h6>Resultado</h6>
+    <div id="infoCliente"></div>
+  </div>
+
+  <footer>© <?= date('Y'); ?> SysGym · Intermedia Colombia</footer>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.js"></script>
 <script>
@@ -185,7 +155,6 @@ $('#buscarForm').on('submit', function(e){
     data: { identificacion: doc },
     success: function(response) {
       Swal.close();
-
       if (response.status === 'success') {
         $('#resultado').show();
         $('#infoCliente').html(response.html);
@@ -213,6 +182,7 @@ $('#buscarForm').on('submit', function(e){
 </script>
 </body>
 </html>
+
 
 
 
