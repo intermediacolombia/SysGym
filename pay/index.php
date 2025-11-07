@@ -21,10 +21,9 @@ header('Content-Type: text/html; charset=utf-8');
 
 body {
   font-family: 'Poppins', sans-serif;
-  /*background: #f0f3f9;*/
-background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(<?= URLBASE;?>/admin/images/background.jpg) no-repeat center center fixed;
-    background-size: cover;
-
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+              url(<?= URLBASE;?>/admin/images/background.jpg) no-repeat center center fixed;
+  background-size: cover;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -32,38 +31,39 @@ background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(<?= URL
 }
 
 .app-box {
-  width: 380px;
+  width: 440px; /* 🔹 más ancho */
   background: #fff;
   border-radius: 25px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  padding: 40px 30px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15); /* sombra más elegante */
+  padding: 50px 45px; /* 🔹 más aire interior */
   text-align: center;
 }
 
 .app-box img.logo {
-  width: 250px;
-  margin-bottom: 15px;
+  width: 260px;
+  margin-bottom: 20px;
 }
 
 h4 {
   color: var(--primary);
   font-weight: 600;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
   letter-spacing: 0.5px;
+  font-size: 1.4rem;
 }
 
 .form-control {
-  height: 45px;
-  border-radius: 8px;
+  height: 52px; /* 🔹 más alto */
+  border-radius: 10px;
   border: 1px solid #ddd;
-  margin-bottom: 15px;
-  font-size: 15px;
-  padding-left: 40px;
+  margin-bottom: 20px;
+  font-size: 16px; /* 🔹 texto más grande */
+  padding-left: 45px;
 }
 
 .form-control:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 0.2rem rgba(95, 202, 0, 0.25);
+  box-shadow: 0 0 0 0.25rem rgba(95, 202, 0, 0.25);
 }
 
 .input-icon {
@@ -72,20 +72,21 @@ h4 {
 
 .input-icon i {
   position: absolute;
-  left: 12px;
-  top: 12px;
+  left: 14px;
+  top: 15px;
   color: var(--primary);
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .btn-login {
   width: 100%;
-  height: 45px;
-  border-radius: 8px;
+  height: 52px; /* 🔹 más alto */
+  border-radius: 10px;
   border: none;
   background: var(--primary);
   color: #fff;
   font-weight: 600;
+  font-size: 16px;
   letter-spacing: 0.5px;
   transition: 0.3s;
 }
@@ -93,12 +94,12 @@ h4 {
 .btn-login:hover {
   background: var(--secondary);
   transform: translateY(-2px);
-	color: var(--primary);
+  color: var(--primary);
 }
 
 .link-row {
-  margin-top: 15px;
-  font-size: 14px;
+  margin-top: 20px;
+  font-size: 15px;
   color: #555;
 }
 
@@ -115,11 +116,12 @@ h4 {
 #resultado {
   display: none;
   background: #f8f9fa;
-  border-radius: 8px;
-  margin-top: 20px;
-  padding: 15px;
+  border-radius: 10px;
+  margin-top: 25px;
+  padding: 18px;
   text-align: left;
 }
+
 </style>
 </head>
 
