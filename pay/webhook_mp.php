@@ -168,6 +168,7 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
                 $bank               = 'Mercado Pago';
                 $credit             = 0;
                 $valorPagado        = $montoPago;
+				$nombre				= 'Pasarela Pago';
 
                 ob_start();
                 // Ajusta la ruta si tu generate_factura.php está en otra carpeta:
