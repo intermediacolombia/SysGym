@@ -17,114 +17,129 @@ header('Content-Type: text/html; charset=utf-8');
 :root {
   --primary: <?= SYSTEM_COLOR_PRIMARY; ?>;
 }
+
 body {
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(180deg, #6f00ff 0%, #c300ff 100%);
+  background: #f0f3f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0;
 }
-.app-container {
-  width: 360px;
-  background: rgba(255,255,255,0.12);
+
+.app-box {
+  width: 380px;
+  background: #fff;
   border-radius: 25px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
   padding: 40px 30px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
-  backdrop-filter: blur(15px);
   text-align: center;
-  color: white;
 }
-.app-container .avatar {
-  background: rgba(255,255,255,0.15);
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  margin: 0 auto 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+
+.app-box img.logo {
+  width: 100px;
+  margin-bottom: 15px;
 }
-.app-container .avatar i {
-  font-size: 36px;
-  color: white;
-}
+
 h4 {
+  color: var(--primary);
   font-weight: 600;
   margin-bottom: 25px;
   letter-spacing: 0.5px;
 }
+
 .form-control {
-  background: transparent;
-  border: 2px solid rgba(255,255,255,0.6);
-  border-radius: 30px;
-  color: white;
-  padding: 10px 15px;
-  margin-bottom: 20px;
-  text-align: center;
-  transition: 0.3s;
+  height: 45px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-bottom: 15px;
+  font-size: 15px;
+  padding-left: 40px;
 }
+
 .form-control:focus {
-  background: rgba(255,255,255,0.15);
-  border-color: white;
-  outline: none;
-  box-shadow: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.2rem rgba(95, 202, 0, 0.25);
 }
-::placeholder {
-  color: rgba(255,255,255,0.7);
+
+.input-icon {
+  position: relative;
 }
-.btn-send {
+
+.input-icon i {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  color: var(--primary);
+  font-size: 18px;
+}
+
+.btn-login {
   width: 100%;
+  height: 45px;
+  border-radius: 8px;
   border: none;
-  border-radius: 25px;
-  background-color: white;
-  color: #6f00ff;
+  background: var(--primary);
+  color: #fff;
   font-weight: 600;
-  padding: 10px;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   transition: 0.3s;
 }
-.btn-send:hover {
-  transform: scale(1.03);
-  background: #f0f0f0;
+
+.btn-login:hover {
+  background: #4fb800;
+  transform: translateY(-2px);
 }
+
+.link-row {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #555;
+}
+
+.link-row a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link-row a:hover {
+  text-decoration: underline;
+}
+
 #resultado {
   display: none;
-  margin-top: 25px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 20px;
   padding: 15px;
-  color: white;
-}
-footer {
-  color: rgba(255,255,255,0.7);
-  text-align: center;
-  font-size: 0.9rem;
-  margin-top: 25px;
+  text-align: left;
 }
 </style>
 </head>
 
 <body>
-<div class="app-container">
-  <div class="avatar">
-    <i class="bi bi-person-fill"></i>
+  <div class="app-box">
+    <img src="<?= $url . '/' . SITE_LOGO; ?>" alt="Logo" class="logo">
+    <h4>Verificar Mensualidad</h4>
+
+    <form id="buscarForm">
+      <div class="input-icon">
+        <i class="bi bi-person"></i>
+        <input type="text" id="identificacion" name="identificacion" class="form-control" placeholder="Número de documento" required>
+      </div>
+      <button type="submit" class="btn btn-login">Buscar</button>
+    </form>
+
+    <div id="resultado">
+      <h6 class="text-primary">Resultado</h6>
+      <div id="infoCliente"></div>
+    </div>
+
+    <div class="link-row">
+      <p>¿No recuerdas tu número? <a href="#">Contáctanos</a></p>
+    </div>
   </div>
-  <h4>Verificar Mensualidad</h4>
-
-  <form id="buscarForm">
-    <input type="text" id="identificacion" name="identificacion" class="form-control" placeholder="Número de Documento" required>
-    <button type="submit" class="btn btn-send">Buscar</button>
-  </form>
-
-  <div id="resultado">
-    <h6>Resultado</h6>
-    <div id="infoCliente"></div>
-  </div>
-
-  <footer>© <?= date('Y'); ?> SysGym · Intermedia Colombia</footer>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.js"></script>
 <script>
@@ -155,6 +170,7 @@ $('#buscarForm').on('submit', function(e){
     data: { identificacion: doc },
     success: function(response) {
       Swal.close();
+
       if (response.status === 'success') {
         $('#resultado').show();
         $('#infoCliente').html(response.html);
@@ -182,6 +198,7 @@ $('#buscarForm').on('submit', function(e){
 </script>
 </body>
 </html>
+
 
 
 
