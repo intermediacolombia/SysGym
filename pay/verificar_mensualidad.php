@@ -16,11 +16,16 @@ if (empty($identificacion)) {
     exit;
 }
 
-// Buscar cliente por identificación (activo o inactivo)
-$stmt = $pdo->prepare("SELECT c.*, p.nombre AS plan_nombre 
-                       FROM clientes c 
-                       LEFT JOIN planes p ON p.id = c.plan
-                       WHERE c.identificacion = :ident LIMIT 1");
+$stmt = $pdo->prepare("
+    SELECT 
+        c.*,
+        p.nombre  AS plan_nombre,
+        p.precio  AS plan_precio
+    FROM clientes c
+    LEFT JOIN planes p ON p.id = c.plan
+    WHERE c.identificacion = :ident
+    LIMIT 1
+");
 $stmt->execute([':ident' => $identificacion]);
 $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -29,7 +34,7 @@ if (!$cliente) {
     exit;
 }
 
-// === Lógica de estado del plan ===
+/* ---------- Estado del plan ---------- */
 $estado = '';
 $color = '';
 $mensaje = '';
@@ -41,36 +46,46 @@ if (empty($cliente['plan'])) {
     $mensaje = 'Este cliente no tiene ningún plan activo.';
     $mostrarBotonPago = true;
 } else {
-    $fechaVenc = new DateTime($cliente['vencimiento_plan']);
+    $fechaVenc = !empty($cliente['vencimiento_plan']) ? new DateTime($cliente['vencimiento_plan']) : null;
     $hoy = new DateTime();
-    $diasRestantes = (int)$hoy->diff($fechaVenc)->format('%r%a'); // negativo si vencido
 
-    if ($diasRestantes < 0) {
-        $estado = 'Plan vencido';
-        $color = 'danger';
-        $mensaje = 'La mensualidad venció el ' . $fechaVenc->format('d/m/Y') . '.';
-        $mostrarBotonPago = true;
-    } elseif ($diasRestantes <= 7) {
-        $estado = 'Por vencer';
+    if (!$fechaVenc) {
+        $estado = 'Sin vencimiento registrado';
         $color = 'warning';
-        $mensaje = 'El plan vence en ' . $diasRestantes . ' día(s) (' . $fechaVenc->format('d/m/Y') . ').';
+        $mensaje = 'No se encontró fecha de vencimiento para este plan.';
         $mostrarBotonPago = true;
     } else {
-        $estado = 'Al día';
-        $color = 'success';
-        $mensaje = 'El plan está vigente hasta el ' . $fechaVenc->format('d/m/Y') . '.';
+        $diasRestantes = (int)$hoy->diff($fechaVenc)->format('%r%a'); // negativo si vencido
+        if ($diasRestantes < 0) {
+            $estado = 'Plan vencido';
+            $color = 'danger';
+            $mensaje = 'La mensualidad venció el ' . $fechaVenc->format('d/m/Y') . '.';
+            $mostrarBotonPago = true;
+        } elseif ($diasRestantes <= 7) {
+            $estado = 'Por vencer';
+            $color = 'warning';
+            $mensaje = 'El plan vence en ' . $diasRestantes . ' día(s) (' . $fechaVenc->format('d/m/Y') . ').';
+            $mostrarBotonPago = true;
+        } else {
+            $estado = 'Al día';
+            $color = 'success';
+            $mensaje = 'El plan está vigente hasta el ' . $fechaVenc->format('d/m/Y') . '.';
+        }
     }
 }
 
-// Si el cliente está inactivo, también mostrar botón de pago
-if ($cliente['estado'] === 'inactivo') {
-    $mostrarBotonPago = true;
-}
+/* ---------- Precio y total con adicional ---------- */
+$precioBase = (float)($cliente['plan_precio'] ?? 0);
+$adicional  = (float) (defined('ADDITIONAL_PERCENTAGE_PAYMENT') ? ADDITIONAL_PERCENTAGE_PAYMENT : 0);
+$valorFinal = round($precioBase * (1 + ($adicional/100)), 0);
 
+function cop($n){ return '$' . number_format((float)$n, 0, ',', '.'); }
+
+/* ---------- Tarjeta HTML ---------- */
 $html = '
 <div class="card p-3">
   <div class="d-flex align-items-center">
-    ' . (!empty($cliente['imagen_perfil']) ? '<img src="'.$url.'/uploads/clientes/'.$cliente['imagen_perfil'].'" class="rounded-circle me-3" style="width:70px;height:70px;object-fit:cover;">' : '') . '
+    ' . (!empty($cliente['imagen_perfil']) ? '<img src="'.$url.'/uploads/clientes/'.htmlspecialchars($cliente['imagen_perfil']).'" class="rounded-circle me-3" style="width:70px;height:70px;object-fit:cover;">' : '') . '
     <div>
       <h5 class="mb-0">'.htmlspecialchars($cliente['nombres'].' '.$cliente['apellidos']).'</h5>
       <small class="text-muted">'.htmlspecialchars($cliente['identificacion']).'</small>
@@ -79,52 +94,44 @@ $html = '
   <hr>
   <p><strong>Estado del cliente:</strong> ' . ucfirst($cliente['estado']) . '</p>
   <p><strong>Plan actual:</strong> ' . ($cliente['plan_nombre'] ?? 'N/A') . '</p>
-  <p><strong>Fecha de pago:</strong> ' . ($cliente['pago_plan'] ?? '-') . '</p>
-  <p><strong>Vencimiento:</strong> ' . ($cliente['vencimiento_plan'] ?? '-') . '</p>
+  <p><strong>Valor del plan:</strong> ' . cop($precioBase) . '</p>
+  <p><strong>Fecha de pago:</strong> ' . (!empty($cliente['pago_plan']) ? htmlspecialchars($cliente['pago_plan']) : '-') . '</p>
+  <p><strong>Vencimiento:</strong> ' . (!empty($cliente['vencimiento_plan']) ? htmlspecialchars($cliente['vencimiento_plan']) : '-') . '</p>
   <div class="alert alert-' . $color . ' mt-3">
     <strong>' . strtoupper($estado) . ':</strong> ' . $mensaje . '
   </div>';
 
-if ($mostrarBotonPago) {
+if ($mostrarBotonPago && $precioBase > 0) {
     $html .= '
     <div class="text-center mt-3">
-      <button class="btn btn-success btn-pagar"
-        data-id="' . $cliente['id'] . '"
-        data-plan="' . htmlspecialchars($cliente['plan_nombre']) . '"
-        data-valor="' . htmlspecialchars($cliente['valor'] ?? 0) . '">
+      <button 
+        class="btn btn-success"
+        id="btnPagar"
+        data-id="'.(int)$cliente['id'].'"
+        data-plan="'.htmlspecialchars($cliente['plan_nombre'] ?? 'Plan').'"
+        data-valor="'.$precioBase.'"
+        data-final="'.$valorFinal.'"
+      >
         <i class="fa fa-credit-card"></i> Pagar Membresía
       </button>
     </div>';
 }
 
-
 $html .= '</div>';
 
-$html .= '
-<script>
-$("#btnSimularPago").on("click", function(){
-  Swal.fire({
-    title: "Confirmar pago simulado",
-    text: "¿Deseas registrar un pago simulado para este cliente?",
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonColor: "'.SYSTEM_COLOR_PRIMARY.'",
-    cancelButtonColor: "#6c757d",
-    confirmButtonText: "Sí, registrar pago"
-  }).then((result) => {
-    if (result.isConfirmed) {
-      Swal.fire({
-        icon: "success",
-        title: "Pago simulado",
-        text: "Se ha registrado el pago simulado correctamente.",
-        confirmButtonColor: "'.SYSTEM_COLOR_PRIMARY.'"
-      });
-    }
-  });
-});
-</script>
-';
+echo json_encode([
+    'status' => 'success',
+    'html'   => $html,
+    'data'   => [
+        'id'           => (int)$cliente['id'],
+        'nombres'      => $cliente['nombres'],
+        'apellidos'    => $cliente['apellidos'],
+        'plan'         => $cliente['plan_nombre'] ?? 'Plan',
+        'valor'        => $precioBase,
+        'valor_final'  => $valorFinal,
+        'adicional'    => $adicional
+    ]
+]);
 
-echo json_encode(['status' => 'success', 'html' => $html]);
 
 
