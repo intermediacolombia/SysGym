@@ -128,7 +128,7 @@ h4 {
 <body>
   <div class="app-box">
     <img src="<?= $url . '/' . SITE_LOGO; ?>" alt="Logo" class="logo">
-    <h4>Verificar Mensualidad</h4>
+    <h4>Paga tu Plan</h4>
 
     <form id="buscarForm">
       <div class="input-icon">
@@ -144,7 +144,7 @@ h4 {
     </div>
 
     <div class="link-row">
-      <p>¿No recuerdas tu número? <a href="#">Contáctanos</a></p>
+      <p>¿Inconvenientes? <a href="#">Contáctanos</a></p>
     </div>
   </div>
 
