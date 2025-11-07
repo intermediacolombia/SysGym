@@ -164,7 +164,7 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
                 $id                 = $cliente_id;
                 $pago_plan          = $hoy->format('Y-m-d');
                 $vencimiento_plan   = $nuevoVenc->format('Y-m-d');
-                $payment_method     = 'mercadopago';
+                $payment_method     = 'Pago en Linea';
                 $bank               = 'Mercado Pago';
                 $credit             = 0;
                 $valorPagado        = $montoPago;
@@ -182,7 +182,7 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
                     $cp_telefono         = $cliente['telefono'];
                     $cp_pago_plan        = $pago_plan;
                     $cp_vencimiento_plan = $vencimiento_plan;
-                    $facturaId           = null;
+                    //$facturaId           = null;
 
                     ob_start();
                     include(__DIR__ . '/../whatsapp/client-pay.php');
