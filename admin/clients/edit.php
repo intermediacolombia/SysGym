@@ -997,6 +997,28 @@ cameraModal.addEventListener('hide.bs.modal', () => {
 </script>
 
 	
+	<script>
+/* ==== PREVIEW AL CARGAR ARCHIVO ==== */
+document.getElementById('imagen_perfil').addEventListener('change', function (event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Solo permitir imágenes
+  if (!file.type.startsWith('image/')) {
+    Swal.fire('Archivo inválido', 'Por favor selecciona una imagen válida.', 'warning');
+    this.value = ''; // limpiar input
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    document.getElementById('previewImage').src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+</script>
+
+	
 </body>
 </html>
 
