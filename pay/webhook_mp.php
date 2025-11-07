@@ -166,14 +166,17 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
                 $vencimiento_plan   = $nuevoVenc->format('Y-m-d');
                 $payment_method     = 'Pago en Linea';
                 $bank               = 'Mercado Pago';
-                $credit             = 0;				
-				$porcentajeAdicional = (float) ADDITIONAL_PERCENTAGE_PAYMENT;				
-                $valorPagado        = round($montoPago * (1 + ($porcentajeAdicional / 100)), 2);
-				$nombre				= 'System';
+                $credit             = 0;
+				
+				$porcentajeAdicional = (float) ADDITIONAL_PERCENTAGE_PAYMENT;
+				
+                $valorPagado        = $montoPago; 
+				$nombre				= 'Pasarela Pago';
 
                 ob_start();
                 // Ajusta la ruta si tu generate_factura.php está en otra carpeta:
-                include(__DIR__ . '/../admin/clients/generate_factura.php');
+                include(__DIR__ . '/../admin/clients/generate_factura_pasarela.php');
+
                 ob_end_clean();
 
                 // === Notificar por WhatsApp (si aplica) ===
