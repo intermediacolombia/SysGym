@@ -16,6 +16,7 @@ header('Content-Type: text/html; charset=utf-8');
 <style>
 :root {
   --primary: <?= SYSTEM_COLOR_PRIMARY; ?>;
+  --secondary: <?= SYSTEM_COLOR_SECONDARY; ?>;
 }
 
 body {
@@ -90,7 +91,7 @@ h4 {
 }
 
 .btn-login:hover {
-  background: #4fb800;
+  background: var(--secondary);
   transform: translateY(-2px);
 }
 
