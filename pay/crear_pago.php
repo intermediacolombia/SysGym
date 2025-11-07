@@ -27,9 +27,19 @@ try {
     if (!$cliente) die("Cliente no encontrado.");
 
     // === Definir datos del pago ===
-    $monto = (float)($cliente['plan_precio'] ?? 0);
-    if ($monto <= 0) $monto = 50000; // Valor base si el plan no tiene precio
-    $descripcion = "Pago de mensualidad SysGym - " . ($cliente['plan_nombre'] ?? 'Plan General');
+    // Datos del pago
+	
+	$porcentajeAdicional = 8;
+	$monto = (float)($cliente['plan_precio'] ?? 0);
+	if ($monto <= 0) $monto = 50000; // valor base si el plan no tiene precio
+
+	// === Aplicar incremento dinámico ===
+	if ($porcentajeAdicional > 0) {
+		$monto = round($monto * (1 + ($porcentajeAdicional / 100)), 2);
+	}
+
+	$descripcion = "Pago Membresia - " . ($cliente['plan_nombre'] ?? 'Plan General');
+
     $referencia = "pago_{$cliente_id}_" . time();
 
     // === Registrar intento de pago en la base de datos ===
