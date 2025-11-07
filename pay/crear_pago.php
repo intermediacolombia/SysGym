@@ -29,7 +29,7 @@ try {
     // === Definir datos del pago ===
     // Datos del pago
 	
-	$porcentajeAdicional = 8;
+	$porcentajeAdicional = ADDITIONAL_PERCENTAGE_PAYMENT;
 	$monto = (float)($cliente['plan_precio'] ?? 0);
 	if ($monto <= 0) $monto = 50000; // valor base si el plan no tiene precio
 
