@@ -52,33 +52,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pago_plan             = trim($_POST['pago_plan']); // nuevo campo: fecha de pago
     $vencimiento_plan      = trim($_POST['vencimiento_plan']);
 	
-	    // === MANEJO DE IMAGEN DE PERFIL ===
-    $imagenPerfil = $cliente['imagen_perfil'] ?? null;
+	   // === MANEJO DE IMAGEN DE PERFIL ===
+// 1. Consultar la imagen actual
+$stmtImg = $pdo->prepare("SELECT imagen_perfil FROM clientes WHERE id = :id");
+$stmtImg->execute([':id' => $id]);
+$imagenPerfil = $stmtImg->fetchColumn();
 
-    // 1. Si se sube una imagen nueva (archivo o captura desde cámara)
-    if (isset($_FILES['imagen_perfil']) && $_FILES['imagen_perfil']['error'] === UPLOAD_ERR_OK) {
-        $nombreTmp = $_FILES['imagen_perfil']['tmp_name'];
-        $nombreArchivo = 'cliente_' . $id . '_' . time() . '.jpg';
-        $rutaDirectorio = __DIR__ . '/../../uploads/clientes/';
-        $rutaDestino = $rutaDirectorio . $nombreArchivo;
+// 2. Si se sube una imagen nueva (archivo o captura desde cámara)
+if (isset($_FILES['imagen_perfil']) && $_FILES['imagen_perfil']['error'] === UPLOAD_ERR_OK) {
+    $nombreTmp = $_FILES['imagen_perfil']['tmp_name'];
+    $nombreArchivo = 'cliente_' . $id . '_' . time() . '.jpg';
+    $rutaDirectorio = __DIR__ . '/../../uploads/clientes/';
+    $rutaDestino = $rutaDirectorio . $nombreArchivo;
 
-        // Crear carpeta si no existe
-        if (!is_dir($rutaDirectorio)) {
-            mkdir($rutaDirectorio, 0775, true);
-        }
-
-        // Eliminar la imagen anterior si existe
-        if (!empty($imagenPerfil) && file_exists($rutaDirectorio . $imagenPerfil)) {
-            unlink($rutaDirectorio . $imagenPerfil);
-        }
-
-        // Mover la nueva imagen
-        if (move_uploaded_file($nombreTmp, $rutaDestino)) {
-            $imagenPerfil = $nombreArchivo;
-        } else {
-            $_SESSION['error'] = "No se pudo guardar la imagen del cliente.";
-        }
+    // Crear carpeta si no existe
+    if (!is_dir($rutaDirectorio)) {
+        mkdir($rutaDirectorio, 0775, true);
     }
+
+    // Eliminar la imagen anterior si existe
+    if (!empty($imagenPerfil) && file_exists($rutaDirectorio . $imagenPerfil)) {
+        unlink($rutaDirectorio . $imagenPerfil);
+    }
+
+    // Mover la nueva imagen
+    if (move_uploaded_file($nombreTmp, $rutaDestino)) {
+        $imagenPerfil = $nombreArchivo;
+    } else {
+        $_SESSION['error'] = "No se pudo guardar la imagen del cliente.";
+    }
+}
+
 
 
 	
