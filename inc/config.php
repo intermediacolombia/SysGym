@@ -55,8 +55,8 @@ try {
 	define('SYSTEM_COLOR_SECONDARY_DARK', $settings['system_color_secondary_dark'] ?? '#000');
 	
 	/* ===== MERCADO PAGO CONFIG ===== */
-	define('MP_ACCESS_TOKEN', 'APP_USR-7898771052924983-110621-286a6d387e40342f363f0e7132a7b9a6-2972976646');
-	define('MP_PUBLIC_KEY',  'APP_USR-8cbe21e1-3aad-4e8e-9caf-d79d8eaf71e8');
+	define('MP_ACCESS_TOKEN', 'TEST-5302646716770684-082811-e37ae728767c302d95eb1b7b272cf776-47181710');
+	define('MP_PUBLIC_KEY',  'TEST-277ef300-6b73-4c5f-bab3-9c2746de4294');
 
 
 } catch (PDOException $e) {
