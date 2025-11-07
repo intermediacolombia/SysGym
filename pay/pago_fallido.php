@@ -16,130 +16,102 @@ $cliente_id = $_GET['id'] ?? null;
   --primary: <?= SYSTEM_COLOR_PRIMARY; ?>;
   --secondary: <?= SYSTEM_COLOR_SECONDARY; ?>;
 }
-
 body {
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  color: #333;
-  min-height: 100vh;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
   display: flex;
-  align-items: center;
   justify-content: center;
-  margin: 0;
+  align-items: center;
+  height: 100vh;
 }
-
-.card-failed {
+.card {
   background: #fff;
   border-radius: 20px;
   box-shadow: 0 15px 35px rgba(0,0,0,0.15);
   padding: 40px 30px;
-  max-width: 420px;
-  width: 100%;
   text-align: center;
+  max-width: 420px;
   animation: fadeIn 1s ease;
 }
-
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(30px); }
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
-.logo {
-  width: 180px;
-  margin-bottom: 15px;
-}
-
-.icon-failed {
-  width: 80px;
-  height: 80px;
+.logo { width: 180px; margin-bottom: 10px; }
+.icon {
+  margin: 20px auto;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   background: #dc3545;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 20px;
-  animation: shake 0.6s ease-in-out;
+  animation: shake 0.8s ease-in-out;
 }
-
-.icon-failed i {
-  color: #fff;
-  font-size: 40px;
+.icon svg {
+  width: 45px;
+  height: 45px;
 }
-
+.icon svg path {
+  stroke: #fff;
+  stroke-width: 6;
+  fill: none;
+  stroke-linecap: round;
+}
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   20%, 60% { transform: translateX(-6px); }
   40%, 80% { transform: translateX(6px); }
 }
-
-h2 {
-  color: #dc3545;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
-p {
-  color: #555;
-  font-size: 15px;
-  margin-bottom: 10px;
-}
-
+h2 { color: #dc3545; font-weight: 600; }
+p { color: #555; font-size: 15px; }
 .btn-retry, .btn-home {
   border-radius: 30px;
   padding: 12px 30px;
   font-weight: 600;
+  border: none;
   transition: 0.3s;
 }
-
 .btn-retry {
   background: var(--primary);
   color: #fff;
-  border: none;
 }
-
 .btn-retry:hover {
   background: var(--secondary);
   color: var(--primary);
   transform: translateY(-2px);
 }
-
 .btn-home {
   background: #6c757d;
   color: #fff;
-  border: none;
 }
-
 .btn-home:hover {
   background: #5c636a;
   transform: translateY(-2px);
 }
 </style>
 </head>
-
 <body>
-  <div class="card-failed">
+  <div class="card">
     <img src="<?= $url . '/' . SITE_LOGO; ?>" alt="Logo" class="logo">
-
-    <div class="icon-failed">
-      <i class="bi bi-x-lg"></i>
+    <div class="icon">
+      <svg viewBox="0 0 52 52">
+        <line x1="16" y1="16" x2="36" y2="36"/>
+        <line x1="36" y1="16" x2="16" y2="36"/>
+      </svg>
     </div>
-
     <h2>Pago no completado</h2>
     <p>Tu transacción fue cancelada o falló.</p>
     <p>Puedes intentarlo nuevamente desde el botón siguiente:</p>
-
     <?php if ($cliente_id): ?>
-      <a href="crear_pago.php?id=<?= urlencode($cliente_id) ?>" class="btn btn-retry mt-3">
-        <i class="bi bi-credit-card"></i> Reintentar pago
-      </a>
+      <a href="crear_pago.php?id=<?= urlencode($cliente_id) ?>" class="btn btn-retry mt-3">Reintentar pago</a>
     <?php endif; ?>
-
     <div class="mt-3">
       <a href="../index.php" class="btn btn-home">Volver al inicio</a>
     </div>
   </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.js"></script>
 </body>
 </html>
+
 

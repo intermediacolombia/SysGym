@@ -17,85 +17,66 @@ $cliente_id = $_GET['id'] ?? null;
   --secondary: <?= SYSTEM_COLOR_SECONDARY; ?>;
   --warning: #f4b400;
 }
-
 body {
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  color: #333;
-  min-height: 100vh;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
   display: flex;
-  align-items: center;
   justify-content: center;
-  margin: 0;
+  align-items: center;
+  height: 100vh;
 }
-
-.card-pending {
+.card {
   background: #fff;
   border-radius: 20px;
   box-shadow: 0 15px 35px rgba(0,0,0,0.15);
   padding: 40px 30px;
-  max-width: 420px;
-  width: 100%;
   text-align: center;
+  max-width: 420px;
   animation: fadeIn 1s ease;
 }
-
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(30px); }
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
-.logo {
-  width: 180px;
-  margin-bottom: 15px;
-}
-
-.icon-pending {
-  width: 80px;
-  height: 80px;
+.logo { width: 180px; margin-bottom: 10px; }
+.icon {
+  margin: 20px auto;
+  width: 100px;
+  height: 100px;
+  position: relative;
   border-radius: 50%;
   background: var(--warning);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 20px;
   animation: pulse 1.5s infinite;
 }
-
-.icon-pending i {
-  color: #fff;
-  font-size: 40px;
+.icon svg {
+  width: 50px;
+  height: 50px;
 }
-
+.icon svg path {
+  stroke: #fff;
+  stroke-width: 6;
+  fill: none;
+  stroke-linecap: round;
+}
 @keyframes pulse {
   0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244,180,0, 0.6); }
   70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(244,180,0, 0); }
   100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244,180,0, 0); }
 }
-
-h2 {
-  color: var(--warning);
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
-p {
-  color: #555;
-  font-size: 15px;
-  margin-bottom: 10px;
-}
-
+h2 { color: var(--warning); font-weight: 600; }
+p { color: #555; font-size: 15px; }
 .btn-home {
-  margin-top: 25px;
   background: var(--primary);
   color: #fff;
-  border: none;
   border-radius: 30px;
   padding: 12px 30px;
+  border: none;
   font-weight: 600;
   transition: 0.3s;
 }
-
 .btn-home:hover {
   background: var(--secondary);
   color: var(--primary);
@@ -103,24 +84,22 @@ p {
 }
 </style>
 </head>
-
 <body>
-  <div class="card-pending">
+  <div class="card">
     <img src="<?= $url . '/' . SITE_LOGO; ?>" alt="Logo" class="logo">
-
-    <div class="icon-pending">
-      <i class="bi bi-exclamation-lg"></i>
+    <div class="icon">
+      <svg viewBox="0 0 52 52">
+        <line x1="26" y1="16" x2="26" y2="30"/>
+        <circle cx="26" cy="38" r="2"/>
+      </svg>
     </div>
-
     <h2>Pago pendiente</h2>
     <p>Tu transacción está en proceso de verificación.</p>
     <p>En cuanto sea aprobada, tu membresía se activará automáticamente.</p>
-
-    <a href="<?= URLBASE; ?>/pay" class="btn btn-home">Volver al inicio</a>
+    <a href="../index.php" class="btn btn-home mt-3">Volver al inicio</a>
   </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.js"></script>
 </body>
 </html>
+
 
 
