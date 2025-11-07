@@ -37,7 +37,7 @@ body {
 }
 
 .app-box img.logo {
-  width: 100px;
+  width: 250px;
   margin-bottom: 15px;
 }
 
