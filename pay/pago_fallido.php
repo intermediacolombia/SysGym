@@ -124,7 +124,7 @@ p {
     <?php endif; ?>
 
     <div class="mt-3">
-      <a href="../index.php" class="btn btn-home">Volver al inicio</a>
+      <a href="<?= URLBASE; ?>/pay" class="btn btn-home">Volver al inicio</a>
     </div>
   </div>
 </body>

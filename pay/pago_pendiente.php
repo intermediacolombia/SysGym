@@ -109,7 +109,7 @@ p {
     <h2>Pago pendiente</h2>
     <p>Tu transacción está en proceso de verificación.</p>
     <p>En cuanto sea aprobada, tu membresía se activará automáticamente.</p>
-    <a href="../index.php" class="btn btn-home mt-3">Volver al inicio</a>
+    <a href="<?= URLBASE; ?>/pay" class="btn btn-home">Volver al inicio</a>
   </div>
 </body>
 </html>
