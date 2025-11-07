@@ -109,7 +109,7 @@ $logoDataURI = 'data:image/png;base64,' . $logoData;
       font-size: 14px;
     }
     .service-table th {
-      background-color: var(--system-color-primary);
+      background-color: <?= SYSTEM_COLOR_PRIMARY; ?>;
       color: #fff;
     }
     .total {
