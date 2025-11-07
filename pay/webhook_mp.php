@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use MercadoPago\MercadoPagoConfig;
 use MercadoPago\Client\Payment\PaymentClient;
 
 /* ==========================================================
@@ -23,17 +24,21 @@ try {
             cliente_id INT NOT NULL,
             referencia VARCHAR(100) NOT NULL,
             monto DECIMAL(10,2) NOT NULL DEFAULT 0,
-            estado ENUM('iniciado','pending','approved','rejected') DEFAULT 'pending',
-            metodo_pago VARCHAR(50) DEFAULT NULL,
+            estado ENUM('iniciado','pending','approved','rejected','unknown') DEFAULT 'pending',
+            metodo_pago VARCHAR(50) DEFAULT 'mercadopago',
             fecha_pago DATETIME DEFAULT CURRENT_TIMESTAMP,
             raw_response JSON NULL,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
+            UNIQUE KEY uk_referencia (referencia),
+            INDEX idx_cliente (cliente_id),
+            CONSTRAINT fk_pagos_clientes FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ");
 } catch (Exception $e) {
     file_put_contents(__DIR__ . '/webhook_log.txt',
-        date('Y-m-d H:i:s') . " [DB ERROR] " . $e->getMessage() . "\n", FILE_APPEND);
+        date('Y-m-d H:i:s') . " [DB ERROR] " . $e->getMessage() . "\n",
+        FILE_APPEND
+    );
     http_response_code(500);
     exit;
 }
@@ -43,21 +48,24 @@ try {
 ========================================================== */
 if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']['id'])) {
     try {
+        // Configurar credenciales (TOKEN DE LA MISMA CUENTA QUE crea la preferencia)
+        MercadoPagoConfig::setAccessToken(MP_ACCESS_TOKEN);
+
         $payment_id = $data['data']['id'];
         $client = new PaymentClient();
         $payment = $client->get($payment_id);
 
-        $ref = $payment->external_reference ?? '';
+        $ref        = $payment->external_reference ?? '';
         $estadoPago = $payment->status ?? 'unknown';
-        $montoPago = $payment->transaction_amount ?? 0;
+        $montoPago  = $payment->transaction_amount ?? 0;
 
         /* ==========================================================
-           ACTUALIZAR O INSERTAR REGISTRO EN PAGOS
+           ACTUALIZAR O INSERTAR REGISTRO EN PAGOS (UPsert)
         =========================================================== */
         if (preg_match('/pago_(\d+)_/', $ref, $match)) {
             $cliente_id = (int)$match[1];
 
-            // ¿Existe ya el pago?
+            // ¿Existe ya el pago con esa referencia?
             $stmtCheck = $pdo->prepare("SELECT id FROM pagos WHERE referencia = :ref LIMIT 1");
             $stmtCheck->execute([':ref' => $ref]);
             $existe = $stmtCheck->fetchColumn();
@@ -87,11 +95,11 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
                     VALUES (:cid, :ref, :monto, :estado, 'mercadopago', :raw)
                 ");
                 $stmtInsert->execute([
-                    ':cid' => $cliente_id,
-                    ':ref' => $ref,
+                    ':cid'   => $cliente_id,
+                    ':ref'   => $ref,
                     ':monto' => $montoPago,
-                    ':estado' => $estadoPago,
-                    ':raw' => json_encode($payment, JSON_UNESCAPED_UNICODE)
+                    ':estado'=> $estadoPago,
+                    ':raw'   => json_encode($payment, JSON_UNESCAPED_UNICODE)
                 ]);
 
                 file_put_contents(__DIR__ . '/webhook_log.txt',
@@ -119,16 +127,16 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
 
             if ($cliente) {
                 date_default_timezone_set('America/Bogota');
-                $hoy = new DateTime('today');
+                $hoy          = new DateTime('today');
                 $vencAnterior = !empty($cliente['vencimiento_plan']) ? new DateTime($cliente['vencimiento_plan']) : null;
-                $planDias = (int)$cliente['dias'];
-                $planMeses = (int)$cliente['frecuencia'];
+                $planDias     = (int)$cliente['dias'];
+                $planMeses    = (int)$cliente['frecuencia'];
 
                 $calcFechaFin = function (DateTime $inicio, int $meses, int $dias): DateTime {
                     $fin = clone $inicio;
                     if ($meses > 0) {
                         $fin->modify("+{$meses} months");
-                        $fin->modify('-1 day');
+                        $fin->modify('-1 day'); // inclusivo
                     }
                     if ($dias > 0) {
                         $fin->modify('+' . $dias . ' days');
@@ -137,8 +145,8 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
                 };
 
                 $estaVencido = (!$vencAnterior) || ($vencAnterior <= $hoy);
-                $inicio = $estaVencido ? clone $hoy : (clone $vencAnterior)->modify('+1 day');
-                $nuevoVenc = $calcFechaFin($inicio, $planMeses, $planDias);
+                $inicio      = $estaVencido ? clone $hoy : (clone $vencAnterior)->modify('+1 day');
+                $nuevoVenc   = $calcFechaFin($inicio, $planMeses, $planDias);
 
                 // === Actualizar cliente ===
                 $stmtUpdate = $pdo->prepare("
@@ -149,23 +157,24 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
                 $stmtUpdate->execute([
                     ':pago' => $hoy->format('Y-m-d'),
                     ':venc' => $nuevoVenc->format('Y-m-d'),
-                    ':id' => $cliente_id
+                    ':id'   => $cliente_id
                 ]);
 
-                // === Registrar factura (usando tu archivo existente) ===
-                $id = $cliente_id;
-                $pago_plan = $hoy->format('Y-m-d');
-                $vencimiento_plan = $nuevoVenc->format('Y-m-d');
-                $payment_method = 'mercadopago';
-                $bank = 'Mercado Pago';
-                $credit = 0;
-                $valorPagado = $montoPago;
+                // === Registrar factura (usa tu archivo existente) ===
+                $id                 = $cliente_id;
+                $pago_plan          = $hoy->format('Y-m-d');
+                $vencimiento_plan   = $nuevoVenc->format('Y-m-d');
+                $payment_method     = 'mercadopago';
+                $bank               = 'Mercado Pago';
+                $credit             = 0;
+                $valorPagado        = $montoPago;
 
                 ob_start();
+                // Ajusta la ruta si tu generate_factura.php está en otra carpeta:
                 include(__DIR__ . '/../admin/clients/generate_factura.php');
                 ob_end_clean();
 
-                // === Notificar al cliente (si aplica) ===
+                // === Notificar por WhatsApp (si aplica) ===
                 if ((int)$cliente['notificaciones'] === 1) {
                     $cp_nombres          = $cliente['nombres'];
                     $cp_apellidos        = $cliente['apellidos'] ?? '';
@@ -191,7 +200,7 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
                 );
             }
         } else {
-            // Registrar en log los pagos no aprobados (pendientes o rechazados)
+            // Registrar pagos no aprobados (pendientes / rechazados / unknown)
             file_put_contents(__DIR__ . '/webhook_log.txt',
                 date('Y-m-d H:i:s') . " ⏳ Pago $estadoPago recibido (sin procesar factura): Ref $ref\n",
                 FILE_APPEND
@@ -202,8 +211,9 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
         $errorDetails = method_exists($ex, 'getApiResponse')
             ? json_encode($ex->getApiResponse(), JSON_UNESCAPED_UNICODE)
             : $ex->getMessage();
+
         file_put_contents(__DIR__ . '/webhook_log.txt',
-            date('Y-m-d H:i:s') . " [PROCESS ERROR] " . $errorDetails . "\n",
+            date('Y-m-d H:i:s') . " [PROCESS ERROR DETAILS] " . $errorDetails . "\n",
             FILE_APPEND
         );
     }
