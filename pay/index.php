@@ -93,6 +93,7 @@ h4 {
 .btn-login:hover {
   background: var(--secondary);
   transform: translateY(-2px);
+	color: var(--primary);
 }
 
 .link-row {
