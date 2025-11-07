@@ -21,7 +21,7 @@ header('Content-Type: text/html; charset=utf-8');
 body {
   font-family: 'Poppins', sans-serif;
   /*background: #f0f3f9;*/
-background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(<?= URL_BASE;?>/admin/images/background.jpg) no-repeat center center fixed;
+background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(<?= URLBASE;?>/admin/images/background.jpg) no-repeat center center fixed;
     background-size: cover;
 }
   display: flex;
