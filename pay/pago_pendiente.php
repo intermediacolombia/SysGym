@@ -24,6 +24,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  margin: 0;
 }
 .card {
   background: #fff;
@@ -32,18 +33,22 @@ body {
   padding: 40px 30px;
   text-align: center;
   max-width: 420px;
+  width: 90%;
   animation: fadeIn 1s ease;
 }
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.logo { width: 180px; margin-bottom: 10px; }
+.logo {
+  display: block;
+  margin: 0 auto 10px auto;
+  max-width: 220px;
+}
 .icon {
-  margin: 20px auto;
-  width: 100px;
-  height: 100px;
-  position: relative;
+  margin: 25px auto;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
   background: var(--warning);
   display: flex;
@@ -52,13 +57,13 @@ body {
   animation: pulse 1.5s infinite;
 }
 .icon svg {
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
 }
-.icon svg path {
+.icon svg line,
+.icon svg circle {
   stroke: #fff;
   stroke-width: 6;
-  fill: none;
   stroke-linecap: round;
 }
 @keyframes pulse {
@@ -66,8 +71,14 @@ body {
   70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(244,180,0, 0); }
   100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244,180,0, 0); }
 }
-h2 { color: var(--warning); font-weight: 600; }
-p { color: #555; font-size: 15px; }
+h2 {
+  color: var(--warning);
+  font-weight: 600;
+}
+p {
+  color: #555;
+  font-size: 15px;
+}
 .btn-home {
   background: var(--primary);
   color: #fff;
@@ -87,12 +98,14 @@ p { color: #555; font-size: 15px; }
 <body>
   <div class="card">
     <img src="<?= $url . '/' . SITE_LOGO; ?>" alt="Logo" class="logo">
+
     <div class="icon">
-      <svg viewBox="0 0 52 52">
-        <line x1="26" y1="16" x2="26" y2="30"/>
-        <circle cx="26" cy="38" r="2"/>
+      <svg viewBox="0 0 64 64">
+        <line x1="32" y1="18" x2="32" y2="36"></line>
+        <circle cx="32" cy="46" r="2.5"></circle>
       </svg>
     </div>
+
     <h2>Pago pendiente</h2>
     <p>Tu transacción está en proceso de verificación.</p>
     <p>En cuanto sea aprobada, tu membresía se activará automáticamente.</p>
@@ -100,6 +113,7 @@ p { color: #555; font-size: 15px; }
   </div>
 </body>
 </html>
+
 
 
 

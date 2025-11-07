@@ -15,6 +15,7 @@ $cliente_id = $_GET['id'] ?? null;
 :root {
   --primary: <?= SYSTEM_COLOR_PRIMARY; ?>;
   --secondary: <?= SYSTEM_COLOR_SECONDARY; ?>;
+  --danger: #dc3545;
 }
 body {
   font-family: 'Poppins', sans-serif;
@@ -23,6 +24,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  margin: 0;
 }
 .card {
   background: #fff;
@@ -31,19 +33,24 @@ body {
   padding: 40px 30px;
   text-align: center;
   max-width: 420px;
+  width: 90%;
   animation: fadeIn 1s ease;
 }
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.logo { width: 180px; margin-bottom: 10px; }
+.logo {
+  display: block;
+  margin: 0 auto 10px auto;
+  max-width: 220px;
+}
 .icon {
-  margin: 20px auto;
-  width: 100px;
-  height: 100px;
+  margin: 25px auto;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
-  background: #dc3545;
+  background: var(--danger);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -53,10 +60,9 @@ body {
   width: 45px;
   height: 45px;
 }
-.icon svg path {
+.icon svg line {
   stroke: #fff;
   stroke-width: 6;
-  fill: none;
   stroke-linecap: round;
 }
 @keyframes shake {
@@ -64,9 +70,15 @@ body {
   20%, 60% { transform: translateX(-6px); }
   40%, 80% { transform: translateX(6px); }
 }
-h2 { color: #dc3545; font-weight: 600; }
-p { color: #555; font-size: 15px; }
-.btn-retry, .btn-home {
+h2 {
+  color: var(--danger);
+  font-weight: 600;
+}
+p {
+  color: #555;
+  font-size: 15px;
+}
+.btn {
   border-radius: 30px;
   padding: 12px 30px;
   font-weight: 600;
@@ -95,18 +107,22 @@ p { color: #555; font-size: 15px; }
 <body>
   <div class="card">
     <img src="<?= $url . '/' . SITE_LOGO; ?>" alt="Logo" class="logo">
+
     <div class="icon">
-      <svg viewBox="0 0 52 52">
-        <line x1="16" y1="16" x2="36" y2="36"/>
-        <line x1="36" y1="16" x2="16" y2="36"/>
+      <svg viewBox="0 0 64 64">
+        <line x1="20" y1="20" x2="44" y2="44"></line>
+        <line x1="44" y1="20" x2="20" y2="44"></line>
       </svg>
     </div>
+
     <h2>Pago no completado</h2>
     <p>Tu transacción fue cancelada o falló.</p>
     <p>Puedes intentarlo nuevamente desde el botón siguiente:</p>
+
     <?php if ($cliente_id): ?>
       <a href="crear_pago.php?id=<?= urlencode($cliente_id) ?>" class="btn btn-retry mt-3">Reintentar pago</a>
     <?php endif; ?>
+
     <div class="mt-3">
       <a href="../index.php" class="btn btn-home">Volver al inicio</a>
     </div>
