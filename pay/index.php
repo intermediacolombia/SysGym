@@ -252,6 +252,30 @@ $('#buscarForm').on('submit', function(e){
     }
   });
 });
+	
+	// Abrir modal de confirmación
+$(document).on('click', '#btnPagar', function(){
+  const id        = $(this).data('id');
+  const plan      = $(this).data('plan');
+  const valorBase = parseFloat($(this).data('valor')) || 0;
+  const valorFinal= parseFloat($(this).data('final')) || 0;
+  const adicional = <?= (float)ADDITIONAL_PERCENTAGE_PAYMENT ?>;
+
+  const cop = n => '$' + Number(n).toLocaleString('es-CO');
+
+  $('#planNombre').text(plan);
+  $('#valorBase').text(cop(valorBase));
+  $('#valorFinal').text(cop(valorFinal));
+  // (Si también muestras el porcentaje en el modal, ya lo tienes en el HTML)
+
+  $('#btnIrPagar').off('click').on('click', function(){
+    window.location.href = `crear_pago.php?id=${id}`;
+  });
+
+  const modal = new bootstrap.Modal(document.getElementById('modalConfirm'));
+  modal.show();
+});
+
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
