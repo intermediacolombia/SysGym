@@ -129,7 +129,10 @@ if ($credit == 1 && $remaining > 0) {
     ]);
 }
 
-return true;
+//return true;
+
+return $facturaId ?? null;
+
 ?>
 
 
