@@ -116,7 +116,7 @@ p {
     <p>Tu transacción está en proceso de verificación.</p>
     <p>En cuanto sea aprobada, tu membresía se activará automáticamente.</p>
 
-    <a href="../index.php" class="btn btn-home">Volver al inicio</a>
+    <a href="<?= URLBASE; ?>/pay" class="btn btn-home">Volver al inicio</a>
   </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.js"></script>

@@ -29,6 +29,7 @@ body {
   margin: 0;
 }
 
+/* Tarjeta general */
 .card-success {
   background: #fff;
   border-radius: 20px;
@@ -50,26 +51,43 @@ body {
   margin-bottom: 15px;
 }
 
+/* Animación del check circular */
 .icon-success {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
-  background: var(--primary);
+  border: 4px solid var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 20px;
-  animation: pop 0.5s ease-in-out;
-}
-
-.icon-success i {
-  color: #fff;
-  font-size: 40px;
+  position: relative;
+  animation: pop 0.6s ease-in-out;
 }
 
 @keyframes pop {
   0% { transform: scale(0.5); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
+}
+
+.icon-success svg {
+  width: 60px;
+  height: 60px;
+}
+
+.icon-success .checkmark {
+  stroke: var(--primary);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: draw 0.8s ease forwards 0.3s;
+}
+
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
 }
 
 h2 {
@@ -108,20 +126,23 @@ p {
     <img src="<?= $url . '/' . SITE_LOGO; ?>" alt="Logo" class="logo">
 
     <div class="icon-success">
-      <i class="bi bi-check-lg"></i>
+      <!-- SVG animado del check -->
+      <svg viewBox="0 0 52 52">
+        <path class="checkmark" d="M14 27 l8 8 l16 -16" />
+      </svg>
     </div>
 
     <h2>¡Pago realizado con éxito!</h2>
-    <p>Tu pago fue recibido correctamente por <strong>Mercado Pago</strong>.</p>
+    <p>Hemos recibido tu pago.</p>
     <p>En unos instantes, nuestro sistema confirmará y renovará automáticamente tu membresía.</p>
     <p>Si ya se ha procesado, podrás ver tu nueva fecha de vencimiento actualizada en tu perfil.</p>
+    <p><strong>Nota:</strong> si no recibiste la factura del pago, reclamala en la recepción del GYM.</p>
 
-    <a href="../index.php" class="btn btn-home">Volver al inicio</a>
+    <a href="<?= URLBASE; ?>/pay" class="btn btn-home">Volver al inicio</a>
   </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.js"></script>
 </body>
 </html>
+
 
 
 
