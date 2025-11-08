@@ -56,17 +56,27 @@ if (empty($cliente['plan'])) {
         $mostrarBotonPago = true;
     } else {
         $diasRestantes = (int)$hoy->diff($fechaVenc)->format('%r%a'); // negativo si vencido
+
         if ($diasRestantes < 0) {
+            // Plan vencido
             $estado = 'Plan vencido';
             $color = 'danger';
             $mensaje = 'La mensualidad venció el ' . $fechaVenc->format('d/m/Y') . '.';
             $mostrarBotonPago = true;
-        } elseif ($diasRestantes <= DAYS_ALLOWED_BEFORE_DUE) {
+
+        } elseif (DAYS_ALLOWED_BEFORE_DUE == 0 || $diasRestantes <= DAYS_ALLOWED_BEFORE_DUE) {
+            // Puede pagar en cualquier momento (si 0) o dentro de los días permitidos
             $estado = 'Por vencer';
             $color = 'warning';
-            $mensaje = 'El plan vence en ' . $diasRestantes . ' día(s) (' . $fechaVenc->format('d/m/Y') . ').';
+            if (DAYS_ALLOWED_BEFORE_DUE == 0) {
+                $mensaje = 'Puedes realizar tu pago en línea en cualquier momento.';
+            } else {
+                $mensaje = 'El plan vence en ' . $diasRestantes . ' día(s) (' . $fechaVenc->format('d/m/Y') . ').';
+            }
             $mostrarBotonPago = true;
+
         } else {
+            // Plan activo y fuera del rango de pago
             $estado = 'Al día';
             $color = 'success';
             $mensaje = 'El plan está vigente hasta el ' . $fechaVenc->format('d/m/Y') . '.';
@@ -77,9 +87,9 @@ if (empty($cliente['plan'])) {
 /* ---------- Precio y total con adicional ---------- */
 $precioBase = (float)($cliente['plan_precio'] ?? 0);
 $adicional  = (float) (defined('ADDITIONAL_PERCENTAGE_PAYMENT') ? ADDITIONAL_PERCENTAGE_PAYMENT : 0);
-$valorFinal = round($precioBase * (1 + ($adicional/100)), 0);
+$valorFinal = round($precioBase * (1 + ($adicional / 100)), 0);
 
-function cop($n){ return '$' . number_format((float)$n, 0, ',', '.'); }
+function cop($n) { return '$' . number_format((float)$n, 0, ',', '.'); }
 
 /* ---------- Tarjeta HTML ---------- */
 $html = '
@@ -132,6 +142,3 @@ echo json_encode([
         'adicional'    => $adicional
     ]
 ]);
-
-
-
