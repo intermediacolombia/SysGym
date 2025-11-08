@@ -100,6 +100,7 @@ try {
 
      <?php require_once __DIR__ . '/tabs/system.php';?>	
      <?php require_once __DIR__ . '/tabs/whatsapp.php';?>
+     <?php require_once __DIR__ . '/tabs/getaway.php';?>
 	<?php require_once __DIR__ . '/tabs/consent.php'; ?>
 
      
