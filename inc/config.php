@@ -55,11 +55,10 @@ try {
 	define('SYSTEM_COLOR_SECONDARY_DARK', $settings['system_color_secondary_dark'] ?? '#000');
 	
 	/* ===== MERCADO PAGO CONFIG ===== */
-	define('MP_ACCESS_TOKEN', 'APP_USR-7898771052924983-110621-286a6d387e40342f363f0e7132a7b9a6-2972976646');
-	define('MP_PUBLIC_KEY',  'APP_USR-8cbe21e1-3aad-4e8e-9caf-d79d8eaf71e8');
-	define('ADDITIONAL_PERCENTAGE_PAYMENT', (float)($settings['additional_percentage_payment'] ?? 0));
-
-
+define('ADDITIONAL_PERCENTAGE_PAYMENT', (float)($settings['additional_percentage_payment'] ?? 0));
+define('MP_ACCESS_TOKEN', $settings['mp_access_token'] ?? '');
+define('MP_PUBLIC_KEY', $settings['mp_public_key'] ?? '');
+define('DAYS_ALLOWED_BEFORE_DUE', (int)($settings['days_allowed_before_due'] ?? 0));
 
 } catch (PDOException $e) {
     echo "Error de conexión: " . $e->getMessage();

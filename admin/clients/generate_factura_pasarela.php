@@ -72,7 +72,7 @@ $stmtFactura->execute([
     ':valor'             => $totalConAdicional,
     ':payment_method'    => $payment_method ?? 'Pago en Línea',
     ':bank'              => $bank ?? 'Mercado Pago',
-    ':user'              => $nombre ?? 'Pasarela Pago'
+    ':user'              => $nombre ?? 'System'
 ]);
 
 $facturaId = $pdo->lastInsertId();
