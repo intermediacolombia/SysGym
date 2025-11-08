@@ -61,7 +61,7 @@ if (empty($cliente['plan'])) {
             $color = 'danger';
             $mensaje = 'La mensualidad venció el ' . $fechaVenc->format('d/m/Y') . '.';
             $mostrarBotonPago = true;
-        } elseif ($diasRestantes <= 7) {
+        } elseif ($diasRestantes <= DAYS_ALLOWED_BEFORE_DUE) {
             $estado = 'Por vencer';
             $color = 'warning';
             $mensaje = 'El plan vence en ' . $diasRestantes . ' día(s) (' . $fechaVenc->format('d/m/Y') . ').';
