@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('America/Bogota');
 require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -15,6 +16,9 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+	
+	$pdo->exec("SET time_zone = '-05:00'");
+	
     /* ==========================================================
        VERIFICAR TABLA PAGOS (auto-creación si no existe)
     =========================================================== */
@@ -126,7 +130,7 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
             $cliente = $stmtPlan->fetch(PDO::FETCH_ASSOC);
 
             if ($cliente) {
-                date_default_timezone_set('America/Bogota');
+               
                 $hoy          = new DateTime('today');
                 $vencAnterior = !empty($cliente['vencimiento_plan']) ? new DateTime($cliente['vencimiento_plan']) : null;
                 $planDias     = (int)$cliente['dias'];
