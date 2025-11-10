@@ -15,9 +15,9 @@ file_put_contents(__DIR__ . '/webhook_log.txt', date('Y-m-d H:i:s') . " " . json
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
+	$pdo->exec("SET time_zone = 'America/Bogota'");
 	
-	$pdo->exec("SET time_zone = '-05:00'");
+	
 	
     /* ==========================================================
        VERIFICAR TABLA PAGOS (auto-creación si no existe)
