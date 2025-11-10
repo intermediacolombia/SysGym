@@ -164,7 +164,7 @@ strong { color: var(--primary); }
         <p>Estás a punto de pagar tu plan:</p>
         <h5 id="planNombre" class="text-dark fw-bold"></h5>
         <p>Valor base: <strong id="valorBase"></strong></p>
-        <p>+ <?= ADDITIONAL_PERCENTAGE_PAYMENT; ?>% adicional</p>
+        <p>+ <?= ADDITIONAL_PERCENTAGE_PAYMENT; ?>% comisión de pago en linea</p>
         <h4 class="mt-2 text-success fw-bold">Total: <span id="valorFinal"></span></h4>
         <p class="mt-3 text-muted" style="font-size: 14px;">
           Serás redirigido a la pasarela de pago.<br>
