@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('America/Bogota');
 require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -12,10 +13,10 @@ if (!$cliente_id) die("Cliente no especificado.");
 
 try {
 	
-	date_default_timezone_set('America/Bogota');
+	
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	
+	$pdo->exec("SET time_zone = '-05:00'");
     // === Obtener datos del cliente y su plan ===
     $stmt = $pdo->prepare("
         SELECT c.*, p.nombre AS plan_nombre, p.precio AS plan_precio
