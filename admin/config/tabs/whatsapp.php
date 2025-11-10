@@ -36,12 +36,12 @@
             'campos' => '{nombres}, {apellidos}'
           ],
           'wa_notify_expired' => [
-            'label' => 'Mensaje de vencimiento del cliente',
-            'campos' => '{nombres}, {apellidos}, {fecha_vencimiento}'
+            'label' => 'Mensaje de vencimiento membresía del cliente',
+            'campos' => '{nombres}, {apellidos}, {fecha_vencimiento}, {url_pago}'
           ],
           'wa_paymentReminder' => [
-            'label' => 'Mensaje recordatorio de pago',
-            'campos' => '{nombres}, {apellidos}, {fecha_vencimiento}, {plan}, {valor_pago}'
+            'label' => 'Mensaje recordatorio de pago membresía',
+            'campos' => '{nombres}, {apellidos}, {fecha_vencimiento}, {plan}, {valor_pago}, {url_pago}'
           ],
           'wa_creditReminder' => [
             'label' => 'Mensaje recordatorio de pagos de créditos',

@@ -18,11 +18,12 @@ if (isset($reminders) && is_array($reminders)) {
         $cp_fecha_vencimiento = $client['vencimiento_plan'];
         $cp_plan              = $client['plan'];         // nombre del plan
         $cp_valor_pago        = $client['valor_pago'];
+        $url_pay  	      			  = URLBASE.'/pay/?doc='.$client['identificacion'];
 
         // Mensaje con placeholders
         $message = str_replace(
-            array("{nombres}", "{apellidos}", "{fecha_vencimiento}", "{plan}", "{valor_pago}"),
-            array($cp_nombres, $cp_apellidos, $cp_fecha_vencimiento, $cp_plan, $cp_valor_pago),
+            array("{nombres}", "{apellidos}", "{fecha_vencimiento}", "{plan}", "{valor_pago}", "{url_pago}"),
+            array($cp_nombres, $cp_apellidos, $cp_fecha_vencimiento, $cp_plan, $cp_valor_pago, $url_pay),
             $messageTemplate
         );
 

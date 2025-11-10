@@ -9,7 +9,7 @@ try {
     // Consulta para obtener los clientes activos cuyo plan vence en 7 días
     // y que tienen activadas las notificaciones (notificaciones = 1)
     $stmt = $pdo->prepare("
-        SELECT c.id, c.nombres, c.apellidos, c.dialCode, c.telefono, c.vencimiento_plan,  
+        SELECT c.id, c.identificacion, c.nombres, c.apellidos, c.dialCode, c.telefono, c.vencimiento_plan,  
                p.nombre AS plan, p.precio AS valor_pago
         FROM clientes c
         LEFT JOIN planes p ON c.plan = p.id

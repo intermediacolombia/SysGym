@@ -17,11 +17,11 @@ if (isset($reminders) && is_array($reminders)) {
         $cp_dialCode          = $client['dialCode'];
         $cp_telefono          = $client['telefono'];
         $cp_fecha_vencimiento = $client['vencimiento_plan'];
-
+		$url_pay  			  = URLBASE.'/pay/?doc='.$client['identificacion'];
         // Reemplazar los placeholders en el mensaje
         $message = str_replace(
-            array("{nombres}", "{apellidos}", "{fecha_vencimiento}"),
-            array($cp_nombres, $cp_apellidos, $cp_fecha_vencimiento),
+            array("{nombres}", "{apellidos}", "{fecha_vencimiento}" , "{url_pago}"),
+            array($cp_nombres, $cp_apellidos, $cp_fecha_vencimiento, $url_pay),
             $messageTemplate
         );
 
