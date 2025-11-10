@@ -276,6 +276,107 @@ $(document).on('click', '#btnPagar', function(){
   modal.show();
 });
 
+	
+// ================================
+// Detectar parámetro "doc" en URL
+// ================================
+function getQueryParam(param) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(param);
+}
+
+// Si viene por URL, lanzar búsqueda automática
+$(document).ready(function() {
+  const docFromUrl = getQueryParam('doc');
+  if (docFromUrl) {
+    $('#identificacion').val(docFromUrl.trim());
+    buscarCliente(docFromUrl.trim());
+  }
+});
+
+// ================================
+// Reutilizamos la lógica de búsqueda AJAX en una función
+// ================================
+function buscarCliente(doc) {
+  if (!doc) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Atención',
+      text: 'Por favor ingresa un número de documento.',
+      confirmButtonColor: '<?= SYSTEM_COLOR_PRIMARY; ?>'
+    });
+    return;
+  }
+
+  Swal.fire({
+    title: 'Buscando cliente...',
+    didOpen: () => { Swal.showLoading(); },
+    allowOutsideClick: false
+  });
+
+  $.ajax({
+    url: 'verificar_mensualidad.php',
+    type: 'POST',
+    dataType: 'json',
+    data: { identificacion: doc },
+    success: function(response) {
+      Swal.close();
+
+      if (response.status === 'success') {
+        $('#resultado').show();
+        $('#infoCliente').html(response.html);
+
+        // Interceptar botón de pago
+        $(document).on('click', '.btn-pagar', function(e){
+          e.preventDefault();
+          const id = $(this).data('id');
+          const plan = $(this).data('plan');
+          const valorBase = parseFloat($(this).data('valor'));
+          const adicional = <?= ADDITIONAL_PERCENTAGE_PAYMENT; ?>;
+          const valorFinal = (valorBase * (1 + (adicional / 100))).toFixed(2);
+
+          $('#planNombre').text(plan);
+          $('#valorBase').text(`$${valorBase.toLocaleString()}`);
+          $('#valorFinal').text(`$${parseFloat(valorFinal).toLocaleString()}`);
+
+          $('#btnIrPagar').off('click').on('click', function(){
+            window.location.href = `crear_pago.php?id=${id}`;
+          });
+
+          const modal = new bootstrap.Modal(document.getElementById('modalConfirm'));
+          modal.show();
+        });
+      } else {
+        $('#resultado').hide();
+        Swal.fire({
+          icon: 'error',
+          title: 'Sin resultados',
+          text: response.message || 'No se encontró información para este cliente.',
+          confirmButtonColor: '<?= SYSTEM_COLOR_PRIMARY; ?>'
+        });
+      }
+    },
+    error: function() {
+      Swal.close();
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Ocurrió un problema al consultar la información.',
+        confirmButtonColor: '<?= SYSTEM_COLOR_PRIMARY; ?>'
+      });
+    }
+  });
+}
+
+// ================================
+// Interceptar envío del formulario manual
+// ================================
+$('#buscarForm').on('submit', function(e){
+  e.preventDefault();
+  const doc = $('#identificacion').val().trim();
+  buscarCliente(doc);
+});
+
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
