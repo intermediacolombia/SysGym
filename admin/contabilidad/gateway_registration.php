@@ -14,23 +14,24 @@ try {
     $pdo->exec("SET lc_time_names = 'es_ES';");
 
     $stmt = $pdo->query("
-        SELECT 
-            p.id,
-            p.referencia,
-            p.monto,
-            p.estado,
-            p.metodo_pago,
-            DATE_FORMAT(p.fecha_pago, '%Y-%m-%d') AS fecha,
-            DATE_FORMAT(p.fecha_pago, '%H:%i:%s') AS hora,
-            DATE_FORMAT(p.fecha_pago, '%W') AS dia,
-            c.id AS idCliente,
-            c.identificacion,
-            c.nombres,
-            c.apellidos
-        FROM pagos p
-        LEFT JOIN clientes c ON c.id = p.cliente_id
-        ORDER BY p.fecha_pago DESC
-    ");
+    SELECT 
+        p.id,
+        p.referencia,
+        p.monto,
+        p.estado,
+        p.metodo_pago,
+        DATE_FORMAT(p.fecha_pago, '%Y-%m-%d') AS fecha,
+        DATE_FORMAT(p.fecha_pago, '%H:%i:%s') AS hora,
+        DATE_FORMAT(p.fecha_pago, '%W') AS dia,
+        c.id AS idCliente,
+        c.identificacion,
+        c.nombres,
+        c.apellidos
+    FROM pagos p
+    LEFT JOIN clientes c ON c.id = p.cliente_id
+    WHERE p.fecha_pago IS NOT NULL
+    ORDER BY p.id DESC, p.fecha_pago DESC
+");
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
@@ -82,6 +83,7 @@ try {
   <table id="tablaPagos" class="table table-striped table-bordered w-100">
     <thead class="table-dark">
       <tr>
+        <th>ID</th>
         <th>Fecha</th>
         <th>Día</th>
         <th>Hora</th>
@@ -110,6 +112,7 @@ try {
           };
         ?>
         <tr data-id="<?= htmlspecialchars($r['idCliente']) ?>">
+          <td><?= htmlspecialchars($r['id']) ?></td>
           <td><?= htmlspecialchars($r['fecha']) ?></td>
           <td><?= ucfirst($r['dia']) ?></td>
           <td data-order="<?= htmlspecialchars($r['hora']) ?>">
