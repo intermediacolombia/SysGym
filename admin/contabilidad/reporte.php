@@ -18,6 +18,9 @@ $error = '';
 $cajas_reporte = [];
 $egresos_detalle = [];
 $nominas_detalle = [];
+$totalPagosPasarela = 0;
+$pagos_detalle = [];
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fecha_inicio = $_POST['fecha_inicio'];
@@ -116,27 +119,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $totalEgresosManuales += floatval($egreso['valor']);
             }
 
-            // Consulta para nóminas del periodo
-            $stmtNominas = $pdo->prepare("
-                SELECT id_nomina, nombre_empleado, fecha_generacion, valor_pagado 
-                FROM nomina 
-                WHERE DATE(fecha_generacion) BETWEEN :fecha_inicio AND :fecha_fin
-                ORDER BY fecha_generacion DESC
-            ");
-            $stmtNominas->execute([
-                ':fecha_inicio' => $fecha_inicio,
-                ':fecha_fin' => $fecha_fin
-            ]);
-            $nominas_detalle = $stmtNominas->fetchAll(PDO::FETCH_ASSOC);
+           // Consulta para nóminas del periodo
+$stmtNominas = $pdo->prepare("
+    SELECT id_nomina, nombre_empleado, fecha_generacion, valor_pagado 
+    FROM nomina 
+    WHERE DATE(fecha_generacion) BETWEEN :fecha_inicio AND :fecha_fin
+    ORDER BY fecha_generacion DESC
+");
+$stmtNominas->execute([
+    ':fecha_inicio' => $fecha_inicio,
+    ':fecha_fin' => $fecha_fin
+]);
+$nominas_detalle = $stmtNominas->fetchAll(PDO::FETCH_ASSOC);
 
-            // Sumar nóminas
-            foreach ($nominas_detalle as $nomina) {
-                $totalNomina += floatval($nomina['valor_pagado']);
-            }
+// Sumar nóminas
+foreach ($nominas_detalle as $nomina) {
+    $totalNomina += floatval($nomina['valor_pagado']);
+}
 
-            // Ajustar totales
-            $totalEgresos += $totalEgresosManuales + $totalNomina;
-            $totalGananciaAjustada = ($totalVentas - $totalCoste) - $totalEgresos;
+// Consulta para pagos en línea aprobados (pasarela)
+$stmtPagos = $pdo->prepare("
+    SELECT 
+        p.id,
+        c.nombres AS cliente,
+        p.referencia,
+        p.monto,
+        p.fecha_pago,
+        p.estado
+    FROM pagos p
+    INNER JOIN clientes c ON c.id = p.cliente_id
+    WHERE p.estado = 'approved'
+      AND DATE(p.fecha_pago) BETWEEN :fecha_inicio AND :fecha_fin
+    ORDER BY p.fecha_pago DESC
+");
+$stmtPagos->execute([
+    ':fecha_inicio' => $fecha_inicio,
+    ':fecha_fin' => $fecha_fin
+]);
+$pagos_detalle = $stmtPagos->fetchAll(PDO::FETCH_ASSOC);
+
+// Sumar total de pagos aprobados
+foreach ($pagos_detalle as $pago) {
+    $totalPagosPasarela += floatval($pago['monto']);
+}
+
+// Ajustar totales generales
+$totalEgresos += $totalEgresosManuales + $totalNomina;
+$totalGananciaAjustada = ($totalVentas - $totalCoste) - $totalEgresos;
+
 
         } catch (PDOException $e) {
             $error = "Error en la consulta: " . $e->getMessage();
@@ -258,6 +288,11 @@ input.rango{
                             <strong>Ganancia Bruta:</strong><br>
                             $<?= number_format(($totalVentas - $totalCoste), 0, '', '.') ?>
                         </div>
+						<div class="col-md-3 border-end">
+    <strong>Pagos por Pasarela (Aprobados):</strong><br>
+    $<?= number_format($totalPagosPasarela, 0, '', '.') ?>
+</div>
+
                         <div class="col-md-3">
                             <strong>Ganancia Neta:</strong><br>
                             $<?= number_format($totalGananciaAjustada, 0, '', '.') ?>
@@ -365,6 +400,56 @@ input.rango{
                     <?php endif; ?>
                 </div>
             </div>
+		
+		
+		<!-- Tabla de Pagos por Pasarela -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-danger text-white">
+        <h5 class="card-title mb-0">
+            Pagos por Pasarela Aprobados (Total: $<?= number_format($totalPagosPasarela, 0, '', '.') ?>)
+        </h5>
+    </div>
+    <div class="card-body">
+        <?php if (!empty($pagos_detalle)): ?>
+            <div class="table-responsive">
+                <table id="tablaPagos" class="table table-striped" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Referencia</th>
+                            <th>Monto</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($pagos_detalle as $pago): ?>
+                        <tr>
+                            <td><?= $pago['id'] ?></td>
+                            <td><?= htmlspecialchars($pago['cliente']) ?></td>
+                            <td><?= htmlspecialchars($pago['referencia']) ?></td>
+                            <td>$<?= number_format($pago['monto'], 0, '', '.') ?></td>
+                            <td><?= $pago['fecha_pago'] ?></td>
+                            <td>
+                                <?php if ($pago['estado'] === 'approved'): ?>
+                                    <span class="badge bg-success">Aprobado</span>
+                                <?php else: ?>
+                                    <span class="badge bg-secondary"><?= htmlspecialchars($pago['estado']) ?></span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php else: ?>
+            <div class="alert alert-info">No se encontraron pagos aprobados en este periodo.</div>
+        <?php endif; ?>
+    </div>
+</div>
+
+		
         <?php endif; ?>
     </div>
 </div>
@@ -470,6 +555,16 @@ $(document).ready(function() {
         "order": [[2, "desc"]],
         "responsive": true
     });
+	
+	// Inicialización de DataTables para pagos por pasarela
+$('#tablaPagos').DataTable({
+    "language": {
+        "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
+    },
+    "order": [[4, "desc"]],
+    "responsive": true
+});
+
 });
 </script>
 	
