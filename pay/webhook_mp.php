@@ -12,6 +12,7 @@ $data = json_decode(file_get_contents('php://input'), true);
 file_put_contents(__DIR__ . '/webhook_log.txt', date('Y-m-d H:i:s') . " " . json_encode($data) . "\n", FILE_APPEND);
 
 try {
+	date_default_timezone_set('America/Bogota');
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
@@ -48,6 +49,7 @@ try {
 ========================================================== */
 if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']['id'])) {
     try {
+		date_default_timezone_set('America/Bogota');
         // Configurar credenciales (TOKEN DE LA MISMA CUENTA QUE crea la preferencia)
         MercadoPagoConfig::setAccessToken(MP_ACCESS_TOKEN);
 
