@@ -16,7 +16,7 @@ try {
 	
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	$pdo->exec("SET time_zone = 'America/Bogota'");
+	
     // === Obtener datos del cliente y su plan ===
     $stmt = $pdo->prepare("
         SELECT c.*, p.nombre AS plan_nombre, p.precio AS plan_precio

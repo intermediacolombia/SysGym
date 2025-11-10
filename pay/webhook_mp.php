@@ -15,7 +15,7 @@ file_put_contents(__DIR__ . '/webhook_log.txt', date('Y-m-d H:i:s') . " " . json
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	$pdo->exec("SET time_zone = 'America/Bogota'");
+	
 	
 	
 	
@@ -77,16 +77,17 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
             if ($existe) {
                 // 🔄 Actualizar registro existente
                 $stmtUpdatePago = $pdo->prepare("
-                    UPDATE pagos 
-                    SET estado = :estado, monto = :monto, raw_response = :raw, fecha_pago = NOW()
-                    WHERE referencia = :ref
-                ");
-                $stmtUpdatePago->execute([
-                    ':estado' => $estadoPago,
-                    ':monto'  => $montoPago,
-                    ':raw'    => json_encode($payment, JSON_UNESCAPED_UNICODE),
-                    ':ref'    => $ref
-                ]);
+    UPDATE pagos 
+    SET estado = :estado, monto = :monto, raw_response = :raw, fecha_pago = :fecha
+    WHERE referencia = :ref
+");
+$stmtUpdatePago->execute([
+    ':estado' => $estadoPago,
+    ':monto'  => $montoPago,
+    ':raw'    => json_encode($payment, JSON_UNESCAPED_UNICODE),
+    ':fecha'  => date('Y-m-d H:i:s'),
+    ':ref'    => $ref
+]);
 
                 file_put_contents(__DIR__ . '/webhook_log.txt',
                     date('Y-m-d H:i:s') . " 🔄 Pago actualizado | Ref=$ref | Estado=$estadoPago | Monto=$montoPago\n",
@@ -95,16 +96,17 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
             } else {
                 // 🆕 Insertar nuevo registro
                 $stmtInsert = $pdo->prepare("
-                    INSERT INTO pagos (cliente_id, referencia, monto, estado, metodo_pago, raw_response)
-                    VALUES (:cid, :ref, :monto, :estado, 'mercadopago', :raw)
-                ");
-                $stmtInsert->execute([
-                    ':cid'   => $cliente_id,
-                    ':ref'   => $ref,
-                    ':monto' => $montoPago,
-                    ':estado'=> $estadoPago,
-                    ':raw'   => json_encode($payment, JSON_UNESCAPED_UNICODE)
-                ]);
+					INSERT INTO pagos (cliente_id, referencia, monto, estado, metodo_pago, raw_response, fecha_pago)
+					VALUES (:cid, :ref, :monto, :estado, 'mercadopago', :raw, :fecha)
+				");
+				$stmtInsert->execute([
+					':cid'   => $cliente_id,
+					':ref'   => $ref,
+					':monto' => $montoPago,
+					':estado'=> $estadoPago,
+					':raw'   => json_encode($payment, JSON_UNESCAPED_UNICODE),
+					':fecha' => date('Y-m-d H:i:s')
+				]);
 
                 file_put_contents(__DIR__ . '/webhook_log.txt',
                     date('Y-m-d H:i:s') . " 🆕 Pago insertado | Ref=$ref | Estado=$estadoPago | Monto=$montoPago\n",
