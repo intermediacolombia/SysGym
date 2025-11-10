@@ -18,7 +18,7 @@ try {
             p.id,
             p.referencia,
             p.monto,
-            COALESCE(p.estado, 'pending') AS estado,
+            p.estado,
             p.metodo_pago,
             DATE_FORMAT(p.fecha_pago, '%Y-%m-%d') AS fecha,
             DATE_FORMAT(p.fecha_pago, '%H:%i:%s') AS hora,
@@ -96,7 +96,12 @@ try {
     <tbody>
       <?php foreach ($rows as $r): ?>
         <?php
-          $estado = strtolower(trim($r['estado']));
+          // Si estado es NULL o vacío → pending
+          $estado = strtolower(trim($r['estado'] ?? ''));
+          if ($estado === '' || $estado === null) {
+              $estado = 'pending';
+          }
+
           $estadoColor = match ($estado) {
             'approved' => 'success',
             'pending'  => 'warning',
