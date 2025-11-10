@@ -50,14 +50,15 @@ try {
     $stmtCheck->execute([':ref' => $referencia]);
     if (!$stmtCheck->fetchColumn()) {
         $stmtInsert = $pdo->prepare("
-            INSERT INTO pagos (cliente_id, referencia, monto, estado, metodo_pago, raw_response)
-            VALUES (:cid, :ref, :monto, 'iniciado', 'mercadopago', NULL)
-        ");
-        $stmtInsert->execute([
-            ':cid' => $cliente_id,
-            ':ref' => $referencia,
-            ':monto' => $monto
-        ]);
+    INSERT INTO pagos (cliente_id, referencia, monto, estado, metodo_pago, raw_response, fecha_pago)
+    VALUES (:cid, :ref, :monto, 'Pending', 'mercadopago', NULL, :fecha)
+");
+$stmtInsert->execute([
+    ':cid' => $cliente_id,
+    ':ref' => $referencia,
+    ':monto' => $monto,
+    ':fecha' => date('Y-m-d H:i:s')
+]);
     }
 
     // === Crear preferencia de Mercado Pago ===
