@@ -18,7 +18,7 @@ try {
             p.id,
             p.referencia,
             p.monto,
-            p.estado,
+            COALESCE(p.estado, 'pending') AS estado,
             p.metodo_pago,
             DATE_FORMAT(p.fecha_pago, '%Y-%m-%d') AS fecha,
             DATE_FORMAT(p.fecha_pago, '%H:%i:%s') AS hora,
@@ -36,7 +36,6 @@ try {
 } catch (PDOException $e) {
     die('Error DB: ' . $e->getMessage());
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -97,7 +96,8 @@ try {
     <tbody>
       <?php foreach ($rows as $r): ?>
         <?php
-          $estadoColor = match ($r['estado']) {
+          $estado = strtolower(trim($r['estado']));
+          $estadoColor = match ($estado) {
             'approved' => 'success',
             'pending'  => 'warning',
             'rejected' => 'danger',
@@ -118,7 +118,9 @@ try {
           <td><?= htmlspecialchars($r['identificacion']) ?></td>
           <td>$<?= number_format($r['monto'], 0, ',', '.') ?></td>
           <td>
-            <span class="badge bg-<?= $estadoColor ?>"><?= ucfirst($r['estado']) ?></span>
+            <span class="badge bg-<?= $estadoColor ?>">
+              <?= ucfirst($estado) ?>
+            </span>
           </td>
           <td><?= ucfirst($r['metodo_pago']) ?></td>
         </tr>
@@ -147,7 +149,7 @@ $(function () {
     language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json' }
   });
 
-  /* === Ir al perfil del cliente === */
+  /* === Click fila → Perfil cliente === */
   $(document).on('click', '#tablaPagos tbody tr', function() {
     const id = $(this).data('id');
     if (id) window.location.href = "../clients/detail.php?id=" + encodeURIComponent(id);
@@ -169,4 +171,5 @@ $(function () {
 
 </body>
 </html>
+
 

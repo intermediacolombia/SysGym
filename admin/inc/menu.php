@@ -186,6 +186,11 @@ if (
             </a>
         <?php endif; ?>			
 			<a href="<?php echo $url;?>/admin/contabilidad/invoices.php" onclick="closeSubmenus()">- Facturas</a>
+			
+			<?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Pagos Pasarela', $_SESSION["user_permissions"])): ?>		
+            <a href="<?php echo $url; ?>/admin/contabilidad/gateway_registration.php" onclick="closeSubmenus()">- Registros Pasarela
+            </a>
+        <?php endif; ?>
 	</div>	
 	<?php endif; ?>
 	 <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver y Editar Usuarios', $_SESSION["user_permissions"])): ?>
