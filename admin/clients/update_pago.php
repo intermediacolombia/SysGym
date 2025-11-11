@@ -152,18 +152,26 @@ try {
         );
     }
 	
-//LOGS
-/*require_once __DIR__ . '/../inc/log_action.php';
+// Determinar el valor real pagado
+if ($splitPayment) {
+    $valorRegistrado = $firstPaymentValue + $secondPaymentValue;
+} else {
+    $valorRegistrado = $credit ? $valorPagado : $planPrecio;
+}
+
+// LOGS
+require_once __DIR__ . '/../inc/log_action.php';
 $desc = json_encode([
     'cliente_id' => $id,
     'pago_plan' => $pago_plan,
     'vencimiento_plan' => $vencimiento_plan,
     'metodo_pago' => $payment_method,
     'banco' => $bank,
-    'valor_pagado' => $valorPagado
+    'valor_pagado' => $valorRegistrado
 ], JSON_UNESCAPED_UNICODE);
 
-log_action('Marcar pago', $desc, 'Pagos');*/
+log_action('Marcar pago', $desc, 'Pagos');
+
 	
 //End LOGS	
 
@@ -211,22 +219,6 @@ function registrarVenta($pdo, $clienteId, $valor, $metodo, $banco, $detalle = 'P
         ':fecha' => date('Y-m-d'),
         ':hora' => date('H:i:s')
     ]);
-	
-	
-	//LOGS
-require_once __DIR__ . '/../inc/log_action.php';
-$desc = json_encode([
-    'cliente_id' => $id,
-    'pago_plan' => $pago_plan,
-    'vencimiento_plan' => $vencimiento_plan,
-    'metodo_pago' => $payment_method,
-    'banco' => $bank,
-    'valor_pagado' => $valor
-], JSON_UNESCAPED_UNICODE);
-
-log_action('Marcar pago', $desc, 'Pagos');
-	
-	
 }
 ?>
 
