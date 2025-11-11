@@ -62,9 +62,15 @@ try {
     $spread = new Spreadsheet();
     $sheet  = $spread->getActiveSheet();
 
+	
+	$colorPrimario = defined('SYSTEM_COLOR_PRIMARY')
+    ? ltrim(SYSTEM_COLOR_PRIMARY, '#')  // elimina el '#' si existe
+    : '000000'; // color por defecto
+	
+	
     $styleHeader = [
       'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-      'fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => 'E21F0C']],
+      'fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => $colorPrimario]],
       'alignment' => ['horizontal' => 'center']
     ];
     $styleTable = [
@@ -76,7 +82,7 @@ try {
       ]
     ];
 
-    $logoPath = __DIR__.'/../../img/logo-black.png';
+    $logoPath = $_SERVER['DOCUMENT_ROOT'] . SITE_LOGO;
     if (file_exists($logoPath)) {
         $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
         $drawing->setPath($logoPath)->setHeight(70)->setCoordinates('A1')->setOffsetY(5);
