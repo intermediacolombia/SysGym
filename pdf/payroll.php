@@ -114,7 +114,7 @@ $logoDataURI = 'data:image/png;base64,' . $logoData;
             text-align: left;
         }
         .tabla th {
-            background-color: var(--system-color-primary);
+            background-color: <?= SYSTEM_COLOR_PRIMARY; ?>;
             color: white;
             font-weight: bold;
         }
