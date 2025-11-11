@@ -98,14 +98,21 @@ try {
     foreach ($campos as $campo => $etiqueta) {
         $sheet->setCellValue("A{$row}", $etiqueta);
         if ($campo === 'fecha' && !empty($val[$campo])) {
-            $excelDate = Date::PHPToExcel(new DateTime($val[$campo]));
-            $sheet->setCellValue("B{$row}", $excelDate);
-            $sheet->getStyle("B{$row}")
-                  ->getNumberFormat()
-                  ->setFormatCode(NumberFormat::FORMAT_DATE_YYYYMMDD2);
-        } else {
-            $sheet->setCellValue("B{$row}", $val[$campo]);
-        }
+    $excelDate = Date::PHPToExcel(new DateTime($val[$campo]));
+    $sheet->setCellValue("B{$row}", $excelDate);
+
+    //  Compatibilidad con distintas versiones de PhpSpreadsheet
+    $fmt = defined('PhpOffice\\PhpSpreadsheet\\Style\\NumberFormat::FORMAT_DATE_YYYYMMDD2')
+        ? NumberFormat::FORMAT_DATE_YYYYMMDD2
+        : 'yyyy-mm-dd';
+
+    $sheet->getStyle("B{$row}")
+          ->getNumberFormat()
+          ->setFormatCode($fmt);
+} else {
+    $sheet->setCellValue("B{$row}", $val[$campo]);
+}
+
         $row++;
     }
     $last = $row - 1;
