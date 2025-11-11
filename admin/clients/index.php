@@ -167,9 +167,9 @@ $(document).ready(function() {
   // 3) Al cambiar el switch
   $('#toggleInactiveSwitch').on('change', function() {
     if (this.checked) {
-      table.column(6).search('^Activo$', true, false).draw();
+      table.column(7).search('^Activo$', true, false).draw();
     } else {
-      table.column(6).search('', false, true).draw();
+      table.column(7).search('', false, true).draw();
     }
   });
 
