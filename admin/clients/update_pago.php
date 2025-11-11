@@ -153,7 +153,7 @@ try {
     }
 	
 //LOGS
-require_once __DIR__ . '/../inc/log_action.php';
+/*require_once __DIR__ . '/../inc/log_action.php';
 $desc = json_encode([
     'cliente_id' => $id,
     'pago_plan' => $pago_plan,
@@ -163,7 +163,7 @@ $desc = json_encode([
     'valor_pagado' => $valorPagado
 ], JSON_UNESCAPED_UNICODE);
 
-log_action('Marcar pago', $desc, 'Pagos');
+log_action('Marcar pago', $desc, 'Pagos');*/
 	
 //End LOGS	
 
@@ -211,6 +211,22 @@ function registrarVenta($pdo, $clienteId, $valor, $metodo, $banco, $detalle = 'P
         ':fecha' => date('Y-m-d'),
         ':hora' => date('H:i:s')
     ]);
+	
+	
+	//LOGS
+require_once __DIR__ . '/../inc/log_action.php';
+$desc = json_encode([
+    'cliente_id' => $id,
+    'pago_plan' => $pago_plan,
+    'vencimiento_plan' => $vencimiento_plan,
+    'metodo_pago' => $payment_method,
+    'banco' => $bank,
+    'valor_pagado' => $valor
+], JSON_UNESCAPED_UNICODE);
+
+log_action('Marcar pago', $desc, 'Pagos');
+	
+	
 }
 ?>
 
