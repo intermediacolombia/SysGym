@@ -152,7 +152,7 @@ $(document).ready(function() {
   // 2) Función que cuenta cuántos "Inactivo" hay
   function updateInactiveCount() {
     var allStatus = table
-      .column(6, { search: 'none' })
+      .column(7, { search: 'none' })
       .data()
       .toArray();
     var count = allStatus.filter(function(v){
