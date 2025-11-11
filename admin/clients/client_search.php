@@ -190,6 +190,7 @@ try {
   <table id="clients-table" class="table table-striped table-bordered w-100">
     <thead>
       <tr>
+        <th>ID</th>
         <th>Identificación</th>
         <th>Nombres</th>
         <th>Apellidos</th>
@@ -291,6 +292,7 @@ $(document).ready(function () {
       dataSrc: 'data'
     },
     columns: [
+      { data: 'id' },
       { data: 'identificacion' },
       { data: 'nombres' },
       { data: 'apellidos' },
