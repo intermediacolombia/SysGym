@@ -103,6 +103,13 @@ $ico = [
   'alto'      => '<i class="fa-solid fa-arrow-up fa-flip-horizontal"></i>'
 ];
 
+$logoPath = $_SERVER['DOCUMENT_ROOT'] . SITE_LOGO;
+if (!file_exists($logoPath)) {
+    die("Error: No se encontró el logo en la ruta: " . $logoPath);
+}
+$logoData = base64_encode(file_get_contents($logoPath));
+$logoDataURI = 'data:image/png;base64,' . $logoData;
+
 ?>
 <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
 <title>Valoración – <?=htmlspecialchars("{$cli['nombres']} {$cli['apellidos']}")?></title>
@@ -125,7 +132,7 @@ table{
 	font-size:.9rem;
 	margin-top:32px
 	}
-th{background:var(--system-color-primary);
+th{background:<?= SYSTEM_COLOR_PRIMARY; ?>;
 	color:#fff;
 	padding:6px 4px
 	}
@@ -174,7 +181,7 @@ td .fa{
 </head><body>
   <!-- Mostrar el logo usando el data URI generado -->
   <div class="logo">
-    <img src="<?php echo $_SERVER['DOCUMENT_ROOT'] . SITE_LOGO; ?>" width="150" alt="Logo ACTIVGYM">
+    <img src="<?php echo $logoDataURI; ?>" width="150" alt="Logo ACTIVGYM">
   </div>
 
 
