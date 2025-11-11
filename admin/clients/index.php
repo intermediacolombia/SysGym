@@ -71,7 +71,6 @@ try {
   <table id="clients-table" class="table table-striped table-bordered">
     <thead>
       <tr>
-        <th>ID</th>
         <th>Identificación</th>
         <th>Nombres</th>
         <th>Apellidos</th>
@@ -84,7 +83,6 @@ try {
     <tbody>
       <?php foreach ($clientes as $cliente): ?>
       <tr data-id="<?= htmlspecialchars($cliente['id']) ?>">
-        <td><?= htmlspecialchars($cliente['id']) ?></td>
         <td><?= htmlspecialchars($cliente['identificacion']) ?></td>
         <td><?= htmlspecialchars($cliente['nombres']) ?></td>
         <td><?= htmlspecialchars($cliente['apellidos']) ?></td>
