@@ -466,17 +466,25 @@ $(document).ready(function() {
           $('#editDialcode').val('+' + itiEdit.getSelectedCountryData().dialCode);
         });
 
-        // Ajustar bandera si hay dialcode guardado
-        if (dialcode && typeof itiEdit.getCountryData === 'function') {
-          const country = itiEdit.getCountryData().find(c => "+" + c.dialCode === dialcode);
-          if (country) itiEdit.setCountry(country.iso2);
-          else itiEdit.setCountry("co");
-        }
+        // Ajustar país y número correctamente
+if (itiEdit && typeof itiEdit.getCountryData === 'function') {
+  // Detectar país según dialcode guardado
+  const country = itiEdit.getCountryData().find(c => "+" + c.dialCode === dialcode);
+  if (country) {
+    itiEdit.setCountry(country.iso2);
+  } else {
+    itiEdit.setCountry("co");
+  }
 
-        // Actualizar dialcode oculto
-        if (typeof itiEdit.getSelectedCountryData === 'function') {
-          $('#editDialcode').val('+' + itiEdit.getSelectedCountryData().dialCode);
-        }
+  // Importante: asignar número después de setCountry
+  setTimeout(() => {
+    itiEdit.setNumber(dialcode + telefono);
+  }, 100);
+
+  // Actualizar hidden con el dialcode actual
+  $('#editDialcode').val('+' + itiEdit.getSelectedCountryData().dialCode);
+}
+
       } catch (err) {
         console.warn('intlTelInput init error:', err);
       }
