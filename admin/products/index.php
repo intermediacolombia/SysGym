@@ -44,7 +44,7 @@ if (isset($_POST['action'])) {
         $stock = trim($_POST['stock']);
         $estado = trim($_POST['estado']);
         $id_bolsillo = trim($_POST['id_bolsillo']);
-        $alerta_stock = isset($_POST['alerta_stock']) ? 1 : 0;
+       $alerta_stock = (!empty($_POST['alerta_stock']) && $_POST['alerta_stock'] == '1') ? 1 : 0;
         $minimo_stock = isset($_POST['minimo_stock']) && $_POST['minimo_stock'] !== '' ? (int)$_POST['minimo_stock'] : null;
 
         // Verificar si ya existe un producto con el mismo nombre
@@ -145,7 +145,7 @@ if (isset($_POST['action'])) {
         $stock = trim($_POST['stock']);
         $estado = trim($_POST['estado']);
         $id_bolsillo = trim($_POST['id_bolsillo']);
-        $alerta_stock = isset($_POST['alerta_stock']) ? 1 : 0;
+        $alerta_stock = isset($_POST['alerta_stock']) && $_POST['alerta_stock'] == '1' ? 1 : 0;
         $minimo_stock = isset($_POST['minimo_stock']) && $_POST['minimo_stock'] !== '' ? (int)$_POST['minimo_stock'] : null;
 
         $stmt = $pdo->prepare("
@@ -314,7 +314,7 @@ if (isset($_POST['action'])) {
           </div>
 			
 			<div class="form-check form-switch mb-3">
-  <input class="form-check-input" type="checkbox" id="add_alerta_stock">
+  <input class="form-check-input" type="checkbox" id="add_alerta_stock" name="alerta_stock">
   <label class="form-check-label" for="add_alerta_stock">Activar alerta por stock bajo</label>
 </div>
 <div class="mb-3" id="add_minimo_container" style="display:none;">
