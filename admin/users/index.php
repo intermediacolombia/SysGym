@@ -396,27 +396,31 @@ $(document).ready(function() {
   });
 
   // ==========================================================
-  // CONFIGURAR INTL-TEL-INPUT (NUEVO USUARIO)
+  // INTL-TEL-INPUT NUEVO USUARIO
   // ==========================================================
+  let itiNew;
   const newInput = document.querySelector("#newTelefono");
-  if (newInput) {
-    const itiNew = window.intlTelInput(newInput, {
+  if (newInput && window.intlTelInput) {
+    itiNew = window.intlTelInput(newInput, {
       initialCountry: "co",
       preferredCountries: ["co", "us", "es"],
       separateDialCode: true,
       nationalMode: false,
     });
+
     newInput.addEventListener('countrychange', function() {
-      document.querySelector('#newDialcode').value = '+' + itiNew.getSelectedCountryData().dialCode;
+      $('#newDialcode').val('+' + itiNew.getSelectedCountryData().dialCode);
     });
-    document.querySelector('#newDialcode').value = '+' + itiNew.getSelectedCountryData().dialCode;
+    $('#newDialcode').val('+' + itiNew.getSelectedCountryData().dialCode);
   }
 
-  // Variable global para intlTelInput de edición
-  let itiEdit;
+  // ==========================================================
+  // INTL-TEL-INPUT EDITAR USUARIO
+  // ==========================================================
+  let itiEdit; // global para editar
 
   // ==========================================================
-  // ABRIR MODAL DE EDICIÓN AL HACER CLICK EN UNA FILA
+  // ABRIR MODAL DE EDICIÓN
   // ==========================================================
   $('#formularios tbody').on('click', 'tr.user-row', function(e) {
     if ($(e.target).closest('.delete-btn').length > 0) return;
@@ -432,7 +436,7 @@ $(document).ready(function() {
     var telefono = $(this).data('telefono');
     var recibe_alertas_stock = $(this).data('recibe_alertas_stock');
 
-    // Rellenar campos del modal
+    // Rellenar campos
     $('#editId').val(id);
     $('#editUsername').val(username);
     $('#editNombre').val(nombre);
@@ -442,48 +446,43 @@ $(document).ready(function() {
     $('#editEstado').val(estado);
     $('#editTelefono').val(telefono);
     $('#editDialcode').val(dialcode);
-
-    // Check del switch
     $('#editRecibeAlertas').prop('checked', recibe_alertas_stock == 1);
 
-    // Limpiar contraseñas
-    $('#editPassword, #editConfirmPassword').val('');
-    $('#editPasswordHelp').hide();
-
-    // ✅ Reinicializar intlTelInput cada vez que se abre el modal
+    // Reinicializar intlTelInput SOLO cuando esté disponible
     const editInput = document.querySelector("#editTelefono");
-    if (editInput) {
-      if (itiEdit) {
-        itiEdit.destroy(); // eliminar instancia previa
-      }
-      itiEdit = window.intlTelInput(editInput, {
-        initialCountry: "auto",
-        preferredCountries: ["co", "us", "es"],
-        separateDialCode: true,
-        nationalMode: false,
-        geoIpLookup: function(callback) { callback('co'); }
-      });
+    if (window.intlTelInput && editInput) {
+      try {
+        if (itiEdit && typeof itiEdit.destroy === 'function') itiEdit.destroy();
 
-      editInput.addEventListener('countrychange', function() {
-        document.querySelector('#editDialcode').value =
-          '+' + itiEdit.getSelectedCountryData().dialCode;
-      });
+        itiEdit = window.intlTelInput(editInput, {
+          initialCountry: "auto",
+          preferredCountries: ["co", "us", "es"],
+          separateDialCode: true,
+          nationalMode: false,
+          geoIpLookup: function(callback) { callback('co'); }
+        });
 
-      // ✅ Ajustar bandera según el dialcode guardado
-      if (dialcode) {
-        const country = itiEdit.getCountryData().find(c => "+" + c.dialCode === dialcode);
-        if (country) {
-          itiEdit.setCountry(country.iso2);
-        } else {
-          itiEdit.setCountry("co");
+        editInput.addEventListener('countrychange', function() {
+          $('#editDialcode').val('+' + itiEdit.getSelectedCountryData().dialCode);
+        });
+
+        // Ajustar bandera si hay dialcode guardado
+        if (dialcode && typeof itiEdit.getCountryData === 'function') {
+          const country = itiEdit.getCountryData().find(c => "+" + c.dialCode === dialcode);
+          if (country) itiEdit.setCountry(country.iso2);
+          else itiEdit.setCountry("co");
         }
+
+        // Actualizar dialcode oculto
+        if (typeof itiEdit.getSelectedCountryData === 'function') {
+          $('#editDialcode').val('+' + itiEdit.getSelectedCountryData().dialCode);
+        }
+      } catch (err) {
+        console.warn('intlTelInput init error:', err);
       }
-      // ✅ Asegurar el dialcode oculto siempre tenga valor
-      document.querySelector('#editDialcode').value =
-        '+' + itiEdit.getSelectedCountryData().dialCode;
     }
 
-    // Finalmente mostrar el modal
+    // Mostrar modal
     $('#editModal').modal('show');
   });
 
@@ -496,7 +495,7 @@ $(document).ready(function() {
   });
 
   // ==========================================================
-  // TOGGLE DE CONTRASEÑA (OJITO)
+  // TOGGLE DE CONTRASEÑA
   // ==========================================================
   $('.toggle-password').on('click', function() {
     var targetSelector = $(this).data('target');
@@ -515,7 +514,7 @@ $(document).ready(function() {
   // ==========================================================
   $('#newConfirmPassword').on('input', function() {
     var pass = $('#newPassword').val();
-    if(pass !== $(this).val()){
+    if (pass !== $(this).val()) {
       $('#newPasswordHelp').show();
     } else {
       $('#newPasswordHelp').hide();
@@ -523,34 +522,27 @@ $(document).ready(function() {
     updateNewRegisterButton();
   });
 
-  // ==========================================================
-  // VALIDACIÓN DE CAMPOS NUEVO USUARIO
-  // ==========================================================
   function updateNewRegisterButton() {
     var isValid = true;
     var requiredFields = [
       'newNombre', 'newApellido', 'newCorreo', 'newUsername',
       'newPassword', 'newRol', 'newEstado', 'newTelefono'
     ];
-
     requiredFields.forEach(function(id) {
       var elem = document.getElementById(id);
       if (!elem || !elem.value.trim()) {
         isValid = false;
       }
     });
-
     if ($('#newPassword').val() !== $('#newConfirmPassword').val()) {
       isValid = false;
     }
-
     document.getElementById('newRegisterBtn').disabled = !isValid;
   }
-
   $('#newUserModal input, #newUserModal select').on('input change', updateNewRegisterButton);
 
   // ==========================================================
-  // CONFIRMACIÓN DE ELIMINACIÓN CON SWEETALERT
+  // CONFIRMACIÓN DE ELIMINACIÓN
   // ==========================================================
   $('#formularios').on('click', '.delete-btn', function(e) {
     e.stopPropagation();
@@ -570,14 +562,13 @@ $(document).ready(function() {
   });
 
   // ==========================================================
-  // VALIDAR FORMULARIO DE EDICIÓN (CONTRASEÑAS)
+  // VALIDAR CONTRASEÑAS EN EDICIÓN
   // ==========================================================
   $('#editModal form').on('submit', function(event) {
     var pass = $('#editPassword').val();
     var conf = $('#editConfirmPassword').val();
-    if(pass !== '' && pass !== conf) {
+    if (pass !== '' && pass !== conf) {
       event.preventDefault();
-      event.stopPropagation();
       $('#editPasswordHelp').show();
       return false;
     }
