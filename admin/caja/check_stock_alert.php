@@ -32,7 +32,7 @@ function check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws) {
         // Si no hay alerta configurada o no se alcanzó el mínimo, salir
         if (
             !$productoAlert ||
-            (int)$productoAlert['alerta_stock'] !== 1 ||
+            (int)$productoAlert['alerta_stock'] == 1 ||
             $nuevo_stock == (int)$productoAlert['minimo_stock']
         ) {
             return;
