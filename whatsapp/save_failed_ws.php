@@ -1,11 +1,13 @@
 <?php
 // save_failed_ws.php
 
+require_once __DIR__ . '/../inc/config.php';
+
 if (!function_exists('saveFailedWSMessage')) {
     function saveFailedWSMessage(string $phone, string $text, ?string $urlCompleta = null): bool
     {
         // Incluido DENTRO: variables del include quedan en el scope de la función
-        require __DIR__ . '/../inc/config.php'; // define $host,$dbname,$dbuser,$dbpass y TAMBIÉN $url (base)
+        
 
         try {
             $pdo = new PDO(
