@@ -432,161 +432,186 @@ if (isset($_POST['action'])) {
   <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
   <!-- SweetAlert2 JS -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
-  <script>
-    $(document).ready(function(){
-      // Inicializar DataTable con columna adicional "Bolsillo"
-      var table = $('#productos-table').DataTable({
-        "ajax": "index.php?action=fetch",
-        "columns": [
-          { "data": "nombre" },
-			
-          { "data": "precio",
-            "render": function(data, type, row) {
-              var num = parseFloat(data);
-              if (isNaN(num)) return data;
-              num = Math.round(num);
-              return "$" + num.toLocaleString('es-CO');
-            }
-          },
-		
-		{ "data": "coste",
-            "render": function(data, type, row) {
-              var num = parseFloat(data);
-              if (isNaN(num)) return data;
-              num = Math.round(num);
-              return "$" + num.toLocaleString('es-CO');
-            }
-          },
-			
-			
-		{ 
-		  "data": null,
-		  "title": "Ganancia",
-		  "render": function(data, type, row) {
-			var precio = parseFloat(row.precio) || 0;
-			var coste = parseFloat(row.coste) || 0;
-			var ganancia = precio - coste;
-			return "$" + ganancia.toLocaleString('es-CO', { maximumFractionDigits: 0 });
-		  }
-		},
-			
-		{ 
-  "data": null,
-  "title": "% Ganancia",
-  "render": function(data, type, row) {
-    var precio = parseFloat(row.precio) || 0;
-    var coste = parseFloat(row.coste) || 0;
-    if(precio > 0){
-      var porcentaje = ((precio - coste) / precio) * 100;
-      return porcentaje.toFixed(2) + "%";
-    } else {
-      return "N/A";
-    }
-  }
-},
-
-			
-			
-		
-          { "data": "stock" },
-          { "data": "estado",
-            "render": function(data, type, row) {
-              return data == 1 
-                ? '<span class="badge bg-success">Activo</span>' 
-                : '<span class="badge bg-danger">Inactivo</span>';
-            }
-          },
-          { "data": "bolsillo", "defaultContent": "Sin Asignar" },
-		  { "data": "alerta_stock", "visible": false },
-	  	  { "data": "minimo_stock", "visible": false }
-        ],
-		"pageLength": 50,
-        "language": {
-          "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
+ <script>
+	$(document).ready(function(){
+  // Inicializar DataTable con columna adicional "Bolsillo"
+  var table = $('#productos-table').DataTable({
+    "ajax": "index.php?action=fetch",
+    "columns": [
+      { "data": "nombre" },
+      { "data": "precio",
+        "render": function(data, type, row) {
+          var num = parseFloat(data);
+          if (isNaN(num)) return data;
+          num = Math.round(num);
+          return "$" + num.toLocaleString('es-CO');
         }
-      });
-
-      // Abrir modal para agregar un nuevo producto
-      $("#btnAddProducto").click(function(){
-        $("#formAddProducto")[0].reset();
-        $("#modalAddProducto").modal("show");
-      });
-
-      // Agregar producto vía Ajax
-     // Agregar producto vía Ajax
-$("#formAddProducto").on("submit", function(e){
-  e.preventDefault();
-  $.ajax({
-    url: "index.php",
-    method: "POST",
-    data: {
-      action: "add",
-      nombre: $("#add_nombre").val(),
-      precio: $("#add_precio").val(),
-	  coste: $("#add_coste").val(),
-      stock: $("#add_stock").val(),
-      estado: $("#add_estado").val(),
-      id_bolsillo: $("#add_id_bolsillo").val(),  // nuevo campo para el bolsillo
-		alerta_stock: $("#add_alerta_stock").is(":checked") ? 1 : 0,
-  minimo_stock: $("#add_alerta_stock").is(":checked") ? $("#add_minimo_stock").val() : null
-    },
-    dataType: "json",
-    success: function(response){
-      if(response.status === "success"){
-        Swal.fire("Éxito", response.message, "success");
-        $("#modalAddProducto").modal("hide");
-        table.ajax.reload();
-      } else {
-        Swal.fire("Error", response.message, "error");
-      }
+      },
+      { "data": "coste",
+        "render": function(data, type, row) {
+          var num = parseFloat(data);
+          if (isNaN(num)) return data;
+          num = Math.round(num);
+          return "$" + num.toLocaleString('es-CO');
+        }
+      },
+      { 
+        "data": null,
+        "title": "Ganancia",
+        "render": function(data, type, row) {
+          var precio = parseFloat(row.precio) || 0;
+          var coste = parseFloat(row.coste) || 0;
+          var ganancia = precio - coste;
+          return "$" + ganancia.toLocaleString('es-CO', { maximumFractionDigits: 0 });
+        }
+      },
+      { 
+        "data": null,
+        "title": "% Ganancia",
+        "render": function(data, type, row) {
+          var precio = parseFloat(row.precio) || 0;
+          var coste = parseFloat(row.coste) || 0;
+          if(precio > 0){
+            var porcentaje = ((precio - coste) / precio) * 100;
+            return porcentaje.toFixed(2) + "%";
+          } else {
+            return "N/A";
+          }
+        }
+      },
+      { "data": "stock" },
+      { "data": "estado",
+        "render": function(data, type, row) {
+          return data == 1 
+            ? '<span class="badge bg-success">Activo</span>' 
+            : '<span class="badge bg-danger">Inactivo</span>';
+        }
+      },
+      { "data": "bolsillo", "defaultContent": "Sin Asignar" },
+      { "data": "alerta_stock", "visible": false },
+      { "data": "minimo_stock", "visible": false }
+    ],
+    "pageLength": 50,
+    "language": {
+      "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
     }
   });
-});
 
+  // Abrir modal para agregar un nuevo producto
+  $("#btnAddProducto").click(function(){
+    $("#formAddProducto")[0].reset();
+    $("#add_minimo_container").hide();
+    $("#modalAddProducto").modal("show");
+  });
 
-      // Al hacer click en una fila, abrir modal para editar
-      $('#productos-table tbody').on('click', 'tr', function(){
-        var data = table.row(this).data();
-        if(data){
-          $("#edit_id").val(data.id);
-          $("#edit_nombre").val(data.nombre);
-          $("#edit_precio").val(data.precio);
-		$("#edit_coste").val(data.coste);
-          $("#edit_stock").val(data.stock);
-          $("#edit_estado").val(data.estado);  
-          $("#edit_id_bolsillo").val(data.id_bolsillo);
-          $("#modalEditProducto").modal("show");
-			if (data.alerta_stock == 1) {
-  $("#edit_minimo_container").show();
-  $("#edit_minimo_stock").val(data.minimo_stock);
-} else {
-  $("#edit_minimo_container").hide();
-  $("#edit_minimo_stock").val('');
+  // Agregar producto vía Ajax
+  $("#formAddProducto").on("submit", function(e){
+    e.preventDefault();
+    $.ajax({
+      url: "index.php",
+      method: "POST",
+      data: {
+        action: "add",
+        nombre: $("#add_nombre").val(),
+        precio: $("#add_precio").val(),
+        coste: $("#add_coste").val(),
+        stock: $("#add_stock").val(),
+        estado: $("#add_estado").val(),
+        id_bolsillo: $("#add_id_bolsillo").val(),
+        alerta_stock: $("#add_alerta_stock").is(":checked") ? 1 : 0,
+        minimo_stock: $("#add_alerta_stock").is(":checked") ? $("#add_minimo_stock").val() : null
+      },
+      dataType: "json",
+      success: function(response){
+        if(response.status === "success"){
+          Swal.fire("Éxito", response.message, "success");
+          $("#modalAddProducto").modal("hide");
+          table.ajax.reload();
+        } else {
+          Swal.fire("Error", response.message, "error");
         }
-      });
+      }
+    });
+  });
 
-      // Editar producto vía Ajax
-      $("#formEditProducto").on("submit", function(e){
-        e.preventDefault();
+  // Al hacer click en una fila, abrir modal para editar
+  $('#productos-table tbody').on('click', 'tr', function(){
+    var data = table.row(this).data();
+    if(data){
+      $("#edit_id").val(data.id);
+      $("#edit_nombre").val(data.nombre);
+      $("#edit_precio").val(data.precio);
+      $("#edit_coste").val(data.coste);
+      $("#edit_stock").val(data.stock);
+      $("#edit_estado").val(data.estado);  
+      $("#edit_id_bolsillo").val(data.id_bolsillo);
+      
+      // CORRECCIÓN: Configurar el checkbox correctamente
+      if (data.alerta_stock == 1) {
+        $("#edit_alerta_stock").prop('checked', true);
+        $("#edit_minimo_container").show();
+        $("#edit_minimo_stock").val(data.minimo_stock);
+      } else {
+        $("#edit_alerta_stock").prop('checked', false);
+        $("#edit_minimo_container").hide();
+        $("#edit_minimo_stock").val('');
+      }
+      
+      $("#modalEditProducto").modal("show");
+    }
+  });
+
+  // Editar producto vía Ajax
+  $("#formEditProducto").on("submit", function(e){
+    e.preventDefault();
+    $.ajax({
+      url: "index.php",
+      method: "POST",
+      data: {
+        action: "edit",
+        id: $("#edit_id").val(),
+        nombre: $("#edit_nombre").val(),
+        precio: $("#edit_precio").val(),
+        coste: $("#edit_coste").val(),
+        stock: $("#edit_stock").val(),
+        estado: $("#edit_estado").val(),
+        id_bolsillo: $("#edit_id_bolsillo").val(),
+        alerta_stock: $("#edit_alerta_stock").is(":checked") ? 1 : 0,
+        minimo_stock: $("#edit_alerta_stock").is(":checked") ? $("#edit_minimo_stock").val() : null
+      },
+      dataType: "json",
+      success: function(response){
+        if(response.status === "success"){
+          Swal.fire("Éxito", response.message, "success");
+          $("#modalEditProducto").modal("hide");
+          table.ajax.reload();
+        } else {
+          Swal.fire("Error", response.message, "error");
+        }
+      }
+    });
+  });
+
+  // Borrar producto vía Ajax (desde el modal de edición)
+  $("#btnDeleteProducto").on("click", function(){
+    var id = $("#edit_id").val();
+    Swal.fire({
+      title: "¿Está seguro?",
+      text: "Esta acción borrará el producto.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, borrar",
+      cancelButtonText: "Cancelar"
+    }).then((result) => {
+      if(result.isConfirmed){
         $.ajax({
           url: "index.php",
           method: "POST",
-          data: {
-            action: "edit",
-            id: $("#edit_id").val(),
-            nombre: $("#edit_nombre").val(),
-            precio: $("#edit_precio").val(),
-			 coste: $("#edit_coste").val(),
-            stock: $("#edit_stock").val(),
-            estado: $("#edit_estado").val(),
-            id_bolsillo: $("#edit_id_bolsillo").val(),
-			 alerta_stock: $("#edit_alerta_stock").is(":checked") ? 1 : 0,
-  			minimo_stock: $("#edit_alerta_stock").is(":checked") ? $("#edit_minimo_stock").val() : null
-          },
+          data: { action: "delete", id: id },
           dataType: "json",
           success: function(response){
             if(response.status === "success"){
-              Swal.fire("Éxito", response.message, "success");
+              Swal.fire("Borrado", response.message, "success");
               $("#modalEditProducto").modal("hide");
               table.ajax.reload();
             } else {
@@ -594,53 +619,21 @@ $("#formAddProducto").on("submit", function(e){
             }
           }
         });
-      });
-
-      // Borrar producto vía Ajax (desde el modal de edición)
-      $("#btnDeleteProducto").on("click", function(){
-        var id = $("#edit_id").val();
-        Swal.fire({
-          title: "¿Está seguro?",
-          text: "Esta acción borrará el producto.",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "Sí, borrar",
-          cancelButtonText: "Cancelar"
-        }).then((result) => {
-          if(result.isConfirmed){
-            $.ajax({
-              url: "index.php",
-              method: "POST",
-              data: { action: "delete", id: id },
-              dataType: "json",
-              success: function(response){
-                if(response.status === "success"){
-                  Swal.fire("Borrado", response.message, "success");
-                  $("#modalEditProducto").modal("hide");
-                  table.ajax.reload();
-                } else {
-                  Swal.fire("Error", response.message, "error");
-                }
-              }
-            });
-          }
-        });
-      });
-		
-		
-		// Mostrar/ocultar en Agregar
-$("#add_alerta_stock").on("change", function() {
-  $("#add_minimo_container").toggle(this.checked);
-});
-
-// Mostrar/ocultar en Editar
-$("#edit_alerta_stock").on("change", function() {
-  $("#edit_minimo_container").toggle(this.checked);
-});
-
-		
+      }
     });
-  </script>
+  });
+
+  // Mostrar/ocultar en Agregar
+  $("#add_alerta_stock").on("change", function() {
+    $("#add_minimo_container").toggle(this.checked);
+  });
+
+  // Mostrar/ocultar en Editar
+  $("#edit_alerta_stock").on("change", function() {
+    $("#edit_minimo_container").toggle(this.checked);
+  });
+});
+	</script>
 </body>
 </html>
 
