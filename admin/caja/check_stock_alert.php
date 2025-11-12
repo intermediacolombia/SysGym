@@ -8,7 +8,7 @@
  * @param string $api_ws - Token de la API de WhatsApp
  * @return void
  */
-require_once __DIR__ . '/../../save_failed_ws.php';
+require_once __DIR__ . '/../../whatsapp/save_failed_ws.php';
 
 function check_stock_alert($pdo, $producto_id, $stock_anterior, $nuevo_stock, $api_ws) {
     try {
