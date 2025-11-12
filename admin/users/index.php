@@ -549,21 +549,20 @@ $(document).ready(function() {
     document.querySelector('#newDialcode').value = '+' + iti.getSelectedCountryData().dialCode;
   }
 
-  // ==========================================================
   // CONFIGURAR INTL-TEL-INPUT (EDITAR USUARIO)
-  // ==========================================================
-  const editInput = document.querySelector("#editTelefono");
-  if (editInput) {
-    const itiEdit = window.intlTelInput(editInput, {
-      initialCountry: "co",
-      preferredCountries: ["co", "us", "es"],
-      separateDialCode: true,
-      nationalMode: false,
-    });
-    editInput.addEventListener('countrychange', function() {
-      document.querySelector('#editDialcode').value = '+' + itiEdit.getSelectedCountryData().dialCode;
-    });
-  }
+const editInput = document.querySelector("#editTelefono");
+if (editInput) {
+  const itiEdit = window.intlTelInput(editInput, {
+    initialCountry: "co",
+    preferredCountries: ["co", "us", "es"],
+    separateDialCode: true,
+    nationalMode: false,
+  });
+  editInput.addEventListener('countrychange', function() {
+    document.querySelector('#editDialcode').value = '+' + itiEdit.getSelectedCountryData().dialCode;
+  });
+}
+
 
 });
 </script>
