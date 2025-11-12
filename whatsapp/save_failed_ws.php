@@ -7,7 +7,7 @@ if (!function_exists('saveFailedWSMessage')) {
     function saveFailedWSMessage(string $phone, string $text, ?string $urlCompleta = null): bool
     {
         // Incluido DENTRO: variables del include quedan en el scope de la función
-        
+        global $host, $dbname, $dbuser, $dbpass;
 
         try {
             $pdo = new PDO(
