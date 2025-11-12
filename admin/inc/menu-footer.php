@@ -123,16 +123,4 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 
-<script>
-// Aplica el modo oscuro inmediatamente (evita parpadeo)
-if (localStorage.getItem('theme') === 'dark') {
-  document.documentElement.classList.add('dark-mode');
-}
-
-// Espera a que cargue todo el DOM antes de ocultar el loader
-window.addEventListener('load', () => {
-  const loader = document.getElementById('page-loader');
-  if (loader) loader.classList.add('hidden');
-});
-</script>
 

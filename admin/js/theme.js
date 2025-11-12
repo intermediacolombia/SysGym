@@ -4,19 +4,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const icon = document.getElementById('themeIcon');
   const labelIcon = document.getElementById('themeLabelIcon');
 
-  // Leer estado guardado
-  const savedTheme = localStorage.getItem('theme-mode');
+  // Leer estado guardado (sin tomar modo del sistema)
+  const savedTheme = localStorage.getItem('theme-mode') || 'light';
 
-  // Aplicar tema guardado antes de mostrar contenido
+  // Aplicar tema guardado
   if (savedTheme === 'dark') {
     body.classList.add('dark-mode');
     if (toggle) toggle.checked = true;
   }
 
-  // Marcar como listo (mostrar body)
+  // Mostrar body con transición lista
   setTimeout(() => body.classList.add('theme-ready'), 50);
 
-  // Sincronizar íconos
+  // Función para actualizar íconos
   function updateIcons(isDark) {
     if (!icon || !labelIcon) return;
     if (isDark) {
@@ -33,16 +33,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Evento del switch
   if (toggle) {
     toggle.addEventListener('change', function () {
-      if (this.checked) {
-        body.classList.add('dark-mode');
-        localStorage.setItem('theme-mode', 'dark');
-        updateIcons(true);
-      } else {
-        body.classList.remove('dark-mode');
-        localStorage.setItem('theme-mode', 'light');
-        updateIcons(false);
-      }
+      const isDark = this.checked;
+      body.classList.toggle('dark-mode', isDark);
+      localStorage.setItem('theme-mode', isDark ? 'dark' : 'light');
+      updateIcons(isDark);
     });
   }
 });
+
 
