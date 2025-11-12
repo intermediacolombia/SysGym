@@ -8,15 +8,10 @@
  * @param string $api_ws - Token de la API de WhatsApp
  * @return void
  */
-
+require_once __DIR__ . '/../../save_failed_ws.php';
 
 function check_stock_alert($pdo, $producto_id, $stock_anterior, $nuevo_stock, $api_ws) {
-	
-	
-	
     try {
-		
-		
         // Verificar si el producto tiene alerta activada
         $stmtAlert = $pdo->prepare("
             SELECT nombre, alerta_stock, minimo_stock 
@@ -87,21 +82,22 @@ function check_stock_alert($pdo, $producto_id, $stock_anterior, $nuevo_stock, $a
             $error    = curl_error($ch);
             curl_close($ch);
 			
-			// AQUÍ INSERTAS EL successFlag
-    $successFlag = false;
-    if (!$error && $httpCode >= 200 && $httpCode < 300) {
-        $decoded = json_decode($response, true);
-        $successFlag = !empty($decoded['success']);
-    }
+			$successFlag = false;
+if (!$error && $httpCode >= 200 && $httpCode < 300) {
+    $decoded = json_decode($response, true);
+    $successFlag = !empty($decoded['success']);
+}
 
-    // GUARDAR FALLIDOS
-    if (!$successFlag) {
-        saveFailedWSMessage($telefonoCompleto, $mensaje, null); // ← null si no hay PDF
-    }
-
-    // Registrar en log para debugging
-    error_log("✅ HTTP: $httpCode | 📞 $telefonoCompleto | RESPUESTA: $response | ERROR: $error");
-}       
+/* ───────────── 6) MANEJO DE FALLOS ───────────── */
+if (!$successFlag) {
+    // Guarda registro en BD (mantiene el PDF para reenviar)
+    saveFailedWSMessage($telefonoCompleto, $mensaje, null);
+}
+	
+			
+			// Registrar en log para debugging
+            error_log("✅ HTTP: $httpCode | 📞 $telefonoCompleto | RESPUESTA: $response | ERROR: $error");
+        }        
     } catch (Exception $e) {
         error_log("❌ Error en check_stock_alert: " . $e->getMessage());
     }
