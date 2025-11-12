@@ -12,205 +12,142 @@ try {
     die("Error en la conexión: " . $e->getMessage());
 }
 
-// =====================================================
-// FETCH: Obtener productos
-// =====================================================
-if (isset($_GET['action']) && $_GET['action'] == "fetch") {
-    $stmt = $pdo->prepare("
-        SELECT 
-            p.id, p.nombre, p.precio, p.coste, p.stock, p.estado, p.id_bolsillo,
-            p.alerta_stock, p.minimo_stock,
-            b.nombre AS bolsillo, b.borrado
-        FROM productos p
-        LEFT JOIN bolsillos b ON p.id_bolsillo = b.id
-        WHERE p.borrado = 0
-    ");
+// Procesar peticiones Ajax para CRUD
+if(isset($_GET['action']) && $_GET['action'] == "fetch"){
+    // Obtener todos los productos no borrados, uniendo la información del bolsillo (si existe)
+    $stmt = $pdo->prepare("SELECT p.id, p.nombre, p.precio, p.coste, p.stock, p.estado, p.id_bolsillo, b.nombre AS bolsillo, b.borrado 
+                           FROM productos p 
+                           LEFT JOIN bolsillos b ON p.id_bolsillo = b.id 
+                           WHERE p.borrado = 0");
     $stmt->execute();
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    echo json_encode(['data' => $data]);
+    echo json_encode(['data'=>$data]);
     exit;
 }
 
-// =====================================================
-// CRUD: Agregar / Editar / Eliminar
-// =====================================================
-if (isset($_POST['action'])) {
+if(isset($_POST['action'])){
     $action = $_POST['action'];
+    if($action == "add"){
+    $nombre = trim($_POST['nombre']);
+    $precio = trim($_POST['precio']);
+	$coste = trim($_POST['coste']);
+    $stock  = trim($_POST['stock']);
+    $estado = trim($_POST['estado']);
+    $id_bolsillo = trim($_POST['id_bolsillo']); // nuevo campo para el bolsillo
+		$alerta_stock = isset($_POST['alerta_stock']) ? 1 : 0;
+$minimo_stock = isset($_POST['minimo_stock']) ? $_POST['minimo_stock'] : null;
 
-    // =====================================================
-    // AGREGAR PRODUCTO
-    // =====================================================
-    if ($action == "add") {
-        $nombre = trim($_POST['nombre']);
-        $precio = trim($_POST['precio']);
-        $coste = trim($_POST['coste']);
-        $stock = trim($_POST['stock']);
-        $estado = trim($_POST['estado']);
-        $id_bolsillo = trim($_POST['id_bolsillo']);
-        $alerta_stock = isset($_POST['alerta_stock']) ? 1 : 0;
-        $minimo_stock = isset($_POST['minimo_stock']) && $_POST['minimo_stock'] !== '' ? (int)$_POST['minimo_stock'] : null;
+    // Verificar si ya existe un producto con el mismo nombre
+    $stmtCheck = $pdo->prepare("SELECT id, borrado FROM productos WHERE nombre = :nombre LIMIT 1");
+    $stmtCheck->execute([':nombre' => $nombre]);
+    $existing = $stmtCheck->fetch(PDO::FETCH_ASSOC);
 
-        // Verificar si ya existe un producto con el mismo nombre
-        $stmtCheck = $pdo->prepare("SELECT id, borrado FROM productos WHERE nombre = :nombre LIMIT 1");
-        $stmtCheck->execute([':nombre' => $nombre]);
-        $existing = $stmtCheck->fetch(PDO::FETCH_ASSOC);
-
-        if ($existing) {
-            if ($existing['borrado'] == 0) {
-                echo json_encode(['status' => 'error', 'message' => 'El producto ya existe']);
-                exit;
+    if($existing){
+        if($existing['borrado'] == 0){
+            echo json_encode(['status'=>'error', 'message'=>'El producto ya existe']);
+            exit;
+        } else {
+            // Reactivar y actualizar si está borrado
+            $stmtUpdate = $pdo->prepare("UPDATE productos SET precio = :precio,  coste = :coste, stock = :stock, estado = :estado, id_bolsillo = :id_bolsillo, borrado = 0 WHERE id = :id");
+            if($stmtUpdate->execute([':precio'=>$precio, ':coste'=>$coste, ':stock'=>$stock, ':estado'=>$estado, ':id_bolsillo'=>$id_bolsillo, ':id'=>$existing['id']])){
+				
+				// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';		
+		$desc = json_encode([
+			'precio'=>$precio, 
+			'coste'=>$coste, 
+			'stock'=>$stock, 
+			'estado'=>$estado, 
+			'id_bolsillo'=>$id_bolsillo, 
+			'id'=>$existing['id']		
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Agregar Productos', $desc, 'Productos');
+		// END LOGS	
+				
+				
+                echo json_encode(['status'=>'success', 'message'=>'Producto reactivado y actualizado correctamente']);
             } else {
-                // Reactivar producto borrado
-                $stmtUpdate = $pdo->prepare("
-                    UPDATE productos 
-                    SET precio = :precio, coste = :coste, stock = :stock, estado = :estado, id_bolsillo = :id_bolsillo,
-                        alerta_stock = :alerta_stock, minimo_stock = :minimo_stock, borrado = 0
-                    WHERE id = :id
-                ");
-                if ($stmtUpdate->execute([
-                    ':precio' => $precio,
-                    ':coste' => $coste,
-                    ':stock' => $stock,
-                    ':estado' => $estado,
-                    ':id_bolsillo' => $id_bolsillo,
-                    ':alerta_stock' => $alerta_stock,
-                    ':minimo_stock' => $minimo_stock,
-                    ':id' => $existing['id']
-                ])) {
-
-                    require_once __DIR__ . '/../inc/log_action.php';
-                    $desc = json_encode([
-                        'precio' => $precio,
-                        'coste' => $coste,
-                        'stock' => $stock,
-                        'estado' => $estado,
-                        'id_bolsillo' => $id_bolsillo,
-                        'alerta_stock' => $alerta_stock,
-                        'minimo_stock' => $minimo_stock,
-                        'id' => $existing['id']
-                    ], JSON_UNESCAPED_UNICODE);
-                    log_action('Reactivar Producto', $desc, 'Productos');
-
-                    echo json_encode(['status' => 'success', 'message' => 'Producto reactivado y actualizado correctamente']);
-                } else {
-                    echo json_encode(['status' => 'error', 'message' => 'Error al reactivar el producto']);
-                }
-                exit;
+                echo json_encode(['status'=>'error', 'message'=>'Error al reactivar el producto']);
             }
+            exit;
         }
-
-        // Insertar nuevo producto
-        $stmt = $pdo->prepare("
-            INSERT INTO productos 
-            (nombre, precio, coste, stock, estado, id_bolsillo, alerta_stock, minimo_stock, borrado)
-            VALUES
-            (:nombre, :precio, :coste, :stock, :estado, :id_bolsillo, :alerta_stock, :minimo_stock, 0)
-        ");
-        if ($stmt->execute([
-            ':nombre' => $nombre,
-            ':precio' => $precio,
-            ':coste' => $coste,
-            ':stock' => $stock,
-            ':estado' => $estado,
-            ':id_bolsillo' => $id_bolsillo,
-            ':alerta_stock' => $alerta_stock,
-            ':minimo_stock' => $minimo_stock
-        ])) {
-
-            require_once __DIR__ . '/../inc/log_action.php';
-            $desc = json_encode([
-                'nombre' => $nombre,
-                'precio' => $precio,
-                'coste' => $coste,
-                'stock' => $stock,
-                'estado' => $estado,
-                'id_bolsillo' => $id_bolsillo,
-                'alerta_stock' => $alerta_stock,
-                'minimo_stock' => $minimo_stock
-            ], JSON_UNESCAPED_UNICODE);
-            log_action('Agregar Producto', $desc, 'Productos');
-
-            echo json_encode(['status' => 'success', 'message' => 'Producto agregado correctamente']);
-        } else {
-            echo json_encode(['status' => 'error', 'message' => 'Error al agregar el producto']);
-        }
-        exit;
     }
-
-    // =====================================================
-    // EDITAR PRODUCTO
-    // =====================================================
-    elseif ($action == "edit") {
+    // Insertar nuevo producto
+    $stmt = $pdo->prepare("INSERT INTO productos (nombre, precio, coste, stock, estado, id_bolsillo, borrado) VALUES (:nombre, :precio, :coste, :stock, :estado, :id_bolsillo, 0)");
+    if($stmt->execute([':nombre'=>$nombre, ':precio'=>$precio, ':coste'=>$coste, ':stock'=>$stock, ':estado'=>$estado, ':id_bolsillo'=>$id_bolsillo])){
+		
+		// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';		
+		$desc = json_encode([
+			'nombre'=>$nombre, 
+			'precio'=>$precio, 
+			'coste'=>$coste, 
+			'stock'=>$stock, 
+			'estado'=>$estado, 
+			'id_bolsillo'=>$id_bolsillo		
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Agregar Productos', $desc, 'Productos');
+		// END LOGS	
+		
+        echo json_encode(['status'=>'success', 'message'=>'Producto agregado correctamente']);
+    } else {
+        echo json_encode(['status'=>'error', 'message'=>'Error al agregar el producto']);
+    }
+    exit;
+} elseif($action == "edit"){
         $id = trim($_POST['id']);
         $nombre = trim($_POST['nombre']);
         $precio = trim($_POST['precio']);
-        $coste = trim($_POST['coste']);
-        $stock = trim($_POST['stock']);
+		$coste = trim($_POST['coste']);
+        $stock  = trim($_POST['stock']);
         $estado = trim($_POST['estado']);
         $id_bolsillo = trim($_POST['id_bolsillo']);
-        $alerta_stock = isset($_POST['alerta_stock']) ? 1 : 0;
-        $minimo_stock = isset($_POST['minimo_stock']) && $_POST['minimo_stock'] !== '' ? (int)$_POST['minimo_stock'] : null;
-
-        $stmt = $pdo->prepare("
-            UPDATE productos 
-            SET nombre = :nombre, precio = :precio, coste = :coste, stock = :stock, estado = :estado,
-                id_bolsillo = :id_bolsillo, alerta_stock = :alerta_stock, minimo_stock = :minimo_stock
-            WHERE id = :id
-        ");
-        if ($stmt->execute([
-            ':nombre' => $nombre,
-            ':precio' => $precio,
-            ':coste' => $coste,
-            ':stock' => $stock,
-            ':estado' => $estado,
-            ':id_bolsillo' => $id_bolsillo,
-            ':alerta_stock' => $alerta_stock,
-            ':minimo_stock' => $minimo_stock,
-            ':id' => $id
-        ])) {
-
-            require_once __DIR__ . '/../inc/log_action.php';
-            $desc = json_encode([
-                'id' => $id,
-                'nombre' => $nombre,
-                'precio' => $precio,
-                'coste' => $coste,
-                'stock' => $stock,
-                'estado' => $estado,
-                'id_bolsillo' => $id_bolsillo,
-                'alerta_stock' => $alerta_stock,
-                'minimo_stock' => $minimo_stock
-            ], JSON_UNESCAPED_UNICODE);
-            log_action('Editar Producto', $desc, 'Productos');
-
-            echo json_encode(['status' => 'success', 'message' => 'Producto actualizado correctamente']);
+        $stmt = $pdo->prepare("UPDATE productos 
+                               SET nombre = :nombre, precio = :precio, coste = :coste, stock = :stock, estado = :estado, id_bolsillo = :id_bolsillo 
+                               WHERE id = :id");
+        if($stmt->execute([':nombre'=>$nombre, ':precio'=>$precio, ':coste'=>$coste, ':stock'=>$stock, ':estado'=>$estado, ':id_bolsillo'=>$id_bolsillo, ':id'=>$id])){
+            
+			// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';		
+		$desc = json_encode([
+			'nombre'=>$nombre, 
+			'precio'=>$precio, 
+			'coste'=>$coste, 
+			'stock'=>$stock, 
+			'estado'=>$estado, 
+			'id_bolsillo'=>$id_bolsillo, 
+			'id'=>$id		
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Editar Productos', $desc, 'Productos');
+		// END LOGS	
+			
+			echo json_encode(['status'=>'success', 'message'=>'Producto actualizado correctamente']);
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'Error al actualizar el producto']);
+            echo json_encode(['status'=>'error', 'message'=>'Error al actualizar el producto']);
         }
         exit;
-    }
-
-    // =====================================================
-    // BORRAR PRODUCTO
-    // =====================================================
-    elseif ($action == "delete") {
+    } elseif($action == "delete"){
         $id = trim($_POST['id']);
+        // Marcar el producto como borrado
         $stmt = $pdo->prepare("UPDATE productos SET borrado = 1 WHERE id = :id");
-        if ($stmt->execute([':id' => $id])) {
-
-            require_once __DIR__ . '/../inc/log_action.php';
-            $desc = json_encode(['id' => $id], JSON_UNESCAPED_UNICODE);
-            log_action('Borrar Producto', $desc, 'Productos');
-
-            echo json_encode(['status' => 'success', 'message' => 'Producto borrado correctamente']);
+        if($stmt->execute([':id'=>$id])){
+			
+			// LOGS
+		require_once __DIR__ . '/../inc/log_action.php';		
+		$desc = json_encode([			
+			'id'=>$id		
+		], JSON_UNESCAPED_UNICODE);
+		log_action('Borrar Productos', $desc, 'Productos');
+		// END LOGS	
+			
+            echo json_encode(['status'=>'success', 'message'=>'Producto borrado correctamente']);
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'Error al borrar el producto']);
+            echo json_encode(['status'=>'error', 'message'=>'Error al borrar el producto']);
         }
         exit;
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
