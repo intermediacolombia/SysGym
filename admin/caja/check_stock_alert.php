@@ -50,15 +50,19 @@ function check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws) {
             return;
         }
 
-        // Preparar mensaje
-        $mensaje = "Hola $nombreUsuario,\n\n"
-			     . "⚠️ ALERTA DE STOCK: El producto *$nombre_producto* ha llegado al stock mínimo establecido en el sistema.\n"
-                 . "Stock actual: *$nuevo_stock* unidades.";
+        
 
         // Enviar mensaje a cada usuario
         foreach ($usuarios as $u) {
             $telefonoCompleto = $u['dialCode'] . $u['telefono'];
 			$nombreUsuario = $u['nombres'];
+			
+			// Preparar mensaje
+        	$mensaje = "Hola $nombreUsuario,\n\n"
+			     . "⚠️ ALERTA DE STOCK: El producto *$nombre_producto* ha llegado al stock mínimo establecido en el sistema.\n"
+                 . "Stock actual: *$nuevo_stock* unidades.";
+			
+			
             // Log previo (útil para pruebas)
             error_log("📢 Enviando alerta de stock a $telefonoCompleto → $mensaje");
 
