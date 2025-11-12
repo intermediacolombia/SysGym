@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
+require_once __DIR__ . '/../whatsapp/send_ws_alert.php'; // <- Función para enviar WhatsApp
 
 header('Content-Type: application/json');
 
@@ -33,52 +34,45 @@ foreach ($required as $k) {
 }
 
 $producto_id    = (int)$_POST['producto_id'];
-$cantidad_req   = (int)$_POST['cantidad'];                 // cantidad solicitada (antes de aplicar skip_stock)
-$precio_unit    = (float)$_POST['precio'];                 // precio unitario
-$coste_total    = (float)($_POST['coste']);                // OJO: ya te llegaba coste*cantidad; lo respetamos para venta normal
+$cantidad_req   = (int)$_POST['cantidad'];
+$precio_unit    = (float)$_POST['precio'];
+$coste_total    = (float)($_POST['coste']);
 $detalle        = trim((string)$_POST['detalle']);
 $payment_method = trim((string)$_POST['payment_method']);
 $bank           = '';
-
-// Opcionales para pago dividido
 $valor_override = isset($_POST['valor_override']) ? (int)$_POST['valor_override'] : null;
-$skip_stock     = !empty($_POST['skip_stock']); // true si viene 1 / "1"
+$skip_stock     = !empty($_POST['skip_stock']);
 
-// 3) Validación método de pago / banco
 if ($payment_method === 'Transferencia') {
-    if (!isset($_POST['bank']) || $_POST['bank'] === '') {
+    if (empty($_POST['bank'])) {
         echo json_encode(['status'=>'error', 'message'=>'Debe seleccionar un banco para la Transferencia']);
         exit;
     }
     $bank = trim((string)$_POST['bank']);
-} else {
-    $bank = ''; // aseguramos vacío si no es transferencia
 }
 
-// 4) Lógica de stock según tipo de movimiento
-//    - skip_stock = true  -> no verifica stock ni descuenta, fuerza cantidad=0 y coste=0
-//    - skip_stock = false -> venta normal, valida stock y descuenta cantidad_req
 $cantidad_final = $skip_stock ? 0 : $cantidad_req;
+$coste_efectivo = $skip_stock ? 0.0 : (float)$coste_total;
 
-// Normalizamos coste: si no afecta stock, no afectamos coste
-if ($skip_stock) {
-    $coste_efectivo = 0.0;
-} else {
-    // Mantener tu lógica: coste ya viene con coste*cantidad
-    $coste_efectivo = (float)$coste_total;
-}
-
-// 5) Obtener stock actual sólo si vamos a afectar stock
 $stock_actual = null;
+$minimo_stock = null;
+
 if (!$skip_stock) {
-    $stmtProducto = $pdo->prepare("SELECT stock FROM productos WHERE id = :id AND borrado = 0");
+    $stmtProducto = $pdo->prepare("
+        SELECT stock, alerta_stock, minimo_stock, nombre 
+        FROM productos 
+        WHERE id = :id AND borrado = 0
+    ");
     $stmtProducto->execute([':id' => $producto_id]);
     $producto = $stmtProducto->fetch(PDO::FETCH_ASSOC);
     if(!$producto){
         echo json_encode(['status'=>'error', 'message'=>'Producto no encontrado']);
         exit;
     }
-    $stock_actual = (int)$producto['stock'];
+    $stock_actual  = (int)$producto['stock'];
+    $minimo_stock  = (int)$producto['minimo_stock'];
+    $alerta_stock  = (int)$producto['alerta_stock'];
+    $nombre_producto = $producto['nombre'];
 
     if ($cantidad_final <= 0) {
         echo json_encode(['status'=>'error', 'message'=>'Cantidad inválida']);
@@ -90,49 +84,38 @@ if (!$skip_stock) {
     }
 }
 
-// 6) Calcular valor (monto) de la venta
-if ($valor_override !== null) {
-    // Con override: si es la primera parte (afecta stock), que no supere el total teórico
-    if (!$skip_stock) {
-        $max_valor = (int)round($cantidad_final * $precio_unit);
-        if ($valor_override < 0 || $valor_override > $max_valor) {
-            echo json_encode(['status'=>'error', 'message'=>'Valor inválido para el primer pago.']);
-            exit;
-        }
-    }
-    $valor = (int)$valor_override;
-} else {
-    // Sin override: usa cantidad * precio (sólo aplica a venta normal)
-    $valor = (int)round($cantidad_final * $precio_unit);
-}
+// Calcular valor de la venta
+$valor = ($valor_override !== null)
+    ? (($skip_stock || $valor_override >= 0) ? $valor_override : 0)
+    : (int)round($cantidad_final * $precio_unit);
 
-// 7) Registrar transacción
+// ============================================
+// REGISTRAR VENTA
+// ============================================
 $pdo->beginTransaction();
 try {
     $fecha = date('Y-m-d');
     $hora  = date('H:i:s');
 
-    // Insert en ventas
     $stmtInsert = $pdo->prepare("
-        INSERT INTO ventas
-            (caja_id, producto_id, detalle, cantidad, valor, coste, fecha, hora, payment_method, bank)
-        VALUES
-            (:caja_id, :producto_id, :detalle, :cantidad, :valor, :coste, :fecha, :hora, :payment_method, :bank)
+        INSERT INTO ventas 
+        (caja_id, producto_id, detalle, cantidad, valor, coste, fecha, hora, payment_method, bank)
+        VALUES 
+        (:caja_id, :producto_id, :detalle, :cantidad, :valor, :coste, :fecha, :hora, :payment_method, :bank)
     ");
     $stmtInsert->execute([
         ':caja_id'        => $caja_id,
         ':producto_id'    => $producto_id,
         ':detalle'        => $detalle,
-        ':cantidad'       => $cantidad_final,   // 0 si skip_stock
+        ':cantidad'       => $cantidad_final,
         ':valor'          => $valor,
-        ':coste'          => $coste_efectivo,   // 0 si skip_stock
+        ':coste'          => $coste_efectivo,
         ':fecha'          => $fecha,
         ':hora'           => $hora,
         ':payment_method' => $payment_method,
         ':bank'           => $bank
     ]);
 
-    // Descontar stock sólo si corresponde
     if (!$skip_stock) {
         $stmtUpdate = $pdo->prepare("UPDATE productos SET stock = stock - :cantidad WHERE id = :id");
         $stmtUpdate->execute([':cantidad' => $cantidad_final, ':id' => $producto_id]);
@@ -140,19 +123,27 @@ try {
 
     $pdo->commit();
 
-    // 8) Obtener nuevo stock (si afectó), si no, mantener el actual
-    if ($skip_stock) {
-        // Si no hubo afectación, devolvemos el stock vigente (consultamos para consistencia)
-        $stmtNew = $pdo->prepare("SELECT stock FROM productos WHERE id = :id");
-        $stmtNew->execute([':id' => $producto_id]);
-        $nuevo = $stmtNew->fetch(PDO::FETCH_ASSOC);
-        $nuevo_stock = $nuevo ? (int)$nuevo['stock'] : 0;
-    } else {
-        // Si afectó, podemos calcular sin otra query:
-        $nuevo_stock = ($stock_actual !== null) ? ($stock_actual - $cantidad_final) : 0;
+    $nuevo_stock = $skip_stock ? $stock_actual : ($stock_actual - $cantidad_final);
+
+    // ENVIAR ALERTA SOLO SI EL STOCK ACABA DE LLEGAR AL MÍNIMO
+    if (!$skip_stock && $alerta_stock == 1 && $nuevo_stock == $minimo_stock) {
+        $stmtUsuarios = $pdo->query("
+            SELECT nombres, apellidos, dialCode, telefono 
+            FROM usuarios 
+            WHERE recibir_alerta_stock = 1 
+              AND telefono IS NOT NULL
+        ");
+        $usuarios = $stmtUsuarios->fetchAll(PDO::FETCH_ASSOC);
+
+        $mensaje = "⚠️ ALERTA DE STOCK: El producto '$nombre_producto' ha alcanzado el stock mínimo establecido ($nuevo_stock unidades).";
+
+        foreach ($usuarios as $u) {
+            $telefonoCompleto = $u['dialCode'] . $u['telefono'];
+            sendWSAlert($telefonoCompleto, $mensaje);
+        }
     }
 
-    // 9) Total en caja para esta caja
+    // Calcular total en caja
     $stmtTotal = $pdo->prepare("SELECT IFNULL(SUM(valor), 0) AS total FROM ventas WHERE caja_id = :caja_id");
     $stmtTotal->execute([':caja_id' => $caja_id]);
     $rowTotal = $stmtTotal->fetch(PDO::FETCH_ASSOC);
@@ -168,7 +159,7 @@ try {
     $pdo->rollBack();
     echo json_encode(['status'=>'error', 'message'=>'Error al registrar la venta: ' . $e->getMessage()]);
 }
-
 ?>
+
 
 
