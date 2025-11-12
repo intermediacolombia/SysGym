@@ -9,15 +9,6 @@
  * @return void
  */
 // test_alert.php
-require_once __DIR__ . '/../../inc/config.php';
-
-$pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-// Simular producto con stock crítico
-check_stock_alert($pdo, 10, 60, $api_ws);
-
-
 function check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws) {
     try {
         // Verificar si el producto tiene alerta activada
@@ -38,7 +29,7 @@ function check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws) {
             return; // no enviar nada
         }
 
-		echo ("🧾 Producto con alerta activada: {$productoAlert['nombre']} (Stock: $nuevo_stock, Mínimo: {$productoAlert['minimo_stock']})");
+		
 
 		
         $nombre_producto = $productoAlert['nombre'];
@@ -53,18 +44,6 @@ function check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws) {
               AND telefono != ''
         ");
         $usuarios = $stmtUsuarios->fetchAll(PDO::FETCH_ASSOC);
-
-		
-		// Log de usuarios encontrados
-if (empty($usuarios)) {
-    error_log("❌ No hay usuarios con alertas activadas o sin número.");
-} else {
-    foreach ($usuarios as $u) {
-        $nombreCompleto = $u['nombres'] . ' ' . $u['apellidos'];
-        $telefono = $u['dialCode'] . $u['telefono'];
-        error_log("✅ Usuario para alerta: $nombreCompleto - Tel: $telefono");
-    }
-}
 		
         // Si no hay usuarios para notificar, salir
         if (empty($usuarios)) {
