@@ -14,10 +14,13 @@ $id       = intval($_POST['id']);
 $nombre   = trim($_POST['nombre'] ?? '');
 $apellido = trim($_POST['apellido'] ?? '');
 $correo   = trim($_POST['correo'] ?? '');
-$rol      = intval($_POST['rol'] ?? 0); // Convertir a entero
+$rol      = intval($_POST['rol'] ?? 0);
 $estado   = trim($_POST['estado'] ?? '');
 $password = $_POST['password'] ?? '';
 $confirm  = $_POST['confirm_password'] ?? '';
+$dialcode = trim($_POST['dialcode'] ?? '');
+$telefono = trim($_POST['telefono'] ?? '');
+$recibe_alertas_stock = isset($_POST['recibe_alertas_stock']) ? 1 : 0;
 
 // Validar rol
 if ($rol <= 0) {
@@ -41,7 +44,9 @@ try {
         exit();
     }
 
-    // Si se ingresa nueva contraseña, verificar confirmación
+    // ======================================================
+    // Construir consulta SQL dinámica (con o sin contraseña)
+    // ======================================================
     if (!empty($password)) {
         if ($password !== $confirm) {
             $_SESSION['error'] = "Las contraseñas no coinciden.";
@@ -49,51 +54,86 @@ try {
             exit();
         }
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-        $sql = "UPDATE usuarios SET nombre = :nombre, apellido = :apellido, correo = :correo, rol_id = :rol_id, estado = :estado, password = :password WHERE id = :id";
+        $sql = "UPDATE usuarios SET 
+                    nombre = :nombre,
+                    apellido = :apellido,
+                    correo = :correo,
+                    rol_id = :rol_id,
+                    estado = :estado,
+                    dialcode = :dialcode,
+                    telefono = :telefono,
+                    recibe_alertas_stock = :recibe_alertas_stock,
+                    password = :password
+                WHERE id = :id";
+
         $params = [
             ':nombre'   => $nombre,
             ':apellido' => $apellido,
             ':correo'   => $correo,
             ':rol_id'   => $rol,
             ':estado'   => $estado,
+            ':dialcode' => $dialcode,
+            ':telefono' => $telefono,
+            ':recibe_alertas_stock' => $recibe_alertas_stock,
             ':password' => $passwordHash,
             ':id'       => $id
         ];
     } else {
-        $sql = "UPDATE usuarios SET nombre = :nombre, apellido = :apellido, correo = :correo, rol_id = :rol_id, estado = :estado WHERE id = :id";
+        $sql = "UPDATE usuarios SET 
+                    nombre = :nombre,
+                    apellido = :apellido,
+                    correo = :correo,
+                    rol_id = :rol_id,
+                    estado = :estado,
+                    dialcode = :dialcode,
+                    telefono = :telefono,
+                    recibe_alertas_stock = :recibe_alertas_stock
+                WHERE id = :id";
+
         $params = [
             ':nombre'   => $nombre,
             ':apellido' => $apellido,
             ':correo'   => $correo,
             ':rol_id'   => $rol,
             ':estado'   => $estado,
+            ':dialcode' => $dialcode,
+            ':telefono' => $telefono,
+            ':recibe_alertas_stock' => $recibe_alertas_stock,
             ':id'       => $id
         ];
     }
 
+    // Ejecutar actualización
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
 
-	// LOGS
-		require_once __DIR__ . '/../inc/log_action.php';
-		$desc = json_encode([
-					'id'       => $id,
-					'nombre'   => $nombre,
-                    'apellido' => $apellido,
-                    'correo'   => $correo,
-                    'rol_id'   => $rol,
-                    'estado'   => $estado
-		], JSON_UNESCAPED_UNICODE);
-		log_action('Edición de Usuarios', $desc, 'Usuarios');
-		// END LOGS	
-	
+    // ======================================================
+    // Registrar LOG
+    // ======================================================
+    require_once __DIR__ . '/../inc/log_action.php';
+    $desc = json_encode([
+        'id'       => $id,
+        'nombre'   => $nombre,
+        'apellido' => $apellido,
+        'correo'   => $correo,
+        'rol_id'   => $rol,
+        'estado'   => $estado,
+        'dialcode' => $dialcode,
+        'telefono' => $telefono,
+        'recibe_alertas_stock' => $recibe_alertas_stock
+    ], JSON_UNESCAPED_UNICODE);
+    log_action('Edición de Usuario', $desc, 'Usuarios');
+    // END LOGS
+
     $_SESSION['success'] = "Usuario actualizado correctamente.";
     header("Location: $url/admin/users");
     exit();
+
 } catch (PDOException $e) {
     $_SESSION['error'] = "Error al actualizar: " . $e->getMessage();
     header("Location: $url/admin/users");
     exit();
 }
 ?>
+
 

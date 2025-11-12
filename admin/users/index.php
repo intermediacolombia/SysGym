@@ -119,13 +119,16 @@ try {
           $stmt = $pdo->query($sql);
           while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
               echo '<tr class="user-row" 
-                data-id="' . $row['id'] . '"
-                data-username="' . htmlspecialchars($row['username']) . '"
-                data-nombre="' . htmlspecialchars($row['nombre']) . '"
-                data-apellido="' . htmlspecialchars($row['apellido']) . '"
-                data-correo="' . htmlspecialchars($row['correo']) . '"
-                data-rol="' . htmlspecialchars($row['rol_id']) . '"
-                data-estado="' . htmlspecialchars($row['estado']) . '">';
+					  data-id="' . $row['id'] . '"
+					  data-username="' . htmlspecialchars($row['username']) . '"
+					  data-nombre="' . htmlspecialchars($row['nombre']) . '"
+					  data-apellido="' . htmlspecialchars($row['apellido']) . '"
+					  data-correo="' . htmlspecialchars($row['correo']) . '"
+					  data-rol="' . htmlspecialchars($row['rol_id']) . '"
+					  data-estado="' . htmlspecialchars($row['estado']) . '"
+					  data-dialcode="' . htmlspecialchars($row['dialcode']) . '"
+					  data-telefono="' . htmlspecialchars($row['telefono']) . '"
+					  data-recibe_alertas_stock="' . (int)$row['recibe_alertas_stock'] . '">';
               echo '<td>' . htmlspecialchars($row['username']) . '</td>';
               echo '<td>' . htmlspecialchars($row['nombre']) . '</td>';
               echo '<td>' . htmlspecialchars($row['apellido']) . '</td>';
@@ -139,6 +142,7 @@ try {
                   echo '<span class="badge badge-danger">Inactivo</span>';
               }
               echo '</td>';
+			  echo '<td>' . htmlspecialchars($row['dialcode'] . ' ' . $row['telefono']) . '</td>';
               // Botón de borrar
               echo '<td class="no-click text-center"><button type="button" class="btn btn-sm btn-outline-danger delete-btn" data-id="' . $row['id'] . '"><i class="fas fa-trash"></i></button></td>';
               echo '</tr>';
