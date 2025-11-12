@@ -33,7 +33,7 @@ function check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws) {
         if (
             !$productoAlert ||
             (int)$productoAlert['alerta_stock'] !== 1 ||
-            $nuevo_stock > (int)$productoAlert['minimo_stock']
+            $nuevo_stock == (int)$productoAlert['minimo_stock']
         ) {
             return;
         }
