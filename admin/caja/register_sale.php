@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
-require_once __DIR__ . '/../../../whatsapp/send_ws_alert.php'; // <- Función para enviar WhatsApp
+
 
 header('Content-Type: application/json');
 
@@ -134,7 +134,7 @@ try {
 	//Alertas
 	
 	if (!$skip_stock && $alerta_stock == 1 && $nuevo_stock == $minimo_stock) {
-    require_once __DIR__ . '/../whatsapp/send_ws_alert.php';
+    require_once __DIR__ . '/../../whatsapp/send_ws_alert.php'; // <- Función para enviar WhatsApp
 
     $stmtUsuarios = $pdo->query("SELECT nombres, apellidos, dialCode, telefono FROM usuarios WHERE recibir_alerta_stock = 1 AND telefono IS NOT NULL");
     $usuarios = $stmtUsuarios->fetchAll(PDO::FETCH_ASSOC);
