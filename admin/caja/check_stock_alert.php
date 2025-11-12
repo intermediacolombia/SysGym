@@ -48,7 +48,7 @@ function check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws) {
         $stmtUsuarios = $pdo->query("
             SELECT dialCode, telefono 
             FROM usuarios 
-            WHERE recibe_alerta_stock = 1 
+            WHERE recibe_alertas_stock = 1 
               AND telefono IS NOT NULL 
               AND telefono != ''
         ");
