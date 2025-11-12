@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
-require_once __DIR__ . '/../../whatsapp/send_ws_alert.php'; // <- Función para enviar WhatsApp
+
 
 header('Content-Type: application/json');
 
@@ -125,24 +125,27 @@ try {
 
     $nuevo_stock = $skip_stock ? $stock_actual : ($stock_actual - $cantidad_final);
 
-    // ENVIAR ALERTA SOLO SI EL STOCK ACABA DE LLEGAR AL MÍNIMO
-    if (!$skip_stock && $alerta_stock == 1 && $nuevo_stock == $minimo_stock) {
-        $stmtUsuarios = $pdo->query("
-            SELECT nombres, apellidos, dialCode, telefono 
-            FROM usuarios 
-            WHERE recibir_alerta_stock = 1 
-              AND telefono IS NOT NULL
-        ");
-        $usuarios = $stmtUsuarios->fetchAll(PDO::FETCH_ASSOC);
+    
+	//Alertas
+	
+	if (!$skip_stock && $alerta_stock == 1 && $nuevo_stock == $minimo_stock) {
+    require_once __DIR__ . '/../whatsapp/send_ws_alert.php';
 
-        $mensaje = "⚠️ ALERTA DE STOCK: El producto '$nombre_producto' ha alcanzado el stock mínimo establecido ($nuevo_stock unidades).";
+    $stmtUsuarios = $pdo->query("SELECT nombres, apellidos, dialCode, telefono FROM usuarios WHERE recibir_alerta_stock = 1 AND telefono IS NOT NULL");
+    $usuarios = $stmtUsuarios->fetchAll(PDO::FETCH_ASSOC);
 
-        foreach ($usuarios as $u) {
-            $telefonoCompleto = $u['dialCode'] . $u['telefono'];
-            sendWSAlert($telefonoCompleto, $mensaje);
-        }
+    $mensaje = "⚠️ ALERTA DE STOCK: El producto '$nombre_producto' ha alcanzado el stock mínimo establecido ($nuevo_stock unidades).";
+
+    foreach ($usuarios as $u) {
+        $telefonoCompleto = ltrim($u['dialCode'], '+') . $u['telefono'];
+        sendWSAlert($telefonoCompleto, $mensaje);
     }
+}
 
+	//fin Alertas
+	
+	
+	
     // Calcular total en caja
     $stmtTotal = $pdo->prepare("SELECT IFNULL(SUM(valor), 0) AS total FROM ventas WHERE caja_id = :caja_id");
     $stmtTotal->execute([':caja_id' => $caja_id]);

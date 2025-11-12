@@ -2,18 +2,17 @@
 /**
  * whatsapp/send_ws_alert.php
  *
- * Envía un mensaje fijo de alerta de bajo stock a un número específico (formato internacional).
+ * Envía un mensaje fijo de alerta de bajo stock a un número específico (formato internacional sin +).
  *
  * Requiere:
- *   $telefono (string)  → número con código de país (ej: "573001112233")
- *   $mensaje  (string)  → contenido del mensaje fijo
+ *   sendWSAlert($telefono, $mensaje)
  */
 
 require_once __DIR__ . '/../inc/config.php';
-require_once __DIR__ . '/save_failed_ws.php'; // para guardar fallidos si falla el envío
+require_once __DIR__ . '/save_failed_ws.php';
 
 function sendWSAlert($telefono, $mensaje) {
-    global $api_ws; // tu API Key desde config.php
+    global $api_ws; // tu API Key
 
     $urlEndpoint = 'https://api.360messenger.com/v2/sendMessage';
 
@@ -52,5 +51,5 @@ function sendWSAlert($telefono, $mensaje) {
 
     return $successFlag;
 }
-?>
+
 
