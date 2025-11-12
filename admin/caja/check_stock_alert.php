@@ -8,6 +8,8 @@
  * @param string $api_ws - Token de la API de WhatsApp
  * @return void
  */
+$producto_id = 10;
+
 function check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws) {
     try {
         // Verificar si el producto tiene alerta activada
