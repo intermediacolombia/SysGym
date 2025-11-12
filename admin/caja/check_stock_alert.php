@@ -9,7 +9,7 @@
  * @return void
  */
 // test_alert.php
-function check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws) {
+function check_stock_alert($pdo, $producto_id, $stock_anterior, $nuevo_stock, $api_ws) {
     try {
         // Verificar si el producto tiene alerta activada
         $stmtAlert = $pdo->prepare("
@@ -22,12 +22,21 @@ function check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws) {
 
         // 🚫 Validaciones: salir si no aplica alerta
         if (
-            !$productoAlert ||                                      // no existe el producto
-            (int)$productoAlert['alerta_stock'] !== 1 ||             // alerta desactivada
-            $nuevo_stock != (int)$productoAlert['minimo_stock']      // aún no llega justo al mínimo
-        ) {
-            return; // no enviar nada
-        }
+				!$productoAlert ||                                      
+				(int)$productoAlert['alerta_stock'] !== 1
+			) {
+				return;
+			}
+
+			$minimo = (int)$productoAlert['minimo_stock'];
+
+			// Solo enviar si estaba por encima y ahora está igual o por debajo del mínimo
+			if ($stock_anterior > $minimo && $nuevo_stock <= $minimo) {
+				// Enviar alerta (continúa)
+			} else {
+				return;
+			}
+
 
 		
 
