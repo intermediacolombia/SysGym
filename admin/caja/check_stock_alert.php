@@ -38,7 +38,7 @@ function check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws) {
             return; // no enviar nada
         }
 
-		error_log("🧾 Producto con alerta activada: {$productoAlert['nombre']} (Stock: $nuevo_stock, Mínimo: {$productoAlert['minimo_stock']})");
+		echo ("🧾 Producto con alerta activada: {$productoAlert['nombre']} (Stock: $nuevo_stock, Mínimo: {$productoAlert['minimo_stock']})");
 
 		
         $nombre_producto = $productoAlert['nombre'];
