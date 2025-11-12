@@ -2,7 +2,8 @@
 
 require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
-require_once __DIR__ . '/check_stock_alert.php'; 
+require_once __DIR__ . '/check_stock_alert.php';
+require_once __DIR__ . '/../../whatsapp/save_failed_ws.php';
 
 header('Content-Type: application/json');
 

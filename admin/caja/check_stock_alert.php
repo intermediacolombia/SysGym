@@ -16,7 +16,7 @@ function check_stock_alert($pdo, $producto_id, $stock_anterior, $nuevo_stock, $a
 	
     try {
 		
-		require_once __DIR__ . '/../../whatsapp/save_failed_ws.php';
+		
         // Verificar si el producto tiene alerta activada
         $stmtAlert = $pdo->prepare("
             SELECT nombre, alerta_stock, minimo_stock 
