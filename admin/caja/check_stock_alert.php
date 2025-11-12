@@ -15,7 +15,7 @@ $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass)
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // Simular producto con stock crítico
-check_stock_alert($pdo, 10, 2, $api_ws);
+check_stock_alert($pdo, 10, 60, $api_ws);
 
 
 function check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws) {
