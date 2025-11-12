@@ -419,80 +419,94 @@ $(document).ready(function() {
   // ==========================================================
   let itiEdit; // global para editar
 
+// ==========================================================
+// ABRIR MODAL DE EDICIÓN AL HACER CLICK EN UNA FILA
+// ==========================================================
+$('#formularios tbody').on('click', 'tr.user-row', function(e) {
+  if ($(e.target).closest('.delete-btn').length > 0) return;
+
+  var id = $(this).data('id');
+  var username = $(this).data('username');
+  var nombre = $(this).data('nombre');
+  var apellido = $(this).data('apellido');
+  var correo = $(this).data('correo');
+  var rol = $(this).data('rol');
+  var estado = $(this).data('estado');
+  var dialcode = $(this).data('dialcode');
+  var telefono = $(this).data('telefono');
+  var recibe_alertas_stock = $(this).data('recibe_alertas_stock');
+
+  // Rellenar campos base
+  $('#editId').val(id);
+  $('#editUsername').val(username);
+  $('#editNombre').val(nombre);
+  $('#editApellido').val(apellido);
+  $('#editCorreo').val(correo);
+  $('#editRol').val(rol);
+  $('#editEstado').val(estado);
+  $('#editRecibeAlertas').prop('checked', recibe_alertas_stock == 1);
+
+  // Limpiar contraseñas
+  $('#editPassword, #editConfirmPassword').val('');
+  $('#editPasswordHelp').hide();
+
+  // Modal visible primero
+  $('#editModal').modal('show');
+
   // ==========================================================
-  // ABRIR MODAL DE EDICIÓN
+  // CONFIGURAR INTL-TEL-INPUT EN EDICIÓN
   // ==========================================================
-  $('#formularios tbody').on('click', 'tr.user-row', function(e) {
-    if ($(e.target).closest('.delete-btn').length > 0) return;
+  const editInput = document.querySelector("#editTelefono");
+  if (!editInput || !window.intlTelInput) return;
 
-    var id = $(this).data('id');
-    var username = $(this).data('username');
-    var nombre = $(this).data('nombre');
-    var apellido = $(this).data('apellido');
-    var correo = $(this).data('correo');
-    var rol = $(this).data('rol');
-    var estado = $(this).data('estado');
-    var dialcode = $(this).data('dialcode');
-    var telefono = $(this).data('telefono');
-    var recibe_alertas_stock = $(this).data('recibe_alertas_stock');
+  // Limpiar contenido previo del input
+  editInput.value = "";
 
-    // Rellenar campos
-    $('#editId').val(id);
-    $('#editUsername').val(username);
-    $('#editNombre').val(nombre);
-    $('#editApellido').val(apellido);
-    $('#editCorreo').val(correo);
-    $('#editRol').val(rol);
-    $('#editEstado').val(estado);
-    $('#editTelefono').val(telefono);
-    $('#editDialcode').val(dialcode);
-    $('#editRecibeAlertas').prop('checked', recibe_alertas_stock == 1);
-
-    // Reinicializar intlTelInput SOLO cuando esté disponible
-    const editInput = document.querySelector("#editTelefono");
-    if (window.intlTelInput && editInput) {
-      try {
-        if (itiEdit && typeof itiEdit.destroy === 'function') itiEdit.destroy();
-
-        itiEdit = window.intlTelInput(editInput, {
-          initialCountry: "auto",
-          preferredCountries: ["co", "us", "es"],
-          separateDialCode: true,
-          nationalMode: false,
-          geoIpLookup: function(callback) { callback('co'); }
-        });
-
-        editInput.addEventListener('countrychange', function() {
-          $('#editDialcode').val('+' + itiEdit.getSelectedCountryData().dialCode);
-        });
-
-        // Ajustar país y número correctamente
-if (itiEdit && typeof itiEdit.getCountryData === 'function') {
-  // Detectar país según dialcode guardado
-  const country = itiEdit.getCountryData().find(c => "+" + c.dialCode === dialcode);
-  if (country) {
-    itiEdit.setCountry(country.iso2);
-  } else {
-    itiEdit.setCountry("co");
+  // Destruir instancia previa si existe
+  if (window.itiEdit && typeof window.itiEdit.destroy === 'function') {
+    window.itiEdit.destroy();
   }
 
-  // Importante: asignar número después de setCountry
-  setTimeout(() => {
-    itiEdit.setNumber(dialcode + telefono);
-  }, 100);
+  // Crear nueva instancia
+  window.itiEdit = window.intlTelInput(editInput, {
+    initialCountry: "auto",
+    preferredCountries: ["co", "us", "es"],
+    separateDialCode: true,
+    nationalMode: false,
+    geoIpLookup: function(callback) {
+      callback('co');
+    }
+  });
 
-  // Actualizar hidden con el dialcode actual
-  $('#editDialcode').val('+' + itiEdit.getSelectedCountryData().dialCode);
-}
+  // Cuando cambie el país, actualizar el hidden
+  editInput.addEventListener('countrychange', function() {
+    const data = window.itiEdit.getSelectedCountryData();
+    $('#editDialcode').val('+' + data.dialCode);
+  });
 
-      } catch (err) {
-        console.warn('intlTelInput init error:', err);
+  // Esperar a que el plugin termine de cargar para setear país y número
+  setTimeout(function() {
+    if (dialcode && typeof window.itiEdit.getCountryData === 'function') {
+      const country = window.itiEdit.getCountryData().find(c => "+" + c.dialCode === dialcode);
+      if (country) {
+        window.itiEdit.setCountry(country.iso2);
+      } else {
+        window.itiEdit.setCountry("co");
       }
+    } else {
+      window.itiEdit.setCountry("co");
     }
 
-    // Mostrar modal
-    $('#editModal').modal('show');
-  });
+    // Establecer el número completo
+    if (telefono) {
+      window.itiEdit.setNumber(dialcode + telefono);
+    }
+
+    // Actualizar hidden
+    const data = window.itiEdit.getSelectedCountryData();
+    $('#editDialcode').val('+' + data.dialCode);
+  }, 250);
+});
 
   // ==========================================================
   // CERRAR MODAL CORRECTAMENTE
