@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
+require_once __DIR__ . '/check_stock_alert.php'; 
 
 header('Content-Type: application/json');
 
@@ -139,62 +140,6 @@ try {
     }
 
     $pdo->commit();
-	
-	
-	// 10) Verificar alerta de stock y enviar WhatsApp (si aplica)
-$stmtAlert = $pdo->prepare("
-    SELECT nombre, alerta_stock, minimo_stock 
-    FROM productos 
-    WHERE id = :id AND borrado = 0
-");
-$stmtAlert->execute([':id' => $producto_id]);
-$productoAlert = $stmtAlert->fetch(PDO::FETCH_ASSOC);
-
-if (
-    !$skip_stock &&
-    $productoAlert &&
-    (int)$productoAlert['alerta_stock'] === 1 &&
-    $nuevo_stock === (int)$productoAlert['minimo_stock']
-) {
-    $nombre_producto = $productoAlert['nombre'];
-
-    // Obtener usuarios que deben recibir alerta
-    $stmtUsuarios = $pdo->query("
-        SELECT dialCode, telefono 
-        FROM usuarios 
-        WHERE recibir_alerta_stock = 1 AND telefono IS NOT NULL
-    ");
-    $usuarios = $stmtUsuarios->fetchAll(PDO::FETCH_ASSOC);
-
-    $mensaje = "⚠️ ALERTA DE STOCK: El producto '$nombre_producto' ha llegado al stock mínimo ($nuevo_stock unidades).";
-
-    foreach ($usuarios as $u) {
-        $telefonoCompleto = $u['dialCode'] . $u['telefono'];
-
-        // Enviar vía API 360Messenger
-        $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL => 'https://api.360messenger.com/v2/sendMessage',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => json_encode([
-                'phonenumber' => $telefonoCompleto,
-                'text' => $mensaje
-            ], JSON_UNESCAPED_UNICODE),
-            CURLOPT_HTTPHEADER => [
-                'Authorization: Bearer ' . $api_ws,
-                'Content-Type: application/json',
-                'Accept: application/json'
-            ]
-        ]);
-        $response = curl_exec($ch);
-        curl_close($ch);
-    }
-}
-
-	
-	
-	
 
     // 8) Obtener nuevo stock (si afectó), si no, mantener el actual
     if ($skip_stock) {
@@ -206,6 +151,11 @@ if (
     } else {
         // Si afectó, podemos calcular sin otra query:
         $nuevo_stock = ($stock_actual !== null) ? ($stock_actual - $cantidad_final) : 0;
+    }
+	
+	 // Verificar y enviar alerta de stock (solo si afectó stock)
+    if (!$skip_stock) {
+        check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws);
     }
 
     // 9) Total en caja para esta caja
