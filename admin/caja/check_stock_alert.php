@@ -55,7 +55,7 @@ function check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws) {
         // Enviar mensaje a cada usuario
         foreach ($usuarios as $u) {
     $telefonoCompleto = $u['dialCode'] . $u['telefono'];
-    $nombreUsuario = trim($u['nombres'] . ' ' . $u['apellidos']);
+    $nombreUsuario = $u['nombre'];
 
     $mensaje = "Hola $nombreUsuario,\n\n"
              . "⚠️ ALERTA DE STOCK: El producto *$nombre_producto* ha llegado al stock mínimo establecido.\n"
