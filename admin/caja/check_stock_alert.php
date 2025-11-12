@@ -8,7 +8,7 @@
  * @param string $api_ws - Token de la API de WhatsApp
  * @return void
  */
-// test_alert.php
+
 function check_stock_alert($pdo, $producto_id, $stock_anterior, $nuevo_stock, $api_ws) {
     try {
         // Verificar si el producto tiene alerta activada
@@ -19,28 +19,20 @@ function check_stock_alert($pdo, $producto_id, $stock_anterior, $nuevo_stock, $a
         ");
         $stmtAlert->execute([':id' => $producto_id]);
         $productoAlert = $stmtAlert->fetch(PDO::FETCH_ASSOC);
-
-        // 🚫 Validaciones: salir si no aplica alerta
+        // Validaciones: salir si no aplica alerta
         if (
 				!$productoAlert ||                                      
 				(int)$productoAlert['alerta_stock'] !== 1
 			) {
 				return;
-			}
-
-			$minimo = (int)$productoAlert['minimo_stock'];
-
+		}
+		$minimo = (int)$productoAlert['minimo_stock'];
 			// Solo enviar si estaba por encima y ahora está igual o por debajo del mínimo
 			if ($stock_anterior > $minimo && $nuevo_stock <= $minimo) {
 				// Enviar alerta (continúa)
 			} else {
 				return;
-			}
-
-
-		
-
-		
+			}		
         $nombre_producto = $productoAlert['nombre'];
         $minimo = (int)$productoAlert['minimo_stock'];
 
@@ -52,30 +44,21 @@ function check_stock_alert($pdo, $producto_id, $stock_anterior, $nuevo_stock, $a
               AND telefono IS NOT NULL 
               AND telefono != ''
         ");
-        $usuarios = $stmtUsuarios->fetchAll(PDO::FETCH_ASSOC);
-		
+        $usuarios = $stmtUsuarios->fetchAll(PDO::FETCH_ASSOC);		
         // Si no hay usuarios para notificar, salir
         if (empty($usuarios)) {
             return;
         }
-
-        
-
         // Enviar mensaje a cada usuario
         foreach ($usuarios as $u) {
     $telefonoCompleto = $u['dialCode'] . $u['telefono'];
     $nombreUsuario = $u['nombre'];
 
-    $mensaje = "Hola $nombreUsuario,\n\n"
+    $mensaje = "Hola *$nombreUsuario*,\n"
              . "⚠️ ALERTA DE STOCK: El producto *$nombre_producto* ha llegado al stock mínimo establecido.\n"
              . "Stock actual: *$nuevo_stock* unidades (Mínimo: $minimo).";
-
     // Log previo
     error_log("📢 Enviando alerta de stock a $telefonoCompleto → $mensaje");
-
-    
-
-
             // Enviar vía API 360Messenger
             $ch = curl_init();
             curl_setopt_array($ch, [
@@ -92,20 +75,16 @@ function check_stock_alert($pdo, $producto_id, $stock_anterior, $nuevo_stock, $a
                     'Accept: application/json'
                 ],
                 CURLOPT_TIMEOUT => 10
-            ]);
-            
+            ]);            
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $error    = curl_error($ch);
             curl_close($ch);
-
-            // Registrar en log para debugging
+			// Registrar en log para debugging
             error_log("✅ HTTP: $httpCode | 📞 $telefonoCompleto | RESPUESTA: $response | ERROR: $error");
-        }
-        
+        }        
     } catch (Exception $e) {
         error_log("❌ Error en check_stock_alert: " . $e->getMessage());
     }
 }
-
 ?>
