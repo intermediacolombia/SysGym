@@ -174,6 +174,15 @@ try {
             <input type="text" class="form-control" id="newApellido" name="apellido" required>
             <div class="invalid-feedback">Ingrese su apellido.</div>
           </div>
+			
+			<input type="hidden" id="newDialcode" name="dialcode" value="+57">
+<input type="tel" class="form-control" id="newTelefono" name="telefono">
+<div class="form-check form-switch mt-2">
+  <input class="form-check-input" type="checkbox" id="newRecibeAlertas" name="recibe_alertas_stock">
+  <label class="form-check-label" for="newRecibeAlertas">Recibe notificaciones de pocos productos en stock</label>
+</div>
+
+			
           <div class="form-group">
             <label for="newCorreo">Correo</label>
             <input type="email" class="form-control" id="newCorreo" name="correo" required>
@@ -282,6 +291,16 @@ try {
            <input type="text" class="form-control" id="editApellido" name="apellido" required>
            <div class="invalid-feedback">Ingrese el apellido.</div>
          </div>
+		   
+		   <input type="hidden" id="editDialcode" name="dialcode" value="+57">
+<input type="tel" class="form-control" id="editTelefono" name="telefono">
+<div class="form-check form-switch mt-2">
+  <input class="form-check-input" type="checkbox" id="editRecibeAlertas" name="recibe_alertas_stock">
+  <label class="form-check-label" for="editRecibeAlertas">Recibe notificaciones de pocos productos en stock</label>
+</div>
+
+				
+		   
          <div class="form-group">
            <label for="editCorreo">Correo</label>
            <input type="email" class="form-control" id="editCorreo" name="correo" required>
@@ -355,8 +374,6 @@ try {
 
 <?php include('../inc/menu-footer.php'); ?>
   
-
-
 <script>
 $(document).ready(function() {
   // Inicializar DataTables
@@ -365,12 +382,13 @@ $(document).ready(function() {
     "order": [[0, "asc"]],
     "pageLength": 50
   });
-  
-  // Al hacer clic en una fila (excepto en elementos dentro de .delete-btn), abrir el modal de edición
+
+  // ==========================================================
+  // ABRIR MODAL DE EDICIÓN AL HACER CLICK EN UNA FILA
+  // ==========================================================
   $('#formularios tbody').on('click', 'tr.user-row', function(e) {
-    if ($(e.target).closest('.delete-btn').length > 0) {
-      return;
-    }
+    if ($(e.target).closest('.delete-btn').length > 0) return;
+
     var id = $(this).data('id');
     var username = $(this).data('username');
     var nombre = $(this).data('nombre');
@@ -378,6 +396,9 @@ $(document).ready(function() {
     var correo = $(this).data('correo');
     var rol = $(this).data('rol');
     var estado = $(this).data('estado');
+    var dialcode = $(this).data('dialcode');
+    var telefono = $(this).data('telefono');
+    var recibe_alertas_stock = $(this).data('recibe_alertas_stock');
 
     // Rellenar el modal de edición
     $('#editId').val(id);
@@ -387,8 +408,16 @@ $(document).ready(function() {
     $('#editCorreo').val(correo);
     $('#editRol').val(rol);
     $('#editEstado').val(estado);
+    $('#editDialcode').val(dialcode);
+    $('#editTelefono').val(telefono);
 
-    // Limpiar campos de contraseña y ocultar mensaje de error
+    if (recibe_alertas_stock == 1) {
+      $('#editRecibeAlertas').prop('checked', true);
+    } else {
+      $('#editRecibeAlertas').prop('checked', false);
+    }
+
+    // Limpiar contraseñas
     $('#editPassword').val('');
     $('#editConfirmPassword').val('');
     $('#editPasswordHelp').hide();
@@ -396,15 +425,16 @@ $(document).ready(function() {
     // Abrir modal
     $('#editModal').modal('show');
   });
-	
-	// Evitar que el clic en la X o en "Cancelar" se propague y reabra el modal
-$('#editModal .close, #editModal .btn-secondary').on('click', function(e) {
-  e.stopPropagation();
-  $('#editModal').modal('hide');
-});
 
-  
-  // Alternar visibilidad de contraseñas en ambos modales
+  // Cerrar modal correctamente
+  $('#editModal .close, #editModal .btn-secondary').on('click', function(e) {
+    e.stopPropagation();
+    $('#editModal').modal('hide');
+  });
+
+  // ==========================================================
+  // TOGGLE DE CONTRASEÑA (OJITO)
+  // ==========================================================
   $('.toggle-password').on('click', function() {
     var targetSelector = $(this).data('target');
     var targetInput = $(targetSelector);
@@ -416,8 +446,10 @@ $('#editModal .close, #editModal .btn-secondary').on('click', function(e) {
       $(this).html('<i class="fas fa-eye"></i>');
     }
   });
-  
-  // Validar en tiempo real que las contraseñas coincidan en el modal de nuevo usuario
+
+  // ==========================================================
+  // VALIDAR CONTRASEÑAS NUEVO USUARIO
+  // ==========================================================
   $('#newConfirmPassword').on('input', function() {
     var pass = $('#newPassword').val();
     if(pass !== $(this).val()){
@@ -427,30 +459,38 @@ $('#editModal .close, #editModal .btn-secondary').on('click', function(e) {
     }
     updateNewRegisterButton();
   });
-  
-  // Función para validar que los campos del modal de nuevo usuario estén completos y correctos
+
+  // ==========================================================
+  // HABILITAR / DESHABILITAR BOTÓN REGISTRAR NUEVO USUARIO
+  // ==========================================================
   function updateNewRegisterButton() {
     var isValid = true;
-    var requiredFields = ['newNombre', 'newApellido', 'newCorreo', 'newUsername', 'newPassword', 'newRol', 'newEstado'];
+    var requiredFields = [
+      'newNombre', 'newApellido', 'newCorreo', 'newUsername',
+      'newPassword', 'newRol', 'newEstado', 'newTelefono'
+    ];
+
     requiredFields.forEach(function(id) {
       var elem = document.getElementById(id);
-      if (!elem.value.trim()) {
+      if (!elem || !elem.value.trim()) {
         isValid = false;
       }
     });
+
     // Validar confirmación de contraseña
-    if (!document.getElementById('newConfirmPassword').disabled) {
-      if (!document.getElementById('newConfirmPassword').value || ($('#newPassword').val() !== $('#newConfirmPassword').val())) {
-        isValid = false;
-      }
+    if ($('#newPassword').val() !== $('#newConfirmPassword').val()) {
+      isValid = false;
     }
+
     document.getElementById('newRegisterBtn').disabled = !isValid;
   }
-  
-  // Añadir listeners de "input" y "change" para el modal de nuevo usuario
+
+  // Eventos de entrada para validar nuevo usuario
   $('#newUserModal input, #newUserModal select').on('input change', updateNewRegisterButton);
-  
-  // Evento para el botón de borrado con confirmación SweetAlert
+
+  // ==========================================================
+  // CONFIRMACIÓN DE ELIMINACIÓN CON SWEETALERT
+  // ==========================================================
   $('#formularios').on('click', '.delete-btn', function(e) {
     e.stopPropagation();
     var id = $(this).data('id');
@@ -467,8 +507,10 @@ $('#editModal .close, #editModal .btn-secondary').on('click', function(e) {
       }
     });
   });
-  
-  // Evento de envío exclusivo para el formulario de edición
+
+  // ==========================================================
+  // VALIDAR FORMULARIO DE EDICIÓN (CONTRASEÑAS)
+  // ==========================================================
   $('#editModal form').on('submit', function(event) {
     var pass = $('#editPassword').val();
     var conf = $('#editConfirmPassword').val();
@@ -478,9 +520,48 @@ $('#editModal .close, #editModal .btn-secondary').on('click', function(e) {
       $('#editPasswordHelp').show();
       return false;
     }
-    // Si es válido, el formulario se enviará a update_user.php y la página se redirigirá.
   });
+
+  // ==========================================================
+  // CONFIGURAR INTL-TEL-INPUT (NUEVO USUARIO)
+  // ==========================================================
+  const newInput = document.querySelector("#newTelefono");
+  if (newInput) {
+    const iti = window.intlTelInput(newInput, {
+      initialCountry: "co",
+      preferredCountries: ["co", "us", "es"],
+      separateDialCode: true,
+      nationalMode: false,
+    });
+    newInput.addEventListener('countrychange', function() {
+      document.querySelector('#newDialcode').value = '+' + iti.getSelectedCountryData().dialCode;
+    });
+    document.querySelector('#newDialcode').value = '+' + iti.getSelectedCountryData().dialCode;
+  }
+
+  // ==========================================================
+  // CONFIGURAR INTL-TEL-INPUT (EDITAR USUARIO)
+  // ==========================================================
+  const editInput = document.querySelector("#editTelefono");
+  if (editInput) {
+    const itiEdit = window.intlTelInput(editInput, {
+      initialCountry: "co",
+      preferredCountries: ["co", "us", "es"],
+      separateDialCode: true,
+      nationalMode: false,
+    });
+    editInput.addEventListener('countrychange', function() {
+      document.querySelector('#editDialcode').value = '+' + itiEdit.getSelectedCountryData().dialCode;
+    });
+  }
+
 });
 </script>
+
+
+
+	
+	
+	
 </body>
 </html>
