@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
-
+require_once __DIR__ . '/../../whatsapp/send_ws_alert.php'; // <- Función para enviar WhatsApp
 
 header('Content-Type: application/json');
 
