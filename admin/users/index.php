@@ -94,9 +94,12 @@ try {
         <th>Nombre de Usuario</th>
         <th>Nombre</th>
         <th>Apellido</th>
+		 <th>Teléfono</th>
         <th>Correo</th>
         <th>Rol</th>
         <th>Estado</th>
+		  
+
         <th>Acción</th>
       </tr>
     </thead>
@@ -129,9 +132,12 @@ try {
 					  data-dialcode="' . htmlspecialchars($row['dialcode']) . '"
 					  data-telefono="' . htmlspecialchars($row['telefono']) . '"
 					  data-recibe_alertas_stock="' . (int)$row['recibe_alertas_stock'] . '">';
+
               echo '<td>' . htmlspecialchars($row['username']) . '</td>';
               echo '<td>' . htmlspecialchars($row['nombre']) . '</td>';
               echo '<td>' . htmlspecialchars($row['apellido']) . '</td>';
+			  echo '<td>' . htmlspecialchars($row['dialcode'] . ' ' . $row['telefono']) . '</td>';
+
               echo '<td>' . htmlspecialchars($row['correo']) . '</td>';
                //echo '<td>' . htmlspecialchars($row['rol'] ?? 'Sin Rol') . '</td>';
 			  echo '<td>' . htmlspecialchars($row['rol']) . '</td>';
