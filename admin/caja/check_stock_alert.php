@@ -37,7 +37,7 @@ function check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws) {
 
         // Obtener usuarios que deben recibir alerta
         $stmtUsuarios = $pdo->query("
-            SELECT dialCode, telefono 
+            SELECT nombre, apellido, dialCode, telefono
             FROM usuarios 
             WHERE recibe_alertas_stock = 1 
               AND telefono IS NOT NULL 
@@ -51,13 +51,14 @@ function check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws) {
         }
 
         // Preparar mensaje
-        $mensaje = "⚠️ ALERTA DE STOCK: El producto '$nombre_producto' ha llegado al stock mínimo establecido.\n"
-                 . "Stock actual: $nuevo_stock unidades (Mínimo: $minimo).";
+        $mensaje = "Hola $nombreUsuario,\n\n"
+			     . "⚠️ ALERTA DE STOCK: El producto *$nombre_producto* ha llegado al stock mínimo establecido en el sistema.\n"
+                 . "Stock actual: *$nuevo_stock* unidades.";
 
         // Enviar mensaje a cada usuario
         foreach ($usuarios as $u) {
             $telefonoCompleto = $u['dialCode'] . $u['telefono'];
-
+			$nombreUsuario = $u['nombres'];
             // Log previo (útil para pruebas)
             error_log("📢 Enviando alerta de stock a $telefonoCompleto → $mensaje");
 
