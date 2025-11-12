@@ -9,8 +9,7 @@
  * @return void
  */
 // test_alert.php
-require_once __DIR__ . '/../inc/config.php';
-require_once __DIR__ . '/check_stock_alert.php';
+require_once __DIR__ . '/../../inc/config.php';
 
 $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
