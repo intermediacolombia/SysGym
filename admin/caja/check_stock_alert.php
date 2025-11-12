@@ -8,13 +8,22 @@
  * @param string $api_ws - Token de la API de WhatsApp
  * @return void
  */
-$producto_id = 10;
+// test_alert.php
+require_once __DIR__ . '/../inc/config.php';
+require_once __DIR__ . '/check_stock_alert.php';
+
+$pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+// Simular producto con stock crítico
+check_stock_alert($pdo, 10, 2, $api_ws);
+
 
 function check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws) {
     try {
         // Verificar si el producto tiene alerta activada
         $stmtAlert = $pdo->prepare("
-            SELECT nombre, alerta_stock, minimo_stock 
+            SELECT *
             FROM productos 
             WHERE id = :id AND borrado = 0
         ");
