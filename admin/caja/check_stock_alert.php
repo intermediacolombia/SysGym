@@ -54,6 +54,18 @@ function check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws) {
         ");
         $usuarios = $stmtUsuarios->fetchAll(PDO::FETCH_ASSOC);
 
+		
+		// Log de usuarios encontrados
+if (empty($usuarios)) {
+    error_log("❌ No hay usuarios con alertas activadas o sin número.");
+} else {
+    foreach ($usuarios as $u) {
+        $nombreCompleto = $u['nombres'] . ' ' . $u['apellidos'];
+        $telefono = $u['dialCode'] . $u['telefono'];
+        error_log("✅ Usuario para alerta: $nombreCompleto - Tel: $telefono");
+    }
+}
+		
         // Si no hay usuarios para notificar, salir
         if (empty($usuarios)) {
             return;
