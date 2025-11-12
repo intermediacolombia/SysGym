@@ -83,29 +83,7 @@
   max-width: 150px;
   height: auto;
 }
-/* ===== MODO OSCURO AUTOMÁTICO ===== */
-@media (prefers-color-scheme: dark) {
-  .menu {
-    background: var(--system-color-secondary-dark, #2A3B47); /* Border */
-  }
-  .menu a {
-    background: var(--system-color-primary-dark, #52A5E0); /* Principal */
-    color: #EFF3F5!important; /* Título */
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  .submenu {
-    background: var(--system-color-secondary-dark, #2A3B47); /* Border */
-  }
-  .submenu a {
-    background: var(--system-color-secondary-dark, #2A3B47); /* Border */
-  }
-  .menu .logo-container {
-    background: #212E36; /* Contenedor */
-  }
-  .menu a:hover {
-    background: #A0A7AC; /* Claro */
-  }
-}
+
 /* ===== MODO OSCURO MANUAL (forzado con switch) ===== */
 body.dark-mode .menu {
   background: var(--system-color-secondary-dark, #2A3B47) !important; /* Border */
