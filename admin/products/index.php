@@ -496,7 +496,9 @@ if (isset($_POST['action'])) {
                 : '<span class="badge bg-danger">Inactivo</span>';
             }
           },
-          { "data": "bolsillo", "defaultContent": "Sin Asignar" }
+          { "data": "bolsillo", "defaultContent": "Sin Asignar" },
+		  { "data": "alerta_stock", "visible": false },
+	  	  { "data": "minimo_stock", "visible": false }
         ],
 		"pageLength": 50,
         "language": {
@@ -561,7 +563,7 @@ $("#formAddProducto").on("submit", function(e){
   $("#edit_minimo_container").hide();
   $("#edit_minimo_stock").val('');
         }
-      };
+      });
 
       // Editar producto vía Ajax
       $("#formEditProducto").on("submit", function(e){
