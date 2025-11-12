@@ -148,7 +148,7 @@ try {
                   echo '<span class="badge badge-danger">Inactivo</span>';
               }
               echo '</td>';
-			  echo '<td>' . htmlspecialchars($row['dialcode'] . ' ' . $row['telefono']) . '</td>';
+			  
               // Botón de borrar
               echo '<td class="no-click text-center"><button type="button" class="btn btn-sm btn-outline-danger delete-btn" data-id="' . $row['id'] . '"><i class="fas fa-trash"></i></button></td>';
               echo '</tr>';
