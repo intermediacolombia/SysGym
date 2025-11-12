@@ -54,17 +54,18 @@ function check_stock_alert($pdo, $producto_id, $nuevo_stock, $api_ws) {
 
         // Enviar mensaje a cada usuario
         foreach ($usuarios as $u) {
-            $telefonoCompleto = $u['dialCode'] . $u['telefono'];
-			$nombreUsuario = $u['nombres'];
-			
-			// Preparar mensaje
-        	$mensaje = "Hola $nombreUsuario,\n\n"
-			     . "⚠️ ALERTA DE STOCK: El producto *$nombre_producto* ha llegado al stock mínimo establecido en el sistema.\n"
-                 . "Stock actual: *$nuevo_stock* unidades.";
-			
-			
-            // Log previo (útil para pruebas)
-            error_log("📢 Enviando alerta de stock a $telefonoCompleto → $mensaje");
+    $telefonoCompleto = $u['dialCode'] . $u['telefono'];
+    $nombreUsuario = trim($u['nombres'] . ' ' . $u['apellidos']);
+
+    $mensaje = "Hola $nombreUsuario,\n\n"
+             . "⚠️ ALERTA DE STOCK: El producto *$nombre_producto* ha llegado al stock mínimo establecido.\n"
+             . "Stock actual: *$nuevo_stock* unidades (Mínimo: $minimo).";
+
+    // Log previo
+    error_log("📢 Enviando alerta de stock a $telefonoCompleto → $mensaje");
+
+    
+
 
             // Enviar vía API 360Messenger
             $ch = curl_init();
