@@ -56,6 +56,16 @@ try {
 	define('SITE_ICON', '/admin/uploads/'.$settings['system_favicon'].'') ;
 	define('SITE_ICON', '/admin/uploads/'.$settings['system_favicon'].'') ;
 	
+	//EMAIL
+	define('SMTP_USERNAME',   $settings['smtp_username']   ?? '');
+	define('SMTP_HOST',       $settings['smtp_host']       ?? '');
+	define('SMTP_PASSWORD',   $settings['smtp_password']   ?? '');
+	define('SMTP_PORT',       $settings['smtp_port']       ?? '');
+
+	define('SMTP_FROM',       $settings['smtp_from']       ?? '');
+	define('SMTP_FROM_NAME',  $settings['smtp_from_name']  ?? '');
+
+	
 	define('SYSTEM_COLOR_PRIMARY', $settings['system_color_primary'] ?? '#000');
 	define('SYSTEM_COLOR_SECONDARY', $settings['system_color_secondary'] ?? '#000');
 	define('SYSTEM_COLOR_PRIMARY_DARK', $settings['system_color_primary_dark'] ?? '#000');

@@ -1,11 +1,11 @@
 <?php
-$Username = '865259001@smtp-brevo.com';
-$Host = 'smtp-relay.brevo.com';
-$Password = 'vzSt9EsKJVwb1Opn';
-$Port = 587;
+$Username = SMTP_USERNAME;
+$Host = SMTP_HOST;
+$Password = SMTP_PASSWORD;
+$Port = SMTP_PORT;
 
-$from = 'no-reply@activgym.com.co';
-$name = 'ActivGym';
+$from = SMTP_FROM;
+$name = SMTP_FROM_NAME;
 
 /*$Username = 'pqrs@transarmenia.com';
 $Host = 'smtp-brevo.transarmenia.com';

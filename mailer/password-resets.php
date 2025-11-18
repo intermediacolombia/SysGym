@@ -1,6 +1,7 @@
 <?php 
 require_once __DIR__ . '/../inc/config.php';
-require('config-mail.php');
+require_once __DIR__ . '/config-mail.php';
+
 
 require 'src/Exception.php';
 require 'src/PHPMailer.php';
@@ -34,7 +35,7 @@ function sendResetPasswordEmail($email, $nombreCompleto, $resetLink, $url, $logo
         $mail->CharSet    = 'UTF-8';
 
         // Configurar remitente y destinatario usando los parámetros recibidos
-        $mail->setFrom($GLOBALS['from'], NAME_GYM);
+        $mail->setFrom($GLOBALS['from'], $name);
         $mail->addAddress($email, $nombreCompleto);
 
         // Configurar el contenido del correo (HTML)
