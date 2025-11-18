@@ -67,7 +67,7 @@ function sendResetPasswordEmail($email, $nombreCompleto, $resetLink, $url, $logo
     }
     .header {
       background-color: #E0E0E0;
-      color: var(--system-color-primary);
+      color: '.SYSTEM_COLOR_PRIMARY.';
       padding: 20px;
       text-align: center;
     }
@@ -84,7 +84,7 @@ function sendResetPasswordEmail($email, $nombreCompleto, $resetLink, $url, $logo
       color: #333333;
     }
     .content h2 {
-      color: var(--system-color-primary);
+      color: '.SYSTEM_COLOR_PRIMARY.';
       font-size: 18px;
       margin-bottom: 10px;
     }
@@ -98,7 +98,7 @@ function sendResetPasswordEmail($email, $nombreCompleto, $resetLink, $url, $logo
       margin: 20px 0;
     }
     .cta a {
-      background-color: var(--system-color-primary);
+      background-color: '.SYSTEM_COLOR_PRIMARY.';
       color: #ffffff;
       text-decoration: none;
       padding: 10px 20px;
@@ -107,7 +107,7 @@ function sendResetPasswordEmail($email, $nombreCompleto, $resetLink, $url, $logo
       font-weight: bold;
     }
     .cta a:hover {
-      background-color: #b3150b;
+      background-color: '.SYSTEM_COLOR_SECONDARY.';
     }
     .footer {
       text-align: center;
@@ -118,7 +118,7 @@ function sendResetPasswordEmail($email, $nombreCompleto, $resetLink, $url, $logo
       border-top: 1px solid #eaeaea;
     }
     .footer a {
-      color: var(--system-color-primary);
+      color: '.SYSTEM_COLOR_PRIMARY.';
       text-decoration: none;
       margin: 0 5px;
     }
@@ -126,13 +126,13 @@ function sendResetPasswordEmail($email, $nombreCompleto, $resetLink, $url, $logo
       text-decoration: underline;
     }
     .social-icons a {
-      color: var(--system-color-primary);
+      color: '.SYSTEM_COLOR_PRIMARY.';
       margin: 0 5px;
       font-size: 24px;
       text-decoration: none;
     }
     .social-icons a:hover {
-      color: #b3150b;
+      color: '.SYSTEM_COLOR_SECONDARY.';
     }
   </style>
 </head>
