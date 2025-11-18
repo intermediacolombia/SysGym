@@ -1,138 +1,97 @@
 /* ============================================================
-   FORMULARIOS FUTURISTAS - COMPATIBLE CON BOOTSTRAP
+   BOOSTRAP + EFECTOS MODERNOS (Sombras, animaciones, feedback)
    ============================================================ */
 
-input.form-control,
-select.form-select,
+/* Inputs generales */
+.form-control,
+.form-select,
 textarea.form-control {
-  background: rgba(255, 255, 255, 0.04) !important;
-  backdrop-filter: blur(6px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
-  border-radius: 12px !important;
-  padding: 12px 16px !important;
-  color: #ffffff !important;
-  font-size: 15px !important;
   transition: all 0.25s ease !important;
   box-shadow: 0 0 0 rgba(0,0,0,0) !important;
-  outline: none !important;
 }
 
-/* Hover futurista */
-input.form-control:hover,
-select.form-select:hover,
+/* Hover suave */
+.form-control:hover,
+.form-select:hover,
 textarea.form-control:hover {
-  border-color: rgba(255, 255, 255, 0.5) !important;
-  box-shadow: 0 0 12px rgba(255,255,255,0.15) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
 }
 
-/* Focus neon */
-input.form-control:focus,
-select.form-select:focus,
+/* Focus moderno */
+.form-control:focus,
+.form-select:focus,
 textarea.form-control:focus {
-  border-color: #ffffff !important;
-  box-shadow: 0 0 15px rgba(255,255,255,0.4) !important;
   transform: translateY(-1px) !important;
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.18) !important;
+  border-color: var(--primary, #0d6efd) !important;
 }
 
-/* Labels futuristas */
-form label,
+/* Labels con leve suavizado */
 .form-label {
-  font-weight: 600 !important;
-  letter-spacing: 0.6px !important;
-  color: #e6e6e6 !important;
-  text-shadow: 0 0 6px rgba(255,255,255,0.2) !important;
+  transition: color 0.3s ease !important;
 }
 
-/* Placeholder suave futurista */
-::placeholder {
-  color: rgba(255, 255, 255, 0.5) !important;
-  letter-spacing: 0.5px !important;
-  font-style: italic !important;
+/* Labels en hover del campo */
+.form-control:hover ~ .form-label,
+.form-select:hover ~ .form-label {
+  color: var(--primary, #0d6efd) !important;
 }
 
-/* Fieldset legend */
-legend {
-  color: #ffffff !important;
-  font-weight: 700 !important;
-  letter-spacing: 1px !important;
-  text-shadow: 0 0 8px rgba(255,255,255,0.3) !important;
-}
-
-/* Grupo de formularios */
-.form-group,
-.mb-3,
-.row > div {
-  margin-bottom: 18px !important;
-}
-
-/* Checkboxes futuristas */
+/* Animación para checkboxes */
 .form-check-input {
-  width: 20px !important;
-  height: 20px !important;
-  border-radius: 6px !important;
-  background: rgba(255,255,255,0.07) !important;
-  border: 1px solid rgba(255,255,255,0.4) !important;
-  transition: all 0.25s !important;
+  transition: all 0.25s ease !important;
 }
 
-.form-check-input:hover {
-  box-shadow: 0 0 10px rgba(255,255,255,0.3) !important;
+.form-check-input:active {
+  transform: scale(0.85) !important;
 }
 
 .form-check-input:checked {
-  background: rgba(255,255,255,0.9) !important;
-  border-color: #fff !important;
-  box-shadow: 0 0 12px rgba(255,255,255,0.7) !important;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2) !important;
 }
 
-/* Radios futuristas */
-.form-check-input[type="radio"] {
-  border-radius: 50% !important;
+/* ===============================
+   BOTONES (MANTENIENDO BOOTSTRAP)
+   =============================== */
+
+.btn {
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.25s ease !important;
 }
 
-/* Inputs deshabilitados */
-.form-control:disabled,
-.form-select:disabled {
-  opacity: 0.4 !important;
-  background: rgba(255, 255, 255, 0.1) !important;
-  cursor: not-allowed !important;
+/* Hover moderno */
+.btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.18) !important;
 }
 
-/* File input */
+/* Click feedback */
+.btn:active {
+  transform: translateY(2px) scale(0.97) !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+}
+
+/* Focus */
+.btn:focus {
+  box-shadow:
+    0 0 0 2px rgba(0,0,0,0.15),
+    0 0 0 4px rgba(13,110,253,0.25) !important;
+}
+
+/* Botón deshabilitado */
+.btn:disabled {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Inputs file */
 input[type="file"].form-control {
-  padding: 10px !important;
-  cursor: pointer !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-  border-radius: 14px !important;
+  transition: all 0.25s ease !important;
 }
 
 input[type="file"].form-control:hover {
-  box-shadow: 0 0 12px rgba(255,255,255,0.2) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18) !important;
 }
-
-/* Bordes redondeados para selects */
-select.form-select {
-  border-radius: 12px !important;
-}
-
-/* Textarea redondeado futurista */
-textarea.form-control {
-  border-radius: 14px !important;
-}
-
-/* Bordes divisores */
-hr {
-  border-color: rgba(255,255,255,0.2) !important;
-  box-shadow: 0 0 8px rgba(255,255,255,0.15) !important;
-}
-
-/* Grupo de input avanzado */
-.input-group-text {
-  background: rgba(255,255,255,0.08) !important;
-  border: 1px solid rgba(255,255,255,0.3) !important;
-  color: #ffffff !important;
-  border-radius: 12px !important;
-  text-shadow: 0 0 4px rgba(255,255,255,0.2) !important;
-}
-/* CSS Document */
 
