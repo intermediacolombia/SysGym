@@ -42,7 +42,7 @@ $mail->Port = $Port;
 $mail->CharSet = 'UTF-8';
 
 // Configurar el correo
-$mail->setFrom($from, ''.NAME_GYM.'');
+$mail->setFrom($GLOBALS['from'], $GLOBALS['name']);
 // Validar que los correos existan, sean válidos y tengan un valor predeterminado en 'entidad'
 
 //$nombre_apellido = $data['nombres'] . $data['apellidos'];
