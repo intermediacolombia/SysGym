@@ -440,26 +440,3 @@
   box-shadow: 0 2px 0 #dae0e5 !important;
 }
 
-.btn-outline-dark {
-  background: transparent !important;
-  border: 3px solid #343a40 !important;
-  color: #343a40 !important;
-  font-weight: 700 !important;
-  padding: 16px 24px !important;
-  border-radius: 16px !important;
-  transition: all 0.1s ease !important;
-  position: relative !important;
-  box-shadow: none !important;
-}
-
-.btn-outline-dark:hover {
-  background: linear-gradient(180deg, #343a40 0%, #23272b 100%) !important;
-  color: white !important;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 #1d2124 !important;
-}
-
-.btn-outline-dark:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #1d2124 !important;
-}
