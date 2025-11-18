@@ -266,145 +266,192 @@
 @keyframes spinner {
   to { transform: rotate(360deg); }
 }
-
-
-
 /* ============================================================
-   OUTLINE DUOLINGO — Sin tocar estilos globales ni sólidos
+   OUTLINE DUOLINGO — CON SOMBRA GRUESA Y REDONDEADO IGUAL
+   (Sin tocar botones sólidos)
    ============================================================ */
 
-/* PRIMARY */
+/* === PRIMARY OUTLINE === */
 .btn-outline-primary {
-  border-width: 3px !important;
+  background: transparent !important;
   color: #0d6efd !important;
-  border-color: #0d6efd !important;
+  border: 3px solid #0d6efd !important;
+  border-radius: 16px !important;
+  position: relative !important;
+  box-shadow: 0 4px 0 rgba(13,110,253,0.35) !important; /* sombra inferior */
+  transition: all 0.15s ease !important;
 }
+
 .btn-outline-primary:hover {
   background: linear-gradient(180deg, #0d6efd 0%, #0a58ca 100%) !important;
-  color: white !important;
-  box-shadow: 0 6px 0 #084298 !important;
+  color: #fff !important;
   transform: translateY(-2px) !important;
+  box-shadow: 0 6px 0 #084298 !important;
 }
+
 .btn-outline-primary:active {
   transform: translateY(2px) !important;
   box-shadow: 0 2px 0 #084298 !important;
 }
 
-/* SECONDARY */
+/* === SECONDARY OUTLINE === */
 .btn-outline-secondary {
-  border-width: 3px !important;
+  background: transparent !important;
   color: #6c757d !important;
-  border-color: #6c757d !important;
+  border: 3px solid #6c757d !important;
+  border-radius: 16px !important;
+  position: relative !important;
+  box-shadow: 0 4px 0 rgba(108,117,125,0.4) !important;
+  transition: all 0.15s ease !important;
 }
+
 .btn-outline-secondary:hover {
   background: linear-gradient(180deg, #6c757d 0%, #545b62 100%) !important;
-  color: white !important;
-  box-shadow: 0 6px 0 #494f54 !important;
+  color: #fff !important;
   transform: translateY(-2px) !important;
+  box-shadow: 0 6px 0 #494f54 !important;
 }
+
 .btn-outline-secondary:active {
   transform: translateY(2px) !important;
   box-shadow: 0 2px 0 #494f54 !important;
 }
 
-/* SUCCESS */
+/* === SUCCESS OUTLINE === */
 .btn-outline-success {
-  border-width: 3px !important;
+  background: transparent !important;
   color: #198754 !important;
-  border-color: #198754 !important;
+  border: 3px solid #198754 !important;
+  border-radius: 16px !important;
+  position: relative !important;
+  box-shadow: 0 4px 0 rgba(25,135,84,0.35) !important;
+  transition: all 0.15s ease !important;
 }
+
 .btn-outline-success:hover {
   background: linear-gradient(180deg, #198754 0%, #157347 100%) !important;
   color: white !important;
-  box-shadow: 0 6px 0 #0f5132 !important;
   transform: translateY(-2px) !important;
+  box-shadow: 0 6px 0 #0f5132 !important;
 }
+
 .btn-outline-success:active {
   transform: translateY(2px) !important;
   box-shadow: 0 2px 0 #0f5132 !important;
 }
 
-/* DANGER */
+/* === DANGER OUTLINE === */
 .btn-outline-danger {
-  border-width: 3px !important;
+  background: transparent !important;
   color: #dc3545 !important;
-  border-color: #dc3545 !important;
+  border: 3px solid #dc3545 !important;
+  border-radius: 16px !important;
+  position: relative !important;
+  box-shadow: 0 4px 0 rgba(220,53,69,0.35) !important;
+  transition: all 0.15s ease !important;
 }
+
 .btn-outline-danger:hover {
   background: linear-gradient(180deg, #dc3545 0%, #b02a37 100%) !important;
   color: white !important;
-  box-shadow: 0 6px 0 #842029 !important;
   transform: translateY(-2px) !important;
+  box-shadow: 0 6px 0 #842029 !important;
 }
+
 .btn-outline-danger:active {
   transform: translateY(2px) !important;
   box-shadow: 0 2px 0 #842029 !important;
 }
 
-/* WARNING */
+/* === WARNING OUTLINE === */
 .btn-outline-warning {
-  border-width: 3px !important;
+  background: transparent !important;
   color: #ffc107 !important;
-  border-color: #ffc107 !important;
+  border: 3px solid #ffc107 !important;
+  border-radius: 16px !important;
+  position: relative !important;
+  box-shadow: 0 4px 0 rgba(255,193,7,0.4) !important;
+  transition: all 0.15s ease !important;
 }
+
 .btn-outline-warning:hover {
   background: linear-gradient(180deg, #ffc107 0%, #e0a800 100%) !important;
   color: #212529 !important;
-  box-shadow: 0 6px 0 #d39e00 !important;
   transform: translateY(-2px) !important;
+  box-shadow: 0 6px 0 #d39e00 !important;
 }
+
 .btn-outline-warning:active {
   transform: translateY(2px) !important;
   box-shadow: 0 2px 0 #d39e00 !important;
 }
 
-/* INFO */
+/* === INFO OUTLINE === */
 .btn-outline-info {
-  border-width: 3px !important;
+  background: transparent !important;
   color: #0dcaf0 !important;
-  border-color: #0dcaf0 !important;
+  border: 3px solid #0dcaf0 !important;
+  border-radius: 16px !important;
+  position: relative !important;
+  box-shadow: 0 4px 0 rgba(13,202,240,0.35) !important;
+  transition: all 0.15s ease !important;
 }
+
 .btn-outline-info:hover {
   background: linear-gradient(180deg, #0dcaf0 0%, #0aa2c0 100%) !important;
   color: white !important;
-  box-shadow: 0 6px 0 #087990 !important;
   transform: translateY(-2px) !important;
+  box-shadow: 0 6px 0 #087990 !important;
 }
+
 .btn-outline-info:active {
   transform: translateY(2px) !important;
   box-shadow: 0 2px 0 #087990 !important;
 }
 
-/* LIGHT */
+/* === LIGHT OUTLINE === */
 .btn-outline-light {
-  border-width: 3px !important;
+  background: transparent !important;
   color: #f8f9fa !important;
-  border-color: #f8f9fa !important;
+  border: 3px solid #f8f9fa !important;
+  border-radius: 16px !important;
+  position: relative !important;
+  box-shadow: 0 4px 0 rgba(248,249,250,0.35) !important;
+  transition: all 0.15s ease !important;
 }
+
 .btn-outline-light:hover {
   background: linear-gradient(180deg, #f8f9fa 0%, #e2e6ea 100%) !important;
   color: #212529 !important;
-  box-shadow: 0 6px 0 #dae0e5 !important;
   transform: translateY(-2px) !important;
+  box-shadow: 0 6px 0 #dae0e5 !important;
 }
+
 .btn-outline-light:active {
   transform: translateY(2px) !important;
   box-shadow: 0 2px 0 #dae0e5 !important;
 }
 
-/* DARK */
+/* === DARK OUTLINE === */
 .btn-outline-dark {
-  border-width: 3px !important;
-  color: #343a40 !important;
-  border-color: #343a40 !important;
+  background: transparent !important;
+  color: #212529 !important;
+  border: 3px solid #212529 !important;
+  border-radius: 16px !important;
+  position: relative !important;
+  box-shadow: 0 4px 0 rgba(33,37,41,0.35) !important;
+  transition: all 0.15s ease !important;
 }
+
 .btn-outline-dark:hover {
   background: linear-gradient(180deg, #343a40 0%, #23272b 100%) !important;
   color: white !important;
-  box-shadow: 0 6px 0 #1d2124 !important;
   transform: translateY(-2px) !important;
+  box-shadow: 0 6px 0 #1d2124 !important;
 }
+
 .btn-outline-dark:active {
   transform: translateY(2px) !important;
   box-shadow: 0 2px 0 #1d2124 !important;
 }
+
