@@ -45,6 +45,7 @@ try {
 	
 	
 	define('CONSENT', $settings['wa_consent_html']);
+	define('NAME_GYM', $settings['name_gym'] ?? 'SysGym');
 	define('SITE_LOGO', '/admin/uploads/'.$settings['system_logo'].'') ;
 	define('SITE_ICON', '/admin/uploads/'.$settings['system_favicon'].'') ;
 	define('SITE_ICON', '/admin/uploads/'.$settings['system_favicon'].'') ;
