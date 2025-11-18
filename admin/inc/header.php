@@ -5,6 +5,7 @@
 <!--<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">-->
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 <link rel="stylesheet" href="<?php echo URLBASE; ?>/admin/css/menu.css?cache=<?php echo time(); ?>">
+<link rel="stylesheet" href="<?php echo URLBASE; ?>/admin/css/buttons.css?cache=<?php echo time(); ?>">
 <link rel="stylesheet" href="<?php echo URLBASE; ?>/admin/css/style.css?cache=<?php echo time(); ?>">
 <link rel="stylesheet" href="<?php echo URLBASE; ?>/admin/css/cards.css?cache=<?php echo time(); ?>">
 <link rel="stylesheet" href="<?php echo URLBASE; ?>/admin/css/siluet.css?cache=<?php echo time(); ?>">

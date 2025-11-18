@@ -1,15 +1,14 @@
 <?php
+session_start(); // MOVER ESTO AL INICIO
 
 require_once __DIR__ . '/../../inc/config.php';
 $cookieDomain = str_replace(['https://','http://'], '', $url);
 
 // Si el usuario ya está logueado, opcionalmente se puede redirigir a dashboard
 if(isset($_SESSION['user'])) {
-header("Location: /admin");
-exit();
+    header("Location: /admin");
+    exit();
 }
-
-session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
@@ -69,35 +68,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // La contraseña es correcta: reiniciamos el contador de intentos
-$stmt = $pdo->prepare("UPDATE usuarios SET intentos = 0 WHERE id = :id");
-$stmt->execute(["id" => $user["id"]]);
+    $stmt = $pdo->prepare("UPDATE usuarios SET intentos = 0 WHERE id = :id");
+    $stmt->execute(["id" => $user["id"]]);
 
-// Iniciar sesión: almacenar los datos del usuario en sesión
-$_SESSION["user"] = $user;
+    // Iniciar sesión: almacenar los datos del usuario en sesión
+    $_SESSION["user"] = $user;
 
-// IMPLEMENTAR REMEMBER ME: 
-// Si el usuario marcó la opción "remember me" en el formulario, generamos el token
-if (isset($_POST['remember_me']) && $_POST['remember_me'] == 1) {
-    // Genera un token seguro (32 caracteres hexadecimales)
-    $token = bin2hex(random_bytes(16));
-    // Define el tiempo de expiración (por ejemplo, 30 días)
-    $expiry = time() + (30 * 24 * 60 * 60);
+    // IMPLEMENTAR REMEMBER ME: 
+    // Si el usuario marcó la opción "remember me" en el formulario, generamos el token
+    if (isset($_POST['remember_me']) && $_POST['remember_me'] == 1) {
+        // Genera un token seguro (32 caracteres hexadecimales)
+        $token = bin2hex(random_bytes(16));
+        // Define el tiempo de expiración (por ejemplo, 30 días)
+        $expiry = time() + (30 * 24 * 60 * 60);
 
-    // Inserta el token en la base de datos (asegúrate de tener la tabla user_tokens)
-    $stmtToken = $pdo->prepare("INSERT INTO user_tokens (user_id, token, expires_at) VALUES (:user_id, :token, :expires_at)");
-    $stmtToken->execute([
-         ':user_id'    => $user["id"],
-         ':token'      => $token,
-         ':expires_at' => $expiry
-    ]);
+        // Inserta el token en la base de datos (asegúrate de tener la tabla user_tokens)
+        $stmtToken = $pdo->prepare("INSERT INTO user_tokens (user_id, token, expires_at) VALUES (:user_id, :token, :expires_at)");
+        $stmtToken->execute([
+             ':user_id'    => $user["id"],
+             ':token'      => $token,
+             ':expires_at' => $expiry
+        ]);
 
-    // Guarda el token en una cookie persistente
-    // Asegúrate de que el dominio y demás parámetros coincidan con tu configuración
-    setcookie('remember_me', $token, $expiry, '/', $cookieDomain, true, true);
-}
+        // Guarda el token en una cookie persistente
+        // Asegúrate de que el dominio y demás parámetros coincidan con tu configuración
+        setcookie('remember_me', $token, $expiry, '/', $cookieDomain, true, true);
+    }
 
-header("Location: $url/admin/");
-exit();
+    header("Location: $url/admin/");
+    exit();
 }
 ?>
 

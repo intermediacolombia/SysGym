@@ -1,5 +1,16 @@
 <?php
+session_start(); // MOVER ESTO AL INICIO
 require_once __DIR__ . '/../../inc/config.php';
+
+
+require_once __DIR__ . '/../../inc/config.php';
+$cookieDomain = str_replace(['https://','http://'], '', $url);
+
+// Si el usuario ya está logueado, opcionalmente se puede redirigir a dashboard
+if(isset($_SESSION['user'])) {
+    header("Location: /admin");
+    exit();
+}
 
 // Conexión a la base de datos mediante PDO
 try {
