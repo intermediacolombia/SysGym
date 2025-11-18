@@ -1,97 +1,107 @@
 /* ============================================================
-   BOOSTRAP + EFECTOS MODERNOS (Sombras, animaciones, feedback)
+   FORMULARIOS MODERNOS - Bootstrap + sombras + animaciones
+   (NO modifica botones)
    ============================================================ */
 
-/* Inputs generales */
+/* INPUTS, SELECTS, TEXTAREAS */
 .form-control,
 .form-select,
 textarea.form-control {
   transition: all 0.25s ease !important;
-  box-shadow: 0 0 0 rgba(0,0,0,0) !important;
+  box-shadow: none !important;
 }
 
 /* Hover suave */
 .form-control:hover,
 .form-select:hover,
 textarea.form-control:hover {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
 }
 
-/* Focus moderno */
+/* Efecto focus elegante */
 .form-control:focus,
 .form-select:focus,
 textarea.form-control:focus {
   transform: translateY(-1px) !important;
   box-shadow:
-    0 4px 12px rgba(0,0,0,0.18) !important;
-  border-color: var(--primary, #0d6efd) !important;
+    0 4px 12px rgba(0,0,0,0.18),
+    0 0 0 3px rgba(13, 110, 253, 0.25) !important; /* color bootstrap */
+  border-color: #0d6efd !important; /* borde Bootstrap */
 }
 
-/* Labels con leve suavizado */
+/* PLACEHOLDER */
+.form-control::placeholder,
+textarea::placeholder {
+  opacity: 0.7 !important;
+  transition: opacity 0.3s ease !important;
+}
+
+.form-control:focus::placeholder,
+textarea:focus::placeholder {
+  opacity: 0.4 !important;
+}
+
+/* LABELS */
 .form-label {
+  font-weight: 600 !important;
   transition: color 0.3s ease !important;
 }
 
-/* Labels en hover del campo */
+/* Label activa al pasar por el campo */
 .form-control:hover ~ .form-label,
-.form-select:hover ~ .form-label {
-  color: var(--primary, #0d6efd) !important;
+.form-select:hover ~ .form-label,
+textarea:hover ~ .form-label {
+  color: #0d6efd !important;
 }
 
-/* Animación para checkboxes */
+/* CHECKBOXES Y RADIOS */
 .form-check-input {
   transition: all 0.25s ease !important;
 }
 
+/* Animación al hacer click */
 .form-check-input:active {
   transform: scale(0.85) !important;
 }
 
+/* Sombras suaves al activar */
 .form-check-input:checked {
-  box-shadow: 0 0 10px rgba(0,0,0,0.2) !important;
+  box-shadow: 0 0 10px rgba(13,110,253,0.25) !important;
 }
 
-/* ===============================
-   BOTONES (MANTENIENDO BOOTSTRAP)
-   =============================== */
-
-.btn {
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.25s ease !important;
+/* Radios redondos */
+.form-check-input[type="radio"] {
+  border-radius: 50% !important;
 }
 
-/* Hover moderno */
-.btn:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.18) !important;
+/* INPUT FILE */
+input[type="file"].form-control {
+  transition: all 0.25s ease !important;
+  cursor: pointer !important;
 }
 
-/* Click feedback */
-.btn:active {
-  transform: translateY(2px) scale(0.97) !important;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+input[type="file"].form-control:hover {
+  box-shadow: 0 3px 12px rgba(0,0,0,0.18) !important;
 }
 
-/* Focus */
-.btn:focus {
-  box-shadow:
-    0 0 0 2px rgba(0,0,0,0.15),
-    0 0 0 4px rgba(13,110,253,0.25) !important;
-}
-
-/* Botón deshabilitado */
-.btn:disabled {
+/* CAMPOS DESHABILITADOS */
+.form-control:disabled,
+.form-select:disabled {
+  opacity: 0.5 !important;
   transform: none !important;
   box-shadow: none !important;
 }
 
-/* Inputs file */
-input[type="file"].form-control {
-  transition: all 0.25s ease !important;
+/* GRUPOS Y ESPACIADO */
+.form-group,
+.mb-3,
+.row > div {
+  margin-bottom: 16px !important;
 }
 
-input[type="file"].form-control:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.18) !important;
+/* HR con estilo moderno */
+hr {
+  opacity: 0.5 !important;
+  border-color: rgba(0,0,0,0.25) !important;
 }
 
