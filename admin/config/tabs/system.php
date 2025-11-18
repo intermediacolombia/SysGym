@@ -1,6 +1,13 @@
 <div class="tab-pane fade show active" id="sistema" role="tabpanel" aria-labelledby="sistema-tab">
   <div class="card border-0 shadow-sm mt-3">
     <div class="card-body">
+		
+		<!-- LOGO -->
+		<div class="mb-3">
+        <label class="form-label"><strong>Nombre del Gimnasio</strong></label>
+        <input type="text" class="form-control" name="name_gym" value="<?= htmlspecialchars($settings['name_gym'] ?? '') ?>">
+      </div>
+		
 		<!-- LOGO -->
       <div class="mb-4">
         <label class="form-label"><strong>Logo del Sistema</strong></label>
