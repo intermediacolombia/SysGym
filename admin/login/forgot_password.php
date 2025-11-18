@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  <div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
     <div class="login-card w-100" style="max-width: 400px;">
       <div class="text-center">
-        <img src="<?php echo $url;?>/admin/images/logo-black.png" alt="Logo" class="img-fluid mb-3" style="max-width:150px;">
+        <img src="<?php echo URLBASE; ?><?php echo SITE_LOGO; ?>?<?php echo time()?>" alt="Logo" class="img-fluid mb-3" style="max-width:150px;">
       </div>
 		
 		
