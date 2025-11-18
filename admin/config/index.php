@@ -94,11 +94,11 @@ try {
     </button>
   </li>
 		
-		<!--li class="nav-item" role="presentation">
+		<li class="nav-item" role="presentation">
   <button class="nav-link" id="smtp-tab" data-bs-toggle="tab" data-bs-target="#smtp" type="button" role="tab">
     <i class="fas fa-envelope"></i> SMTP
   </button>
-</li-->
+</li>
 
 		
     </ul>
@@ -110,7 +110,7 @@ try {
      <?php require_once __DIR__ . '/tabs/whatsapp.php';?>
      <?php require_once __DIR__ . '/tabs/getaway.php';?>
 	<?php require_once __DIR__ . '/tabs/consent.php'; ?>
-	<?php //require_once __DIR__ . '/tabs/email.php'; ?>
+	<?php require_once __DIR__ . '/tabs/email.php'; ?>
 
      
      
