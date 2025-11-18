@@ -47,7 +47,7 @@ function sendResetPasswordEmail($email, $nombreCompleto, $resetLink, $url, $logo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Restablece tu contraseña - '.GYM_NAME.'</title>
+  <title>Restablece tu contraseña - '.NAME_GYM.'</title>
   <!-- Font Awesome CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
@@ -139,34 +139,34 @@ function sendResetPasswordEmail($email, $nombreCompleto, $resetLink, $url, $logo
 <body>
   <div class="container">
     <div class="header">
-      <img src="'.$_SERVER['DOCUMENT_ROOT'] . SITE_LOGO .'" alt="Logo '.GYM_NAME.'">
+      <img src="'.$_SERVER['DOCUMENT_ROOT'] . SITE_LOGO .'" alt="Logo '.NAME_GYM.'">
       <h1>Restablece tu contraseña</h1>
     </div>
     <div class="content">
       <h2>¡Hola, '.htmlspecialchars($nombreCompleto).'!</h2>
-      <p>Recibes este correo porque has solicitado restablecer la contraseña de tu cuenta en '.GYM_NAME.'. Para continuar con el proceso, haz clic en el siguiente enlace:</p>
+      <p>Recibes este correo porque has solicitado restablecer la contraseña de tu cuenta en '.NAME_GYM.'. Para continuar con el proceso, haz clic en el siguiente enlace:</p>
       <div class="cta">
         <a href="'.$resetLink.'" target="_blank">Restablecer Contraseña</a>
       </div>
       <p>Si el botón anterior no funciona, copia y pega la siguiente dirección en tu navegador:</p>
       <p>'.$resetLink.'</p>
       <p><strong>Nota:</strong> Este enlace expirará en 1 hora. Si no has solicitado restablecer tu contraseña, ignora este mensaje.</p>
-      <p>Gracias,<br>El equipo de '.GYM_NAME.'</p>
+      <p>Gracias,<br>El equipo de '.NAME_GYM.'</p>
     </div>
     <div class="footer">
-      <p>&copy; '.date("Y").' '.GYM_NAME.'. Todos los derechos reservados.</p>
+      <p>&copy; '.date("Y").' '.NAME_GYM.'. Todos los derechos reservados.</p>
       <div class="social-icons">
-        <a href="https://www.facebook.com/'.GYM_NAME.'" target="_blank" aria-label="Facebook">
+        <a href="https://www.facebook.com/'.NAME_GYM.'" target="_blank" aria-label="Facebook">
           <i class="fab fa-facebook-f"></i>
         </a>
-        <a href="https://www.instagram.com/'.GYM_NAME.'" target="_blank" aria-label="Instagram">
+        <a href="https://www.instagram.com/'.NAME_GYM.'" target="_blank" aria-label="Instagram">
           <i class="fab fa-instagram"></i>
         </a>
-        <a href="https://www.tiktok.com/@'.GYM_NAME.'" target="_blank" aria-label="TikTok">
+        <a href="https://www.tiktok.com/@'.NAME_GYM.'" target="_blank" aria-label="TikTok">
           <i class="fab fa-tiktok"></i>
         </a>
       </div>
-      <p><a href="https://www.'.GYM_NAME.'.com" target="_blank">Visita nuestro sitio web</a></p>
+      <p><a href="https://www.'.NAME_GYM.'.com" target="_blank">Visita nuestro sitio web</a></p>
     </div>
   </div>
 </body>
