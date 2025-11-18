@@ -34,7 +34,7 @@ function sendResetPasswordEmail($email, $nombreCompleto, $resetLink, $url, $logo
         $mail->CharSet    = 'UTF-8';
 
         // Configurar remitente y destinatario usando los parámetros recibidos
-        $mail->setFrom($GLOBALS['from'], 'ActivGym');
+        $mail->setFrom($GLOBALS['from'], NAME_GYM);
         $mail->addAddress($email, $nombreCompleto);
 
         // Configurar el contenido del correo (HTML)
@@ -139,7 +139,7 @@ function sendResetPasswordEmail($email, $nombreCompleto, $resetLink, $url, $logo
 <body>
   <div class="container">
     <div class="header">
-      <img src="'.$_SERVER['DOCUMENT_ROOT'] . SITE_LOGO .'" alt="Logo '.NAME_GYM.'">
+      <img src="'.URLBASE . SITE_LOGO .'" alt="Logo '.NAME_GYM.'">
       <h1>Restablece tu contraseña</h1>
     </div>
     <div class="content">
