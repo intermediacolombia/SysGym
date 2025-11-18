@@ -1,6 +1,7 @@
-<?php require_once __DIR__ . '/../inc/config.php'; ?>
 <?php
-require('config-mail.php');
+require_once __DIR__ . '/../inc/config.php';
+require_once __DIR__ . '/config-mail.php';
+
 
 require 'src/Exception.php';
 require 'src/PHPMailer.php';
@@ -41,7 +42,7 @@ $mail->Port = $Port;
 $mail->CharSet = 'UTF-8';
 
 // Configurar el correo
-$mail->setFrom($from, 'ActivGym');
+$mail->setFrom($from, ''.NAME_GYM.'');
 // Validar que los correos existan, sean válidos y tengan un valor predeterminado en 'entidad'
 
 //$nombre_apellido = $data['nombres'] . $data['apellidos'];
@@ -62,14 +63,14 @@ foreach ($listaBcc as $bcc) {
 
 
 $mail->isHTML(true);
-$mail->Subject = 'Bienvenido/a a ActivGym 💪';
+$mail->Subject = 'Bienvenido/a a '.NAME_GYM.' 💪';
 $mail->Body = '
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Consentimiento Informado - ActivGym</title>
+  <title>Consentimiento Informado - '.NAME_GYM.'</title>
   <!-- Font Awesome CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
@@ -89,7 +90,7 @@ $mail->Body = '
     }
     .header {
       background-color: #E0E0E0;
-      color: var(--system-color-primary);
+      color: '.SYSTEM_COLOR_PRIMARY.';
       padding: 20px;
       text-align: center;
     }
@@ -106,7 +107,7 @@ $mail->Body = '
       color: #333333;
     }
     .content h2 {
-      color: var(--system-color-primary);
+      color: '.SYSTEM_COLOR_PRIMARY.';
       font-size: 18px;
       margin-bottom: 10px;
     }
@@ -120,7 +121,7 @@ $mail->Body = '
       margin: 20px 0;
     }
     .cta a {
-      background-color: var(--system-color-primary);
+      background-color: '.SYSTEM_COLOR_PRIMARY.';
       color: #ffffff;
       text-decoration: none;
       padding: 10px 20px;
@@ -129,7 +130,7 @@ $mail->Body = '
       font-weight: bold;
     }
     .cta a:hover {
-      background-color: #b3150b;
+      background-color: '.SYSTEM_COLOR_SECONDARY.';
     }
     .footer {
       text-align: center;
@@ -140,7 +141,7 @@ $mail->Body = '
       border-top: 1px solid #eaeaea;
     }
     .footer a {
-      color: var(--system-color-primary);
+      color: '.SYSTEM_COLOR_PRIMARY.';
       text-decoration: none;
       margin: 0 5px;
     }
@@ -148,44 +149,44 @@ $mail->Body = '
       text-decoration: underline;
     }
     .social-icons a {
-      color: var(--system-color-primary);
+      color: '.SYSTEM_COLOR_PRIMARY.';
       margin: 0 5px;
       font-size: 24px;
       text-decoration: none;
     }
     .social-icons a:hover {
-      color: #b3150b;
+      color: '.SYSTEM_COLOR_SECONDARY.';
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <img src="'.$url.'/pdf/images/logo-activ.png" alt="Logo ActivGym">
+      <img src="'.URLBASE . SITE_LOGO .'" alt="Logo '.NAME_GYM.'">
       <h1>Consentimiento Informado</h1>
     </div>
     <div class="content">
       <h2>¡Bienvenido/a, '.$data['nombres'].'!</h2>
-      <p>Nos alegra enormemente tenerte con nosotros en ActivGym. Adjuntamos a este correo una copia de tu <strong>Consentimiento Informado</strong> para que puedas revisarlo y conservarlo.</p>
+      <p>Nos alegra enormemente tenerte con nosotros en '.NAME_GYM.'. Adjuntamos a este correo una copia de tu <strong>Consentimiento Informado</strong> para que puedas revisarlo y conservarlo.</p>
       <p>Tu bienestar es nuestra prioridad y estamos aquí para acompañarte en cada paso hacia una vida más activa y saludable. Si tienes alguna duda o necesitas asistencia, no dudes en contactarnos. ¡Estamos siempre a tu lado con una sonrisa!</p>
       <div class="cta">
         <a href="#" target="_blank">Visítanos</a>
       </div>
     </div>
     <div class="footer">
-      <p>&copy; '.date('Y').' ActivGym. Todos los derechos reservados.</p>
+      <p>&copy; '.date('Y').' '.NAME_GYM.'. Todos los derechos reservados.</p>
       <div class="social-icons">
-        <a href="https://www.facebook.com/ActivGym" target="_blank" aria-label="Facebook">
+        <a href="https://www.facebook.com/'.NAME_GYM.'" target="_blank" aria-label="Facebook">
           <i class="fab fa-facebook-f"></i>
         </a>
-        <a href="https://www.instagram.com/ActivGym" target="_blank" aria-label="Instagram">
+        <a href="https://www.instagram.com/'.NAME_GYM.'" target="_blank" aria-label="Instagram">
           <i class="fab fa-instagram"></i>
         </a>
-        <a href="https://www.tiktok.com/@ActivGym" target="_blank" aria-label="TikTok">
+        <a href="https://www.tiktok.com/@'.NAME_GYM.'" target="_blank" aria-label="TikTok">
           <i class="fab fa-tiktok"></i>
         </a>
       </div>
-      <p><a href="https://www.activgym.com" target="_blank">Visita nuestro sitio web</a></p>
+      <p><a href="https://www.'.NAME_GYM.'.com" target="_blank">Visita nuestro sitio web</a></p>
     </div>
   </div>
 </body>
