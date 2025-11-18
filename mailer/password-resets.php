@@ -35,7 +35,7 @@ function sendResetPasswordEmail($email, $nombreCompleto, $resetLink, $url, $logo
         $mail->CharSet    = 'UTF-8';
 
         // Configurar remitente y destinatario usando los parámetros recibidos
-        $mail->setFrom($GLOBALS['from'], $name);
+        $mail->setFrom($GLOBALS['from'], $GLOBALS['name']);
         $mail->addAddress($email, $nombreCompleto);
 
         // Configurar el contenido del correo (HTML)
