@@ -263,6 +263,193 @@
   animation: spinner 0.6s linear infinite;
 }
 
+
+/* ============================================================
+   BOTONES OUTLINE BOOTSTRAP ESTILO DUOLINGO
+   ============================================================ */
+
+/* Base para outline */
+.btn-outline-primary,
+.btn-outline-secondary,
+.btn-outline-success,
+.btn-outline-danger,
+.btn-outline-warning,
+.btn-outline-info,
+.btn-outline-light,
+.btn-outline-dark {
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  letter-spacing: 0.5px !important;
+  padding: 16px 24px !important;
+  border-radius: 16px !important;
+  transition: all 0.15s ease !important;
+  border-width: 3px !important;
+  background: transparent !important;
+  position: relative !important;
+  box-shadow: none !important;
+}
+
+/* ===============================
+   OUTLINE PRIMARY
+   =============================== */
+.btn-outline-primary {
+  border-color: #0d6efd !important;
+  color: #0d6efd !important;
+}
+
+.btn-outline-primary:hover {
+  background: linear-gradient(180deg, #0d6efd 0%, #0a58ca 100%) !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 0 #084298 !important;
+}
+
+.btn-outline-primary:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 2px 0 #084298 !important;
+}
+
+/* ===============================
+   OUTLINE SECONDARY
+   =============================== */
+.btn-outline-secondary {
+  border-color: #6c757d !important;
+  color: #6c757d !important;
+}
+
+.btn-outline-secondary:hover {
+  background: linear-gradient(180deg, #6c757d 0%, #5a6268 100%) !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 0 #494f54 !important;
+}
+
+.btn-outline-secondary:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 2px 0 #494f54 !important;
+}
+
+/* ===============================
+   OUTLINE SUCCESS
+   =============================== */
+.btn-outline-success {
+  border-color: #198754 !important;
+  color: #198754 !important;
+}
+
+.btn-outline-success:hover {
+  background: linear-gradient(180deg, #198754 0%, #157347 100%) !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 0 #0f5132 !important;
+}
+
+.btn-outline-success:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 2px 0 #0f5132 !important;
+}
+
+/* ===============================
+   OUTLINE DANGER
+   =============================== */
+.btn-outline-danger {
+  border-color: #dc3545 !important;
+  color: #dc3545 !important;
+}
+
+.btn-outline-danger:hover {
+  background: linear-gradient(180deg, #dc3545 0%, #b02a37 100%) !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 0 #842029 !important;
+}
+
+.btn-outline-danger:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 2px 0 #842029 !important;
+}
+
+/* ===============================
+   OUTLINE WARNING
+   =============================== */
+.btn-outline-warning {
+  border-color: #ffc107 !important;
+  color: #664d03 !important; /* igual a bootstrap */
+}
+
+.btn-outline-warning:hover {
+  background: linear-gradient(180deg, #ffc107 0%, #e0a800 100%) !important;
+  color: #212529 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 0 #d39e00 !important;
+}
+
+.btn-outline-warning:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 2px 0 #d39e00 !important;
+}
+
+/* ===============================
+   OUTLINE INFO
+   =============================== */
+.btn-outline-info {
+  border-color: #0dcaf0 !important;
+  color: #0dcaf0 !important;
+}
+
+.btn-outline-info:hover {
+  background: linear-gradient(180deg, #0dcaf0 0%, #0aa2c0 100%) !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 0 #087990 !important;
+}
+
+.btn-outline-info:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 2px 0 #087990 !important;
+}
+
+/* ===============================
+   OUTLINE LIGHT
+   =============================== */
+.btn-outline-light {
+  border-color: #f8f9fa !important;
+  color: #f8f9fa !important;
+}
+
+.btn-outline-light:hover {
+  background: linear-gradient(180deg, #f8f9fa 0%, #e2e6ea 100%) !important;
+  color: #212529 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 0 #dae0e5 !important;
+}
+
+.btn-outline-light:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 2px 0 #dae0e5 !important;
+}
+
+/* ===============================
+   OUTLINE DARK
+   =============================== */
+.btn-outline-dark {
+  border-color: #212529 !important;
+  color: #212529 !important;
+}
+
+.btn-outline-dark:hover {
+  background: linear-gradient(180deg, #343a40 0%, #23272b 100%) !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 0 #1d2124 !important;
+}
+
+.btn-outline-dark:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 2px 0 #1d2124 !important;
+}
+
+
 @keyframes spinner {
   to { transform: rotate(360deg); }
 }
