@@ -90,3 +90,20 @@
           <div class="mb-3">
             <label class="form-label"><strong>Nombre del Remitente</strong></label>
             <input type="text" name="smtp_from_name" class="form-control"
+              value="<?= htmlspecialchars($settings['smtp_from_name'] ?? $name) ?>"
+              placeholder="Ej: ActivGym">
+            <small class="text-muted">Nombre que aparecerá en los correos enviados.</small>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="alert alert-info small mt-4 mb-0">
+        <i class="fas fa-info-circle me-1"></i>
+        Asegúrate de que los datos coincidan con la configuración de tu proveedor SMTP para evitar errores de envío.
+      </div>
+
+    </div>
+  </div>
+</div>
+
