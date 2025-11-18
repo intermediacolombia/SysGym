@@ -268,22 +268,6 @@
 }
 
 
-/* Fix definitivo del halo/blanco en botones Duolingo */
-.btn {
-  position: relative;
-  background-clip: padding-box !important;
-  border: 1px solid transparent !important;
-}
-
-/* Recorte extra para eliminar aliasing */
-.btn::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: inherit;
-  z-index: -1;
-}
 
 
 
