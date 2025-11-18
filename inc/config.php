@@ -1,4 +1,10 @@
 <?php
+error_reporting(E_ALL);          // Muestra todos los errores y warnings
+ini_set('display_errors', 1);    // Activa la visualización de errores
+ini_set('display_startup_errors', 1);
+?>
+
+<?php
 date_default_timezone_set('America/Bogota');
 
 # Config base de datos
