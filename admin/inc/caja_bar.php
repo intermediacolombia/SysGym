@@ -22,18 +22,9 @@ $nombreCompleto = htmlspecialchars(trim("$nombre $apellido"));
 
 // Evita errores si la conexión ya está abierta
 try {
-    if (!isset($pdoLocal)) {
-        $pdoLocal = new PDO(
-            "mysql:host=$host;dbname=$dbname;charset=utf8",
-            $dbuser,
-            $dbpass,
-            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-        );
-    }
-
-    // Si hay caja activa, traer sus datos
+       // Si hay caja activa, traer sus datos
     if ($caja_id) {
-        $stmtVentas = $pdoLocal->prepare("
+        $stmtVentas = db()->prepare("
             SELECT 
               COUNT(*) AS total_registros,
               IFNULL(SUM(CASE WHEN payment_method='Efectivo' THEN valor ELSE 0 END),0) AS efectivo,
