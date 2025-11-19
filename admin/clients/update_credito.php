@@ -25,17 +25,8 @@ $fecha = isset($_POST['fecha']) ? trim($_POST['fecha']) : null; // Opcional
 $payment_method = isset($_POST['paymentMethod']) ? trim($_POST['paymentMethod']) : '';
 $bank = isset($_POST['bank']) ? trim($_POST['bank']) : '';
 
-// Conexión a la BD
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    echo json_encode(['status' => 'error', 'message' => 'Error de conexión: ' . $e->getMessage()]);
-    exit;
-}
-
 // 1. Obtener el crédito actual y datos relacionados
-$stmt = $pdo->prepare("SELECT valor, idCliente, factura_id, fecha, descripcion FROM creditos WHERE id = :credit_id");
+$stmt = db()->prepare("SELECT valor, idCliente, factura_id, fecha, descripcion FROM creditos WHERE id = :credit_id");
 $stmt->execute([':credit_id' => $credit_id]);
 $credit = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -53,13 +44,13 @@ if ($new_valor < 0) {
 }
 
 // 3. Marcar el crédito original como pagado (estado = 1)
-$stmtUpdate = $pdo->prepare("UPDATE creditos SET estado = 1 WHERE id = :credit_id");
+$stmtUpdate = db()->prepare("UPDATE creditos SET estado = 1 WHERE id = :credit_id");
 $stmtUpdate->execute([':credit_id' => $credit_id]);
 
 $new_credit_id = null;
 // 4. Si queda saldo, crear un nuevo crédito con ese saldo restante
 if ($new_valor > 0) {
-    $stmtInsert = $pdo->prepare("INSERT INTO creditos 
+    $stmtInsert = db()->prepare("INSERT INTO creditos 
         (idCliente, factura_id, fecha, valor, fecha_limite, estado, descripcion)
         VALUES (:idCliente, :factura_id, :fecha, :valor, :fecha_limite, 0, :descripcion)");
     $stmtInsert->execute([
@@ -70,11 +61,11 @@ if ($new_valor > 0) {
         ':fecha_limite' => $fecha_limite,
         ':descripcion'  => $descripcion ? $descripcion : $credit['descripcion']
     ]);
-    $new_credit_id = $pdo->lastInsertId();
+    $new_credit_id = db()->lastInsertId();
 }
 
 // 5. Obtener la información del cliente para generar la factura
-$stmtClient = $pdo->prepare("SELECT * FROM clientes WHERE id = :id");
+$stmtClient = db()->prepare("SELECT * FROM clientes WHERE id = :id");
 $stmtClient->execute([':id' => $credit['idCliente']]);
 $clientInfo = $stmtClient->fetch(PDO::FETCH_ASSOC);
 if (!$clientInfo) {
@@ -134,14 +125,14 @@ if (!$facturaIdNueva) {
 // 8. Si se creó un nuevo crédito (con saldo restante) se actualizan ambas tablas para vincularlas
 if ($new_credit_id) {
     // Actualizar la factura para guardar el ID del nuevo crédito en la columna "credito_id"
-    $stmtUpdFac = $pdo->prepare("UPDATE facturas SET credito_id = :credito_id WHERE id = :factura_id");
+    $stmtUpdFac = db()->prepare("UPDATE facturas SET credito_id = :credito_id WHERE id = :factura_id");
     $stmtUpdFac->execute([
         ':credito_id' => $new_credit_id,
         ':factura_id' => $facturaIdNueva
     ]);
     
     // Actualizar el nuevo crédito para asociarlo a la nueva factura (campo "factura_id")
-    $stmtUpdCred = $pdo->prepare("UPDATE creditos SET factura_id = :factura_id WHERE id = :credit_id");
+    $stmtUpdCred = db()->prepare("UPDATE creditos SET factura_id = :factura_id WHERE id = :credit_id");
     $stmtUpdCred->execute([
         ':factura_id' => $facturaIdNueva,
         ':credit_id'  => $new_credit_id

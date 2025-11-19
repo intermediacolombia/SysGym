@@ -15,11 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = trim($_POST['id']);
     
     try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        
         // Se obtiene la fecha original de vencimiento y la fecha en que se congeló el plan
-        $stmt = $pdo->prepare("SELECT vencimiento_plan, fecha_congelado FROM clientes WHERE id = :id");
+        $stmt = db()->prepare("SELECT vencimiento_plan, fecha_congelado FROM clientes WHERE id = :id");
         $stmt->execute([':id' => $id]);
         $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
         
@@ -50,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $nuevaFechaVencimiento = date("Y-m-d", strtotime($hoy . " + {$diasRestantes} days"));
         
         // Actualiza el registro: descongela el plan (congelado = 0), borra la fecha de congelado y actualiza el vencimiento.
-        $stmt = $pdo->prepare("UPDATE clientes 
+        $stmt = db()->prepare("UPDATE clientes 
                                SET congelado = 0, 
                                    fecha_congelado = NULL, 
                                    vencimiento_plan = :nuevaFechaVencimiento,

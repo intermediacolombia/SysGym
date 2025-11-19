@@ -1,11 +1,11 @@
 <?php
-require_once __DIR__ . '/../login/session.php'; // Ya maneja la sesión
+require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
 
 header('Content-Type: application/json; charset=UTF-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['status' => 'error', 'message' => 'Método no permitido.']);
+    echo json_encode(['status' => 'error', 'message' => 'M�todo no permitido.']);
     exit;
 }
 
@@ -25,15 +25,13 @@ $secondPaymentMethod = trim($_POST['secondPaymentMethod'] ?? '');
 $secondBank = trim($_POST['secondBank'] ?? '');
 $firstPaymentValue = floatval($_POST['first_payment_value'] ?? 0);
 $secondPaymentValue = floatval($_POST['second_payment_value'] ?? 0);
-$respetarFechas = isset($_POST['respetarFechas']) && $_POST['respetarFechas'] == '1'; // 👈 nuevo campo
+
+$respetarFechas = isset($_POST['respetarFechas']) && $_POST['respetarFechas'] == '1';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]);
 
-    // === Obtener datos del cliente y su plan ===
-    $stmt = $pdo->prepare("
+    // Obtener datos del cliente y plan
+    $stmt = db()->prepare("
         SELECT c.nombres, c.apellidos, c.dialCode, c.telefono, c.notificaciones,
                c.pago_plan, c.vencimiento_plan, c.plan,
                p.precio, p.dias, p.frecuencia
@@ -49,7 +47,7 @@ try {
         exit;
     }
 
-    // === Fechas base ===
+    // Fechas base
     date_default_timezone_set('America/Bogota');
     $hoy = new DateTime('today');
 
@@ -58,22 +56,23 @@ try {
     $planMeses = (int)$cliente['frecuencia'];
     $planPrecio = (float)$cliente['precio'];
 
-    // === Lógica para respetar fechas guardadas ===
+    // Mantener fechas existentes
     if ($respetarFechas && !empty($cliente['pago_plan']) && !empty($cliente['vencimiento_plan'])) {
-        // ✅ Mantener las fechas actuales
         $pago_plan = $cliente['pago_plan'];
         $vencimiento_plan = $cliente['vencimiento_plan'];
+
     } else {
-        // === Calcular nuevo vencimiento (inclusivo, considerando meses y días) ===
+
+        // Funci�n para calcular fin de plan
         $calcFechaFin = function (DateTime $inicio, int $meses, int $dias): DateTime {
             $fin = clone $inicio;
+
             if ($meses > 0) {
                 $fin->modify("+{$meses} months");
-                $fin->modify('-1 day'); // Inclusivo al mes
+                $fin->modify('-1 day');
             }
             if ($dias > 0) {
-                // Si además tiene días, se suman, pero se respeta la inclusividad
-                $fin->modify('+' . ($dias) . ' days');
+                $fin->modify("+{$dias} days");
             }
             return $fin;
         };
@@ -81,10 +80,8 @@ try {
         $estaVencidoOVenceHoy = (!$vencAnterior) || ($vencAnterior <= $hoy);
 
         if ($estaVencidoOVenceHoy) {
-            // Si el plan está vencido o vence hoy → se renueva desde hoy
             $inicio = clone $hoy;
         } else {
-            // Pago anticipado → se renueva desde el día siguiente al vencimiento actual
             $inicio = clone $vencAnterior;
             $inicio->modify('+1 day');
         }
@@ -95,8 +92,9 @@ try {
         $vencimiento_plan = $nuevoVencimiento->format('Y-m-d');
     }
 
-    // === Actualizar cliente ===
-    $stmt = $pdo->prepare("UPDATE clientes SET 
+    // Actualizar cliente
+    $stmt = db()->prepare("
+        UPDATE clientes SET 
         pago_plan = :pago_plan,
         vencimiento_plan = :vencimiento_plan,
         estado = 'activo',
@@ -110,70 +108,62 @@ try {
         ':id' => $id
     ]);
 
-    // === Registrar factura ===
+    // Generar factura
     ob_start();
     include_once('generate_factura.php');
     ob_end_clean();
 
-    $stmtFactura = $pdo->query("SELECT MAX(id) as factura_id FROM facturas");
+    // Obtener ID factura
+    $stmtFactura = db()->query("SELECT MAX(id) AS factura_id FROM facturas");
     $facturaData = $stmtFactura->fetch(PDO::FETCH_ASSOC);
-    $factura_id = $facturaData ? $facturaData['factura_id'] : null;
+    $factura_id = $facturaData['factura_id'] ?? null;
+
     $detalleBase = "Factura #$factura_id";
 
-    // === Registrar venta ===
+    // REGISTRO DE VENTAS
     if ($splitPayment) {
-        registrarVenta($pdo, $id, $firstPaymentValue, $payment_method, $bank, $detalleBase);
-        registrarVenta($pdo, $id, $secondPaymentValue, $secondPaymentMethod, $secondBank, $detalleBase);
+        registrarVenta($id, $firstPaymentValue, $payment_method, $bank, $detalleBase);
+        registrarVenta($id, $secondPaymentValue, $secondPaymentMethod, $secondBank, $detalleBase);
     } else {
         $valorVenta = $credit ? $valorPagado : $planPrecio;
-        registrarVenta($pdo, $id, $valorVenta, $payment_method, $bank, $detalleBase);
+        registrarVenta($id, $valorVenta, $payment_method, $bank, $detalleBase);
     }
 
-    // === Notificar por WhatsApp (si aplica) ===
+    // Notificaciones WhatsApp
     if ((int)$cliente['notificaciones'] === 1) {
 
-        // Variables esperadas por client-pay.php
-        $cp_nombres          = $cliente['nombres'];
-        $cp_apellidos        = $cliente['apellidos'] ?? '';
-        $cp_dialCode         = $cliente['dialCode'];
-        $cp_telefono         = $cliente['telefono'];
-        $cp_pago_plan        = $pago_plan;
+        $cp_nombres = $cliente['nombres'];
+        $cp_apellidos = $cliente['apellidos'] ?? '';
+        $cp_dialCode = $cliente['dialCode'];
+        $cp_telefono = $cliente['telefono'];
+        $cp_pago_plan = $pago_plan;
         $cp_vencimiento_plan = $vencimiento_plan;
-        $facturaId           = $factura_id;
+        $facturaId = $factura_id;
 
         ob_start();
         include('../../whatsapp/client-pay.php');
         $clientPayResponse = ob_get_clean();
-
-        // Log opcional (para debug)
-        file_put_contents(__DIR__ . '/whatsapp_log.txt',
-            date('Y-m-d H:i:s') . " | WS Pago cliente $id | " . $clientPayResponse . "\n",
-            FILE_APPEND
-        );
     }
-	
-// Determinar el valor real pagado
-if ($splitPayment) {
-    $valorRegistrado = $firstPaymentValue + $secondPaymentValue;
-} else {
-    $valorRegistrado = $credit ? $valorPagado : $planPrecio;
-}
 
-// LOGS
-require_once __DIR__ . '/../inc/log_action.php';
-$desc = json_encode([
-    'cliente_id' => $id,
-    'pago_plan' => $pago_plan,
-    'vencimiento_plan' => $vencimiento_plan,
-    'metodo_pago' => $payment_method,
-    'banco' => $bank,
-    'valor_pagado' => $valorRegistrado
-], JSON_UNESCAPED_UNICODE);
+    // Determinar valor real pagado
+    if ($splitPayment) {
+        $valorRegistrado = $firstPaymentValue + $secondPaymentValue;
+    } else {
+        $valorRegistrado = $credit ? $valorPagado : $planPrecio;
+    }
 
-log_action('Marcar pago', $desc, 'Pagos');
+    // LOGS
+    require_once __DIR__ . '/../inc/log_action.php';
+    $desc = json_encode([
+        'cliente_id' => $id,
+        'pago_plan' => $pago_plan,
+        'vencimiento_plan' => $vencimiento_plan,
+        'metodo_pago' => $payment_method,
+        'banco' => $bank,
+        'valor_pagado' => $valorRegistrado
+    ], JSON_UNESCAPED_UNICODE);
 
-	
-//End LOGS	
+    log_action('Marcar pago', $desc, 'Pagos');
 
     echo json_encode([
         'status' => 'success',
@@ -183,36 +173,36 @@ log_action('Marcar pago', $desc, 'Pagos');
         'telefono' => $cliente['telefono'],
         'pago_plan' => $pago_plan,
         'vencimiento_plan' => $vencimiento_plan,
-        'valor_pagado' => $valorPagado,
+        'valor_pagado' => $valorRegistrado,
         'client_pay_response' => $clientPayResponse ?? ''
     ]);
     exit;
 
-} catch (PDOException $e) {
-    echo json_encode(['status' => 'error', 'message' => 'Error de BD: ' . $e->getMessage()]);
-    exit;
-} catch (Exception $ex) {
-    echo json_encode(['status' => 'error', 'message' => $ex->getMessage()]);
+} catch (Exception $e) {
+    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     exit;
 }
 
-// === Función para registrar la venta ===
-function registrarVenta($pdo, $clienteId, $valor, $metodo, $banco, $detalle = 'Pago') {
+
+/* ====================================
+   FUNCI�N CORREGIDA (YA NO RECIBE db())
+   ==================================== */
+function registrarVenta($clienteId, $valor, $metodo, $banco, $detalle = 'Pago') {
     global $id_user;
 
-    $stmtCaja = $pdo->prepare("SELECT id FROM cajas WHERE usuario_id = :usuario_id AND estado = 1 LIMIT 1");
+    $stmtCaja = db()->prepare("SELECT id FROM cajas WHERE usuario_id = :usuario_id AND estado = 1 LIMIT 1");
     $stmtCaja->execute([':usuario_id' => $id_user]);
     $caja = $stmtCaja->fetch(PDO::FETCH_ASSOC);
+
     if (!$caja) return false;
 
-    $stmtInsert = $pdo->prepare("INSERT INTO ventas 
+    $stmtInsert = db()->prepare("INSERT INTO ventas 
         (caja_id, detalle, cantidad, valor, payment_method, bank, fecha, hora)
-        VALUES (:caja_id, :detalle, :cantidad, :valor, :payment_method, :bank, :fecha, :hora)");
+        VALUES (:caja_id, :detalle, 1, :valor, :payment_method, :bank, :fecha, :hora)");
 
     return $stmtInsert->execute([
         ':caja_id' => $caja['id'],
         ':detalle' => $detalle,
-        ':cantidad' => 1,
         ':valor' => $valor,
         ':payment_method' => $metodo,
         ':bank' => $banco,
@@ -221,6 +211,7 @@ function registrarVenta($pdo, $clienteId, $valor, $metodo, $banco, $detalle = 'P
     ]);
 }
 ?>
+
 
 
 

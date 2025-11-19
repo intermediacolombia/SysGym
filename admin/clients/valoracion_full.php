@@ -9,11 +9,8 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 $id = (int)$_GET['id'];
 
 try {
-  $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8",
-                 $dbuser,$dbpass,
-                 [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
 
-  $stmt = $pdo->prepare("SELECT * FROM valoraciones WHERE id=:id");
+  $stmt = db()->prepare("SELECT * FROM valoraciones WHERE id=:id");
   $stmt->execute([':id'=>$id]);
   $row = $stmt->fetch(PDO::FETCH_ASSOC);
   echo json_encode($row ?: ['error'=>'No encontrada']);
