@@ -7,9 +7,6 @@ require_once __DIR__ . '/../../inc/config.php';
 
 /* -------- consulta (día en español) -------- */
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8",
-                   $dbuser,$dbpass,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
-
     $pdo->exec("SET lc_time_names = 'es_ES';");        // «lunes», «martes»…
 
     $stmt = $pdo->query("
