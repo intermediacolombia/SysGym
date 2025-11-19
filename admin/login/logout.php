@@ -6,7 +6,7 @@ session_start();
 // Si existe la cookie "remember_me", elimina el token de la base de datos y la cookie
 if (isset($_COOKIE['remember_me'])) {
     $token = $_COOKIE['remember_me'];
-    $stmt = bd()->prepare("DELETE FROM user_tokens WHERE token = :token");
+    $stmt = db()->prepare("DELETE FROM user_tokens WHERE token = :token");
     $stmt->execute([':token' => $token]);
     setcookie('remember_me', '', time() - 3600, '/', 'sysgym.intermediacolombia.com', true, true);
 }

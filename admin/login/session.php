@@ -17,12 +17,12 @@ ini_set('session.gc_maxlifetime', $tiempoUnAno);
 session_start();
 
 
-// Aquí se usa bd(), por ejemplo, para revisar la cookie "remember_me"
+// Aquí se usa db(), por ejemplo, para revisar la cookie "remember_me"
 if (!isset($_SESSION["user"]) && isset($_COOKIE['remember_me'])) {
     $token = $_COOKIE['remember_me'];
     $now = time();
 
-    $stmt = bd()->prepare("SELECT user_id FROM user_tokens WHERE token = :token AND expires_at > :now LIMIT 1");
+    $stmt = db()->prepare("SELECT user_id FROM user_tokens WHERE token = :token AND expires_at > :now LIMIT 1");
     $stmt->execute([
         ':token' => $token,
         ':now'   => $now
@@ -30,7 +30,7 @@ if (!isset($_SESSION["user"]) && isset($_COOKIE['remember_me'])) {
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($result) {
-        $stmtUser = bd()->prepare("SELECT * FROM usuarios WHERE id = :id LIMIT 1");
+        $stmtUser = db()->prepare("SELECT * FROM usuarios WHERE id = :id LIMIT 1");
         $stmtUser->execute([':id' => $result['user_id']]);
         $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
@@ -39,7 +39,7 @@ if (!isset($_SESSION["user"]) && isset($_COOKIE['remember_me'])) {
             // Opcional: regenerar el token para mayor seguridad
             $newToken = bin2hex(random_bytes(16));
             $newExpiry = $now + (30 * 24 * 60 * 60);
-            $updateStmt = bd()->prepare("UPDATE user_tokens SET token = :newToken, expires_at = :newExpiry WHERE token = :oldToken");
+            $updateStmt = db()->prepare("UPDATE user_tokens SET token = :newToken, expires_at = :newExpiry WHERE token = :oldToken");
             $updateStmt->execute([
                 ':newToken'  => $newToken,
                 ':newExpiry' => $newExpiry,
@@ -66,7 +66,7 @@ $rol_id    = $_SESSION["user"]["rol_id"]; // Obtener el ID del rol
 
 // Consultar el nombre del rol
 try {
-    $stmtRol = bd()->prepare("SELECT name FROM roles WHERE id = :rol_id LIMIT 1");
+    $stmtRol = db()->prepare("SELECT name FROM roles WHERE id = :rol_id LIMIT 1");
     $stmtRol->execute([':rol_id' => $rol_id]);
     $rolData = $stmtRol->fetch(PDO::FETCH_ASSOC);
     $rolUser = $rolData ? $rolData['name'] : 'Sin Rol'; // Almacenar el nombre del rol
@@ -77,7 +77,7 @@ try {
 
 // Consultar los permisos asociados al rol del usuario
 try {
-    $stmtPermisos = bd()->prepare("SELECT p.name AS permission_name 
+    $stmtPermisos = db()->prepare("SELECT p.name AS permission_name 
                                    FROM role_permissions rp 
                                    JOIN permissions p ON rp.permission_id = p.id 
                                    WHERE rp.role_id = :rol_id");
@@ -91,7 +91,7 @@ try {
 $_SESSION["user_permissions"] = $permisos;
 
 // Obtener la caja abierta para el usuario actual
-$stmtCaja = bd()->prepare("SELECT id FROM cajas WHERE usuario_id = :usuario_id AND estado = 1 LIMIT 1");
+$stmtCaja = db()->prepare("SELECT id FROM cajas WHERE usuario_id = :usuario_id AND estado = 1 LIMIT 1");
 $stmtCaja->execute([':usuario_id' => $id_user]);
 $caja = $stmtCaja->fetch(PDO::FETCH_ASSOC);
 $caja_id = $caja ? $caja['id'] : null;

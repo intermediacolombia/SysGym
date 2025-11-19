@@ -24,7 +24,7 @@ if (!$token) {
 }
 
 // Buscar el token en la base de datos y verificar que no haya expirado
-$stmt = bd()->prepare("SELECT user_id, expires_at FROM password_resets WHERE token = :token LIMIT 1");
+$stmt = db()->prepare("SELECT user_id, expires_at FROM password_resets WHERE token = :token LIMIT 1");
 $stmt->execute([':token' => $token]);
 $resetRequest = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -48,13 +48,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-        $stmt = bd()->prepare("UPDATE usuarios SET password = :password WHERE id = :id");
+        $stmt = db()->prepare("UPDATE usuarios SET password = :password WHERE id = :id");
         $stmt->execute([
             ':password' => $passwordHash,
             ':id'       => $resetRequest['user_id']
         ]);
 
-        $stmt = bd()->prepare("DELETE FROM password_resets WHERE token = :token");
+        $stmt = db()->prepare("DELETE FROM password_resets WHERE token = :token");
         $stmt->execute([':token' => $token]);
 
         $message = "Tu contraseña ha sido actualizada correctamente. Ahora puedes iniciar sesión con tu nueva contraseña.";
