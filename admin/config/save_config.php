@@ -3,11 +3,8 @@ require_once __DIR__ . '/../login/session.php';
 header('Content-Type: application/json');
 
 try {
-    $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
-    $pdo = new PDO($dsn, $dbuser, $dbpass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]);
-    $pdo->exec("SET NAMES utf8mb4");
+    
+    db()->exec("SET NAMES utf8mb4");
 
     // === GUARDAR ARCHIVOS ===
     $uploadDir = __DIR__ . '/../uploads/';
@@ -20,7 +17,7 @@ try {
             $filename = $fileKey . '_' . time() . '.' . $ext;
             $dest = $uploadDir . $filename;
             if (move_uploaded_file($_FILES[$fileKey]['tmp_name'], $dest)) {
-                $stmt = $pdo->prepare("
+                $stmt = db()->prepare("
                     INSERT INTO system_settings (setting_name, value, enabled)
                     VALUES (:name, :value, 1)
                     ON DUPLICATE KEY UPDATE value = :value, updated_at = CURRENT_TIMESTAMP
@@ -32,7 +29,7 @@ try {
 
     // === GUARDAR CAMPOS DE TEXTO ===
     foreach ($_POST as $key => $value) {
-        $stmt = $pdo->prepare("
+        $stmt = db()->prepare("
             INSERT INTO system_settings (setting_name, value, enabled)
             VALUES (:name, :value, 1)
             ON DUPLICATE KEY UPDATE value = :value, updated_at = CURRENT_TIMESTAMP

@@ -5,14 +5,11 @@ include('../login/restriction.php');
 
 try {
     // Conexión PDO
-    $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
-    $pdo = new PDO($dsn, $dbuser, $dbpass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]);
-    $pdo->exec("SET NAMES 'utf8mb4'");
+    
+    db()->exec("SET NAMES 'utf8mb4'");
 
     // Cargar todas las configuraciones
-    $stmt = $pdo->query("SELECT setting_name, value FROM system_settings WHERE enabled = 1");
+    $stmt = db()->query("SELECT setting_name, value FROM system_settings WHERE enabled = 1");
     $settings = [];
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $settings[$row['setting_name']] = $row['value'];
