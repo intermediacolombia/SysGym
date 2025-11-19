@@ -16,8 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
    //include('../../inc/config.php');
 // Conexión a la base de datos mediante PDO
     try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        bd();
     } catch (PDOException $e) {
         $_SESSION['error'] = "Error de conexión: " . $e->getMessage();
         header("Location: $url/admin/login/");
@@ -29,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST["password"] ?? "";
 
     // Buscar el usuario por nombre de usuario (único)
-    $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE username = :username LIMIT 1");
+    $stmt = bd()->prepare("SELECT * FROM usuarios WHERE username = :username LIMIT 1");
     $stmt->execute(["username" => $username]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -53,12 +52,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $intentos = $user["intentos"] + 1;
         if ($intentos >= 5) {
             // Se alcanzó el máximo de intentos, se marca al usuario como inactivo
-            $stmt = $pdo->prepare("UPDATE usuarios SET intentos = :intentos, estado = 1 WHERE id = :id");
+            $stmt = bd()->prepare("UPDATE usuarios SET intentos = :intentos, estado = 1 WHERE id = :id");
             $stmt->execute(["intentos" => $intentos, "id" => $user["id"]]);
             $_SESSION["error"] = "Usuario inactivo, comuníquese con el administrador.";
         } else {
             // Actualizar el número de intentos y mostrar los intentos restantes
-            $stmt = $pdo->prepare("UPDATE usuarios SET intentos = :intentos WHERE id = :id");
+            $stmt = bd()->prepare("UPDATE usuarios SET intentos = :intentos WHERE id = :id");
             $stmt->execute(["intentos" => $intentos, "id" => $user["id"]]);
             $restantes = 5 - $intentos;
             $_SESSION["error"] = "Nombre de usuario o contraseña incorrectos. Tienes $restantes intento(s) más.";
@@ -68,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // La contraseña es correcta: reiniciamos el contador de intentos
-    $stmt = $pdo->prepare("UPDATE usuarios SET intentos = 0 WHERE id = :id");
+    $stmt = bd()->prepare("UPDATE usuarios SET intentos = 0 WHERE id = :id");
     $stmt->execute(["id" => $user["id"]]);
 
     // Iniciar sesión: almacenar los datos del usuario en sesión
@@ -83,7 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $expiry = time() + (30 * 24 * 60 * 60);
 
         // Inserta el token en la base de datos (asegúrate de tener la tabla user_tokens)
-        $stmtToken = $pdo->prepare("INSERT INTO user_tokens (user_id, token, expires_at) VALUES (:user_id, :token, :expires_at)");
+        $stmtToken = bd()->prepare("INSERT INTO user_tokens (user_id, token, expires_at) VALUES (:user_id, :token, :expires_at)");
         $stmtToken->execute([
              ':user_id'    => $user["id"],
              ':token'      => $token,

@@ -12,14 +12,6 @@ if(isset($_SESSION['user'])) {
     exit();
 }
 
-// Conexión a la base de datos mediante PDO
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Error de conexión: " . $e->getMessage());
-}
-
 $messageSent = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -27,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $correo = filter_var($_POST['correo'], FILTER_SANITIZE_EMAIL);
 
     // Busca el usuario por correo
-    $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE correo = :correo AND estado = 0 AND borrado = 0 LIMIT 1");
+    $stmt = db()->prepare("SELECT * FROM usuarios WHERE correo = :correo AND estado = 0 AND borrado = 0 LIMIT 1");
     $stmt->execute([':correo' => $correo]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -38,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $expires = time() + 3600;
 
         // Guarda el token en la tabla password_resets
-        $stmtReset = $pdo->prepare("INSERT INTO password_resets (user_id, token, expires_at) VALUES (:user_id, :token, :expires_at)
+        $stmtReset = db()->prepare("INSERT INTO password_resets (user_id, token, expires_at) VALUES (:user_id, :token, :expires_at)
                                     ON DUPLICATE KEY UPDATE token = :token, expires_at = :expires_at");
         $stmtReset->execute([
             ':user_id'    => $user['id'],
