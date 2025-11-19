@@ -7,12 +7,6 @@
 require_once __DIR__ . '/../../inc/config.php';
 
 try {
-    $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8",
-        $dbuser, $dbpass,
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-    );
-
     /* ------------------------------------------------------------------
        UPDATE con JOIN – todo en una sola sentencia
     ------------------------------------------------------------------ */
@@ -35,7 +29,7 @@ try {
         AND c.estado  = 1;          -- sólo cajas abiertas
     ";
 
-    $filas = $pdo->exec($sql);
+    $filas = db()->exec($sql);
     echo "Se cerraron $filas cajas abiertas.\n";
 
 } catch (PDOException $e) {

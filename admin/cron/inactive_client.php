@@ -2,13 +2,9 @@
 include __DIR__.'/../../inc/config.php';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8",$dbuser,$dbpass,[
-        PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION
-    ]);
-
     $hoy = date('Y-m-d');
 
-    $stmtSelect = $pdo->prepare("
+    $stmtSelect = db()->prepare("
         SELECT *
           FROM clientes
          WHERE borrado = 0
@@ -23,7 +19,7 @@ try {
         $ids = array_column($clientsToUpdate,'id');
         $placeholders = implode(',', array_fill(0,count($ids),'?'));
 
-        $stmtUpdate = $pdo->prepare(
+        $stmtUpdate = db()->prepare(
             "UPDATE clientes
                 SET estado='inactivo', updated_at=NOW()
               WHERE borrado=0 AND id IN ($placeholders)"

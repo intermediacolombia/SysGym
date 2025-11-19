@@ -14,22 +14,9 @@ $urlEndpoint = 'https://api.360messenger.com/v2/sendMessage';
 
 $limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 200;
 
-try {
-    $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
-        $dbuser,
-        $dbpass,
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-    );
-} catch (PDOException $e) {
-    http_response_code(500);
-    echo "Error de conexión BD: " . $e->getMessage();
-    exit;
-}
-
 // Traer pendientes (en orden FIFO)
 $sql = "SELECT id, phonenumber, text, url FROM ws_outbox ORDER BY id ASC LIMIT :lim";
-$st  = $pdo->prepare($sql);
+$st  = db()->prepare($sql);
 $st->bindValue(':lim', $limit, PDO::PARAM_INT);
 $st->execute();
 $rows = $st->fetchAll(PDO::FETCH_ASSOC);
@@ -39,7 +26,7 @@ if (!$rows) {
     exit;
 }
 
-$deleteSt = $pdo->prepare("DELETE FROM ws_outbox WHERE id = :id");
+$deleteSt = db()->prepare("DELETE FROM ws_outbox WHERE id = :id");
 
 $ok = 0;
 $fail = 0;

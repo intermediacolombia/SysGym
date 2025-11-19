@@ -2,13 +2,9 @@
 include(__DIR__ . '/../../inc/config.php');
 
 try {
-    // Conectar a la base de datos
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    // Consulta para obtener los clientes activos cuyo plan vence en 7 días
+   // Consulta para obtener los clientes activos cuyo plan vence en 7 días
     // y que tienen activadas las notificaciones (notificaciones = 1)
-    $stmt = $pdo->prepare("
+    $stmt = db()->prepare("
         SELECT c.id, c.identificacion, c.nombres, c.apellidos, c.dialCode, c.telefono, c.vencimiento_plan,  
                p.nombre AS plan, p.precio AS valor_pago
         FROM clientes c

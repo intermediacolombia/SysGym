@@ -1,13 +1,10 @@
 <?php
 include(__DIR__ . '/../../inc/config.php');
 
-try {
-    // Conectar a la base de datos
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
+try {  
+  
     // Consulta para obtener los clientes que cumplen años hoy
-    $stmt = $pdo->prepare("SELECT * 
+    $stmt = db()->prepare("SELECT * 
                            FROM clientes 
                            WHERE borrado = 0 AND estado = 'activo' 
                              AND MONTH(fecha_nacimiento) = MONTH(CURDATE()) 

@@ -12,10 +12,7 @@ include(__DIR__ . '/../../inc/config.php');
 
 try {
     // Conexión a la BD
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	
-	$pdo->exec("SET lc_time_names = 'es_ES'");
+    db()->exec("SET lc_time_names = 'es_ES'");
 
     /*-------------------------------------------------------------
      * Consulta:
@@ -53,7 +50,7 @@ try {
 
 
 
-    $stmt = $pdo->prepare($sql);
+    $stmt = db()->prepare($sql);
     $stmt->execute();
     $creditReminders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
