@@ -24,41 +24,35 @@ try {
 
     if ($caja_id) {
 
-        // --- VENTAS ---
-        $stmtVentas = db()->prepare("
+        // --- INGRESOS ---
+        $stmtIngresos = db()->prepare("
             SELECT 
-              COUNT(*) AS total_registros,
-              IFNULL(SUM(CASE WHEN payment_method='Efectivo' THEN valor ELSE 0 END),0) AS efectivo,
-              IFNULL(SUM(CASE WHEN payment_method='Transferencia' THEN valor ELSE 0 END),0) AS transferencias
+              IFNULL(SUM(CASE WHEN payment_method='Efectivo' THEN valor ELSE 0 END), 0) AS efectivo,
+              IFNULL(SUM(CASE WHEN payment_method='Transferencia' THEN valor ELSE 0 END), 0) AS transferencias,
+              IFNULL(SUM(CASE WHEN payment_method='Egreso' THEN valor ELSE 0 END), 0) AS egresos
             FROM ventas
             WHERE caja_id = :caja_id
         ");
-        $stmtVentas->execute([':caja_id' => $caja_id]);
-        $ventas = $stmtVentas->fetch(PDO::FETCH_ASSOC);
+        $stmtIngresos->execute([':caja_id' => $caja_id]);
+        $datos = $stmtIngresos->fetch(PDO::FETCH_ASSOC);
 
-        $efectivo = (float)($ventas['efectivo'] ?? 0);
-        $transferencias = (float)($ventas['transferencias'] ?? 0);
+        $efectivo       = (float)($datos['efectivo'] ?? 0);
+        $transferencias = (float)($datos['transferencias'] ?? 0);
+        $egresos        = (float)($datos['egresos'] ?? 0);
+
+        // Total de ingresos
         $totalIngresos = $efectivo + $transferencias;
 
-        // --- EGRESOS ---
-        $stmtEgresos = db()->prepare("
-            SELECT IFNULL(SUM(valor),0) AS total_egresos
-            FROM egresos
-            WHERE caja_id = :caja_id
-        ");
-        $stmtEgresos->execute([':caja_id' => $caja_id]);
-        $egresos = (float)$stmtEgresos->fetchColumn();
-
-        // --- TOTAL DE CAJA ---
+        // --- TOTAL FINAL DE CAJA ---
         $totalCaja = $totalIngresos - $egresos;
 
     } else {
-        $efectivo = $transferencias = $totalIngresos = $egresos = $totalCaja = 0;
+        $efectivo = $transferencias = $egresos = $totalIngresos = $totalCaja = 0;
     }
 
 } catch (PDOException $e) {
     error_log("Error en caja_bar: " . $e->getMessage());
-    $efectivo = $transferencias = $totalIngresos = $egresos = $totalCaja = 0;
+    $efectivo = $transferencias = $egresos = $totalIngresos = $totalCaja = 0;
 }
 ?>
 
