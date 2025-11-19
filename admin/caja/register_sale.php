@@ -7,16 +7,10 @@ require_once __DIR__ . '/check_stock_alert.php';
 
 header('Content-Type: application/json');
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e){
-    echo json_encode(['status'=>'error', 'message'=>'Error en la conexión']);
-    exit;
-}
+
 
 // 1) Verificar caja abierta del usuario actual
-$stmtCaja = $pdo->prepare("SELECT id FROM cajas WHERE usuario_id = :usuario_id AND estado = 1 LIMIT 1");
+$stmtCaja = db()->prepare("SELECT id FROM cajas WHERE usuario_id = :usuario_id AND estado = 1 LIMIT 1");
 $stmtCaja->execute([':usuario_id' => $id_user]);
 $caja = $stmtCaja->fetch(PDO::FETCH_ASSOC);
 if(!$caja){
@@ -73,7 +67,7 @@ if ($skip_stock) {
 // 5) Obtener stock actual sólo si vamos a afectar stock
 $stock_actual = null;
 if (!$skip_stock) {
-    $stmtProducto = $pdo->prepare("SELECT stock FROM productos WHERE id = :id AND borrado = 0");
+    $stmtProducto = db()->prepare("SELECT stock FROM productos WHERE id = :id AND borrado = 0");
     $stmtProducto->execute([':id' => $producto_id]);
     $producto = $stmtProducto->fetch(PDO::FETCH_ASSOC);
     if(!$producto){
@@ -109,13 +103,13 @@ if ($valor_override !== null) {
 }
 
 // 7) Registrar transacción
-$pdo->beginTransaction();
+db()->beginTransaction();
 try {
     $fecha = date('Y-m-d');
     $hora  = date('H:i:s');
 
     // Insert en ventas
-    $stmtInsert = $pdo->prepare("
+    $stmtInsert = db()->prepare("
         INSERT INTO ventas
             (caja_id, producto_id, detalle, cantidad, valor, coste, fecha, hora, payment_method, bank)
         VALUES
@@ -136,16 +130,16 @@ try {
 
     // Descontar stock sólo si corresponde
     if (!$skip_stock) {
-        $stmtUpdate = $pdo->prepare("UPDATE productos SET stock = stock - :cantidad WHERE id = :id");
+        $stmtUpdate = db()->prepare("UPDATE productos SET stock = stock - :cantidad WHERE id = :id");
         $stmtUpdate->execute([':cantidad' => $cantidad_final, ':id' => $producto_id]);
     }
 
-    $pdo->commit();
+    db()->commit();
 
     // 8) Obtener nuevo stock (si afectó), si no, mantener el actual
     if ($skip_stock) {
         // Si no hubo afectación, devolvemos el stock vigente (consultamos para consistencia)
-        $stmtNew = $pdo->prepare("SELECT stock FROM productos WHERE id = :id");
+        $stmtNew = db()->prepare("SELECT stock FROM productos WHERE id = :id");
         $stmtNew->execute([':id' => $producto_id]);
         $nuevo = $stmtNew->fetch(PDO::FETCH_ASSOC);
         $nuevo_stock = $nuevo ? (int)$nuevo['stock'] : 0;
@@ -160,7 +154,7 @@ try {
     }
 
     // 9) Total en caja para esta caja
-    $stmtTotal = $pdo->prepare("SELECT IFNULL(SUM(valor), 0) AS total FROM ventas WHERE caja_id = :caja_id");
+    $stmtTotal = db()->prepare("SELECT IFNULL(SUM(valor), 0) AS total FROM ventas WHERE caja_id = :caja_id");
     $stmtTotal->execute([':caja_id' => $caja_id]);
     $rowTotal = $stmtTotal->fetch(PDO::FETCH_ASSOC);
     $total_caja = $rowTotal ? (int)$rowTotal['total'] : 0;
@@ -172,7 +166,7 @@ try {
         'total_caja'   => $total_caja
     ]);
 } catch(Exception $e) {
-    $pdo->rollBack();
+    db()->rollBack();
     echo json_encode(['status'=>'error', 'message'=>'Error al registrar la venta: ' . $e->getMessage()]);
 }
 
