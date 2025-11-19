@@ -9,23 +9,17 @@ if ($caja_id <= 0) {
 }
 
 // Crear conexión local
-if (!isset($pdoLocal)) {
-    try {
-        $pdoLocal = new PDO(
-            "mysql:host=$host;dbname=$dbname;charset=utf8",
-            $dbuser,
-            $dbpass,
-            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-        );
-    } catch (PDOException $e) {
-        echo json_encode(['status' => 'error', 'message' => 'Error de conexión: '.$e->getMessage()]);
-        exit;
-    }
+try {
+    db(); // valida la conexión global
+} catch (PDOException $e) {
+    echo json_encode(['status' => 'error', 'message' => 'Error en la conexión']);
+    exit;
 }
+
 
 try {
     // Tu consulta original, intacta
-    $stmtVentas = $pdoLocal->prepare("
+    $stmtVentas = db()->prepare("
         SELECT 
           COUNT(*) AS total_registros,
           IFNULL(SUM(CASE WHEN payment_method='Efectivo' THEN valor ELSE 0 END),0) AS efectivo,

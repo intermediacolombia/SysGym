@@ -8,8 +8,7 @@ require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    db();
 } catch(PDOException $e){
     die("Error en la conexión: " . $e->getMessage());
 }
@@ -24,7 +23,7 @@ $sql = "SELECT payment_method, bank, IFNULL(SUM(valor), 0) as total
         FROM ventas 
         WHERE caja_id = :caja_id 
         GROUP BY payment_method, bank";
-$stmt = $pdo->prepare($sql);
+$stmt = db()->prepare($sql);
 $stmt->execute([':caja_id' => $caja_id]);
 
 // Inicializar variables para los totales

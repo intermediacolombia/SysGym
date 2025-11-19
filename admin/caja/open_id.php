@@ -18,15 +18,14 @@ if ($caja_id <= 0) {
 }
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    db();
 } catch(PDOException $e){
     echo json_encode(['status' => 'error', 'message' => 'Error de conexión: ' . $e->getMessage()]);
     exit;
 }
 
 // Primero, obtener el usuario dueño de la caja y el estado actual de la misma
-$stmtCaja = $pdo->prepare("SELECT usuario_id, estado FROM cajas WHERE id = :id");
+$stmtCaja = db()->prepare("SELECT usuario_id, estado FROM cajas WHERE id = :id");
 $stmtCaja->execute([':id' => $caja_id]);
 $cajaData = $stmtCaja->fetch(PDO::FETCH_ASSOC);
 if (!$cajaData) {
@@ -43,7 +42,7 @@ if ($cajaData['estado'] == 1) {
 }
 
 // Verificar si el usuario dueño de la caja ya tiene alguna caja abierta
-$stmtCheck = $pdo->prepare("SELECT id FROM cajas WHERE usuario_id = :usuario_id AND estado = 1");
+$stmtCheck = db()->prepare("SELECT id FROM cajas WHERE usuario_id = :usuario_id AND estado = 1");
 $stmtCheck->execute([':usuario_id' => $usuario_id]);
 $openCaja = $stmtCheck->fetch(PDO::FETCH_ASSOC);
 if ($openCaja) {
@@ -52,7 +51,7 @@ if ($openCaja) {
 }
 
 // Proceder a abrir la caja actual actualizando su estado a 1
-$stmtUpdate = $pdo->prepare("UPDATE cajas SET estado = 1 WHERE id = :id");
+$stmtUpdate = db()->prepare("UPDATE cajas SET estado = 1 WHERE id = :id");
 
 // LOGS
 require_once __DIR__ . '/../inc/log_action.php';

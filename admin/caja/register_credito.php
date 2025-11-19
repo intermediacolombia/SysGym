@@ -3,15 +3,14 @@ require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    db();
 } catch (PDOException $e) {
     echo json_encode(['status' => 'error', 'message' => 'Error en la conexión']);
     exit;
 }
 
 // Verificar que el usuario tenga una caja abierta
-$stmtCaja = $pdo->prepare("SELECT id FROM cajas WHERE usuario_id = :usuario_id AND estado = 1 LIMIT 1");
+$stmtCaja = db()->prepare("SELECT id FROM cajas WHERE usuario_id = :usuario_id AND estado = 1 LIMIT 1");
 $stmtCaja->execute([':usuario_id' => $id_user]);
 $caja = $stmtCaja->fetch(PDO::FETCH_ASSOC);
 if (!$caja) {
@@ -49,7 +48,7 @@ if ($credito_restante < 0) {
 }
 
 // Verificar el stock disponible del producto
-$stmtProducto = $pdo->prepare("SELECT nombre, stock FROM productos WHERE id = :id AND borrado = 0");
+$stmtProducto = db()->prepare("SELECT nombre, stock FROM productos WHERE id = :id AND borrado = 0");
 $stmtProducto->execute([':id' => $producto_id]);
 $producto = $stmtProducto->fetch(PDO::FETCH_ASSOC);
 if (!$producto) {
@@ -62,10 +61,10 @@ if ($producto['stock'] < $cantidad) {
 }
 
 // Iniciar transacción
-$pdo->beginTransaction();
+db()->beginTransaction();
 try {
     // 1. Registrar el crédito en la tabla creditos
-    $stmtInsertCredito = $pdo->prepare("
+    $stmtInsertCredito = db()->prepare("
         INSERT INTO creditos (idCliente, fecha, valor, fecha_limite, descripcion, created_at, updated_at)
         VALUES (:idCliente, :fecha, :valor, :fecha_limite, :descripcion, NOW(), NOW())
     ");
@@ -78,7 +77,7 @@ try {
     ]);
 
     // Obtener el ID del crédito recién creado
-    $credito_id = $pdo->lastInsertId();
+    $credito_id = db()->lastInsertId();
 	
 	
 	// LOGS
@@ -100,7 +99,7 @@ log_action('Registrar Creditos', $desc, 'Caja');
     //$hora = $hora;
     $detalle = $producto['nombre']; // Usar el nombre del producto como detalle
 
-    $stmtInsertVenta = $pdo->prepare("
+    $stmtInsertVenta = db()->prepare("
         INSERT INTO ventas (caja_id, producto_id, detalle, cantidad, valor, fecha, hora, payment_method, bank, creditoId)
         VALUES (:caja_id, :producto_id, :detalle, :cantidad, :valor, :fecha, :hora, :payment_method, :bank, :creditoId)
     ");
@@ -118,14 +117,14 @@ log_action('Registrar Creditos', $desc, 'Caja');
     ]);
 
     // 3. Actualizar el stock del producto
-    $stmtUpdateStock = $pdo->prepare("UPDATE productos SET stock = stock - :cantidad WHERE id = :id");
+    $stmtUpdateStock = db()->prepare("UPDATE productos SET stock = stock - :cantidad WHERE id = :id");
     $stmtUpdateStock->execute([':cantidad' => $cantidad, ':id' => $producto_id]);
 
     // Confirmar la transacción
-    $pdo->commit();
+    db()->commit();
 
     // Obtener el nuevo stock del producto
-    $stmtNewStock = $pdo->prepare("SELECT stock FROM productos WHERE id = :id");
+    $stmtNewStock = db()->prepare("SELECT stock FROM productos WHERE id = :id");
     $stmtNewStock->execute([':id' => $producto_id]);
     $nuevoProducto = $stmtNewStock->fetch(PDO::FETCH_ASSOC);
     $nuevo_stock = $nuevoProducto ? $nuevoProducto['stock'] : 0;
@@ -136,7 +135,7 @@ log_action('Registrar Creditos', $desc, 'Caja');
         'nuevo_stock' => $nuevo_stock
     ]);
 } catch (Exception $e) {
-    $pdo->rollBack();
+    db()->rollBack();
     echo json_encode(['status' => 'error', 'message' => 'Error al registrar la venta: ' . $e->getMessage()]);
 }
 ?>

@@ -15,7 +15,7 @@ if($caja_id <= 0){
     exit;
 }
 
-$stmt = $pdo->prepare("SELECT *,  DATE_FORMAT(hora, '%h:%i:%s %p') AS hora_formateada FROM ventas WHERE caja_id = :caja_id ORDER BY id DESC");
+$stmt = db()->prepare("SELECT *,  DATE_FORMAT(hora, '%h:%i:%s %p') AS hora_formateada FROM ventas WHERE caja_id = :caja_id ORDER BY id DESC");
 $stmt->execute([':caja_id' => $caja_id]);
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 echo json_encode(['data' => $data]);

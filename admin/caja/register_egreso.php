@@ -3,15 +3,14 @@ require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    db();
 } catch(PDOException $e){
     echo json_encode(['status'=>'error', 'message'=>'Error en la conexión: ' . $e->getMessage()]);
     exit;
 }
 
 // Verificar que exista una caja abierta para el usuario
-$stmtCaja = $pdo->prepare("SELECT * FROM cajas WHERE usuario_id = :usuario_id AND estado = 1 LIMIT 1");
+$stmtCaja = db()->prepare("SELECT * FROM cajas WHERE usuario_id = :usuario_id AND estado = 1 LIMIT 1");
 $stmtCaja->execute([':usuario_id' => $id_user]);
 $cajaAbierta = $stmtCaja->fetch(PDO::FETCH_ASSOC);
 if (!$cajaAbierta) {
@@ -44,7 +43,7 @@ $hora = date('H:i:s');
 
 // Insertar el egreso en la tabla ventas
 // Asumimos que para egresos, producto_id es NULL y payment_method se registra como 'Egreso'
-$stmtInsert = $pdo->prepare("INSERT INTO ventas (caja_id, producto_id, detalle, cantidad, valor, fecha, hora, payment_method) VALUES (:caja_id, NULL, :detalle, :cantidad, :valor, :fecha, :hora, 'Egreso')");
+$stmtInsert = db()->prepare("INSERT INTO ventas (caja_id, producto_id, detalle, cantidad, valor, fecha, hora, payment_method) VALUES (:caja_id, NULL, :detalle, :cantidad, :valor, :fecha, :hora, 'Egreso')");
 if($stmtInsert->execute([
     ':caja_id'  => $caja_id,
     ':detalle'  => $detalle,

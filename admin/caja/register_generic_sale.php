@@ -16,14 +16,13 @@ require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    db();
 } catch(PDOException $e) {
     throw new Exception("Error en la conexión: " . $e->getMessage());
 }
 
 // Verificar que el usuario tenga una caja abierta
-$stmtCaja = $pdo->prepare("SELECT id FROM cajas WHERE usuario_id = :usuario_id AND estado = 1 LIMIT 1");
+$stmtCaja = db()->prepare("SELECT id FROM cajas WHERE usuario_id = :usuario_id AND estado = 1 LIMIT 1");
 $stmtCaja->execute([':usuario_id' => $id_user]);
 $caja = $stmtCaja->fetch(PDO::FETCH_ASSOC);
 if (!$caja) {
@@ -40,7 +39,7 @@ $valor = $facturaValorSale;
 
 // Registrar la venta en la tabla "ventas" sin insertar un valor para producto_id
 // Se insertan los campos: caja_id, detalle, cantidad, valor, fecha y hora
-$stmtInsert = $pdo->prepare("INSERT INTO ventas (caja_id, detalle, cantidad, valor, payment_method, bank, fecha, hora) VALUES (:caja_id, :detalle, :cantidad, :valor, :payment_method, :bank, :fecha, :hora)");
+$stmtInsert = db()->prepare("INSERT INTO ventas (caja_id, detalle, cantidad, valor, payment_method, bank, fecha, hora) VALUES (:caja_id, :detalle, :cantidad, :valor, :payment_method, :bank, :fecha, :hora)");
 $stmtInsert->execute([
     ':caja_id' => $caja_id,
     ':detalle' => $planNombre.' Factura #'.$facturaId,
@@ -53,7 +52,7 @@ $stmtInsert->execute([
 ]);
 
 // Calcular el total en caja (suma de los valores de las ventas registradas para esta caja)
-$stmtTotal = $pdo->prepare("SELECT IFNULL(SUM(valor), 0) as total FROM ventas WHERE caja_id = :caja_id");
+$stmtTotal = db()->prepare("SELECT IFNULL(SUM(valor), 0) as total FROM ventas WHERE caja_id = :caja_id");
 $stmtTotal->execute([':caja_id' => $caja_id]);
 $rowTotal = $stmtTotal->fetch(PDO::FETCH_ASSOC);
 $totalCaja = $rowTotal ? $rowTotal['total'] : 0;

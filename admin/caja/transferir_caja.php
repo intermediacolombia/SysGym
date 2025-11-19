@@ -10,8 +10,8 @@ if (!$caja_id || !$nuevo_usuario_id) {
 }
 
 try {
-  $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-  $stmt = $pdo->prepare("UPDATE cajas SET usuario_id = :nuevo WHERE id = :id");
+  
+  $stmt = db()->prepare("UPDATE cajas SET usuario_id = :nuevo WHERE id = :id");
   $stmt->execute([
     ':nuevo' => $nuevo_usuario_id,
     ':id' => $caja_id

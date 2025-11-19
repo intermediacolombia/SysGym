@@ -3,8 +3,7 @@ require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    db();
 } catch(PDOException $e){
     echo json_encode(['status'=>'error', 'message'=>'Error en la conexión']);
     exit;
@@ -18,7 +17,7 @@ if($caja_id <= 0){
 
 
 // Tu consulta original, sin modificaciones
-$stmt = $pdo->prepare("SELECT payment_method, bank, IFNULL(SUM(valor), 0) as total 
+$stmt = db()->prepare("SELECT payment_method, bank, IFNULL(SUM(valor), 0) as total 
                        FROM ventas 
                        WHERE caja_id = :caja_id 
                        GROUP BY payment_method, bank");
@@ -48,14 +47,14 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 }
 
 // AHORA: obtener egresos usando payment_method = 'Egreso'
-$stmtEgresos = $pdo->prepare("SELECT IFNULL(SUM(valor), 0) FROM ventas WHERE caja_id = :caja_id AND payment_method = 'Egreso'");
+$stmtEgresos = db()->prepare("SELECT IFNULL(SUM(valor), 0) FROM ventas WHERE caja_id = :caja_id AND payment_method = 'Egreso'");
 $stmtEgresos->execute([':caja_id' => $caja_id]);
 $egresos_total = abs((float)$stmtEgresos->fetchColumn());
 
 
 
 // Consultar bolsillos, excluyendo las ventas que no tienen producto asignado (producto_id IS NOT NULL)
-/*$stmtBolsillos = $pdo->prepare("SELECT b.nombre AS bolsillo, IFNULL(SUM(v.valor), 0) AS total 
+/*$stmtBolsillos = db()->prepare("SELECT b.nombre AS bolsillo, IFNULL(SUM(v.valor), 0) AS total 
                                FROM ventas v 
                                LEFT JOIN productos p ON v.producto_id = p.id 
                                LEFT JOIN bolsillos b ON p.id_bolsillo = b.id 
@@ -64,7 +63,7 @@ $egresos_total = abs((float)$stmtEgresos->fetchColumn());
 $stmtBolsillos->execute([':caja_id' => $caja_id]);*/
 
 // Consultar bolsillos, excluyendo las ventas sin producto asignado y solo para pagos en Efectivo
-$stmtBolsillos = $pdo->prepare("SELECT IFNULL(b.nombre, 'Facturas') AS bolsillo, IFNULL(SUM(v.valor), 0) AS total 
+$stmtBolsillos = db()->prepare("SELECT IFNULL(b.nombre, 'Facturas') AS bolsillo, IFNULL(SUM(v.valor), 0) AS total 
   FROM ventas v 
   LEFT JOIN productos p ON v.producto_id = p.id 
   LEFT JOIN bolsillos b ON p.id_bolsillo = b.id 
@@ -74,7 +73,7 @@ $stmtBolsillos = $pdo->prepare("SELECT IFNULL(b.nombre, 'Facturas') AS bolsillo,
 ");
 $stmtBolsillos->execute([':caja_id' => $caja_id]);
 
-/*$stmtBolsillos = $pdo->prepare("SELECT 
+/*$stmtBolsillos = db()->prepare("SELECT 
     CASE 
       WHEN UPPER(v.detalle) LIKE '%FACTURA%' THEN 'Caja General'
       ELSE IFNULL(b.nombre, 'Sin Asignar')

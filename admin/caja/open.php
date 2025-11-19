@@ -1,10 +1,10 @@
 <?php
-// Incluir la sesión, que ya establece la conexión $pdo y obtiene el usuario
+// Incluir la sesión, que ya establece la conexión db() y obtiene el usuario
 require_once __DIR__ . '/../login/session.php';
 
 // Verificar si ya existe una caja abierta para este usuario (estado == 1)
 $sql = "SELECT * FROM cajas WHERE usuario_id = :usuario_id AND estado = 1 LIMIT 1";
-$stmt = $pdo->prepare($sql);
+$stmt = db()->prepare($sql);
 $stmt->execute([':usuario_id' => $id_user]);
 $cajaAbierta = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -23,7 +23,7 @@ $hora_apertura  = date('H:i:s');
 
 // Insertar el registro de apertura en la tabla "cajas" con estado = 1 y monto_inicial
 $sqlInsert = "INSERT INTO cajas (usuario_id, monto_inicial, fecha_apertura, hora_apertura, estado) VALUES (:usuario_id, :monto_inicial, :fecha_apertura, :hora_apertura, 1)";
-$stmtInsert = $pdo->prepare($sqlInsert);
+$stmtInsert = db()->prepare($sqlInsert);
 
 // LOGS
 require_once __DIR__ . '/../inc/log_action.php';

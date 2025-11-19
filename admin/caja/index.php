@@ -5,19 +5,18 @@ $permisopage = 'Usar Cajas';
 include('../login/restriction.php');
 
 try {
-  $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-  $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  db();
 } catch(PDOException $e) {
   die("Error en la conexión: " . $e->getMessage());
 }
 
 // 1. Consultar productos disponibles
-$stmt = $pdo->prepare("SELECT id, nombre, precio, coste, stock FROM productos WHERE borrado = 0 AND stock > 0");
+$stmt = db()->prepare("SELECT id, nombre, precio, coste, stock FROM productos WHERE borrado = 0 AND stock > 0");
 $stmt->execute();
 $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // 2. Consultar caja abierta (estado=1)
-$stmtCaja = $pdo->prepare("SELECT * FROM cajas WHERE usuario_id = :usuario_id AND estado = 1 LIMIT 1");
+$stmtCaja = db()->prepare("SELECT * FROM cajas WHERE usuario_id = :usuario_id AND estado = 1 LIMIT 1");
 $stmtCaja->execute([':usuario_id' => $id_user]);
 $caja = $stmtCaja->fetch(PDO::FETCH_ASSOC);
 $caja_id = $caja ? $caja['id'] : null;
@@ -28,7 +27,7 @@ $base = $caja ? (float)$caja['monto_inicial'] : 0.0;
 // 3. Consultar el total de ventas de esa caja (para la vista inicial, aunque se actualizará vía AJAX)
 $totalVentas = 0;
 if ($caja_id) {
-  $stmtTotal = $pdo->prepare("SELECT IFNULL(SUM(valor), 0) as total FROM ventas WHERE caja_id = :caja_id");
+  $stmtTotal = db()->prepare("SELECT IFNULL(SUM(valor), 0) as total FROM ventas WHERE caja_id = :caja_id");
   $stmtTotal->execute([':caja_id' => $caja_id]);
   $rowTotal = $stmtTotal->fetch(PDO::FETCH_ASSOC);
   $totalVentas = $rowTotal ? $rowTotal['total'] : 0;
