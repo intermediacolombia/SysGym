@@ -7,15 +7,9 @@ if ($caja_id_detail_detail <= 0) {
     die("ID de caja inválido.");
 }
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Error de conexión: " . $e->getMessage());
-}
 
 // 1. Obtener datos de la caja (incluyendo base) y del usuario que la abrió
-$stmtCaja = $pdo->prepare("SELECT c.*, CONCAT(u.nombre, ' ', u.apellido) AS usuario 
+$stmtCaja = db()->prepare("SELECT c.*, CONCAT(u.nombre, ' ', u.apellido) AS usuario 
                            FROM cajas c 
                            JOIN usuarios u ON u.id = c.usuario_id 
                            WHERE c.id = :id LIMIT 1");
@@ -26,7 +20,7 @@ if (!$caja) {
 }
 
 // 2. Obtener ventas asociadas a la caja
-$stmtVentas = $pdo->prepare("SELECT v.*, p.nombre AS producto 
+$stmtVentas =  db()->prepare("SELECT v.*, p.nombre AS producto 
                              FROM ventas v 
                              LEFT JOIN productos p ON p.id = v.producto_id 
                              WHERE v.caja_id = :caja_id
@@ -39,19 +33,19 @@ $ventas = $stmtVentas->fetchAll(PDO::FETCH_ASSOC);
 $base = floatval($caja['monto_inicial']);
 
 // Total vendido global (suma de todas las ventas de la caja)
-$stmtTotal = $pdo->prepare("SELECT IFNULL(SUM(valor), 0) as total FROM ventas WHERE caja_id = :caja_id");
+$stmtTotal =  db()->prepare("SELECT IFNULL(SUM(valor), 0) as total FROM ventas WHERE caja_id = :caja_id");
 $stmtTotal->execute([':caja_id' => $caja_id_detail_detail]);
 $rowTotal = $stmtTotal->fetch(PDO::FETCH_ASSOC);
 $totalVentas = $rowTotal ? floatval($rowTotal['total']) : 0.0;
 
 // Total en efectivo: ventas con payment_method = 'Efectivo'
-$stmtEfectivo = $pdo->prepare("SELECT IFNULL(SUM(valor), 0) as efectivo FROM ventas WHERE caja_id = :caja_id AND payment_method = 'Efectivo'");
+$stmtEfectivo =  db()->prepare("SELECT IFNULL(SUM(valor), 0) as efectivo FROM ventas WHERE caja_id = :caja_id AND payment_method = 'Efectivo'");
 $stmtEfectivo->execute([':caja_id' => $caja_id_detail_detail]);
 $rowEfectivo = $stmtEfectivo->fetch(PDO::FETCH_ASSOC);
 $totalEfectivo = $rowEfectivo ? floatval($rowEfectivo['efectivo']) : 0.0;
 
 // Total de transferencias agrupado por banco (payment_method = 'Transferencia')
-$stmtTrans = $pdo->prepare("SELECT bank, IFNULL(SUM(valor), 0) as total FROM ventas WHERE caja_id = :caja_id AND payment_method = 'Transferencia' GROUP BY bank");
+$stmtTrans =  db()->prepare("SELECT bank, IFNULL(SUM(valor), 0) as total FROM ventas WHERE caja_id = :caja_id AND payment_method = 'Transferencia' GROUP BY bank");
 $stmtTrans->execute([':caja_id' => $caja_id_detail_detail]);
 $transferencias = $stmtTrans->fetchAll(PDO::FETCH_ASSOC);
 $totalTransferencias = 0;
@@ -64,7 +58,7 @@ foreach ($transferencias as $trans) {
 }
 
 // Total de egresos (payment_method = 'Egreso')
-$stmtEgresos = $pdo->prepare("SELECT IFNULL(SUM(valor), 0) as total_egresos FROM ventas WHERE caja_id = :caja_id AND payment_method = 'Egreso'");
+$stmtEgresos =  db()->prepare("SELECT IFNULL(SUM(valor), 0) as total_egresos FROM ventas WHERE caja_id = :caja_id AND payment_method = 'Egreso'");
 $stmtEgresos->execute([':caja_id' => $caja_id_detail_detail]);
 $rowEgresos = $stmtEgresos->fetch(PDO::FETCH_ASSOC);
 $totalEgresos = $rowEgresos ? abs(floatval($rowEgresos['total_egresos'])) : 0.0;
@@ -76,7 +70,7 @@ $totalCaja = $base + $totalVentas;
 
 // 4. Consulta para obtener los totales de ventas por bolsillo
 // Se excluyen las ventas sin producto (producto_id IS NOT NULL)
-$stmtBolsillos = $pdo->prepare("SELECT IFNULL(b.nombre, 'Facturas') AS bolsillo, IFNULL(SUM(v.valor), 0) AS total 
+$stmtBolsillos =  db()->prepare("SELECT IFNULL(b.nombre, 'Facturas') AS bolsillo, IFNULL(SUM(v.valor), 0) AS total 
   FROM ventas v 
   LEFT JOIN productos p ON v.producto_id = p.id 
   LEFT JOIN bolsillos b ON p.id_bolsillo = b.id 
@@ -85,7 +79,7 @@ $stmtBolsillos = $pdo->prepare("SELECT IFNULL(b.nombre, 'Facturas') AS bolsillo,
   GROUP BY IFNULL(b.nombre, 'Facturas')");
 $stmtBolsillos->execute([':caja_id' => $caja_id_detail_detail]);
 $bolsillos = $stmtBolsillos->fetchAll(PDO::FETCH_ASSOC);
-/*$stmtBolsillos = $pdo->prepare("SELECT b.nombre AS bolsillo, IFNULL(SUM(v.valor), 0) AS total 
+/*$stmtBolsillos =  db()->prepare("SELECT b.nombre AS bolsillo, IFNULL(SUM(v.valor), 0) AS total 
                                FROM ventas v 
                                LEFT JOIN productos p ON v.producto_id = p.id 
                                LEFT JOIN bolsillos b ON p.id_bolsillo = b.id 
@@ -97,7 +91,7 @@ $bolsillos = $stmtBolsillos->fetchAll(PDO::FETCH_ASSOC);
 $stmtBolsillos->execute([':caja_id' => $caja_id_detail_detail]);
 $bolsillos = $stmtBolsillos->fetchAll(PDO::FETCH_ASSOC);*/
 
-/*$stmtBolsillos = $pdo->prepare("SELECT b.nombre AS bolsillo, IFNULL(SUM(v.valor), 0) AS total 
+/*$stmtBolsillos =  db()->prepare("SELECT b.nombre AS bolsillo, IFNULL(SUM(v.valor), 0) AS total 
                                FROM ventas v 
                                LEFT JOIN productos p ON v.producto_id = p.id 
                                LEFT JOIN bolsillos b ON p.id_bolsillo = b.id 
@@ -108,7 +102,7 @@ $bolsillos = $stmtBolsillos->fetchAll(PDO::FETCH_ASSOC);*/
 $stmtBolsillos->execute([':caja_id' => $caja_id_detail_detail]);
 $bolsillos = $stmtBolsillos->fetchAll(PDO::FETCH_ASSOC);*/
 
-/*$stmtBolsillos = $pdo->prepare("SELECT b.nombre AS bolsillo, IFNULL(SUM(v.valor), 0) AS total 
+/*$stmtBolsillos =  db()->prepare("SELECT b.nombre AS bolsillo, IFNULL(SUM(v.valor), 0) AS total 
                                 FROM ventas v 
                                 LEFT JOIN productos p ON v.producto_id = p.id 
                                 LEFT JOIN bolsillos b ON p.id_bolsillo = b.id 
