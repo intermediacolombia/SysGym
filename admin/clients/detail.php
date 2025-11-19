@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../login/session.php';
 
 require_once __DIR__ . '/../../inc/config.php';
-//session_start();
+
  
 $permisopage = 'Ver Clientes';
 include('../login/restriction.php');
@@ -36,11 +36,10 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 $id = trim($_GET['id']);
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
     
     // Obtener datos del cliente (solo si no está borrado)
-    $stmt = $pdo->prepare("SELECT * FROM clientes WHERE id = :id AND borrado = 0");
+    $stmt = db()->prepare("SELECT * FROM clientes WHERE id = :id AND borrado = 0");
     $stmt->execute([':id' => $id]);
     $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$cliente) {
@@ -80,7 +79,7 @@ try {
     // Obtener datos del plan asignado (si existe)
     $planInfo = null;
     if (!empty($cliente['plan'])) {
-        $stmtPlan = $pdo->prepare("SELECT * FROM planes WHERE id = :plan AND borrado = 0");
+        $stmtPlan = db()->prepare("SELECT * FROM planes WHERE id = :plan AND borrado = 0");
         $stmtPlan->execute([':plan' => $cliente['plan']]);
         $planInfo = $stmtPlan->fetch(PDO::FETCH_ASSOC);
     }
@@ -110,7 +109,7 @@ if (!empty($cliente['vencimiento_plan'])) {
 }
 
 	// … tras cargar $planInfo …
-$stmtCr = $pdo->prepare("
+$stmtCr = db()->prepare("
   SELECT COALESCE(SUM(valor),0)
   FROM creditos
   WHERE idCliente = :id AND estado = 0
@@ -355,7 +354,7 @@ table{
   <div class="container my-5">
 	  <?php
       // Consulta el formulario asociado al cliente
-      $stmtForm = $pdo->prepare("SELECT id FROM formularios WHERE cliente_id = :cliente_id ORDER BY id DESC LIMIT 1");
+      $stmtForm = db()->prepare("SELECT id FROM formularios WHERE cliente_id = :cliente_id ORDER BY id DESC LIMIT 1");
       $stmtForm->execute([':cliente_id' => $id]);
       $formulario = $stmtForm->fetch(PDO::FETCH_ASSOC);
       $formId = $formulario ? $formulario['id'] : null;
