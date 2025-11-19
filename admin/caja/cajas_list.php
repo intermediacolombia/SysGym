@@ -10,7 +10,7 @@ include('../login/restriction.php');
 /* ── fechas en las que ESTE usuario cerró caja ───────────── */
 $fechasCaja = [];
 try {
-    $stmt = $pdo->prepare("
+    $stmt = db()->prepare("
         SELECT DISTINCT DATE(fecha_apertura) AS f
         FROM   cajas
         WHERE  estado = 0          
@@ -37,7 +37,7 @@ try {
 <body>
 
 <div class="container" style="padding:0;background:rgba(0,0,0,0)">
-  <div class="portada"><h1 class="mb-4">Mis Cajas Cerradass</h1></div>
+  <div class="portada"><h1 class="mb-4">Mis Cajas Cerradas</h1></div>
 </div>
 <?php include('../inc/menu.php'); ?>
 
