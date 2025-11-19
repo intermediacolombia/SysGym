@@ -1,7 +1,7 @@
-<?php require_once __DIR__ . '/../login/session.php';?>
-<?php
-session_start();
+<?php 
+require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
+
 $permisopage = 'Editar Clientes';
 include('../login/restriction.php');
 // Verificar que se envíe el id del cliente
@@ -12,8 +12,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 }
 $id = trim($_GET['id']);
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    db();
 } catch (PDOException $e) {
     $_SESSION['error'] = "Error en la conexión: " . $e->getMessage();
     header("Location: index.php");
@@ -21,7 +20,7 @@ try {
 }
 // Obtener los planes disponibles (no borrados, estado activo) y con su frecuencia
 try {
-    $stmtPlan = $pdo->query("SELECT * FROM planes WHERE borrado = 0 AND estado = 'activo' ORDER BY nombre ASC");
+    $stmtPlan = db()->query("SELECT * FROM planes WHERE borrado = 0 AND estado = 'activo' ORDER BY nombre ASC");
     $planes = $stmtPlan->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $planes = [];
@@ -54,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	
 	   // === MANEJO DE IMAGEN DE PERFIL ===
 // 1. Consultar la imagen actual
-$stmtImg = $pdo->prepare("SELECT imagen_perfil FROM clientes WHERE id = :id");
+$stmtImg = db()->prepare("SELECT imagen_perfil FROM clientes WHERE id = :id");
 $stmtImg->execute([':id' => $id]);
 $imagenPerfil = $stmtImg->fetchColumn();
 
@@ -88,7 +87,7 @@ if (isset($_FILES['imagen_perfil']) && $_FILES['imagen_perfil']['error'] === UPL
 	
 	
     try {
-        $stmt = $pdo->prepare("UPDATE clientes SET 
+        $stmt = db()->prepare("UPDATE clientes SET 
             identificacion = :identificacion,
             nombres = :nombres,
             apellidos = :apellidos,
@@ -195,7 +194,7 @@ log_action('Editar Clientes', $desc, 'Clientes');
 } else {
     // Si es GET, obtener los datos del cliente para prellenar el formulario, solo si no está borrado
     try {
-        $stmt = $pdo->prepare("SELECT * FROM clientes WHERE id = :id AND borrado = 0 AND congelado = 0");
+        $stmt = db()->prepare("SELECT * FROM clientes WHERE id = :id AND borrado = 0 AND congelado = 0");
         $stmt->execute([':id' => $id]);
         $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$cliente) {
@@ -579,7 +578,7 @@ $headerColor = ($cliente['estado'] === 'activo') ? '#28a745' : '#FD2D23';
     
     <?php
     // Consulta para obtener el formulario asociado al cliente
-    $stmtForm = $pdo->prepare("SELECT id FROM formularios WHERE cliente_id = :cliente_id ORDER BY id DESC LIMIT 1");
+    $stmtForm = db()->prepare("SELECT id FROM formularios WHERE cliente_id = :cliente_id ORDER BY id DESC LIMIT 1");
     $stmtForm->execute([':cliente_id' => $id]);
     $formulario = $stmtForm->fetch(PDO::FETCH_ASSOC);
     $formId = $formulario ? $formulario['id'] : null;
