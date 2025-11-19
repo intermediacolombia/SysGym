@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../login/session.php';
+require_once __DIR__ . '/../../inc/config.php';  // ← agregar
+
 
 header('Content-Type: application/json');
 header("Cache-Control: no-cache, must-revalidate");
@@ -7,7 +9,7 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
 
 // Verificar si existe una caja abierta para este usuario (estado == 1)
 $sql = "SELECT * FROM cajas WHERE usuario_id = :usuario_id AND estado = 1 LIMIT 1";
-$stmt = $pdo->prepare($sql);
+$stmt = db()->prepare($sql);
 $stmt->execute([':usuario_id' => $id_user]);
 $cajaAbierta = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -24,7 +26,7 @@ if (!$cajaAbierta || ((int)$cajaAbierta['estado']) !== 1) {
 $base = (float)$cajaAbierta['monto_inicial'];
 
 // Consultar el total de ventas para la caja abierta
-$stmtVentas = $pdo->prepare("
+$stmtVentas = db()->prepare("
     SELECT IFNULL(SUM(valor), 0) AS total_ventas
     FROM ventas
     WHERE caja_id = :caja_id
@@ -50,7 +52,7 @@ $sqlUpdate = "
         total_cierre   = :total_cierre
     WHERE id            = :id
 ";
-$stmtUpdate = $pdo->prepare($sqlUpdate);
+$stmtUpdate = db()->prepare($sqlUpdate);
 
 // LOGS
 require_once __DIR__ . '/../inc/log_action.php';
