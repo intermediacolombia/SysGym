@@ -22,17 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['eliminar_id'])) {
     exit;                // ← MUY IMPORTANTE
 }
 
-/* ======================================================
-   2.  A partir de aquí se genera la página normal (GET)
-   ======================================================*/
-try {
-    db();
 
-    $stmt = db()->query("SELECT * FROM clientes_preinscritos ORDER BY created_at DESC");
-    $preinscritos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die("Error en la conexión: " . $e->getMessage());
-}
 ?>
 <!DOCTYPE html>
 <html lang="es">

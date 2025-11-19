@@ -4,8 +4,7 @@ require_once __DIR__ . '/../../inc/config.php';
 $cliente = intval($_GET['cliente_id'] ?? 0);
 
 try {
-    db();
-
+    
     // Configurar idioma de días en español
     db()->exec("SET lc_time_names = 'es_ES';");
 

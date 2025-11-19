@@ -1,11 +1,6 @@
 <?php
 require_once __DIR__ . '/../../inc/config.php';
-try {
-    db();
-} catch(PDOException $e) {
-    echo json_encode(['data' => []]);
-    exit;
-}
+
 
 if (!isset($_GET['client_id']) || empty($_GET['client_id'])) {
     echo json_encode(['data' => []]);

@@ -8,14 +8,6 @@ if ($caja_id <= 0) {
     exit;
 }
 
-// Crear conexión local
-try {
-    db(); // valida la conexión global
-} catch (PDOException $e) {
-    echo json_encode(['status' => 'error', 'message' => 'Error en la conexión']);
-    exit;
-}
-
 
 try {
     // Tu consulta original, intacta

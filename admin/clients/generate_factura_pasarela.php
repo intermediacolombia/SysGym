@@ -11,12 +11,6 @@ $valorPagado = isset($valorPagado) ? floatval($valorPagado) : 0.0;
 $porcentajeAdicional = defined('ADDITIONAL_PERCENTAGE_PAYMENT') ? (float) ADDITIONAL_PERCENTAGE_PAYMENT : 0.0;
 
 
-
-try {
-    db();
-} catch (PDOException $e) {
-    return false;
-}
 // === Obtener datos del cliente ===
 $stmt = db()->prepare("SELECT * FROM clientes WHERE id = :id LIMIT 1");
 $stmt->execute([':id' => $id]);

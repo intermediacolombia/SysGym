@@ -2,13 +2,6 @@
 require_once __DIR__ . '/../../inc/config.php';
 
 try {
-    db(); // conexión global optimizada
-} catch (PDOException $e) {
-    echo json_encode([]);
-    exit;
-}
-
-try {
 
     $stmt = db()->query("
         SELECT id, nombre, apellido 

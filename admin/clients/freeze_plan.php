@@ -11,8 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $id = trim($_POST['id']);
     
-    try {
-         db();        
+    try {                 
         // Actualiza el estado del plan a congelado y asigna la fecha actual en fecha_congelado
         $stmt = db()->prepare("UPDATE clientes 
                                SET congelado = 1, fecha_congelado = '$hoy', updated_at = NOW()

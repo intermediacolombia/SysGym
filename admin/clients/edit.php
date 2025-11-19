@@ -11,13 +11,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
     exit;
 }
 $id = trim($_GET['id']);
-try {
-    db();
-} catch (PDOException $e) {
-    $_SESSION['error'] = "Error en la conexión: " . $e->getMessage();
-    header("Location: index.php");
-    exit;
-}
+
 // Obtener los planes disponibles (no borrados, estado activo) y con su frecuencia
 try {
     $stmtPlan = db()->query("SELECT * FROM planes WHERE borrado = 0 AND estado = 'activo' ORDER BY nombre ASC");

@@ -3,12 +3,6 @@ require_once __DIR__ . '/../../inc/config.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-try {
-    db(); // conexión global optimizada
-} catch (PDOException $e) {
-    echo json_encode(['error' => 'Error en la conexión']);
-    exit;
-}
 
 if (isset($_GET['query'])) {
 

@@ -15,11 +15,6 @@ if (!isset($planNombre) || !isset($facturaValorSale)) {
 require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
 
-try {
-    db();
-} catch(PDOException $e) {
-    throw new Exception("Error en la conexión: " . $e->getMessage());
-}
 
 // Verificar que el usuario tenga una caja abierta
 $stmtCaja = db()->prepare("SELECT id FROM cajas WHERE usuario_id = :usuario_id AND estado = 1 LIMIT 1");

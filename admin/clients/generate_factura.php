@@ -20,12 +20,6 @@ $fechaPlazo    = isset($fechaPlazo) && !empty($fechaPlazo)
 // ---------------------------------------------------------
 require_once __DIR__ . '/../../inc/config.php';
 
-try {
-    db();
-} catch (PDOException $e) {
-    return false;
-}
-
 // ---------------------------------------------------------
 // Datos del usuario que genera la factura
 // ---------------------------------------------------------

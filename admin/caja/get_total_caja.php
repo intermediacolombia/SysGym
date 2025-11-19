@@ -2,12 +2,7 @@
 require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
 
-try {
-    db();
-} catch(PDOException $e){
-    echo json_encode(['status'=>'error', 'message'=>'Error en la conexión']);
-    exit;
-}
+
 
 $caja_id = isset($_GET['caja_id']) ? intval($_GET['caja_id']) : 0;
 if($caja_id <= 0){

@@ -4,11 +4,6 @@ require_once __DIR__ . '/../../inc/config.php';
 // 1. Definir el id del cliente a consultar a partir del parámetro GET
 $client_id = isset($_GET['id']) ? intval($_GET['id']) : die("No se proporcionó el id del cliente.");
 
-try {
-    db();
-} catch (PDOException $e) {
-    die("Error de conexión: " . $e->getMessage());
-}
 
 // 2. Obtener teléfono
 $stmt = db()->prepare("SELECT telefono FROM clientes WHERE id = :id LIMIT 1");

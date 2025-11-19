@@ -2,12 +2,6 @@
 require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
 
-try {
-    db();
-} catch (PDOException $e) {
-    echo json_encode(['status' => 'error', 'message' => 'Error en la conexión']);
-    exit;
-}
 
 // Verificar que el usuario tenga una caja abierta
 $stmtCaja = db()->prepare("SELECT id FROM cajas WHERE usuario_id = :usuario_id AND estado = 1 LIMIT 1");

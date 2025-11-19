@@ -17,12 +17,7 @@ if ($caja_id <= 0) {
     exit;
 }
 
-try {
-    db();
-} catch(PDOException $e){
-    echo json_encode(['status' => 'error', 'message' => 'Error de conexión: ' . $e->getMessage()]);
-    exit;
-}
+
 
 // Primero, obtener el usuario dueño de la caja y el estado actual de la misma
 $stmtCaja = db()->prepare("SELECT usuario_id, estado FROM cajas WHERE id = :id");

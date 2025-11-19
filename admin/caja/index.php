@@ -4,11 +4,7 @@ require_once __DIR__ . '/../../inc/config.php';
 $permisopage = 'Usar Cajas';
 include('../login/restriction.php');
 
-try {
-  db();
-} catch(PDOException $e) {
-  die("Error en la conexión: " . $e->getMessage());
-}
+
 
 // 1. Consultar productos disponibles
 $stmt = db()->prepare("SELECT id, nombre, precio, coste, stock FROM productos WHERE borrado = 0 AND stock > 0");

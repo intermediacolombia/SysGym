@@ -4,12 +4,7 @@ require_once __DIR__ . '/../../inc/config.php';
 
 header('Content-Type: application/json');
 
-try {
-  db();
-} catch(PDOException $e){
-  echo json_encode(['data'=>[]]); 
-exit;
-}
+
 
 /*── parámetro opcional ─────────────────────────────*/
 $fecha  = $_GET['fecha'] ?? '';           // '' = sin filtro

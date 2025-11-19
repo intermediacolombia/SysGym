@@ -5,12 +5,7 @@ include('../login/restriction.php');
 
 require_once __DIR__ . '/../../inc/config.php';
 
-// ⚠ Asegurar conexión global
-try {
-    db();
-} catch (PDOException $e) {
-    die("Error DB: " . $e->getMessage());
-}
+
 
 /* -------------------------------------------------------------------------- */
 
