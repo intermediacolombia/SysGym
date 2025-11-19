@@ -32,11 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "La fecha de inicio no puede ser posterior a la fecha de fin.";
     } else {
         try {
-            $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
             // Totales generales del periodo
-            $stmtTotales = $pdo->prepare("
+            $stmtTotales = db()->prepare("
                 SELECT 
                     SUM(v.valor) AS total_ventas,
                     SUM(v.coste) AS total_coste,
@@ -59,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // Detalle de cajas en el periodo
-            $stmtCajas = $pdo->prepare("
+            $stmtCajas = db()->prepare("
                 SELECT 
                     c.id,
                     CONCAT(u.nombre, ' ', u.apellido) AS usuario,
@@ -101,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // Consulta para egresos manuales del periodo
-            $stmtEgresos = $pdo->prepare("
+            $stmtEgresos = db()->prepare("
                 SELECT id, fecha, descripcion, valor 
                 FROM egresos 
                 WHERE borrado = 0
@@ -120,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
            // Consulta para nóminas del periodo
-$stmtNominas = $pdo->prepare("
+$stmtNominas = db()->prepare("
     SELECT id_nomina, nombre_empleado, fecha_generacion, valor_pagado 
     FROM nomina 
     WHERE DATE(fecha_generacion) BETWEEN :fecha_inicio AND :fecha_fin
@@ -138,7 +135,7 @@ foreach ($nominas_detalle as $nomina) {
 }
 
 // Consulta para pagos en línea aprobados (pasarela)
-$stmtPagos = $pdo->prepare("
+$stmtPagos = db()->prepare("
     SELECT 
         p.id,
         c.nombres AS cliente,

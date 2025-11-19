@@ -11,17 +11,9 @@ require_once __DIR__ . '/../../inc/config.php';
 if (!isset($hoy)) {
     $hoy = date('Y-m-d');
 }
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Error en la conexión: " . $e->getMessage());
-}
-
 // Manejo de AJAX para carga de datos
 if (isset($_GET['action']) && $_GET['action'] == "fetch") {
-    $stmt = $pdo->query("SELECT id, fecha, descripcion, valor FROM egresos WHERE borrado = 0 ORDER BY fecha DESC");
+    $stmt = db()->query("SELECT id, fecha, descripcion, valor FROM egresos WHERE borrado = 0 ORDER BY fecha DESC");
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode(['data' => $data]);
     exit;
@@ -41,7 +33,7 @@ if (isset($_POST['action'])) {
         }
 
         // ✅ Sin validación de duplicados
-        $stmt = $pdo->prepare("INSERT INTO egresos (fecha, descripcion, valor, borrado) VALUES (:fecha, :descripcion, :valor, 0)");
+        $stmt = db()->prepare("INSERT INTO egresos (fecha, descripcion, valor, borrado) VALUES (:fecha, :descripcion, :valor, 0)");
         if ($stmt->execute([':fecha' => $hoy, ':descripcion' => $descripcion, ':valor' => $valor])) {
 			
 					// LOGS
@@ -71,7 +63,7 @@ if (isset($_POST['action'])) {
             exit;
         }
 
-        $stmt = $pdo->prepare("UPDATE egresos SET descripcion = :descripcion, valor = :valor WHERE id = :id");
+        $stmt = db()->prepare("UPDATE egresos SET descripcion = :descripcion, valor = :valor WHERE id = :id");
         if ($stmt->execute([':descripcion' => $descripcion, ':valor' => $valor, ':id' => $id])) {
 			
 			
@@ -99,7 +91,7 @@ if (isset($_POST['action'])) {
             exit;
         }
 
-        $stmt = $pdo->prepare("UPDATE egresos SET borrado = 1 WHERE id = :id");
+        $stmt = db()->prepare("UPDATE egresos SET borrado = 1 WHERE id = :id");
         if ($stmt->execute([':id' => $id])) {
 			
 			// LOGS

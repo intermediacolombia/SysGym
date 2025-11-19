@@ -6,14 +6,11 @@ session_start();
 require_once __DIR__ . '/../../inc/config.php';
 
 /* -------- CONSULTA DE PAGOS -------- */
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]);
+try {    
 
-    $pdo->exec("SET lc_time_names = 'es_ES';");
+    db()->exec("SET lc_time_names = 'es_ES';");
 
-    $stmt = $pdo->query("
+    $stmt = db()->query("
     SELECT 
         p.id,
         p.referencia,
