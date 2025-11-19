@@ -26,25 +26,25 @@ try {
 
         // --- INGRESOS ---
         $stmtIngresos = db()->prepare("
-            SELECT 
-              IFNULL(SUM(CASE WHEN payment_method='Efectivo' THEN valor ELSE 0 END), 0) AS efectivo,
-              IFNULL(SUM(CASE WHEN payment_method='Transferencia' THEN valor ELSE 0 END), 0) AS transferencias,
-              IFNULL(SUM(CASE WHEN payment_method='Egreso' THEN valor ELSE 0 END), 0) AS egresos
-            FROM ventas
-            WHERE caja_id = :caja_id
-        ");
-        $stmtIngresos->execute([':caja_id' => $caja_id]);
-        $datos = $stmtIngresos->fetch(PDO::FETCH_ASSOC);
+    SELECT 
+      IFNULL(SUM(CASE WHEN payment_method='Efectivo' THEN valor ELSE 0 END), 0) AS efectivo,
+      IFNULL(SUM(CASE WHEN payment_method='Transferencia' THEN valor ELSE 0 END), 0) AS transferencias,
+      IFNULL(SUM(CASE WHEN payment_method='Egreso' THEN ABS(valor) ELSE 0 END), 0) AS egresos
+    FROM ventas
+    WHERE caja_id = :caja_id
+");
+$stmtIngresos->execute([':caja_id' => $caja_id]);
+$datos = $stmtIngresos->fetch(PDO::FETCH_ASSOC);
 
-        $efectivo       = (float)($datos['efectivo'] ?? 0);
-        $transferencias = (float)($datos['transferencias'] ?? 0);
-        $egresos        = (float)($datos['egresos'] ?? 0);
+$efectivo       = (float)$datos['efectivo'];
+$transferencias = (float)$datos['transferencias'];
+$egresos        = (float)$datos['egresos'];
 
-        // Total de ingresos
-        $totalIngresos = $efectivo + $transferencias;
+$totalIngresos = $efectivo + $transferencias;
 
-        // --- TOTAL FINAL DE CAJA ---
-        $totalCaja = $totalIngresos - $egresos;
+// RESTA SÍ O SÍ
+$totalCaja = $totalIngresos - $egresos;
+
 
     } else {
         $efectivo = $transferencias = $egresos = $totalIngresos = $totalCaja = 0;
