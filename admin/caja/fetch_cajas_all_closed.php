@@ -5,10 +5,10 @@ require_once __DIR__ . '/../../inc/config.php';
 header('Content-Type: application/json');
 
 try {
-  $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8",
-                 $dbuser,$dbpass,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+  db();
 } catch(PDOException $e){
-  echo json_encode(['data'=>[]]); exit;
+  echo json_encode(['data'=>[]]); 
+exit;
 }
 
 /*── parámetro opcional ─────────────────────────────*/
@@ -32,7 +32,7 @@ $sql = "
   $where
   ORDER BY c.fecha_cierre DESC, c.hora_cierre DESC
 ";
-$stmt = $pdo->prepare($sql);
+$stmt = db()->prepare($sql);
 $stmt->execute($params);
 
 echo json_encode(['data'=>$stmt->fetchAll(PDO::FETCH_ASSOC)]);
