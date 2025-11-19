@@ -4,26 +4,27 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Evitar que la barra se ejecute en páginas sensibles o AJAX
 $actual = basename($_SERVER['SCRIPT_NAME']);
-$noMostrar = ['caja_detail.php', 'close_id.php', 'open_id.php', 'transferir_caja.php', 'get_total_simple.php', 'get_total_caja.php'];
+$noMostrar = [
+    'caja_detail.php', 'close_id.php', 'open_id.php',
+    'transferir_caja.php', 'get_total_simple.php', 'get_total_caja.php'
+];
 
 if (in_array($actual, $noMostrar)) {
-    return; // No mostrar barra en detalle de caja ni scripts internos
+    return;
 }
 
-// Configuración
 require_once __DIR__ . '/../../inc/config.php';
 
 $nombre = $_SESSION['user']['nombre'] ?? '';
 $apellido = $_SESSION['user']['apellido'] ?? '';
 $nombreCompleto = htmlspecialchars(trim("$nombre $apellido"));
 
-
-// Evita errores si la conexión ya está abierta
 try {
-       // Si hay caja activa, traer sus datos
+
     if ($caja_id) {
+
+        // --- VENTAS ---
         $stmtVentas = db()->prepare("
             SELECT 
               COUNT(*) AS total_registros,
@@ -37,17 +38,30 @@ try {
 
         $efectivo = (float)($ventas['efectivo'] ?? 0);
         $transferencias = (float)($ventas['transferencias'] ?? 0);
-        $totalCaja = $efectivo + $transferencias;
+        $totalIngresos = $efectivo + $transferencias;
+
+        // --- EGRESOS ---
+        $stmtEgresos = db()->prepare("
+            SELECT IFNULL(SUM(valor),0) AS total_egresos
+            FROM egresos
+            WHERE caja_id = :caja_id
+        ");
+        $stmtEgresos->execute([':caja_id' => $caja_id]);
+        $egresos = (float)$stmtEgresos->fetchColumn();
+
+        // --- TOTAL DE CAJA ---
+        $totalCaja = $totalIngresos - $egresos;
+
     } else {
-        $efectivo = $transferencias = $totalCaja = 0;
+        $efectivo = $transferencias = $totalIngresos = $egresos = $totalCaja = 0;
     }
 
 } catch (PDOException $e) {
-    // Registrar pero no interrumpir
     error_log("Error en caja_bar: " . $e->getMessage());
-    $efectivo = $transferencias = $totalCaja = 0;
+    $efectivo = $transferencias = $totalIngresos = $egresos = $totalCaja = 0;
 }
 ?>
+
 
 <?php if (!empty($caja_id)): ?>
 <style>
