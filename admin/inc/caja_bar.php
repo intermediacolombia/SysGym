@@ -100,15 +100,16 @@ $totalCaja = $totalIngresos - $egresos;
     <span id="totalEfectivo">$<?php echo number_format($efectivo, 0, '', '.'); ?></span> |
     <i class="fa fa-bank"></i> Transferencias:
     <span id="totalTrans">$<?php echo number_format($transferencias, 0, '', '.'); ?></span> |
+    
+    <?php if ($egresos > 0): ?>
+        <i class="fas fa-arrow-down"></i> Egresos:
+        <span id="totalEgresos" style="color:#ffbbbb;">-$<?php echo number_format($egresos, 0, '', '.'); ?></span> |
+    <?php endif; ?>
+
     <i class="fa fa-money"></i> Total en Caja:
     <span id="totalCaja">$<?php echo number_format($totalCaja, 0, '', '.'); ?></span>
   </div>
-  <div class="right">
-    <span><i class="fa fa-user"></i> <?php echo $nombreCompleto; ?></span>
-    <span id="topbarHora"></span>
-    <a href="<?php echo $url; ?>/admin/caja/"><i class="fas fa-cash-register"></i> Ir a mi Caja</a>
-  </div>
-</div>
+
 
 <script>
 $(function() {
