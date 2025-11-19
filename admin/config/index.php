@@ -2,22 +2,32 @@
 require_once __DIR__ . '/../login/session.php';
 $permisopage = 'Configurar Sistema';
 include('../login/restriction.php');
+require_once __DIR__ . '/../../inc/config.php';
 
 try {
-    // Conexión PDO
-    
+
+    // Asegurar conexión inicial
     db()->exec("SET NAMES 'utf8mb4'");
 
-    // Cargar todas las configuraciones
-    $stmt = db()->query("SELECT setting_name, value FROM system_settings WHERE enabled = 1");
+    // Cargar configuraciones habilitadas
+    $stmt = db()->prepare("
+        SELECT setting_name, value 
+        FROM system_settings 
+        WHERE enabled = 1
+    ");
+    $stmt->execute();
+
     $settings = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         $settings[$row['setting_name']] = $row['value'];
     }
+
 } catch (PDOException $e) {
     $error = "Error de conexión: " . $e->getMessage();
+    $settings = [];
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
