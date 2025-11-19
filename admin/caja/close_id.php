@@ -27,15 +27,15 @@ if ($caja_id <= 0) {
 
 // Conectar a la BD
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    echo json_encode(['status' => 'error', 'message' => 'Error en la conexión: ' . $e->getMessage()]);
+    db(); // intenta conexión global
+} catch (PDOException $e) {
+    echo json_encode(['status' => 'error', 'message' => 'Error en la conexión']);
     exit;
 }
 
+
 // Verificar que exista una caja abierta (estado = 1) con ese ID
-$stmt = $pdo->prepare("SELECT * FROM cajas WHERE id = :id AND estado = 1 LIMIT 1");
+$stmt = db()->prepare("SELECT * FROM cajas WHERE id = :id AND estado = 1 LIMIT 1");
 $stmt->execute([':id' => $caja_id]);
 $cajaAbierta = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$cajaAbierta) {
@@ -47,7 +47,7 @@ if (!$cajaAbierta) {
 $base = floatval($cajaAbierta['monto_inicial']);
 
 // Consultar el total de ventas para la caja abierta
-$stmtVentas = $pdo->prepare("SELECT IFNULL(SUM(valor), 0) AS total_ventas FROM ventas WHERE caja_id = :caja_id");
+$stmtVentas = db()->prepare("SELECT IFNULL(SUM(valor), 0) AS total_ventas FROM ventas WHERE caja_id = :caja_id");
 $stmtVentas->execute([':caja_id' => $caja_id]);
 $rowVentas = $stmtVentas->fetch(PDO::FETCH_ASSOC);
 $totalVentas = $rowVentas ? floatval($rowVentas['total_ventas']) : 0.0;
@@ -69,7 +69,7 @@ $sqlUpdate = "
         total_cierre = :total_cierre 
     WHERE id = :id
 ";
-$stmtUpdate = $pdo->prepare($sqlUpdate);
+$stmtUpdate = db()->prepare($sqlUpdate);
 
 // LOGS
 require_once __DIR__ . '/../inc/log_action.php';
