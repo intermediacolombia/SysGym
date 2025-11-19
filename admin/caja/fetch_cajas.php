@@ -5,6 +5,13 @@ require_once __DIR__ . '/../../inc/config.php';
 header('Content-Type: application/json');
 
 /* conexión */
+try {
+    db(); // Intenta obtener la conexión global
+} catch (PDOException $e) {
+    echo json_encode(['data' => []]);
+    exit;
+}
+
 /* parámetros GET */
 $estado = isset($_GET['estado']) ? (int)$_GET['estado'] : 0;     // 0 = cerrada
 $fecha  = $_GET['fecha'] ?? '';                                  // '' = sin filtro
@@ -12,11 +19,11 @@ $fecha  = $_GET['fecha'] ?? '';                                  // '' = sin fil
 /* arma cláusula WHERE */
 $where = "WHERE c.usuario_id = :usuario_id AND c.estado = :estado";
 $params = [
-  ':usuario_id' => $id_user,     // ← ya lo tenías
+  ':usuario_id' => $id_user,
   ':estado'     => $estado
 ];
 
-if ($fecha !== '') {             // si llega fecha → filtrar por ese día
+if ($fecha !== '') {
   $where   .= " AND DATE(c.fecha_apertura) = :fecha";
   $params[':fecha'] = $fecha;
 }
@@ -33,11 +40,10 @@ $sql = "
     ORDER BY c.fecha_cierre DESC, c.hora_cierre DESC
 ";
 
-$stmt  = $pdo->prepare($sql);
+$stmt = db()->prepare($sql);
 $stmt->execute($params);
 
-
-echo json_encode(['data'=>$stmt->fetchAll(PDO::FETCH_ASSOC)]);
-
+echo json_encode(['data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
 ?>
+
 
