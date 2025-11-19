@@ -3,8 +3,6 @@ header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../../inc/config.php';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // 1) Montar WHERE dinámico
     $where  = ['borrado = 0'];
@@ -17,22 +15,21 @@ try {
         'enfermedades_actuales','observaciones',
         'contacto_emergencia','numero_emergencia'
     ];
+
     foreach ($likeFields as $f) {
         if (isset($_GET[$f]) && $_GET[$f] !== '') {
             if ($_GET[$f] === '*') {
-                // Filtrar por “no vacío”
                 $where[] = "($f IS NOT NULL AND TRIM($f) <> '')";
             } else {
-                // Búsqueda LIKE normal
                 $where[]       = "$f LIKE :$f";
-                $params[":$f"] = "%" . $_GET[$f] . "%";
+                $params[":$f"] = "%".$_GET[$f]."%";
             }
         }
     }
 
-    // Campos exactos (incluye plan)
+    // Campos exactos
     foreach (['estado','genero','congelado','plan'] as $f) {
-        if (isset($_GET[$f]) && $_GET[$f] !== '') {
+        if (!empty($_GET[$f])) {
             $where[]       = "$f = :$f";
             $params[":$f"] = $_GET[$f];
         }
@@ -40,28 +37,31 @@ try {
 
     // Fecha exacta
     if (!empty($_GET['fecha_nacimiento'])) {
-        $where[]                       = "fecha_nacimiento = :fecha_nacimiento";
+        $where[]                      = "fecha_nacimiento = :fecha_nacimiento";
         $params[':fecha_nacimiento']  = $_GET['fecha_nacimiento'];
     }
-	
-	// ** NUEVO: filtro por vencimiento_plan **
-if (!empty($_GET['vencimiento_plan'])) {
-    $where[]                         = "vencimiento_plan = :vencimiento_plan";
-    $params[':vencimiento_plan']     = $_GET['vencimiento_plan'];
-}
 
-    // 2) Ejecutar la consulta
-    $sql = "SELECT * FROM clientes
-            WHERE " . implode(" AND ", $where) . "
-            ORDER BY identificacion DESC";
-    $stmt = $pdo->prepare($sql);
+    // NUEVO: vencimiento_plan
+    if (!empty($_GET['vencimiento_plan'])) {
+        $where[]                     = "vencimiento_plan = :vencimiento_plan";
+        $params[':vencimiento_plan'] = $_GET['vencimiento_plan'];
+    }
+
+    // 2) Ejecutar consulta
+    $sql = "
+        SELECT * FROM clientes
+        WHERE ".implode(" AND ", $where)."
+        ORDER BY identificacion DESC
+    ";
+
+    $stmt = db()->prepare($sql);
     $stmt->execute($params);
     $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // 3) Agregar plan_nombre
     foreach ($clientes as &$c) {
         if (!empty($c['plan'])) {
-            $p = $pdo->prepare("SELECT nombre FROM planes WHERE id = ? AND borrado = 0");
+            $p = db()->prepare("SELECT nombre FROM planes WHERE id = ? AND borrado = 0");
             $p->execute([$c['plan']]);
             $c['plan_nombre'] = $p->fetchColumn();
         } else {
@@ -69,12 +69,15 @@ if (!empty($_GET['vencimiento_plan'])) {
         }
     }
 
-    // 4) Devolver JSON
     echo json_encode(['data' => $clientes]);
 
 } catch (PDOException $e) {
-    echo json_encode(['data' => [], 'error' => $e->getMessage()]);
+    echo json_encode([
+        'data' => [],
+        'error' => $e->getMessage()
+    ]);
 }
+
 
 
 
