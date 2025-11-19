@@ -1,11 +1,18 @@
 <?php 
 require_once __DIR__ . '/../login/session.php';
+$permisopage = 'Ver Clientes';
+include('../login/restriction.php');
 
 require_once __DIR__ . '/../../inc/config.php';
 
- 
-$permisopage = 'Ver Clientes';
-include('../login/restriction.php');
+// ⚠ Asegurar conexión global
+try {
+    db();
+} catch (PDOException $e) {
+    die("Error DB: " . $e->getMessage());
+}
+
+/* -------------------------------------------------------------------------- */
 
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     echo "<!DOCTYPE html>
@@ -36,12 +43,12 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 $id = trim($_GET['id']);
 
 try {
-    
-    
-    // Obtener datos del cliente (solo si no está borrado)
+
+    /* ---------------------------- Cliente --------------------------------- */
     $stmt = db()->prepare("SELECT * FROM clientes WHERE id = :id AND borrado = 0");
     $stmt->execute([':id' => $id]);
     $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
+
     if (!$cliente) {
         echo "<!DOCTYPE html>
         <html lang='es'>
@@ -67,61 +74,50 @@ try {
         </html>";
         exit;
     }
-    
-    // Calcular edad si la fecha de nacimiento es válida
+
+    /* ---------------------------- Edad ------------------------------------ */
     $edad = "";
     if (!empty($cliente['fecha_nacimiento'])) {
         $birthDate = new DateTime($cliente['fecha_nacimiento']);
-        $today = new DateTime();
+        $today = new DateTime(date('Y-m-d'));
         $edad = $today->diff($birthDate)->y;
     }
-    
-    // Obtener datos del plan asignado (si existe)
+
+    /* ---------------------------- Plan ------------------------------------ */
     $planInfo = null;
     if (!empty($cliente['plan'])) {
         $stmtPlan = db()->prepare("SELECT * FROM planes WHERE id = :plan AND borrado = 0");
         $stmtPlan->execute([':plan' => $cliente['plan']]);
         $planInfo = $stmtPlan->fetch(PDO::FETCH_ASSOC);
     }
-    
-    // Definir el color del encabezado según el estado del cliente
+
+    /* ---------------------------- Estado: activo/inactivo ------------------ */
     $headerColor = ($cliente['estado'] === 'activo') ? '#28a745' : '#FD2D23';
-    
-    // Validar si la fecha de vencimiento está vencida
-   /*$vencido = false;
+
+    /* ---------------------------- Vencimiento plan ------------------------- */
+    $vencido = false;
     if (!empty($cliente['vencimiento_plan'])) {
         $vencimientoDate = new DateTime($cliente['vencimiento_plan']);
-        $today = new DateTime();
-        if ($today > $vencimientoDate) {
+        $today = new DateTime(date('Y-m-d'));
+        if ($vencimientoDate < $today) {
             $vencido = true;
         }
-    }*/
-	
-	// Validar si la fecha de vencimiento está vencida (solo si venció antes de hoy)
-$vencido = false;
-if (!empty($cliente['vencimiento_plan'])) {
-    $vencimientoDate = new DateTime($cliente['vencimiento_plan']);
-    // Obtener la fecha actual sin hora
-    $today = new DateTime(date('Y-m-d'));
-    if ($vencimientoDate < $today) {
-        $vencido = true;
     }
-}
 
-	// … tras cargar $planInfo …
-$stmtCr = db()->prepare("
-  SELECT COALESCE(SUM(valor),0)
-  FROM creditos
-  WHERE idCliente = :id AND estado = 0
-");
-$stmtCr->execute([':id' => $id]);
-$pendingCredit = (float)$stmtCr->fetchColumn();
+    /* ---------------------------- Créditos pendientes ---------------------- */
+    $stmtCr = db()->prepare("
+      SELECT COALESCE(SUM(valor),0)
+      FROM creditos
+      WHERE idCliente = :id AND estado = 0
+    ");
+    $stmtCr->execute([':id' => $id]);
+    $pendingCredit = (float)$stmtCr->fetchColumn();
 
-    
 } catch (PDOException $e) {
     die("Error en la conexión: " . $e->getMessage());
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
