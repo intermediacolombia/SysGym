@@ -8,17 +8,7 @@ include('../login/restriction.php');
  * 1)  Traer las fechas que SÍ tienen cajas
  * ────────────────────────────────────────────────*/
 $fechasCaja = [];
-try {
-  $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8",
-                 $dbuser,$dbpass,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
 
-  $stmt = $pdo->query(
-    "SELECT DISTINCT DATE(fecha_apertura) AS f FROM cajas"
-  );
-  $fechasCaja = $stmt->fetchAll(PDO::FETCH_COLUMN);  // ['2025-07-18', …]
-} catch (PDOException $e) {
-  /* si falla, el calendario no tendrá restricciones */
-}
 ?>
 <!DOCTYPE html>
 <html lang="es">
