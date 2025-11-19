@@ -15,13 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Credenciales de la base de datos
    //include('../../inc/config.php');
 // Conexión a la base de datos mediante PDO
-    try {
-        bd();
-    } catch (PDOException $e) {
-        $_SESSION['error'] = "Error de conexión: " . $e->getMessage();
-        header("Location: $url/admin/login/");
-        exit();
-    }
+  
 
     // Recuperar y sanitizar los datos del formulario
     $username = strtolower(trim($_POST["username"] ?? ""));
