@@ -1,7 +1,5 @@
 <?php
 require_once __DIR__ . '/../../inc/config.php';
-db();
-
 $stmt = db()->prepare("
   SELECT id, fecha, peso, estatura, imc,
          porcentaje_grasa_corporal,

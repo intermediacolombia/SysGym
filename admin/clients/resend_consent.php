@@ -8,9 +8,7 @@ require_once __DIR__ . '/../../inc/config.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') { // Usamos GET para pruebas
     $clientId = $_POST['client_id']; // Obtener el ID del cliente desde la URL
     
-    try {
-        // Consultar los datos del cliente
-       db();
+    try {      
         // Obtener datos del cliente
         $stmtClient = db()->prepare("
             SELECT 

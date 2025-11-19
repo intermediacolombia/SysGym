@@ -11,9 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $id = trim($_POST['id']);
     
-    try {
-        db();
-        
+    try { 
         // Actualiza el cliente asignando NULL al plan y a las fechas de pago/vencimiento, y actualiza la fecha de modificación
         $stmt = db()->prepare("UPDATE clientes 
                                SET plan = NULL, pago_plan = NULL, vencimiento_plan = NULL, estado = 'inactivo', updated_at = NOW() 

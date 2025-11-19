@@ -9,9 +9,7 @@ include('../login/restriction.php');
 require_once __DIR__ . '/../../inc/config.php';
 
 try {
-    
-    db();
-    // Traer todos los clientes no borrados
+   // Traer todos los clientes no borrados
     $stmt = db()->prepare("SELECT * FROM clientes WHERE borrado = 0 ORDER BY identificacion DESC");
     $stmt->execute();
     $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);

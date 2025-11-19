@@ -8,9 +8,7 @@ require_once __DIR__ . '/../../inc/config.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $invoice_id = $_POST['invoice_id'];
     
-    try {
-        db();
-        
+    try {               
         // Consulta para obtener los datos de la factura y el cliente
         $stmt = db()->prepare("
             SELECT 

@@ -10,8 +10,7 @@ require_once __DIR__ . '/../../inc/config.php';
    ======================================================*/
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['eliminar_id'])) {
     header('Content-Type: application/json');
-    try {
-        db();
+    try {      
 
         $stmt = db()->prepare("DELETE FROM clientes_preinscritos WHERE id = ?");
         $stmt->execute([intval($_POST['eliminar_id'])]);

@@ -4,13 +4,6 @@ require_once __DIR__ . '/../../inc/config.php';
 
 header('Content-Type: application/json');
 
-/* conexión */
-try {
-    db(); // Intenta obtener la conexión global
-} catch (PDOException $e) {
-    echo json_encode(['data' => []]);
-    exit;
-}
 
 /* parámetros GET */
 $estado = isset($_GET['estado']) ? (int)$_GET['estado'] : 0;     // 0 = cerrada

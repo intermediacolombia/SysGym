@@ -13,8 +13,6 @@ include('../login/restriction.php');
  * 1. Conexión y planes disponibles
  * ---------------------------------------------------- */
 try {
-    db();
-
     $stmtPlan = db()->query("SELECT * FROM planes WHERE borrado = 0 AND estado = 'activo' ORDER BY nombre ASC");
     $planes   = $stmtPlan->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {

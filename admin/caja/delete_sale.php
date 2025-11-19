@@ -2,12 +2,6 @@
 require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
 
-try {
-    db(); // intenta conexión global
-} catch (PDOException $e) {
-    echo json_encode(['status' => 'error', 'message' => 'Error en la conexión']);
-    exit;
-}
 
 
 if (!isset($_POST['sale_id']) || !isset($_POST['producto_id']) || !isset($_POST['cantidad'])) {

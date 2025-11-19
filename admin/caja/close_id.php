@@ -25,15 +25,6 @@ if ($caja_id <= 0) {
     exit;
 }
 
-// Conectar a la BD
-try {
-    db(); // intenta conexión global
-} catch (PDOException $e) {
-    echo json_encode(['status' => 'error', 'message' => 'Error en la conexión']);
-    exit;
-}
-
-
 // Verificar que exista una caja abierta (estado = 1) con ese ID
 $stmt = db()->prepare("SELECT * FROM cajas WHERE id = :id AND estado = 1 LIMIT 1");
 $stmt->execute([':id' => $caja_id]);

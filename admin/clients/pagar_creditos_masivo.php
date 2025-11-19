@@ -14,8 +14,7 @@ $ids = is_array($_POST['ids']) ? $_POST['ids'] : explode(',', $_POST['ids']);
 $payment_method = trim($_POST['paymentMethod'] ?? '');
 $bank = trim($_POST['bank'] ?? '');
 
-try {
-    db();
+try {   
 	
     db()->beginTransaction();
 
