@@ -156,7 +156,7 @@ try {
 	
 	 // Verificar y enviar alerta de stock (solo si afectó stock)
     if (!$skip_stock) {
-        check_stock_alert($pdo, $producto_id, $stock_actual, $nuevo_stock, $api_ws);
+        check_stock_alert($producto_id, $stock_actual, $nuevo_stock, $api_ws);
     }
 
     // 9) Total en caja para esta caja
