@@ -6,11 +6,6 @@ $permisopage = 'Usar Cajas';
 include('../login/restriction.php');
 
 /* ── conexión ─────────────────────────────────────────────── */
-$pdo = new PDO(
-  "mysql:host=$host;dbname=$dbname;charset=utf8",
-  $dbuser,$dbpass,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]
-);
-
 /* ── fechas en las que ESTE usuario cerró caja ────────────── */
 /* ── fechas en las que ESTE usuario cerró caja ───────────── */
 $fechasCaja = [];
