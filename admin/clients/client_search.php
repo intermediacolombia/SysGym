@@ -8,7 +8,7 @@ include('../login/restriction.php');
 require_once __DIR__ . '/../../inc/config.php';
 
 // Obtener planes para el dropdown usando db()
-/*try {
+try {
     $stmt = db()->query("
         SELECT id, nombre 
         FROM planes 
@@ -18,7 +18,7 @@ require_once __DIR__ . '/../../inc/config.php';
     $planes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $planes = [];
-}*/
+}
 
 ?>
 <!DOCTYPE html>
