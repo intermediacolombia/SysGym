@@ -25,35 +25,37 @@ $hora = date('H:i:s');
 # ============================================================
 #  FUNCIÓN GLOBAL DE CONEXIÓN PDO (REUTILIZA UNA SOLA CONEXIÓN)
 # ============================================================
-function db()
-{
+function db() {
     static $pdo = null;
-
-    if ($pdo === null) {
-        global $host, $dbname, $dbuser, $dbpass;
-
-        $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
-
-        try {
-            $pdo = new PDO(
-                $dsn,
-                $dbuser,
-                $dbpass,
-                [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_PERSISTENT => true  // ¡OPTIMIZACIÓN CLAVE!
-                ]
-            );
-
-            $pdo->exec("SET NAMES 'utf8mb4'");
-        } catch (PDOException $e) {
-            die("Error de conexión: " . $e->getMessage());
+    if ($pdo !== null) {
+        return $pdo;
+	}
+    try {
+        $pdo = new PDO(
+            "mysql:host=$GLOBALS[host];dbname=$GLOBALS[dbname];charset=utf8mb4",
+            $GLOBALS['dbuser'],
+            $GLOBALS['dbpass'],
+			[
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+            ]
+        );
+        return $pdo;
+    } catch (PDOException $e) {        
+        // Detectar si es un endpoint (AJAX / API)
+        if (preg_match('/\.php$/', $_SERVER['REQUEST_URI'])) {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'status'  => 'error',
+                'message' => 'Error de conexión a la base de datos.',
+                'code'    => $e->getCode()
+            ]);
+            exit;
         }
+        // En páginas normales HTML
+        die("Error de conexión. Intenta más tarde.");
     }
-
-    return $pdo;
 }
-
 # ===============================
 #  CARGAR SETTINGS DEL SISTEMA
 # ===============================
