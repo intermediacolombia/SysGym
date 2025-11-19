@@ -10,11 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // Usamos GET para pruebas
     
     try {
         // Consultar los datos del cliente
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
+       db();
         // Obtener datos del cliente
-        $stmtClient = $pdo->prepare("
+        $stmtClient = db()->prepare("
             SELECT 
                 nombres,
                 apellidos,
@@ -35,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // Usamos GET para pruebas
         }
 
         // Obtener el ID del formulario más reciente del cliente
-        $stmtForm = $pdo->prepare("
+        $stmtForm = db()->prepare("
             SELECT id 
             FROM formularios 
             WHERE cliente_id = :client_id 

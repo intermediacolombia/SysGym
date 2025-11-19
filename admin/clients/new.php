@@ -13,10 +13,9 @@ include('../login/restriction.php');
  * 1. Conexión y planes disponibles
  * ---------------------------------------------------- */
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    db();
 
-    $stmtPlan = $pdo->query("SELECT * FROM planes WHERE borrado = 0 AND estado = 'activo' ORDER BY nombre ASC");
+    $stmtPlan = db()->query("SELECT * FROM planes WHERE borrado = 0 AND estado = 'activo' ORDER BY nombre ASC");
     $planes   = $stmtPlan->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $_SESSION['error'] = "Error en la conexión: " . $e->getMessage();
@@ -59,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     /* ---------------- Verificar documento único ---------------- */
     try {
-        $stmtDup = $pdo->prepare("SELECT id FROM clientes WHERE identificacion = :identificacion AND borrado = 0 LIMIT 1");
+        $stmtDup = db()->prepare("SELECT id FROM clientes WHERE identificacion = :identificacion AND borrado = 0 LIMIT 1");
         $stmtDup->execute([':identificacion' => $identificacion]);
         if ($stmtDup->fetchColumn()) {
             $_SESSION['error'] = 'Ya existe un cliente con esa identificación.';
@@ -74,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     /* ---------------- Insertar nuevo cliente ------------------- */
     try {
-        $stmt = $pdo->prepare("INSERT INTO clientes (
+        $stmt = db()->prepare("INSERT INTO clientes (
             identificacion,nombres,apellidos,direccion,dialCode,telefono,genero,email,fecha_nacimiento,
             contacto_emergencia,dialCodeEmergencia,numero_emergencia,notificaciones,rh,eps,estado,
             fracturas,alergias,enfermedades_actuales,observaciones,plan,pago_plan,vencimiento_plan,
@@ -110,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':vencimiento_plan'      => $vencimiento_plan
         ]);
 
-        $id = $pdo->lastInsertId();
+        $id = db()->lastInsertId();
 		
 		// LOGS
 require_once __DIR__ . '/../inc/log_action.php';

@@ -3,8 +3,7 @@
 require_once __DIR__ . '/../../inc/config.php';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    db();
 } catch(PDOException $e) {
     header('Content-Type: application/json');
     echo json_encode(["data" => []]);
@@ -21,7 +20,7 @@ if (!isset($_GET['client_id']) || empty($_GET['client_id'])) {
 $client_id = intval($_GET['client_id']);
 error_log("get_creditos.php: client_id = " . $client_id);
 
-$stmt = $pdo->prepare("SELECT * FROM creditos WHERE idCliente = :client_id AND estado = 0 ORDER BY id DESC");
+$stmt = db()->prepare("SELECT * FROM creditos WHERE idCliente = :client_id AND estado = 0 ORDER BY id DESC");
 $stmt->bindParam(':client_id', $client_id, PDO::PARAM_INT);
 $stmt->execute();
 $creditos = $stmt->fetchAll(PDO::FETCH_ASSOC);

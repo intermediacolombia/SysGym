@@ -12,11 +12,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = trim($_POST['id']);
     
     try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        db();
         
         // Actualiza el cliente asignando NULL al plan y a las fechas de pago/vencimiento, y actualiza la fecha de modificación
-        $stmt = $pdo->prepare("UPDATE clientes 
+        $stmt = db()->prepare("UPDATE clientes 
                                SET plan = NULL, pago_plan = NULL, vencimiento_plan = NULL, estado = 'inactivo', updated_at = NOW() 
                                WHERE id = :id");
         $stmt->execute([':id' => $id]);

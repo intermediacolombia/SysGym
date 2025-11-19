@@ -1,9 +1,8 @@
 <?php
 require_once __DIR__ . '/../../inc/config.php';
-$pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8",$dbuser,$dbpass,
-               [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+db();
 
-$stmt = $pdo->prepare("
+$stmt = db()->prepare("
   SELECT id, fecha, peso, estatura, imc,
          porcentaje_grasa_corporal,
          porcentaje_musculo_esqueletico,

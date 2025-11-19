@@ -15,11 +15,9 @@ $payment_method = trim($_POST['paymentMethod'] ?? '');
 $bank = trim($_POST['bank'] ?? '');
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]);
-
-    $pdo->beginTransaction();
+    db();
+	
+    db()->beginTransaction();
 
     $creditosPagados = [];
     $totalPagado = 0;
@@ -28,7 +26,7 @@ try {
 
     // === 1. Recolectar información de los créditos seleccionados ===
     $placeholders = implode(',', array_fill(0, count($ids), '?'));
-    $stmt = $pdo->prepare("
+    $stmt = db()->prepare("
         SELECT c.id, c.idCliente, c.valor, c.descripcion, c.fecha_limite,
                cli.nombres, cli.apellidos, cli.identificacion, cli.dialCode, cli.telefono, cli.direccion, cli.notificaciones
         FROM creditos c
@@ -51,7 +49,7 @@ try {
     foreach ($creditos as $credito) {
         $totalPagado += (float)$credito['valor'];
         $creditosPagados[] = $credito;
-        $pdo->prepare("UPDATE creditos SET estado = 1, updated_at = NOW() WHERE id = ?")->execute([$credito['id']]);
+        db()->prepare("UPDATE creditos SET estado = 1, updated_at = NOW() WHERE id = ?")->execute([$credito['id']]);
     }
 
     // === 3. Generar la factura única ===
@@ -74,12 +72,12 @@ try {
     $facturaId = $facturaIdNueva;
 
     // === 5. Registrar la venta en caja ===
-    $stmtCaja = $pdo->prepare("SELECT id FROM cajas WHERE usuario_id = :u AND estado = 1 LIMIT 1");
+    $stmtCaja = db()->prepare("SELECT id FROM cajas WHERE usuario_id = :u AND estado = 1 LIMIT 1");
     $stmtCaja->execute([':u' => $id_user]);
     $caja = $stmtCaja->fetch(PDO::FETCH_ASSOC);
 
     if ($caja) {
-        $stmtVenta = $pdo->prepare("INSERT INTO ventas 
+        $stmtVenta = db()->prepare("INSERT INTO ventas 
             (caja_id, detalle, cantidad, valor, payment_method, bank, fecha, hora)
             VALUES (:caja, :detalle, 1, :valor, :metodo, :banco, :fecha, :hora)");
         $stmtVenta->execute([
@@ -94,13 +92,13 @@ try {
     }
 
     // === 6. Vincular los créditos a la factura ===
-    $stmtVincular = $pdo->prepare("UPDATE creditos SET factura_id = ? WHERE id = ?");
+    $stmtVincular = db()->prepare("UPDATE creditos SET factura_id = ? WHERE id = ?");
     foreach ($creditosPagados as $c) {
         $stmtVincular->execute([$facturaIdNueva, $c['id']]);
     }
 
     // ✅ Confirmar la transacción antes de generar PDF / enviar WhatsApp
-    $pdo->commit();
+    db()->commit();
 
     // === 7. Enviar WhatsApp con la factura (si aplica) ===
     if ((int)$clienteInfo['notificaciones'] === 1 || (int)$clienteInfo['notificaciones'] === 0) {
@@ -152,7 +150,7 @@ try {
     ]);
 
 } catch (Exception $e) {
-    if ($pdo->inTransaction()) $pdo->rollBack();
+    if (db()->inTransaction()) db()->rollBack();
     echo json_encode(['status' => 'error', 'message' => 'Error: ' . $e->getMessage()]);
 }
 ?>

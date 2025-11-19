@@ -11,10 +11,9 @@ require_once __DIR__ . '/../../inc/config.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['eliminar_id'])) {
     header('Content-Type: application/json');
     try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8",$dbuser,$dbpass,
-                       [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+        db();
 
-        $stmt = $pdo->prepare("DELETE FROM clientes_preinscritos WHERE id = ?");
+        $stmt = db()->prepare("DELETE FROM clientes_preinscritos WHERE id = ?");
         $stmt->execute([intval($_POST['eliminar_id'])]);
 
         echo json_encode(['status'=>'success','message'=>'El cliente ha sido eliminado.']);
@@ -28,10 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['eliminar_id'])) {
    2.  A partir de aquí se genera la página normal (GET)
    ======================================================*/
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8",$dbuser,$dbpass,
-                   [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+    db();
 
-    $stmt = $pdo->query("SELECT * FROM clientes_preinscritos ORDER BY created_at DESC");
+    $stmt = db()->query("SELECT * FROM clientes_preinscritos ORDER BY created_at DESC");
     $preinscritos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("Error en la conexión: " . $e->getMessage());
@@ -172,7 +170,7 @@ $(document).ready(function() {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['eliminar_id'])) {
     $id = intval($_POST['eliminar_id']);
     try {
-        $stmtDel = $pdo->prepare("DELETE FROM clientes_preinscritos WHERE id = ?");
+        $stmtDel = db()->prepare("DELETE FROM clientes_preinscritos WHERE id = ?");
         $stmtDel->execute([$id]);
         echo json_encode(['status' => 'success', 'message' => 'El cliente ha sido eliminado.']);
     } catch (PDOException $e) {

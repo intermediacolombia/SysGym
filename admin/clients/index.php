@@ -9,11 +9,10 @@ include('../login/restriction.php');
 require_once __DIR__ . '/../../inc/config.php';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
+    
+    db();
     // Traer todos los clientes no borrados
-    $stmt = $pdo->prepare("SELECT * FROM clientes WHERE borrado = 0 ORDER BY identificacion DESC");
+    $stmt = db()->prepare("SELECT * FROM clientes WHERE borrado = 0 ORDER BY identificacion DESC");
     $stmt->execute();
     $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

@@ -9,11 +9,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $invoice_id = $_POST['invoice_id'];
     
     try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        db();
         
         // Consulta para obtener los datos de la factura y el cliente
-        $stmt = $pdo->prepare("
+        $stmt = db()->prepare("
             SELECT 
                 c.nombres AS cp_nombres,
                 c.apellidos AS cp_apellidos,
