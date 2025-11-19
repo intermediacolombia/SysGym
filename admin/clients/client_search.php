@@ -2,20 +2,24 @@
 require_once __DIR__ . '/../login/session.php';
 $permisopage = 'Ver Clientes';
 include('../login/restriction.php');
-session_start();
 
-// Configuración de base de datos
+// NO usar session_start() aquí, session.php ya lo hace
+
 require_once __DIR__ . '/../../inc/config.php';
 
-// Obtener planes para el dropdown
-try {
-    $pdoPlanes = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdoPlanes->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $planStmt = $pdoPlanes->query("SELECT id, nombre FROM planes WHERE borrado = 0 ORDER BY nombre ASC");
-    $planes = $planStmt->fetchAll(PDO::FETCH_ASSOC);
+// Obtener planes para el dropdown usando db()
+/*try {
+    $stmt = db()->query("
+        SELECT id, nombre 
+        FROM planes 
+        WHERE borrado = 0 
+        ORDER BY nombre ASC
+    ");
+    $planes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $planes = [];
-}
+}*/
+
 ?>
 <!DOCTYPE html>
 <html lang="es">

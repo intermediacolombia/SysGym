@@ -2,32 +2,36 @@
 require_once __DIR__ . '/../login/session.php';
 $permisopage = 'Ver Asistencias';
 include('../login/restriction.php');
-session_start();
-require_once __DIR__ . '/../../inc/config.php';
 
-/* -------- consulta (día en español) -------- */
+require_once __DIR__ . '/../../inc/config.php'; // ya no se usa session_start()
+
 try {
-    $pdo->exec("SET lc_time_names = 'es_ES';");        // «lunes», «martes»…
+    // activar idioma español
+    db()->exec("SET lc_time_names = 'es_ES';");
 
-    $stmt = $pdo->query("
-        SELECT  a.fecha,
-                a.hora,
-                DATE_FORMAT(a.fecha,'%W')      AS dia,
-                c.id                           AS idCliente,
-                c.identificacion,
-                c.nombres,
-                c.apellidos
-        FROM    asistencias a
-        JOIN    clientes c ON c.id = a.idCliente
-        WHERE   c.borrado = 0
+    $sql = "
+        SELECT  
+            a.fecha,
+            a.hora,
+            DATE_FORMAT(a.fecha,'%W') AS dia,
+            c.id AS idCliente,
+            c.identificacion,
+            c.nombres,
+            c.apellidos
+        FROM asistencias a
+        JOIN clientes c ON c.id = a.idCliente
+        WHERE c.borrado = 0
         ORDER BY a.fecha DESC, a.hora DESC
-    ");
+    ";
+
+    $stmt = db()->query($sql);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
-    die('Error DB: '.$e->getMessage());
+    die('Error DB: ' . $e->getMessage());
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
