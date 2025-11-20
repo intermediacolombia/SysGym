@@ -123,7 +123,7 @@ $logoDataURI = 'data:image/png;base64,' . $logoData;
       <img src="<?php echo $logoDataURI; ?>" width="150" style="margin: 0; padding: 0;" alt="Logo">
       <p>NO RESPONSABLE DE IVA</p>
       <p>NIT. <?= NIT_GYM; ?></p>
-      <p>Tel.: 3<?= TEL_GYM; ?> | Correo: <?= EMAIL_GYM; ?></p>
+      <p>Tel.: <?= TEL_GYM; ?> | Correo: <?= EMAIL_GYM; ?></p>
     </div>
 
     <hr>

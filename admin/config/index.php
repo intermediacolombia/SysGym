@@ -106,6 +106,13 @@ try {
     <i class="fas fa-envelope"></i> SMTP
   </button>
 </li>
+	
+		<li class="nav-item" role="presentation">
+  <button class="nav-link" id="advanced-tab" data-bs-toggle="tab" data-bs-target="#advanced" type="button" role="tab">
+    <i class="fas fa-tools"></i> Avanzado
+  </button>
+</li>
+
 
 		
     </ul>
