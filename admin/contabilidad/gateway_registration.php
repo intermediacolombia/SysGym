@@ -110,7 +110,7 @@ try {
         ?>
         <tr data-id="<?= htmlspecialchars($r['idCliente']) ?>">
           <td><?= htmlspecialchars($r['id'] ?? '')?></td>
-          <td><?= fechaBonita($r['fecha'] ?? '')?></td>
+          <td><?= htmlspecialchars($r['fecha'] ?? '')?></td>
           <td><?= ucfirst($r['dia']) ?></td>
           <td data-order="<?= htmlspecialchars($r['hora'] ?? '') ?>">
             <?php
