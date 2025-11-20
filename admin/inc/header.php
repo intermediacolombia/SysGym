@@ -44,11 +44,19 @@
   }
 </script>
 
+
 <style>
   /* Oculta el loader mientras se aplica el tema */
   #page-loader {
     opacity: 1 !important;
     visibility: visible !important;
+  }
+  
+  /* Aplica estilos oscuros al loader INMEDIATAMENTE */
+  html.dark-mode #page-loader,
+  html[data-theme="dark"] #page-loader {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
   }
   
   html[data-theme="dark"],
