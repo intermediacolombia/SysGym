@@ -122,39 +122,45 @@ try {
           $stmt = db()->query($sql);
           while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
               echo '<tr class="user-row" 
-					  data-id="' . $row['id'] . '"
-					  data-username="' . htmlspecialchars($row['username']) . '"
-					  data-nombre="' . htmlspecialchars($row['nombre']) . '"
-					  data-apellido="' . htmlspecialchars($row['apellido']) . '"
-					  data-correo="' . htmlspecialchars($row['correo']) . '"
-					  data-rol="' . htmlspecialchars($row['rol_id']) . '"
-					  data-estado="' . htmlspecialchars($row['estado']) . '"
-					  data-dialcode="' . htmlspecialchars($row['dialcode']) . '"
-					  data-telefono="' . htmlspecialchars($row['telefono']) . '"
-					  data-recibe_alertas_stock="' . (int)$row['recibe_alertas_stock'] . '">';
+				data-id="' . ($row['id'] ?? '') . '"
+				data-username="' . htmlspecialchars($row['username'] ?? '') . '"
+				data-nombre="' . htmlspecialchars($row['nombre'] ?? '') . '"
+				data-apellido="' . htmlspecialchars($row['apellido'] ?? '') . '"
+				data-correo="' . htmlspecialchars($row['correo'] ?? '') . '"
+				data-rol="' . htmlspecialchars($row['rol_id'] ?? '') . '"
+				data-estado="' . htmlspecialchars($row['estado'] ?? '') . '"
+				data-dialcode="' . htmlspecialchars($row['dialcode'] ?? '') . '"
+				data-telefono="' . htmlspecialchars($row['telefono'] ?? '') . '"
+				data-recibe_alertas_stock="' . (int)($row['recibe_alertas_stock'] ?? 0) . '">';
 
-					echo '<td>' . htmlspecialchars($row['username'] ?? '') . '</td>';
-					echo '<td>' . htmlspecialchars($row['nombre'] ?? '') . '</td>';
-					echo '<td>' . htmlspecialchars($row['apellido'] ?? '') . '</td>';
-					echo '<td>' . htmlspecialchars(($row['dialcode'] ?? '') . ' ' . ($row['telefono'] ?? '')) . '</td>';
-					echo '<td>' . htmlspecialchars($row['correo'] ?? '') . '</td>';
-					echo '<td>' . htmlspecialchars($row['rol'] ?? '') . '</td>';
+				echo '<td>' . htmlspecialchars($row['username'] ?? '') . '</td>';
+				echo '<td>' . htmlspecialchars($row['nombre'] ?? '') . '</td>';
+				echo '<td>' . htmlspecialchars($row['apellido'] ?? '') . '</td>';
+				echo '<td>' . htmlspecialchars(($row['dialcode'] ?? '') . ' ' . ($row['telefono'] ?? '')) . '</td>';
+				echo '<td>' . htmlspecialchars($row['correo'] ?? '') . '</td>';
+				echo '<td>' . htmlspecialchars($row['rol'] ?? 'Sin Rol') . '</td>';
 
-              echo '<td>';
-              if ($row['estado'] == 0) {
-                  echo '<span class="badge badge-success">Activo</span>';
-              } else {
-                  echo '<span class="badge badge-danger">Inactivo</span>';
-              }
-              echo '</td>';
-			  
-              // Botón de borrar
-              echo '<td class="no-click text-center"><button type="button" class="btn btn-sm btn-outline-danger delete-btn" data-id="' . $row['id'] . '"><i class="fas fa-trash"></i></button></td>';
-              echo '</tr>';
-          }
-      } catch (PDOException $e) {
-          echo '<tr><td colspan="7">Error: ' . $e->getMessage() . '</td></tr>';
-      }
+				echo '<td>';
+				if (($row['estado'] ?? 1) == 0) {
+					echo '<span class="badge badge-success">Activo</span>';
+				} else {
+					echo '<span class="badge badge-danger">Inactivo</span>';
+				}
+				echo '</td>';
+
+				echo '<td class="no-click text-center">
+						<button type="button" class="btn btn-sm btn-outline-danger delete-btn" 
+								data-id="' . ($row['id'] ?? '') . '">
+							<i class="fas fa-trash"></i>
+						</button>
+					  </td>';
+
+				echo '</tr>';
+
+				  }
+			  } catch (PDOException $e) {
+				  echo '<tr><td colspan="7">Error: ' . $e->getMessage() . '</td></tr>';
+			  }
       ?>
     </tbody>
   </table>
