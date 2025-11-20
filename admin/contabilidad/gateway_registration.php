@@ -109,19 +109,19 @@ try {
           };
         ?>
         <tr data-id="<?= htmlspecialchars($r['idCliente']) ?>">
-          <td><?= htmlspecialchars($r['id']) ?? '' ?></td>
-          <td><?= htmlspecialchars($r['fecha'])  ?? '' ?></td>
+          <td><?= htmlspecialchars($r['id'] ?? '')?></td>
+          <td><?= htmlspecialchars($r['fecha'] ?? '')?></td>
           <td><?= ucfirst($r['dia']) ?></td>
-          <td data-order="<?= htmlspecialchars($r['hora'])  ?? '' ?>">
+          <td data-order="<?= htmlspecialchars($r['hora'] ?? '') ?>">
             <?php
               $h = DateTime::createFromFormat('H:i:s', $r['hora']);
               echo $h ? $h->format('g:i a') : '-';
             ?>
           </td>
-          <td><?= htmlspecialchars($r['referencia']) ?></td>
-          <td><?= htmlspecialchars($r['nombres'] . ' ' . $r['apellidos'])  ?? '' ?></td>
-          <td><?= htmlspecialchars($r['identificacion'])  ?? '' ?></td>
-          <td>$<?= number_format($r['monto'], 0, ',', '.')  ?? '' ?></td>
+          <td><?= htmlspecialchars($r['referencia'] ?? '') ?></td>
+          <td><?= htmlspecialchars($r['nombres'] . ' ' . $r['apellidos'] ?? '')?></td>
+          <td><?= htmlspecialchars($r['identificacion'] ?? '')?></td>
+          <td>$<?= number_format($r['monto'], 0, ',', '.' ?? '')?></td>
           <td>
             <span class="badge bg-<?= $estadoColor ?>">
               <?= ucfirst($estado) ?>
@@ -164,7 +164,7 @@ $(function () {
   flatpickr('#filtroFecha', {
     dateFormat: 'Y-m-d',
     locale: 'es',
-    defaultDate: '<?= fechaBonita(date('Y-m-d')) ?>',
+    defaultDate: '<?php date('Y-m-d') ?>',
     maxDate: 'today',
     onChange: function(sel) {
       const fecha = sel[0].toISOString().slice(0, 10);
