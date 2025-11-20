@@ -33,6 +33,8 @@
     </style>
 
 
+
+
 <script>
   // Script bloqueante - se ejecuta ANTES de renderizar la página
   const theme = localStorage.getItem('theme-mode') || 'light';

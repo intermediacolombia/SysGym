@@ -171,12 +171,9 @@ document.addEventListener('DOMContentLoaded', function() {
   window.addEventListener('load', () => {
     const loader = document.getElementById('page-loader');
     if (loader) {
-      loader.style.opacity = '0';
-      loader.style.visibility = 'hidden';
-      loader.style.transition = 'opacity 0.3s ease-out';
-      setTimeout(() => {
-        if (loader) loader.classList.add('hidden');
-      }, 300);
+      // Usar !important para forzar los estilos
+      loader.style.cssText = 'opacity: 0 !important; visibility: hidden !important; transition: opacity 0.3s ease-out;';
+      console.log('Loader ocultado'); // Debug
     }
   });
 </script>
