@@ -164,7 +164,7 @@ $(function () {
   flatpickr('#filtroFecha', {
     dateFormat: 'Y-m-d',
     locale: 'es',
-    defaultDate: '<?php date('Y-m-d') ?>',
+    defaultDate: '<?php echo date('Y-m-d') ?>',
     maxDate: 'today',
     onChange: function(sel) {
       const fecha = sel[0].toISOString().slice(0, 10);
