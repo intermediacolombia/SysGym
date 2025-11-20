@@ -61,9 +61,10 @@ try {
 		log_action('Editar Contraseña', $desc, 'Perfil');
 		// END LOGS	
     
-    $_SESSION['success'] = "Contraseña actualizada correctamente.";
-    header("Location: $url/admin/profile");
-    exit();
+    $_SESSION['success'] = "Contraseña actualizada correctamente. La sesión se cerrará en 5 segundos.";
+header("Location: $url/admin/password_changed.php");
+exit();
+
     
 } catch (PDOException $e) {
     $_SESSION['error'] = "Error al actualizar la contraseña: " . $e->getMessage();
