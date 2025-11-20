@@ -92,9 +92,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Guarda el token en una cookie persistente
         // Asegúrate de que el dominio y demás parámetros coincidan con tu configuración
         setcookie('remember_me', $token, $expiry, '/', $cookieDomain, true, true);
+
     }
 
-    header("Location: $url/admin/");
+    // Verificar si hay una URL guardada a donde redirigir después del login
+    if (isset($_SESSION['redirect_after_login'])) {
+        $redirectUrl = $_SESSION['redirect_after_login'];
+        unset($_SESSION['redirect_after_login']); // Limpiar la variable
+        header("Location: $redirectUrl");
+    } else {
+        // Redirigir al admin por defecto
+        header("Location: $url/admin/");
+    }
     exit();
 }
 ?>
