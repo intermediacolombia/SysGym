@@ -106,6 +106,7 @@ $id_user   = $_SESSION["user"]["id"];
 $nombre    = $_SESSION["user"]["nombre"];
 $apellido  = $_SESSION["user"]["apellido"];
 $rol_id    = $_SESSION["user"]["rol_id"];
+$foto_perfil    = $_SESSION["user"]["foto_perfil"];
 
 // Consultar el nombre del rol
 try {
