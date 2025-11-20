@@ -1,5 +1,4 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../../inc/config.php';
 
 try {
@@ -15,18 +14,9 @@ try {
     ");
 
     $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    echo json_encode($usuarios);
 
-    echo json_encode([
-        'status' => 'ok',
-        'data' => $usuarios
-    ]);
-    
-} catch (Throwable $e) {
-
-    echo json_encode([
-        'status' => 'error',
-        'message' => $e->getMessage()
-    ]);
+} catch (Exception $e) {
+    echo json_encode([]);
 }
-
 

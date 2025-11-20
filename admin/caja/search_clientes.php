@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../inc/config.php';
 
-header('Content-Type: application/json; charset=utf-8');
+//header('Content-Type: application/json; charset=utf-8');
 
 
 if (isset($_GET['query'])) {
