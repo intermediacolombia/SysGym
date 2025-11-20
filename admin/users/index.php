@@ -135,7 +135,7 @@ try {
 				data-telefono="' . htmlspecialchars($row['telefono'] ?? '') . '"
 				data-recibe_alertas_stock="' . (int)($row['recibe_alertas_stock'] ?? 0) . '">';
 
-			  	echo '<td><img src="'. URLBASE . ($row['foto_perfil'] ?: '../img/default-user.png') . '" 
+			  	echo '<td><img src="'. URLBASE .'/'. ($row['foto_perfil'] ?: '../img/default-user.png') . '" 
 style="width:40px;height:40px;border-radius:6px;object-fit:cover;"></td>';
 				echo '<td>' . htmlspecialchars($row['username'] ?? '') . '</td>';
 				echo '<td>' . htmlspecialchars($row['nombre'] ?? '') . '</td>';
