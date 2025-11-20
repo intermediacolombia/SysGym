@@ -1,5 +1,11 @@
 <?php
-session_start(); // MOVER ESTO AL INICIO
+session_start(); // DEBE SER LO PRIMERO
+if (session_status() === PHP_SESSION_ACTIVE) {
+    // La sesión ya está activa, asegúrate de que redirect_after_login exista
+    if (!isset($_SESSION['redirect_after_login'])) {
+        $_SESSION['redirect_after_login'] = null;
+    }
+}
 
 require_once __DIR__ . '/../../inc/config.php';
 $cookieDomain = str_replace(['https://','http://'], '', $url);
@@ -92,22 +98,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Guarda el token en una cookie persistente
         // Asegúrate de que el dominio y demás parámetros coincidan con tu configuración
         setcookie('remember_me', $token, $expiry, '/', $cookieDomain, true, true);
-
     }
 
     // Verificar si hay una URL guardada a donde redirigir después del login
     if (isset($_SESSION['redirect_after_login'])) {
         $redirectUrl = $_SESSION['redirect_after_login'];
+        echo "DEBUG: Redirigiendo a: $redirectUrl<br>";
+        echo "PRE: " . print_r($_SESSION, true);
         unset($_SESSION['redirect_after_login']); // Limpiar la variable
         header("Location: $redirectUrl");
     } else {
+        echo "DEBUG: No hay redirect_after_login, redirigiendo a /admin/<br>";
+        echo "SESSION: " . print_r($_SESSION, true);
         // Redirigir al admin por defecto
         header("Location: $url/admin/");
     }
     exit();
 }
 ?>
-
 
 <!DOCTYPE html>
 

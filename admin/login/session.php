@@ -13,7 +13,9 @@ session_set_cookie_params([
     'samesite' => 'Lax'
 ]);
 ini_set('session.gc_maxlifetime', $tiempoUnAno);
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 // Aquí se usa db(), por ejemplo, para revisar la cookie "remember_me"
 if (!isset($_SESSION["user"]) && isset($_COOKIE['remember_me'])) {
     $token = $_COOKIE['remember_me'];
@@ -85,8 +87,3 @@ $stmtCaja->execute([':usuario_id' => $id_user]);
 $caja = $stmtCaja->fetch(PDO::FETCH_ASSOC);
 $caja_id = $caja ? $caja['id'] : null;
 ?>
-
-
-
-
-
