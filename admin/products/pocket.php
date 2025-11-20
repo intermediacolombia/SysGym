@@ -7,17 +7,11 @@ include('../login/restriction.php'); ?>
 
 require_once __DIR__ . '/../../inc/config.php';
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Error en la conexión: " . $e->getMessage());
-}
 
 // Procesar peticiones Ajax para CRUD
 if(isset($_GET['action']) && $_GET['action'] == "fetch"){
     // Obtener todos los bolsillos no borrados
-    $stmt = $pdo->prepare("SELECT id, nombre FROM bolsillos WHERE borrado = 0");
+    $stmt = db()->prepare("SELECT id, nombre FROM bolsillos WHERE borrado = 0");
     $stmt->execute();
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode(['data' => $data]);
@@ -30,7 +24,7 @@ if(isset($_POST['action'])){
         $nombre = trim($_POST['nombre']);
         
         // Verificar si ya existe un bolsillo con el mismo nombre
-        $stmtCheck = $pdo->prepare("SELECT id, borrado FROM bolsillos WHERE nombre = :nombre LIMIT 1");
+        $stmtCheck = db()->prepare("SELECT id, borrado FROM bolsillos WHERE nombre = :nombre LIMIT 1");
         $stmtCheck->execute([':nombre' => $nombre]);
         $existing = $stmtCheck->fetch(PDO::FETCH_ASSOC);
         
@@ -40,7 +34,7 @@ if(isset($_POST['action'])){
                 exit;
             } else {
                 // Reactivar el bolsillo que estaba borrado
-                $stmtUpdate = $pdo->prepare("UPDATE bolsillos SET borrado = 0 WHERE id = :id");
+                $stmtUpdate = db()->prepare("UPDATE bolsillos SET borrado = 0 WHERE id = :id");
                 if($stmtUpdate->execute([':id' => $existing['id']])){
 					
 					// LOGS
@@ -60,7 +54,7 @@ if(isset($_POST['action'])){
         }
         
         // Insertar nuevo bolsillo
-        $stmt = $pdo->prepare("INSERT INTO bolsillos (nombre, borrado) VALUES (:nombre, 0)");
+        $stmt = db()->prepare("INSERT INTO bolsillos (nombre, borrado) VALUES (:nombre, 0)");
         if($stmt->execute([':nombre' => $nombre])){
 			
 			// LOGS
@@ -79,7 +73,7 @@ if(isset($_POST['action'])){
     } elseif($action == "edit"){
         $id = trim($_POST['id']);
         $nombre = trim($_POST['nombre']);
-        $stmt = $pdo->prepare("UPDATE bolsillos SET nombre = :nombre WHERE id = :id");
+        $stmt = db()->prepare("UPDATE bolsillos SET nombre = :nombre WHERE id = :id");
         if($stmt->execute([':nombre' => $nombre, ':id' => $id])){
 			
 			// LOGS
@@ -99,7 +93,7 @@ if(isset($_POST['action'])){
     } elseif($action == "delete"){
         $id = trim($_POST['id']);
         // Marcar el bolsillo como borrado
-        $stmt = $pdo->prepare("UPDATE bolsillos SET borrado = 1 WHERE id = :id");
+        $stmt = db()->prepare("UPDATE bolsillos SET borrado = 1 WHERE id = :id");
         if($stmt->execute([':id' => $id])){
 			
 			// LOGS

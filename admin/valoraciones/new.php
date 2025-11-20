@@ -5,14 +5,6 @@ $permisopage = 'Manejar Valoraciones';
 include('../login/restriction.php');
 require_once __DIR__ . '/../../inc/config.php';
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8",
-                   $dbuser,$dbpass,
-                   [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
-} catch(PDOException $e){
-    die("Error BD: ".$e->getMessage());
-}
-
 // 1) Si viene POST: guardamos
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // validamos mínimos
@@ -66,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         NOW()
     )";
 
-    $stmt = $pdo->prepare($sql);
+    $stmt = db()->prepare($sql);
 
     // bind de parámetros
     $params = [
@@ -94,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		
 		// LOGS
 require_once __DIR__ . '/../inc/log_action.php';
-$valoracion_id = $pdo->lastInsertId();
+$valoracion_id = db()->lastInsertId();
 
 $desc = json_encode([
     'valoracion_id' => $valoracion_id,
@@ -133,7 +125,7 @@ if (empty($_GET['cliente_id'])) {
     $clientes = [];
     if ($q!=='') {
       $like = "%$q%";
-      $stmt = $pdo->prepare(
+      $stmt = db()->prepare(
         "SELECT id,identificacion,nombres,apellidos, genero 
          FROM clientes 
          WHERE borrado=0 
@@ -149,7 +141,7 @@ if (empty($_GET['cliente_id'])) {
 /*if (isset($_GET['ajax']) && $_GET['ajax'] === 'clientes') {
     $q = $_GET['q'] ?? '';
     $like = "%$q%";
-    $stmt = $pdo->prepare(
+    $stmt = db()->prepare(
       "SELECT id, identificacion, nombres, apellidos, estado 
          FROM clientes 
          WHERE borrado = 0 
@@ -165,7 +157,7 @@ if (empty($_GET['cliente_id'])) {
 if (isset($_GET['ajax']) && $_GET['ajax'] === 'clientes') {
     $q    = $_GET['q'] ?? '';
     $like = "%$q%";
-    $stmt = $pdo->prepare("
+    $stmt = db()->prepare("
       SELECT 
         id,
         identificacion,
@@ -302,7 +294,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'clientes') {
 // 3) Si llegamos aquí, hay cliente_id: mostramos el formulario
 $cid = (int)$_GET['cliente_id'];
 // cargar datos del cliente para mostrar su nombre arriba...
-$stmt = $pdo->prepare("
+$stmt = db()->prepare("
     SELECT nombres, apellidos, genero, fecha_nacimiento, estado, borrado
     FROM clientes
     WHERE id = :id

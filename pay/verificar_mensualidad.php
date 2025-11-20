@@ -2,13 +2,6 @@
 require_once __DIR__ . '/../inc/config.php';
 header('Content-Type: application/json; charset=utf-8');
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (Exception $e) {
-    echo json_encode(['status' => 'error', 'message' => 'Error al conectar: ' . $e->getMessage()]);
-    exit;
-}
 
 $identificacion = $_POST['identificacion'] ?? '';
 if (empty($identificacion)) {
@@ -16,7 +9,7 @@ if (empty($identificacion)) {
     exit;
 }
 
-$stmt = $pdo->prepare("
+$stmt = db()->prepare("
     SELECT 
         c.*,
         p.nombre  AS plan_nombre,

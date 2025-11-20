@@ -78,9 +78,7 @@ session_start();
       // Conexión a la BD
       require_once __DIR__ . '/../../inc/config.php';
       try {
-          $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-          $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
+         
           // Consultar nóminas pagadas
           $sql = "SELECT 
                       id_nomina,
@@ -92,7 +90,7 @@ session_start();
                       valor_pagado
                   FROM nomina
                   ORDER BY fecha_generacion DESC";
-          $stmt = $pdo->query($sql);
+          $stmt = db()->query($sql);
           while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
               echo '<tr class="nomina-row"
                   data-id="' . htmlspecialchars($row['id_nomina']) . '"

@@ -2,11 +2,10 @@
 require_once __DIR__ . '/../../inc/config.php'; // Asegúrate de que este archivo define $host, $dbname, $dbuser y $dbpass
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
 
     // Consulta para agrupar los cumpleaños por mes
-    $stmt = $pdo->prepare("
+    $stmt = db()->prepare("
         SELECT DATE_FORMAT(fecha_nacimiento, '%m') AS mes, COUNT(*) AS total
         FROM clientes
         WHERE borrado = 0 AND fecha_nacimiento IS NOT NULL

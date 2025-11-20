@@ -5,10 +5,9 @@ require_once __DIR__ . '/../inc/config.php';
 date_default_timezone_set('America/Bogota');
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8",
-                   $dbuser,$dbpass,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+   
 
-    $stmt = $pdo->prepare("
+    $stmt = db()->prepare("
         SELECT id,nombres,apellidos,telefono,fecha_nacimiento
         FROM   clientes
         WHERE  borrado = 0

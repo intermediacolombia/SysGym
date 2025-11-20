@@ -4,10 +4,9 @@ require_once __DIR__ . '/../inc/config.php';
 date_default_timezone_set('America/Bogota');
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8",
-                   $dbuser, $dbpass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+    
 
-    $stmt = $pdo->prepare("
+    $stmt = db()->prepare("
         SELECT COUNT(*) 
         FROM clientes 
         WHERE borrado = 0 
@@ -25,7 +24,7 @@ try {
 
 <?php
 // Contar clientes con estado activo y no borrados
-$stmtActivos = $pdo->prepare("
+$stmtActivos = db()->prepare("
     SELECT COUNT(*) 
     FROM clientes 
     WHERE borrado = 0 AND estado = 'activo'
@@ -35,7 +34,7 @@ $clientesActivosCount = (int)$stmtActivos->fetchColumn();
 ?>
 <?php
 // Contar clientes con estado activo y no borrados
-$stmtActivos = $pdo->prepare("
+$stmtActivos = db()->prepare("
     SELECT COUNT(*) 
     FROM clientes 
     WHERE borrado = 0 AND estado = 'activo'
@@ -48,7 +47,7 @@ $clientesActivosCount = (int)$stmtActivos->fetchColumn();
 $primerDiaMes = date('Y-m-01');
 $ultimoDiaMes = date('Y-m-t');
 
-$stmtNuevos = $pdo->prepare("
+$stmtNuevos = db()->prepare("
     SELECT COUNT(*) 
     FROM clientes 
     WHERE borrado = 0 
@@ -64,7 +63,7 @@ $nuevosClientesCount = (int)$stmtNuevos->fetchColumn();
 $primerDiaMes = date('Y-m-01');
 $ultimoDiaMes = date('Y-m-t');
 
-$stmtAsistenciasUnicas = $pdo->prepare("
+$stmtAsistenciasUnicas = db()->prepare("
     SELECT COUNT(DISTINCT idCliente) 
     FROM asistencias 
     WHERE DATE(fecha) BETWEEN :inicio AND :fin

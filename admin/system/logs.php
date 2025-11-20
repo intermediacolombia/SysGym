@@ -4,24 +4,12 @@ $permisopage = 'Ver Logs del Sistema';
 include('../login/restriction.php');
 require_once __DIR__ . '/../../inc/config.php';
 
-/* ======================= CONEXIÓN ======================= */
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    if (isset($_GET['action'])) {
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode(['data'=>[], 'error'=>'Error conexión: '.$e->getMessage()]);
-        exit;
-    }
-    die("Error en la conexión: " . $e->getMessage());
-}
 
 /* ======================= ENDPOINTS AJAX ======================= */
 if (isset($_GET['action']) && $_GET['action'] === 'fetch') {
     header('Content-Type: application/json; charset=utf-8');
     try {
-        $stmt = $pdo->query("
+        $stmt = db()->query("
             SELECT 
                 id,
                 fecha,
@@ -46,7 +34,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'get' && isset($_GET['id'])) {
     header('Content-Type: application/json; charset=utf-8');
     try {
         $id = (int)$_GET['id'];
-        $stmt = $pdo->prepare("SELECT * FROM system_logs WHERE id = :id LIMIT 1");
+        $stmt = db()->prepare("SELECT * FROM system_logs WHERE id = :id LIMIT 1");
         $stmt->execute([':id'=>$id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row) {

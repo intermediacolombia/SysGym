@@ -15,16 +15,14 @@ if (empty($_GET['id']) || !is_numeric($_GET['id'])) {
 $id = (int)$_GET['id'];
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]);
+    
 
-    $stmt = $pdo->prepare("SELECT * FROM valoraciones WHERE id = :id AND borrado = 0");
+    $stmt = db()->prepare("SELECT * FROM valoraciones WHERE id = :id AND borrado = 0");
     $stmt->execute([':id' => $id]);
     $val = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$val) exit('Valoración no encontrada');
 
-    $stmt = $pdo->prepare("SELECT nombres, apellidos FROM clientes WHERE id = :cid");
+    $stmt = db()->prepare("SELECT nombres, apellidos FROM clientes WHERE id = :cid");
     $stmt->execute([':cid' => $val['cliente_id']]);
     $cli = $stmt->fetch(PDO::FETCH_ASSOC);
 

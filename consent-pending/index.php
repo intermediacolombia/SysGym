@@ -7,11 +7,10 @@ $token = $_GET['token'] ?? '';
 if (!$token) die('<h3>Token no proporcionado</h3>');
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
 
     // Buscar token válido
-    $stmt = $pdo->prepare("SELECT tc.*, c.nombres, c.apellidos, c.id AS cliente_id 
+    $stmt = db()->prepare("SELECT tc.*, c.nombres, c.apellidos, c.id AS cliente_id 
                            FROM tokens_consent tc
                            JOIN clientes c ON c.id = tc.cliente_id
                            WHERE tc.token = :token AND tc.usado = 0
@@ -25,7 +24,7 @@ try {
     }
 
     // Verificar si ya firmó consentimiento
-    $stmtForm = $pdo->prepare("SELECT id FROM formularios WHERE cliente_id = :id LIMIT 1");
+    $stmtForm = db()->prepare("SELECT id FROM formularios WHERE cliente_id = :id LIMIT 1");
     $stmtForm->execute([':id' => $tokenData['cliente_id']]);
     $form = $stmtForm->fetch();
 

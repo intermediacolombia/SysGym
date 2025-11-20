@@ -47,8 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
 
         // Actualizar datos del empleado, incluyendo el dialCode y fecha_ingreso
         $sql = "UPDATE empleados 
@@ -63,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     estado = :estado,
                     fecha_ingreso = :fecha_ingreso
                 WHERE id = :id";
-        $stmt = $pdo->prepare($sql);
+        $stmt = db()->prepare($sql);
         $stmt->execute([
             ':documento' => $documento,
             ':nombre' => $nombre,

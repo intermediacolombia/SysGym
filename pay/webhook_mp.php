@@ -13,8 +13,7 @@ $data = json_decode(file_get_contents('php://input'), true);
 file_put_contents(__DIR__ . '/webhook_log.txt', date('Y-m-d H:i:s') . " " . json_encode($data) . "\n", FILE_APPEND);
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
 	
 	
 	
@@ -22,7 +21,7 @@ try {
     /* ==========================================================
        VERIFICAR TABLA PAGOS (auto-creación si no existe)
     =========================================================== */
-    $pdo->exec("
+    db()->exec("
         CREATE TABLE IF NOT EXISTS pagos (
             id INT AUTO_INCREMENT PRIMARY KEY,
             cliente_id INT NOT NULL,
@@ -70,13 +69,13 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
             $cliente_id = (int)$match[1];
 
             // ¿Existe ya el pago con esa referencia?
-            $stmtCheck = $pdo->prepare("SELECT id FROM pagos WHERE referencia = :ref LIMIT 1");
+            $stmtCheck = db()->prepare("SELECT id FROM pagos WHERE referencia = :ref LIMIT 1");
             $stmtCheck->execute([':ref' => $ref]);
             $existe = $stmtCheck->fetchColumn();
 
             if ($existe) {
                 // 🔄 Actualizar registro existente
-                $stmtUpdatePago = $pdo->prepare("
+                $stmtUpdatePago = db()->prepare("
     UPDATE pagos 
     SET estado = :estado, monto = :monto, raw_response = :raw, fecha_pago = :fecha
     WHERE referencia = :ref
@@ -95,7 +94,7 @@ $stmtUpdatePago->execute([
                 );
             } else {
                 // 🆕 Insertar nuevo registro
-                $stmtInsert = $pdo->prepare("
+                $stmtInsert = db()->prepare("
 					INSERT INTO pagos (cliente_id, referencia, monto, estado, metodo_pago, raw_response, fecha_pago)
 					VALUES (:cid, :ref, :monto, :estado, 'mercadopago', :raw, :fecha)
 				");
@@ -122,7 +121,7 @@ $stmtUpdatePago->execute([
             $cliente_id = (int)$match[1];
 
             // === Obtener datos del cliente y su plan ===
-            $stmtPlan = $pdo->prepare("
+            $stmtPlan = db()->prepare("
                 SELECT c.*, p.precio, p.dias, p.frecuencia
                 FROM clientes c
                 INNER JOIN planes p ON p.id = c.plan
@@ -155,7 +154,7 @@ $stmtUpdatePago->execute([
                 $nuevoVenc   = $calcFechaFin($inicio, $planMeses, $planDias);
 
                 // === Actualizar cliente ===
-                $stmtUpdate = $pdo->prepare("
+                $stmtUpdate = db()->prepare("
                     UPDATE clientes 
                     SET pago_plan = :pago, vencimiento_plan = :venc, estado = 'activo', congelado = 0, updated_at = NOW()
                     WHERE id = :id

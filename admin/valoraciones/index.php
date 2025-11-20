@@ -6,16 +6,10 @@ include('../login/restriction.php');
 session_start();
 require_once __DIR__ . '/../../inc/config.php';
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8",
-                   $dbuser,$dbpass,
-                   [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
-} catch(PDOException $e) {
-    die("Error en la conexión: " . $e->getMessage());
-}
+
 
 // Traer todas las valoraciones con datos básicos del cliente
-$stmt = $pdo->query("
+$stmt = db()->query("
     SELECT 
   v.id,
   CONCAT(c.nombres, ' ', c.apellidos) AS cliente,

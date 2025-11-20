@@ -2,11 +2,10 @@
 require_once __DIR__ . '/../../inc/config.php'; // Asegúrate de que este archivo define $host, $dbname, $dbuser y $dbpass
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
 
     // Consulta para obtener la cantidad de clientes por estado (activo vs inactivo)
-    $stmt = $pdo->prepare("
+    $stmt = db()->prepare("
         SELECT estado, COUNT(*) AS total
         FROM clientes
         WHERE borrado = 0

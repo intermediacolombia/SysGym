@@ -89,7 +89,7 @@ try {
         <td>
           <?php
             if (!empty($cliente['plan'])) {
-              $stmtPlan = $pdo->prepare("SELECT nombre FROM planes WHERE id = :plan AND borrado = 0");
+              $stmtPlan = db()->prepare("SELECT nombre FROM planes WHERE id = :plan AND borrado = 0");
               $stmtPlan->execute([':plan' => $cliente['plan']]);
               echo htmlspecialchars($stmtPlan->fetchColumn());
             }

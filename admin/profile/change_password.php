@@ -34,11 +34,10 @@ if ($newPassword !== $confirmNewPassword) {
 
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
     
     // Obtener la contraseña actual del usuario
-    $stmt = $pdo->prepare("SELECT password FROM usuarios WHERE id = :id LIMIT 1");
+    $stmt = db()->prepare("SELECT password FROM usuarios WHERE id = :id LIMIT 1");
     $stmt->execute([':id' => $userId]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -50,7 +49,7 @@ try {
     
     // Actualizar la contraseña
     $newPasswordHash = password_hash($newPassword, PASSWORD_DEFAULT);
-    $stmtUpdate = $pdo->prepare("UPDATE usuarios SET password = :password WHERE id = :id");
+    $stmtUpdate = db()->prepare("UPDATE usuarios SET password = :password WHERE id = :id");
     $stmtUpdate->execute([':password' => $newPasswordHash, ':id' => $userId]);
 	
 	// LOGS

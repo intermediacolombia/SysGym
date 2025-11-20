@@ -10,14 +10,8 @@ if (!function_exists('saveFailedWSMessage')) {
         global $host, $dbname, $dbuser, $dbpass;
 
         try {
-            $pdo = new PDO(
-                "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
-                $dbuser,
-                $dbpass,
-                [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-            );
-
-            $stmt = $pdo->prepare("
+            
+            $stmt = db()->prepare("
                 INSERT INTO ws_outbox (phonenumber, text, url, created_at)
                 VALUES (:phonenumber, :text, :url, NOW())
             ");

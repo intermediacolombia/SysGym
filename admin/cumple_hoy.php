@@ -5,18 +5,13 @@ date_default_timezone_set('America/Bogota');
 header('Content-Type: application/json; charset=utf-8');
 
 try {
-    $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
-        $dbuser,
-        $dbpass,
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-    );
+    
 
     $hoy = date('Y-m-d');
     $cumpleaneros = [];
 
     // Buscar clientes que asistieron hoy y cumplen años hoy
-    $stmt = $pdo->prepare("
+    $stmt = db()->prepare("
         SELECT c.id, c.nombres, c.apellidos, c.fecha_nacimiento
         FROM asistencias a
         JOIN clientes c ON c.id = a.idCliente

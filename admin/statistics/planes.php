@@ -2,11 +2,10 @@
 require_once __DIR__ . '/../../inc/config.php'; // Asegúrate de que este archivo define $host, $dbname, $dbuser y $dbpass
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
 
     // Consulta para obtener cada plan (no borrado) y la cantidad de usuarios que lo usan (clientes no borrados)
-    $stmt = $pdo->prepare("
+    $stmt = db()->prepare("
         SELECT p.*, COUNT(c.id) as total
         FROM planes p
         LEFT JOIN clientes c ON p.id = c.plan AND c.borrado = 0

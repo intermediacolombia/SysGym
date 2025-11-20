@@ -5,14 +5,9 @@ date_default_timezone_set('America/Bogota');
 
 /* ——— Asistencias de HOY (una por cliente) ——— */
 try {
-    $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8",
-        $dbuser, $dbpass,
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-    );
-
+    
     /*  Agrupamos por cliente y nos quedamos con la HORA más alta (la última)  */
-    $stmt = $pdo->prepare("
+    $stmt = db()->prepare("
         SELECT  c.id,
                 c.nombres,
                 c.apellidos,

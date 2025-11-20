@@ -2,11 +2,10 @@
 require_once __DIR__ . '/../../inc/config.php'; // Asegúrate de que este archivo define $host, $dbname, $dbuser y $dbpass
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
 
     // Consulta para obtener la cantidad de nuevos clientes mensuales basándonos en la columna created_at
-    $stmt = $pdo->prepare("
+    $stmt = db()->prepare("
         SELECT 
             DATE_FORMAT(created_at, '%Y-%m') AS mes,
             DATE_FORMAT(created_at, '%b %Y') AS label,

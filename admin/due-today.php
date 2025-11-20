@@ -5,11 +5,10 @@ require_once __DIR__ . '/../inc/config.php';
 date_default_timezone_set('America/Bogota');
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8",
-                   $dbuser,$dbpass,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+   
 
     /*  Si quieres mostrar también congelados, elimina  AND congelado = 0   */
-    $stmt = $pdo->prepare("
+    $stmt = db()->prepare("
         SELECT c.id,
                c.nombres,
                c.apellidos,

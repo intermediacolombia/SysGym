@@ -17,13 +17,12 @@ if (!$token || !$firma) {
 }
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
 
     /* ──────────────────────────────
       Crear tabla si no existe
     ────────────────────────────── */
-    $pdo->exec("
+    db()->exec("
         CREATE TABLE IF NOT EXISTS tokens_consent (
             id INT AUTO_INCREMENT PRIMARY KEY,
             cliente_id INT NOT NULL,
@@ -38,7 +37,7 @@ try {
     /* ──────────────────────────────
        Validar token
     ────────────────────────────── */
-    $stmt = $pdo->prepare("
+    $stmt = db()->prepare("
         SELECT tc.*, c.id AS cliente_id, c.nombres, c.apellidos, c.email, c.telefono, c.dialCode
         FROM tokens_consent tc
         JOIN clientes c ON c.id = tc.cliente_id
@@ -58,7 +57,7 @@ try {
     /* ──────────────────────────────
        Verificar si ya existe consentimiento
     ────────────────────────────── */
-    $stmtCheck = $pdo->prepare("SELECT id FROM formularios WHERE cliente_id = :cid LIMIT 1");
+    $stmtCheck = db()->prepare("SELECT id FROM formularios WHERE cliente_id = :cid LIMIT 1");
     $stmtCheck->execute([':cid' => $clienteId]);
     $existe = $stmtCheck->fetch();
 
@@ -70,7 +69,7 @@ try {
     /* ──────────────────────────────
        Insertar consentimiento
     ────────────────────────────── */
-    $stmtInsert = $pdo->prepare("
+    $stmtInsert = db()->prepare("
         INSERT INTO formularios (cliente_id, fecha, firma_digital_cliente)
         VALUES (:cid, NOW(), :firma)
     ");
@@ -78,12 +77,12 @@ try {
         ':cid'   => $clienteId,
         ':firma' => $firma
     ]);
-    $formulario_id = $pdo->lastInsertId();
+    $formulario_id = db()->lastInsertId();
 
     /* ──────────────────────────────
        Marcar token como usado
     ────────────────────────────── */
-    $stmtUpdate = $pdo->prepare("UPDATE tokens_consent SET usado = 1 WHERE token = :token");
+    $stmtUpdate = db()->prepare("UPDATE tokens_consent SET usado = 1 WHERE token = :token");
     $stmtUpdate->execute([':token' => $token]);
 
     /* ─────────────────────────────

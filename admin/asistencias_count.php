@@ -5,12 +5,7 @@ require_once __DIR__ . '/../inc/config.php';   // $host, $dbname, $dbuser, $dbpa
 header('Content-Type: application/json');
 
 try {
-    $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8",
-        $dbuser,
-        $dbpass,
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-    );
+    
 
     /* —— una sola asistencia por cliente hoy —— */
     $sql = "
@@ -22,7 +17,7 @@ try {
           AND  c.estado  = 'activo'
     ";
 
-    $stmt = $pdo->prepare($sql);
+    $stmt = db()->prepare($sql);
     $stmt->execute([':hoy' => $hoy]);
 
     echo json_encode(['count' => (int)$stmt->fetchColumn()]);

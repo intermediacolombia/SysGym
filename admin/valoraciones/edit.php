@@ -6,15 +6,7 @@ include('../login/restriction.php');
 
 require_once __DIR__ . '/../../inc/config.php';
 
-try {
-    $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8",
-        $dbuser, $dbpass,
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-    );
-} catch (PDOException $e) {
-    die("Error BD: " . $e->getMessage());
-}
+
 
 // 1) Si viene POST: actualizamos la valoración
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -68,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     $sql = "UPDATE valoraciones SET " . implode(", ", $sets) . " WHERE id = :valoracion_id";
-    $stmt = $pdo->prepare($sql);
+    $stmt = db()->prepare($sql);
 
     // vínculo de parámetros
    $params = [
@@ -127,7 +119,7 @@ if (empty($_GET['id']) || !is_numeric($_GET['id'])) {
 }
 $vid = (int)$_GET['id'];
 // cargar valoración
-$stmt = $pdo->prepare("SELECT * FROM valoraciones WHERE id = :id AND borrado = 0");
+$stmt = db()->prepare("SELECT * FROM valoraciones WHERE id = :id AND borrado = 0");
 $stmt->execute([':id' => $vid]);
 $val = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$val) {
@@ -136,7 +128,7 @@ if (!$val) {
     exit;
 }
 // cargar cliente
-$stmt = $pdo->prepare("SELECT id, nombres,apellidos,genero, fecha_nacimiento FROM clientes WHERE id = :cid");
+$stmt = db()->prepare("SELECT id, nombres,apellidos,genero, fecha_nacimiento FROM clientes WHERE id = :cid");
 $stmt->execute([':cid' => $val['cliente_id']]);
 $cli = $stmt->fetch(PDO::FETCH_ASSOC);
 

@@ -5,18 +5,12 @@ include('../login/restriction.php'); ?>
 <?php
 require_once __DIR__ . '/../../inc/config.php';
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Error en la conexión: " . $e->getMessage());
-}
 
 // =====================================================
 // FETCH: Obtener productos
 // =====================================================
 if (isset($_GET['action']) && $_GET['action'] == "fetch") {
-    $stmt = $pdo->prepare("SELECT p.id, p.nombre, p.precio, p.coste, p.stock, p.estado, p.id_bolsillo, b.nombre AS bolsillo, b.borrado,
+    $stmt = db()->prepare("SELECT p.id, p.nombre, p.precio, p.coste, p.stock, p.estado, p.id_bolsillo, b.nombre AS bolsillo, b.borrado,
                               p.alerta_stock, p.minimo_stock
                        FROM productos p 
                        LEFT JOIN bolsillos b ON p.id_bolsillo = b.id 
@@ -48,7 +42,7 @@ if (isset($_POST['action'])) {
         $minimo_stock = isset($_POST['minimo_stock']) && $_POST['minimo_stock'] !== '' ? (int)$_POST['minimo_stock'] : null;
 
         // Verificar si ya existe un producto con el mismo nombre
-        $stmtCheck = $pdo->prepare("SELECT id, borrado FROM productos WHERE nombre = :nombre LIMIT 1");
+        $stmtCheck = db()->prepare("SELECT id, borrado FROM productos WHERE nombre = :nombre LIMIT 1");
         $stmtCheck->execute([':nombre' => $nombre]);
         $existing = $stmtCheck->fetch(PDO::FETCH_ASSOC);
 
@@ -58,7 +52,7 @@ if (isset($_POST['action'])) {
                 exit;
             } else {
                 // Reactivar producto borrado
-                $stmtUpdate = $pdo->prepare("
+                $stmtUpdate = db()->prepare("
                     UPDATE productos 
                     SET precio = :precio, coste = :coste, stock = :stock, estado = :estado, id_bolsillo = :id_bolsillo,
                         alerta_stock = :alerta_stock, minimo_stock = :minimo_stock, borrado = 0
@@ -97,7 +91,7 @@ if (isset($_POST['action'])) {
         }
 
         // Insertar nuevo producto
-        $stmt = $pdo->prepare("
+        $stmt = db()->prepare("
             INSERT INTO productos 
             (nombre, precio, coste, stock, estado, id_bolsillo, alerta_stock, minimo_stock, borrado)
             VALUES
@@ -148,7 +142,7 @@ if (isset($_POST['action'])) {
         $alerta_stock = isset($_POST['alerta_stock']) && $_POST['alerta_stock'] == '1' ? 1 : 0;
         $minimo_stock = isset($_POST['minimo_stock']) && $_POST['minimo_stock'] !== '' ? (int)$_POST['minimo_stock'] : null;
 
-        $stmt = $pdo->prepare("
+        $stmt = db()->prepare("
             UPDATE productos 
             SET nombre = :nombre, precio = :precio, coste = :coste, stock = :stock, estado = :estado,
                 id_bolsillo = :id_bolsillo, alerta_stock = :alerta_stock, minimo_stock = :minimo_stock
@@ -192,7 +186,7 @@ if (isset($_POST['action'])) {
     // =====================================================
     elseif ($action == "delete") {
         $id = trim($_POST['id']);
-        $stmt = $pdo->prepare("UPDATE productos SET borrado = 1 WHERE id = :id");
+        $stmt = db()->prepare("UPDATE productos SET borrado = 1 WHERE id = :id");
         if ($stmt->execute([':id' => $id])) {
 
             require_once __DIR__ . '/../inc/log_action.php';
@@ -300,7 +294,7 @@ if (isset($_POST['action'])) {
               <?php 
               // Consulta para obtener todos los bolsillos activos
               try {
-                  $stmtB = $pdo->prepare("SELECT id, nombre FROM bolsillos WHERE borrado = 0");
+                  $stmtB = db()->prepare("SELECT id, nombre FROM bolsillos WHERE borrado = 0");
                   $stmtB->execute();
                   $bolsillos = $stmtB->fetchAll(PDO::FETCH_ASSOC);
                   foreach($bolsillos as $b){
@@ -388,7 +382,7 @@ if (isset($_POST['action'])) {
 			<option value="">Seleccione</option>
                 <?php 
                 try {
-                    $stmtB = $pdo->prepare("SELECT id, nombre FROM bolsillos WHERE borrado = 0");
+                    $stmtB = db()->prepare("SELECT id, nombre FROM bolsillos WHERE borrado = 0");
                     $stmtB->execute();
                     $bolsillos = $stmtB->fetchAll(PDO::FETCH_ASSOC);
                     foreach($bolsillos as $b){

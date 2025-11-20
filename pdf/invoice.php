@@ -1,13 +1,6 @@
 <?php
 require_once __DIR__ . '/../inc/config.php';
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Error en la conexión: " . $e->getMessage());
-}
-
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     die("Error: Falta el id de la factura.");
 }
@@ -15,7 +8,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 $facturaId = $_GET['id'];
 
 // Se consulta la tabla facturas utilizando el id
-$stmt = $pdo->prepare("SELECT * FROM facturas WHERE id = :id");
+$stmt = db()->prepare("SELECT * FROM facturas WHERE id = :id");
 $stmt->execute([':id' => $facturaId]);
 $factura = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -197,7 +190,7 @@ $mostrarFechaVencimiento = (!empty($factura['fecha_vencimiento']) && $factura['f
     <?php 
     // Si la factura tiene asignado un crédito, se muestra la información del crédito
     if (!empty($factura['credito_id'])) {
-        $stmtCredito = $pdo->prepare("SELECT * FROM creditos WHERE id = :id");
+        $stmtCredito = db()->prepare("SELECT * FROM creditos WHERE id = :id");
         $stmtCredito->execute([':id' => $factura['credito_id']]);
         $credito = $stmtCredito->fetch(PDO::FETCH_ASSOC);
         if ($credito) {

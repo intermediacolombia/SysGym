@@ -14,11 +14,9 @@ if (!$cliente_id) die("Cliente no especificado.");
 try {
 	
 	
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	
+    	
     // === Obtener datos del cliente y su plan ===
-    $stmt = $pdo->prepare("
+    $stmt = db()->prepare("
         SELECT c.*, p.nombre AS plan_nombre, p.precio AS plan_precio
         FROM clientes c
         LEFT JOIN planes p ON p.id = c.plan
@@ -46,10 +44,10 @@ try {
     $referencia = "pago_{$cliente_id}_" . time();
 
     // === Registrar intento de pago en la base de datos ===
-    $stmtCheck = $pdo->prepare("SELECT id FROM pagos WHERE referencia = :ref LIMIT 1");
+    $stmtCheck = db()->prepare("SELECT id FROM pagos WHERE referencia = :ref LIMIT 1");
     $stmtCheck->execute([':ref' => $referencia]);
     if (!$stmtCheck->fetchColumn()) {
-        $stmtInsert = $pdo->prepare("
+        $stmtInsert = db()->prepare("
     INSERT INTO pagos (cliente_id, referencia, monto, estado, metodo_pago, raw_response, fecha_pago)
     VALUES (:cid, :ref, :monto, 'Pending', 'mercadopago', NULL, :fecha)
 ");

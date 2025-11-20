@@ -1,14 +1,6 @@
 <?php
 require_once __DIR__ . '/../inc/config.php'; // Incluir el archivo de configuración
 
-try {
-    // Crear la conexión PDO
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Error en la conexión: " . $e->getMessage());
-}
-
 // Verificar si se proporcionó un ID de nómina
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     die("Error: Falta el ID de la nómina.");
@@ -17,7 +9,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 $idNomina = $_GET['id'];
 
 // Consultar los datos de la tabla `nomina` usando el ID proporcionado
-$stmt = $pdo->prepare("SELECT * FROM nomina WHERE id_nomina = :id");
+$stmt = db()->prepare("SELECT * FROM nomina WHERE id_nomina = :id");
 $stmt->execute([':id' => $idNomina]);
 $nomina = $stmt->fetch(PDO::FETCH_ASSOC);
 

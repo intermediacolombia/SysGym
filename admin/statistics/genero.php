@@ -2,11 +2,9 @@
 require_once __DIR__ . '/../../inc/config.php'; // Asegúrate de que este archivo define $host, $dbname, $dbuser y $dbpass
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
+    
     // Consulta para contar los clientes por género (solo los no borrados)
-    $stmt = $pdo->prepare("SELECT genero, COUNT(*) as total FROM clientes WHERE borrado = 0 GROUP BY genero");
+    $stmt = db()->prepare("SELECT genero, COUNT(*) as total FROM clientes WHERE borrado = 0 GROUP BY genero");
     $stmt->execute();
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

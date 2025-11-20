@@ -8,18 +8,12 @@ include('../login/restriction.php');?>
 
 require_once __DIR__ . '/../../inc/config.php';
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Error en la conexión: " . $e->getMessage());
-}
 
 // Procesar peticiones Ajax para CRUD
 if(isset($_GET['action']) && $_GET['action'] == "fetch"){
     // Obtener todos los planes no borrados (incluyendo frecuencia)
     // Cambiar la consulta para incluir "dias"
-	$stmt = $pdo->prepare("SELECT id, nombre, precio, frecuencia, dias, estado FROM planes WHERE borrado = 0");
+	$stmt = db()->prepare("SELECT id, nombre, precio, frecuencia, dias, estado FROM planes WHERE borrado = 0");
 
     $stmt->execute();
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -37,7 +31,7 @@ if(isset($_POST['action'])){
     $estado = trim($_POST['estado']); // Este valor se usará solo si el plan es nuevo
 
     // Verificar si ya existe un plan con el mismo nombre
-    $stmtCheck = $pdo->prepare("SELECT id, borrado FROM planes WHERE nombre = :nombre LIMIT 1");
+    $stmtCheck = db()->prepare("SELECT id, borrado FROM planes WHERE nombre = :nombre LIMIT 1");
     $stmtCheck->execute([':nombre' => $nombre]);
     $existing = $stmtCheck->fetch(PDO::FETCH_ASSOC);
 
@@ -47,7 +41,7 @@ if(isset($_POST['action'])){
             exit;
         } else {
             // Reactivar y actualizar si está borrado
-            $stmtUpdate = $pdo->prepare("UPDATE planes SET precio = :precio, frecuencia = :frecuencia, dias = :dias, estado = :estado, borrado = 0 WHERE id = :id");
+            $stmtUpdate = db()->prepare("UPDATE planes SET precio = :precio, frecuencia = :frecuencia, dias = :dias, estado = :estado, borrado = 0 WHERE id = :id");
             if($stmtUpdate->execute([':precio'=>$precio, ':frecuencia'=>$frecuencia, ':dias'=>$dias, ':estado'=>$estado, ':id'=>$existing['id']])) {
 				
 				// LOGS
@@ -70,7 +64,7 @@ if(isset($_POST['action'])){
         }
     }
     // Insertar nuevo plan
-    $stmt = $pdo->prepare("INSERT INTO planes (nombre, precio, frecuencia, dias, estado, borrado) VALUES (:nombre, :precio, :frecuencia, :dias, :estado, 0)");
+    $stmt = db()->prepare("INSERT INTO planes (nombre, precio, frecuencia, dias, estado, borrado) VALUES (:nombre, :precio, :frecuencia, :dias, :estado, 0)");
     if($stmt->execute([':nombre'=>$nombre, ':precio'=>$precio, ':frecuencia'=>$frecuencia, ':dias'=>$dias, ':estado'=>$estado])){
         echo json_encode(['status'=>'success', 'message'=>'Plan agregado correctamente']);
     } else {
@@ -84,7 +78,7 @@ if(isset($_POST['action'])){
     $frecuencia = trim($_POST['frecuencia']);
     $dias = trim($_POST['dias']); // Nuevo campo: días adicionales
     $estado = trim($_POST['estado']);
-    $stmt = $pdo->prepare("UPDATE planes SET nombre = :nombre, precio = :precio, frecuencia = :frecuencia, dias = :dias, estado = :estado WHERE id = :id");
+    $stmt = db()->prepare("UPDATE planes SET nombre = :nombre, precio = :precio, frecuencia = :frecuencia, dias = :dias, estado = :estado WHERE id = :id");
     if($stmt->execute([':nombre'=>$nombre, ':precio'=>$precio, ':frecuencia'=>$frecuencia, ':dias'=>$dias, ':estado'=>$estado, ':id'=>$id])){
         
 		// LOGS
@@ -109,7 +103,7 @@ if(isset($_POST['action'])){
     } elseif($action == "delete"){
         $id = trim($_POST['id']);
         // Marcar el plan como borrado (borrado = 1)
-        $stmt = $pdo->prepare("UPDATE planes SET borrado = 1 WHERE id = :id");
+        $stmt = db()->prepare("UPDATE planes SET borrado = 1 WHERE id = :id");
         if($stmt->execute([':id'=>$id])){
 			
 			// LOGS

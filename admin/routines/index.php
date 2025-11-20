@@ -4,33 +4,28 @@ $permisopage = 'Ver Rutinas';
 include('../login/restriction.php');
 require_once __DIR__ . '/../../inc/config.php';
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Error en la conexión: " . $e->getMessage());
-}
+
 
 if(isset($_GET['action']) && $_GET['action'] == "fetch"){
-    $stmt = $pdo->prepare("SELECT id, nombre, descripcion, estado FROM rutinas WHERE borrado = 0");
+    $stmt = db()->prepare("SELECT id, nombre, descripcion, estado FROM rutinas WHERE borrado = 0");
     $stmt->execute();
     echo json_encode(['data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     exit;
 }
 
 if(isset($_GET['action']) && $_GET['action'] == 'get_ejercicios'){
-    $stmt = $pdo->query("SELECT id, nombre FROM ejercicios ORDER BY nombre ASC");
+    $stmt = db()->query("SELECT id, nombre FROM ejercicios ORDER BY nombre ASC");
     echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
     exit;
 }
 
 if(isset($_GET['action']) && $_GET['action'] == 'get_rutina' && isset($_GET['id'])){
     $id = $_GET['id'];
-    $stmt = $pdo->prepare("SELECT id, nombre, descripcion, estado FROM rutinas WHERE id = :id");
+    $stmt = db()->prepare("SELECT id, nombre, descripcion, estado FROM rutinas WHERE id = :id");
     $stmt->execute([':id' => $id]);
     $rutina = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $stmtEj = $pdo->prepare("SELECT ejercicio_id AS id, repeticiones, series, duracion, descanso, orden FROM rutina_ejercicio WHERE rutina_id = :id ORDER BY orden ASC");
+    $stmtEj = db()->prepare("SELECT ejercicio_id AS id, repeticiones, series, duracion, descanso, orden FROM rutina_ejercicio WHERE rutina_id = :id ORDER BY orden ASC");
     $stmtEj->execute([':id' => $id]);
     $ejercicios = $stmtEj->fetchAll(PDO::FETCH_ASSOC);
 
@@ -42,13 +37,13 @@ if(isset($_POST['action'])){
     $action = $_POST['action'];
 
     if($action == "add"){
-        $stmt = $pdo->prepare("INSERT INTO rutinas (nombre, descripcion, estado) VALUES (:nombre, :descripcion, :estado)");
+        $stmt = db()->prepare("INSERT INTO rutinas (nombre, descripcion, estado) VALUES (:nombre, :descripcion, :estado)");
         $success = $stmt->execute([
             ':nombre' => $_POST['nombre'],
             ':descripcion' => $_POST['descripcion'],
             ':estado' => $_POST['estado']
         ]);
-        $rutina_id = $pdo->lastInsertId();
+        $rutina_id = db()->lastInsertId();
 		
 		// LOGS
 require_once __DIR__ . '/../inc/log_action.php';
@@ -67,7 +62,7 @@ log_action('Crear rutina', $desc, 'Rutinas');
         if($success && isset($_POST['ejercicios'])){
             $ejercicios = json_decode($_POST['ejercicios'], true);
             foreach ($ejercicios as $ej) {
-                $stmtEj = $pdo->prepare("INSERT INTO rutina_ejercicio (rutina_id, ejercicio_id, repeticiones, series, duracion, descanso, orden) VALUES (:rutina_id, :ejercicio_id, :repeticiones, :series, :duracion, :descanso, :orden)");
+                $stmtEj = db()->prepare("INSERT INTO rutina_ejercicio (rutina_id, ejercicio_id, repeticiones, series, duracion, descanso, orden) VALUES (:rutina_id, :ejercicio_id, :repeticiones, :series, :duracion, :descanso, :orden)");
                 $stmtEj->execute([
                     ':rutina_id' => $rutina_id,
                     ':ejercicio_id' => $ej['id'],
@@ -85,7 +80,7 @@ log_action('Crear rutina', $desc, 'Rutinas');
     }
 
     if($action == "edit" && isset($_POST['id'])){
-        $stmt = $pdo->prepare("UPDATE rutinas SET nombre = :nombre, descripcion = :descripcion, estado = :estado WHERE id = :id");
+        $stmt = db()->prepare("UPDATE rutinas SET nombre = :nombre, descripcion = :descripcion, estado = :estado WHERE id = :id");
         $success = $stmt->execute([
             ':nombre' => $_POST['nombre'],
             ':descripcion' => $_POST['descripcion'],
@@ -108,12 +103,12 @@ log_action('Editar rutina', $desc, 'Rutinas');
 
 
         if ($success) {
-            $pdo->prepare("DELETE FROM rutina_ejercicio WHERE rutina_id = :id")->execute([':id' => $_POST['id']]);
+            db()->prepare("DELETE FROM rutina_ejercicio WHERE rutina_id = :id")->execute([':id' => $_POST['id']]);
 
             if(isset($_POST['ejercicios'])){
                 $ejercicios = json_decode($_POST['ejercicios'], true);
                 foreach ($ejercicios as $ej) {
-                    $stmtEj = $pdo->prepare("INSERT INTO rutina_ejercicio (rutina_id, ejercicio_id, repeticiones, series, duracion, descanso, orden) VALUES (:rutina_id, :ejercicio_id, :repeticiones, :series, :duracion, :descanso, :orden)");
+                    $stmtEj = db()->prepare("INSERT INTO rutina_ejercicio (rutina_id, ejercicio_id, repeticiones, series, duracion, descanso, orden) VALUES (:rutina_id, :ejercicio_id, :repeticiones, :series, :duracion, :descanso, :orden)");
                     $stmtEj->execute([
                         ':rutina_id' => $_POST['id'],
                         ':ejercicio_id' => $ej['id'],
@@ -132,7 +127,7 @@ log_action('Editar rutina', $desc, 'Rutinas');
     }
 
     if($action == "delete"){
-        $stmt = $pdo->prepare("UPDATE rutinas SET borrado = 1 WHERE id = :id");
+        $stmt = db()->prepare("UPDATE rutinas SET borrado = 1 WHERE id = :id");
         $success = $stmt->execute([':id' => $_POST['id']]);
 		
 		// LOGS

@@ -6,14 +6,7 @@ session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     require_once __DIR__ . '/../../inc/config.php';
-    try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch(PDOException $e) {
-        $_SESSION['error'] = "Error de conexión: " . $e->getMessage();
-        header("Location: $url/admin/users");
-        exit();
-    }
+    
 
     // ==========================================================
     // Recuperar campos
@@ -31,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Verificar duplicados
     $sqlCheck = "SELECT * FROM usuarios WHERE correo = :correo OR username = :username LIMIT 1";
-    $stmtCheck = $pdo->prepare($sqlCheck);
+    $stmtCheck = db()->prepare($sqlCheck);
     $stmtCheck->execute([':correo'=>$correo, ':username'=>$username]);
 
     if ($stmtCheck->rowCount() > 0) {
@@ -45,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $sqlInsert = "INSERT INTO usuarios 
         (nombre, apellido, correo, dialcode, telefono, username, password, rol_id, estado, recibe_alertas_stock) 
         VALUES (:nombre, :apellido, :correo, :dialcode, :telefono, :username, :password, :rol_id, :estado, :recibe_alertas_stock)";
-    $stmtInsert = $pdo->prepare($sqlInsert);
+    $stmtInsert = db()->prepare($sqlInsert);
     try {
         $stmtInsert->execute([
             ':nombre'   => $nombre,

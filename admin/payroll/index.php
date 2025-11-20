@@ -14,13 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fecha_fin_pago = $_POST['fecha_fin_pago'];
 
     try {
-        // Conexión a la base de datos
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
         // Obtener el salario y el teléfono del empleado seleccionado
         $sql_empleado = "SELECT nombre, apellido, salario, telefono FROM empleados WHERE id = :id";
-        $stmt_empleado = $pdo->prepare($sql_empleado);
+        $stmt_empleado = db()->prepare($sql_empleado);
         $stmt_empleado->execute([':id' => $id_empleado]);
         $empleado = $stmt_empleado->fetch(PDO::FETCH_ASSOC);
 
@@ -63,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ) VALUES (
             NOW(), :nombre_empleado, :fecha_inicio_pago, :fecha_fin_pago, :total_dias_pagados, :valor_pagado
         )";
-        $stmt_nomina = $pdo->prepare($sql_nomina);
+        $stmt_nomina = db()->prepare($sql_nomina);
         $stmt_nomina->execute([
             ':nombre_empleado' => $empleado['nombre'] . ' ' . $empleado['apellido'],
             ':fecha_inicio_pago' => $fecha_inicio_pago,
@@ -73,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         // Obtener el ID de la nómina generada
-        $id_nomina = $pdo->lastInsertId();		
+        $id_nomina = db()->lastInsertId();		
 
         // Preparar los datos para enviar el mensaje por WhatsApp
         $cp_nombres = $empleado['nombre'];
@@ -181,11 +177,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <option value="">Seleccione un empleado</option>
                         <?php
                         try {
-                            $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-                            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                           
 
                             $sql = "SELECT id, nombre, apellido, salario FROM empleados WHERE borrado = 0";
-                            $stmt = $pdo->query($sql);
+                            $stmt = db()->query($sql);
                             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                                 echo '<option value="' . $row['id'] . '" data-salario="' . $row['salario'] . '">' .
                                     htmlspecialchars($row['nombre']) . ' ' .

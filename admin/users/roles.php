@@ -61,7 +61,7 @@ require_once __DIR__ . '/../../inc/config.php';
 // Consulta para obtener todos los permisos disponibles con su categoría
 try {
     // Consulta SQL: Agrupar permisos por categoría
-    $stmtPermissions = $pdo->query("SELECT category, id, name FROM permissions ORDER BY category ASC");
+    $stmtPermissions = db()->query("SELECT category, id, name FROM permissions ORDER BY category ASC");
     $permissions = $stmtPermissions->fetchAll(PDO::FETCH_ASSOC);
 
     // Variable para rastrear la categoría actual

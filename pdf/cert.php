@@ -11,11 +11,10 @@ $id = trim($_GET['id']);
 
 try {
     // Conexión a la base de datos
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
 
     // Obtener datos del cliente (solo si no está borrado)
-    $stmt = $pdo->prepare("SELECT * FROM clientes WHERE id = :id AND borrado = 0");
+    $stmt = db()->prepare("SELECT * FROM clientes WHERE id = :id AND borrado = 0");
     $stmt->execute([':id' => $id]);
     $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -34,7 +33,7 @@ try {
     // Obtener datos del plan asignado (si existe)
     $planInfo = null;
     if (!empty($cliente['plan'])) {
-        $stmtPlan = $pdo->prepare("SELECT * FROM planes WHERE id = :plan AND borrado = 0");
+        $stmtPlan = db()->prepare("SELECT * FROM planes WHERE id = :plan AND borrado = 0");
         $stmtPlan->execute([':plan' => $cliente['plan']]);
         $planInfo = $stmtPlan->fetch(PDO::FETCH_ASSOC);
     }

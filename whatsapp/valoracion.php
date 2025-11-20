@@ -16,16 +16,11 @@ if (!$valId || !$cliId) {
 
 /* ───────────── 1) DATOS DEL CLIENTE ───────────── */
 try {
-    $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8",
-        $dbuser,
-        $dbpass,
-        [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]
-    );
+    
 
     $sql = "SELECT nombres, apellidos, dialCode, telefono
             FROM clientes WHERE id = :id";
-    $cli = $pdo->prepare($sql);
+    $cli = db()->prepare($sql);
     $cli->execute([':id'=>$cliId]);
     $cli = $cli->fetch(PDO::FETCH_ASSOC);
 

@@ -12,9 +12,8 @@ if (!isset($data['id']) || !is_numeric($data['id'])) {
 }
 
 try {
-  $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass,
-                 [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
-  $stmt = $pdo->prepare("UPDATE valoraciones SET borrado = 1 WHERE id = ?");
+  
+  $stmt = db()->prepare("UPDATE valoraciones SET borrado = 1 WHERE id = ?");
   $stmt->execute([$data['id']]);
 	
 	// LOGS

@@ -11,13 +11,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['cliente_id'])) {
 }
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
 
     /* ──────────────────────────────────────────────
        CREAR TABLA tokens_consent SI NO EXISTE
     ────────────────────────────────────────────── */
-    $pdo->exec("
+    db()->exec("
         CREATE TABLE IF NOT EXISTS tokens_consent (
             id INT AUTO_INCREMENT PRIMARY KEY,
             cliente_id INT NOT NULL,
@@ -32,7 +31,7 @@ try {
     /* ──────────────────────────────────────────────
        OBTENER CLIENTE
     ────────────────────────────────────────────── */
-    $stmt = $pdo->prepare("SELECT id, nombres, apellidos, identificacion, telefono, dialCode 
+    $stmt = db()->prepare("SELECT id, nombres, apellidos, identificacion, telefono, dialCode 
                            FROM clientes WHERE id = :id AND borrado = 0 LIMIT 1");
     $stmt->execute([':id' => intval($_POST['cliente_id'])]);
     $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -45,7 +44,7 @@ try {
     /* ──────────────────────────────────────────────
        VALIDAR SI YA EXISTE UN TOKEN PENDIENTE VÁLIDO
     ────────────────────────────────────────────── */
-    $stmtCheck = $pdo->prepare("
+    $stmtCheck = db()->prepare("
         SELECT token, fecha_expiracion, 
                TIMESTAMPDIFF(MINUTE, NOW(), fecha_expiracion) as minutos_restantes,
                TIMESTAMPDIFF(HOUR, NOW(), fecha_expiracion) as horas_restantes
@@ -89,7 +88,7 @@ try {
     $token = bin2hex(random_bytes(16)); // token único de 32 caracteres
     $expiracion = date('Y-m-d H:i:s', strtotime('+48 hours'));
 
-    $stmtToken = $pdo->prepare("
+    $stmtToken = db()->prepare("
         INSERT INTO tokens_consent (cliente_id, token, fecha_expiracion)
         VALUES (:cliente_id, :token, :fecha_expiracion)
     ");
@@ -107,7 +106,7 @@ try {
     /* ──────────────────────────────────────────────
        OBTENER PLANTILLA DEL MENSAJE
     ────────────────────────────────────────────── */
-    $stmtMsg = $pdo->query("SELECT value FROM system_settings WHERE setting_name='wa_consent_pending' LIMIT 1");
+    $stmtMsg = db()->query("SELECT value FROM system_settings WHERE setting_name='wa_consent_pending' LIMIT 1");
     $mensajePlantilla = $stmtMsg->fetchColumn();
     if (!$mensajePlantilla) {
         $mensajePlantilla = $wa_consent_pending;

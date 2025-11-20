@@ -4,15 +4,10 @@ $permisopage = 'Ver Ejercicios';
 include('../login/restriction.php');
 require_once __DIR__ . '/../../inc/config.php';
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Error en la conexión: " . $e->getMessage());
-}
+
 
 if(isset($_GET['action']) && $_GET['action'] == "fetch"){
-    $stmt = $pdo->prepare("SELECT id, nombre, descripcion, url_video FROM ejercicios ORDER BY nombre ASC");
+    $stmt = db()->prepare("SELECT id, nombre, descripcion, url_video FROM ejercicios ORDER BY nombre ASC");
     $stmt->execute();
     echo json_encode(['data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     exit;
@@ -22,7 +17,7 @@ if(isset($_POST['action'])){
     $action = $_POST['action'];
 
     if($action == "add"){
-        $stmt = $pdo->prepare("INSERT INTO ejercicios (nombre, descripcion, url_video) VALUES (:nombre, :descripcion, :url_video)");
+        $stmt = db()->prepare("INSERT INTO ejercicios (nombre, descripcion, url_video) VALUES (:nombre, :descripcion, :url_video)");
         $success = $stmt->execute([
             ':nombre' => $_POST['nombre'],
             ':descripcion' => $_POST['descripcion'],
@@ -33,7 +28,7 @@ if(isset($_POST['action'])){
 if ($success) {
     require_once __DIR__ . '/../inc/log_action.php';
     $desc = json_encode([
-        'ejercicio_id' => $pdo->lastInsertId(),
+        'ejercicio_id' => db()->lastInsertId(),
         'nombre'       => $_POST['nombre'],
         'descripcion'  => $_POST['descripcion'],
         'url_video'    => $_POST['url_video'],
@@ -50,7 +45,7 @@ if ($success) {
     }
 
     if($action == "edit"){
-        $stmt = $pdo->prepare("UPDATE ejercicios SET nombre = :nombre, descripcion = :descripcion, url_video = :url_video WHERE id = :id");
+        $stmt = db()->prepare("UPDATE ejercicios SET nombre = :nombre, descripcion = :descripcion, url_video = :url_video WHERE id = :id");
         $success = $stmt->execute([
             ':nombre' => $_POST['nombre'],
             ':descripcion' => $_POST['descripcion'],
@@ -79,7 +74,7 @@ if ($success) {
     }
 
     if($action == "delete"){
-        $stmt = $pdo->prepare("DELETE FROM ejercicios WHERE id = :id");
+        $stmt = db()->prepare("DELETE FROM ejercicios WHERE id = :id");
         $success = $stmt->execute([':id' => $_POST['id']]);
 		
 		// LOGS

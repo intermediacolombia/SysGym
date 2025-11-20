@@ -6,22 +6,17 @@
 
 require_once __DIR__ . '/../inc/config.php';
 
-/* -------- conexión y datos -------- */
-try {
-    $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8",
-        $dbuser,$dbpass,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]
-    );
-} catch (PDOException $e) { die("Error BD: ".$e->getMessage()); }
+
+
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if (!$id) die('ID de valoración inválido');
 
-$q = $pdo->prepare("SELECT * FROM valoraciones WHERE id=:id AND borrado=0");
+$q = db()->prepare("SELECT * FROM valoraciones WHERE id=:id AND borrado=0");
 $q->execute([':id'=>$id]);
 $val = $q->fetch(PDO::FETCH_ASSOC) ?: die('Valoración no encontrada');
 
-$q = $pdo->prepare("SELECT nombres,apellidos,genero,fecha_nacimiento
+$q = db()->prepare("SELECT nombres,apellidos,genero,fecha_nacimiento
                     FROM clientes WHERE id=:cid");
 $q->execute([':cid'=>$val['cliente_id']]);
 $cli = $q->fetch(PDO::FETCH_ASSOC) ?: ['nombres'=>'','apellidos'=>'','genero'=>'masculino'];

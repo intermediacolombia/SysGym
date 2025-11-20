@@ -13,13 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     require_once __DIR__ . '/../../inc/config.php';
 
     try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch(PDOException $e) {
-        $_SESSION['error'] = "Error de conexión: " . $e->getMessage();
-        header("Location: $url/admin/users");
-        exit();
-    }
+        
 
     // ==========================================================
     // Recuperar y sanitizar los datos del formulario
@@ -39,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Verificar si ya existe correo o username
     // ==========================================================
     $sqlCheck = "SELECT * FROM usuarios WHERE correo = :correo OR username = :username LIMIT 1";
-    $stmtCheck = $pdo->prepare($sqlCheck);
+    $stmtCheck = db()->prepare($sqlCheck);
     $stmtCheck->execute([
         ':correo'   => $correo,
         ':username' => $username
@@ -74,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                               borrado = 0 
                           WHERE id = :id";
 
-            $stmtUpdate = $pdo->prepare($sqlUpdate);
+            $stmtUpdate = db()->prepare($sqlUpdate);
             try {
                 $stmtUpdate->execute([
                     ':nombre'   => $nombre,
@@ -126,7 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                       VALUES 
                       (:nombre, :apellido, :correo, :dialcode, :telefono, :username, :password, :rol_id, :estado, :recibe_alertas_stock)";
 
-        $stmtInsert = $pdo->prepare($sqlInsert);
+        $stmtInsert = db()->prepare($sqlInsert);
 
         try {
             $stmtInsert->execute([

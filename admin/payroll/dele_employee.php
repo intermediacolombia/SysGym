@@ -5,12 +5,11 @@ require_once __DIR__ . '/../../inc/config.php';
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
     try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+       
 
         // Borrado lógico del empleado
         $sql = "UPDATE empleados SET borrado = 1 WHERE id = :id";
-        $stmt = $pdo->prepare($sql);
+        $stmt = db()->prepare($sql);
         $stmt->execute([':id' => $id]);
 		
 		// LOGS

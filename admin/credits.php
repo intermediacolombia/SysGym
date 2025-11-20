@@ -5,10 +5,9 @@ require_once __DIR__ . '/../inc/config.php';
 date_default_timezone_set('America/Bogota');
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8",
-                   $dbuser,$dbpass,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+    
 
-    $stmt = $pdo->prepare("
+    $stmt = db()->prepare("
         SELECT  c.id,
                 c.idCliente, 
                 CONCAT(cli.nombres,' ',cli.apellidos) AS cliente,

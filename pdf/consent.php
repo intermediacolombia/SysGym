@@ -13,8 +13,7 @@ require_once __DIR__ . '/../inc/config.php';
 
 try {
     // Conexión a la base de datos
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+   
 
     // Consulta para obtener los datos del formulario y cliente relacionado
     $sql = "
@@ -43,7 +42,7 @@ try {
         WHERE f.id = :formulario_id
     ";
 
-    $stmt = $pdo->prepare($sql);
+    $stmt = db()->prepare($sql);
     $stmt->execute([':formulario_id' => $formularioId]);
     $registro = $stmt->fetch(PDO::FETCH_ASSOC);
 

@@ -9,16 +9,10 @@ include('../login/restriction.php');
 // admin/ws_outbox/index.php
 require_once __DIR__ . '/../../inc/config.php';
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Error en la conexión: " . $e->getMessage());
-}
 
 /* ======================= ENDPOINTS AJAX ======================= */
 if (isset($_GET['action']) && $_GET['action'] === 'fetch') {
-    $stmt = $pdo->prepare("SELECT id, phonenumber, text, url, created_at FROM ws_outbox ORDER BY id DESC");
+    $stmt = db()->prepare("SELECT id, phonenumber, text, url, created_at FROM ws_outbox ORDER BY id DESC");
     $stmt->execute();
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode(['data' => $data]);
@@ -27,7 +21,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch') {
 
 if (isset($_GET['action']) && $_GET['action'] === 'get' && isset($_GET['id'])) {
     $id = (int)$_GET['id'];
-    $stmt = $pdo->prepare("SELECT id, phonenumber, text, url, created_at FROM ws_outbox WHERE id = :id LIMIT 1");
+    $stmt = db()->prepare("SELECT id, phonenumber, text, url, created_at FROM ws_outbox WHERE id = :id LIMIT 1");
     $stmt->execute([':id' => $id]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($row) {
@@ -40,7 +34,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'get' && isset($_GET['id'])) {
 
 if (isset($_POST['action']) && $_POST['action'] === 'delete') {
     $id = (int)($_POST['id'] ?? 0);
-    $stmt = $pdo->prepare("DELETE FROM ws_outbox WHERE id = :id");
+    $stmt = db()->prepare("DELETE FROM ws_outbox WHERE id = :id");
     if ($stmt->execute([':id' => $id])) {
         echo json_encode(['status' => 'success', 'message' => 'Mensaje cancelado (eliminado)']);
     } else {
@@ -53,7 +47,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'resend') {
     $id = (int)($_POST['id'] ?? 0);
 
     // Traer el mensaje
-    $stmt = $pdo->prepare("SELECT id, phonenumber, text, url FROM ws_outbox WHERE id = :id LIMIT 1");
+    $stmt = db()->prepare("SELECT id, phonenumber, text, url FROM ws_outbox WHERE id = :id LIMIT 1");
     $stmt->execute([':id' => $id]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -101,7 +95,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'resend') {
     }
 
     if ($successFlag) {
-        $del = $pdo->prepare("DELETE FROM ws_outbox WHERE id = :id");
+        $del = db()->prepare("DELETE FROM ws_outbox WHERE id = :id");
         $del->execute([':id' => $id]);
         echo json_encode([
             'status'   => 'success',
@@ -129,7 +123,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'bulk_delete') {
     $ids = array_map('intval', $ids);
 
     $in  = str_repeat('?,', count($ids) - 1) . '?';
-    $stmt = $pdo->prepare("DELETE FROM ws_outbox WHERE id IN ($in)");
+    $stmt = db()->prepare("DELETE FROM ws_outbox WHERE id IN ($in)");
     $ok = $stmt->execute($ids);
     $deleted = $stmt->rowCount();
 
@@ -155,8 +149,8 @@ if (isset($_POST['action']) && $_POST['action'] === 'bulk_resend') {
     $ok = 0; $fail = 0;
     $results = [];
 
-    $fetchStmt = $pdo->prepare("SELECT id, phonenumber, text, url FROM ws_outbox WHERE id = :id LIMIT 1");
-    $delStmt   = $pdo->prepare("DELETE FROM ws_outbox WHERE id = :id");
+    $fetchStmt = db()->prepare("SELECT id, phonenumber, text, url FROM ws_outbox WHERE id = :id LIMIT 1");
+    $delStmt   = db()->prepare("DELETE FROM ws_outbox WHERE id = :id");
 
     foreach ($ids as $id) {
         $fetchStmt->execute([':id' => $id]);

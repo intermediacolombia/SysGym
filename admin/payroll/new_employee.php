@@ -46,12 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
 
         // Verificar si ya existe un empleado con el mismo documento, correo o teléfono
         $sql = "SELECT * FROM empleados WHERE documento = :documento OR correo = :correo OR telefono = :telefono LIMIT 1";
-        $stmt = $pdo->prepare($sql);
+        $stmt = db()->prepare($sql);
         $stmt->execute([
             ':documento' => $documento,
             ':correo' => $correo,
@@ -84,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    fecha_ingreso = :fecha_ingreso,
                                    borrado = 0
                                WHERE id = :id";
-                $stmt_update = $pdo->prepare($sql_update);
+                $stmt_update = db()->prepare($sql_update);
                 $stmt_update->execute([
                     ':documento' => $documento,
                     ':nombre' => $nombre,
@@ -131,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                            VALUES 
                           (:documento, :nombre, :apellido, :correo, :telefono, :dialCode, 
                            :cargo, :salario, :estado, :fecha_ingreso, 0)"; // Nuevo campo
-            $stmt_insert = $pdo->prepare($sql_insert);
+            $stmt_insert = db()->prepare($sql_insert);
             $stmt_insert->execute([
                 ':documento' => $documento,
                 ':nombre' => $nombre,

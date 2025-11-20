@@ -8,12 +8,7 @@ session_start();
 <?php
 // Consulta para obtener los roles activos
 try {
-    $stmtRoles = $pdo->prepare("SELECT * FROM roles WHERE borrado = 0");
-    $stmtRoles->execute();
-    $roles = $stmtRoles->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    $roles = [];
-}
+    
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -108,8 +103,7 @@ try {
       // Datos de conexión
       require_once __DIR__ . '/../../inc/config.php';
 try {
-          $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-          $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+         
           // Seleccionar usuarios que no estén borrados (borrado = 0)
           //$sql = "SELECT * FROM usuarios WHERE borrado = 0";
 	// Consulta para obtener los usuarios con el nombre del rol
@@ -117,9 +111,9 @@ try {
             FROM usuarios u 
             LEFT JOIN roles r ON u.rol_id = r.id 
             WHERE u.borrado = 0";
-    $stmt = $pdo->query($sql);
+    $stmt = db()->query($sql);
 	
-          $stmt = $pdo->query($sql);
+          $stmt = db()->query($sql);
           while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
               echo '<tr class="user-row" 
 					  data-id="' . $row['id'] . '"

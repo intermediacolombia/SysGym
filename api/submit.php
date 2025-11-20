@@ -37,21 +37,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once __DIR__ . '/../inc/config.php';
 
     try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
 		
 		
 		
 		
 		// Verificar si el cliente está preinscrito y eliminarlo si existe
 $sqlPreinscrito = "SELECT id FROM clientes_preinscritos WHERE identificacion = :identificacion";
-$stmtPreinscrito = $pdo->prepare($sqlPreinscrito);
+$stmtPreinscrito = db()->prepare($sqlPreinscrito);
 $stmtPreinscrito->execute([':identificacion' => $data['identificacion']]);
 $preinscrito = $stmtPreinscrito->fetch(PDO::FETCH_ASSOC);
 
 if ($preinscrito) {
     $sqlDeletePre = "DELETE FROM clientes_preinscritos WHERE id = :id";
-    $stmtDeletePre = $pdo->prepare($sqlDeletePre);
+    $stmtDeletePre = db()->prepare($sqlDeletePre);
     $stmtDeletePre->execute([':id' => $preinscrito['id']]);
 }
 
@@ -62,7 +61,7 @@ if ($preinscrito) {
 
 // Validar duplicidad del teléfono (siempre se valida)
 $sqlCheckPhone = "SELECT id FROM clientes WHERE telefono = :telefono AND dialCode = :dialCode AND identificacion != :identificacion";
-$stmtCheckPhone = $pdo->prepare($sqlCheckPhone);
+$stmtCheckPhone = db()->prepare($sqlCheckPhone);
 $stmtCheckPhone->execute([
     ':telefono' => $data['telefono'],
     ':dialCode' => $data['dialCode'],
@@ -75,7 +74,7 @@ if ($stmtCheckPhone->fetch(PDO::FETCH_ASSOC)) {
 // Validar duplicidad del correo solo si se proporcionó un email
 if (!empty($data['email'])) {
     $sqlCheckEmail = "SELECT id FROM clientes WHERE email = :email AND identificacion != :identificacion";
-    $stmtCheckEmail = $pdo->prepare($sqlCheckEmail);
+    $stmtCheckEmail = db()->prepare($sqlCheckEmail);
     $stmtCheckEmail->execute([
         ':email' => $data['email'],
         ':identificacion' => $data['identificacion']
@@ -93,7 +92,7 @@ if (!empty($errorMessages)) {
 
         // Verificar si el cliente ya existe por identificación
         $sqlCheck = "SELECT id FROM clientes WHERE identificacion = :identificacion";
-        $stmtCheck = $pdo->prepare($sqlCheck);
+        $stmtCheck = db()->prepare($sqlCheck);
         $stmtCheck->execute([':identificacion' => $data['identificacion']]);
         $cliente = $stmtCheck->fetch(PDO::FETCH_ASSOC);
 
@@ -122,7 +121,7 @@ if (!empty($errorMessages)) {
         borrado = 0,
         updated_at = NOW()
     WHERE identificacion = :identificacion";
-    $stmtUpdate = $pdo->prepare($sqlUpdate);
+    $stmtUpdate = db()->prepare($sqlUpdate);
     $stmtUpdate->execute([
         ':nombres'                => $data['nombres'],
         ':apellidos'              => $data['apellidos'],
@@ -154,7 +153,7 @@ if (!empty($errorMessages)) {
         :identificacion, :nombres, :apellidos, :direccion, :dialCode, :telefono, :genero, :email, :fecha_nacimiento, :rh, 
         :eps, :fracturas, :alergias, :enfermedades_actuales, :observaciones, :contacto_emergencia,  :dialCodeEmergencia, :numero_emergencia, :notificaciones
     )";
-    $stmtInsert = $pdo->prepare($sqlInsert);
+    $stmtInsert = db()->prepare($sqlInsert);
     $stmtInsert->execute([
         ':identificacion'         => $data['identificacion'],
         ':nombres'                => $data['nombres'],
@@ -176,13 +175,13 @@ if (!empty($errorMessages)) {
         ':numero_emergencia'      => $data['numero_emergencia'],
         ':notificaciones'         => $data['notificaciones']
     ]);
-    $clienteId = $pdo->lastInsertId();
+    $clienteId = db()->lastInsertId();
 }
 
 
         // Verificar si ya existe un consentimiento informado para este cliente.
         $sqlCheckConsent = "SELECT id FROM formularios WHERE cliente_id = :cliente_id";
-        $stmtCheckConsent = $pdo->prepare($sqlCheckConsent);
+        $stmtCheckConsent = db()->prepare($sqlCheckConsent);
         $stmtCheckConsent->execute([':cliente_id' => $clienteId]);
         $consentRecord = $stmtCheckConsent->fetch(PDO::FETCH_ASSOC);
         
@@ -201,30 +200,30 @@ if (!empty($errorMessages)) {
             } else {
                 // Borrar todos los formularios existentes para este cliente
                 $sqlDeleteConsent = "DELETE FROM formularios WHERE cliente_id = :cliente_id";
-                $stmtDeleteConsent = $pdo->prepare($sqlDeleteConsent);
+                $stmtDeleteConsent = db()->prepare($sqlDeleteConsent);
                 $stmtDeleteConsent->execute([':cliente_id' => $clienteId]);
                 
                 // Insertar el nuevo consentimiento informado y capturar su id
                 $sqlInsertConsent = "INSERT INTO formularios (cliente_id, fecha, firma_digital_cliente) VALUES (:cliente_id, :fecha, :firma_digital_cliente)";
-                $stmtInsertConsent = $pdo->prepare($sqlInsertConsent);
+                $stmtInsertConsent = db()->prepare($sqlInsertConsent);
                 $stmtInsertConsent->execute([
                     ':cliente_id' => $clienteId,
                     ':fecha' => date('Y-m-d'),
                     ':firma_digital_cliente' => $data['firma_digital_cliente']
                 ]);
-                $formulario_id = $pdo->lastInsertId();
+                $formulario_id = db()->lastInsertId();
                 $envioForzado = true;
             }
         } else {
             // Insertar el nuevo consentimiento si no existe ninguno previo y capturar su id
             $sqlInsertConsent = "INSERT INTO formularios (cliente_id, fecha, firma_digital_cliente) VALUES (:cliente_id, :fecha, :firma_digital_cliente)";
-            $stmtInsertConsent = $pdo->prepare($sqlInsertConsent);
+            $stmtInsertConsent = db()->prepare($sqlInsertConsent);
             $stmtInsertConsent->execute([
                 ':cliente_id' => $clienteId,
                 ':fecha' => date('Y-m-d'),
                 ':firma_digital_cliente' => $data['firma_digital_cliente']
             ]);
-            $formulario_id = $pdo->lastInsertId();
+            $formulario_id = db()->lastInsertId();
             $envioForzado = true;
         }
 

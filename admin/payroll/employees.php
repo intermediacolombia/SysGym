@@ -96,13 +96,12 @@ session_start();
 // Conexión a la BD
 require_once __DIR__ . '/../../inc/config.php';
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
     // Seleccionar empleados
     $sql = "SELECT id, documento, nombre, apellido, correo, telefono, dialCode, cargo, salario, estado, fecha_ingreso 
             FROM empleados 
             WHERE borrado = 0";
-    $stmt = $pdo->query($sql);
+    $stmt = db()->query($sql);
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         echo '<tr class="employee-row"
             data-id="' . $row['id'] . '"
