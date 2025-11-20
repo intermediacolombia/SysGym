@@ -16,12 +16,13 @@ $foto = (!empty($foto_perfil) && file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $
         ? $foto_perfil
         : 'assets/img/default-user.png';
 ?>
-
+			
+<center>
 <img 
     src="<?php echo URLBASE . '/' . $foto; ?>" 
     class="foto-perfil-rounded"
     alt="Foto de usuario">
-<br>
+</center>
 
 			
 			
