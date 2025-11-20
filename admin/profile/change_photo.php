@@ -2,41 +2,94 @@
 require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
 
-$id = $_SESSION['user']['id'];
+// Verificar sesión
+if (!isset($_SESSION['user'])) {
+    header("Location: $url/admin/login");
+    exit();
+}
 
-if (!empty($_FILES['foto_perfil']['name'])) {
+$userId = $_SESSION['user']['id'];
 
-    // obtener foto actual
-    $stmt = db()->prepare("SELECT foto_perfil FROM usuarios WHERE id = :id");
-    $stmt->execute([':id'=>$id]);
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+// Validar archivo
+if (empty($_FILES['foto_perfil']['name'])) {
+    $_SESSION['error'] = "Debe seleccionar una imagen.";
+    header("Location: $url/admin/profile");
+    exit();
+}
 
-    $fotoActual = $row['foto_perfil'];
+try {
 
-    // borrar foto anterior si existe
+    // Obtener foto actual
+    $stmt = db()->prepare("SELECT foto_perfil FROM usuarios WHERE id = :id LIMIT 1");
+    $stmt->execute([':id' => $userId]);
+    $userRow = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $fotoActual = $userRow['foto_perfil'] ?? null;
+
+    // ==========================================
+    //  Eliminar foto anterior
+    // ==========================================
     if ($fotoActual && file_exists(__DIR__ . '/../../' . $fotoActual)) {
         unlink(__DIR__ . '/../../' . $fotoActual);
     }
 
-    // subir nueva
-    $ext = pathinfo($_FILES['foto_perfil']['name'], PATHINFO_EXTENSION);
+    // ==========================================
+    //  Subir nueva foto
+    // ==========================================
+    $ext = strtolower(pathinfo($_FILES['foto_perfil']['name'], PATHINFO_EXTENSION));
     $fileName = 'user_' . time() . '.' . $ext;
 
-    $dir = __DIR__ . '/../../uploads/users/';
-    if (!is_dir($dir)) mkdir($dir, 0777, true);
+    $uploadDir = __DIR__ . '/../../uploads/users/';
+    if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
-    $destino = $dir . $fileName;
-    move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $destino);
+    $destino = $uploadDir . $fileName;
 
-    // guardar ruta en BD
-    $stmt = db()->prepare("UPDATE usuarios SET foto_perfil = :foto WHERE id = :id");
-    $stmt->execute([
-        ':foto' => 'uploads/users/' . $fileName,
-        ':id'   => $id
+    if (!move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $destino)) {
+        $_SESSION['error'] = "No se pudo subir la imagen.";
+        header("Location: $url/admin/profile");
+        exit();
+    }
+
+    // Ruta para guardar en BD
+    $nuevaRuta = 'uploads/users/' . $fileName;
+
+    // ==========================================
+    //  Guardar en BD
+    // ==========================================
+    $stmtUpdate = db()->prepare("
+        UPDATE usuarios 
+        SET foto_perfil = :foto 
+        WHERE id = :id
+    ");
+
+    $stmtUpdate->execute([
+        ':foto' => $nuevaRuta,
+        ':id'   => $userId
     ]);
 
-    $_SESSION['success'] = "Foto actualizada correctamente.";
-}
 
-header("Location: /admin/profile/");
-exit();
+    // ==========================================
+    //  Actualizar sesión para reflejar cambio
+    // ==========================================
+    $_SESSION['user']['foto_perfil'] = $nuevaRuta;
+
+    // ==========================================
+    //  LOGS
+    // ==========================================
+    require_once __DIR__ . '/../inc/log_action.php';
+    $desc = json_encode(['id' => $userId], JSON_UNESCAPED_UNICODE);
+    log_action('Editar Foto de Perfil', $desc, 'Perfil');
+
+    $_SESSION['success'] = "Foto de perfil actualizada correctamente.";
+    header("Location: $url/admin/profile");
+    exit();
+
+} catch (PDOException $e) {
+
+    $_SESSION['error'] = "Error al actualizar la foto: " . $e->getMessage();
+    header("Location: $url/admin/profile");
+    exit();
+
+}
+?>
+
