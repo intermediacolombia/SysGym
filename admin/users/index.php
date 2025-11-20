@@ -8,6 +8,14 @@ session_start();
 <?php
 // Consulta para obtener los roles activos
 try {
+    $stmtRoles = db()->prepare("SELECT * FROM roles WHERE borrado = 0");
+    $stmtRoles->execute();
+    $roles = $stmtRoles->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $roles = [];
+}
+    
+?>
     
 ?>
 <!DOCTYPE html>
