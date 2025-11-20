@@ -46,11 +46,10 @@ $user = $_SESSION['user']; // Contiene, por ejemplo, id, nombre, apellido, corre
         : 'assets/img/default-user.png';
     ?>
 
-    <img src="<?php echo URLBASE . '/' . $foto; ?>" 
+    <center><img src="<?php echo URLBASE . '/' . $foto; ?>" 
          class="foto-perfil-rounded" 
-         id="previewFotoPerfil">
+		 id="previewFotoPerfil"></center>
 
-    <br>
 
     <button class="btn btn-outline-primary mt-3" data-toggle="modal" data-target="#changePhotoModal">
       <i class="fas fa-camera"></i> Cambiar foto
@@ -114,11 +113,12 @@ $user = $_SESSION['user']; // Contiene, por ejemplo, id, nombre, apellido, corre
         </div>
 
         <div class="modal-body">
-
+			
           <div class="text-center mb-3">
-            <img id="previewNuevaFoto" 
+            <center><img id="previewNuevaFoto" 
                  src="<?php echo URLBASE . '/' . $foto; ?>" 
                  class="foto-perfil-rounded">
+				</center>
           </div>
 
           <div class="form-group">

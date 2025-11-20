@@ -38,5 +38,5 @@ if (!empty($_FILES['foto_perfil']['name'])) {
     $_SESSION['success'] = "Foto actualizada correctamente.";
 }
 
-header("Location: profile.php");
+header("Location: /admin/profile/");
 exit();
