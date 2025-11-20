@@ -15,17 +15,19 @@ $mensaje = str_replace(
 );
 
 /* ───────────── 2) GENERAR PDF TEMPORAL ───────────── */
+// Carpeta temporal para guardar el PDF
 $tempDir = __DIR__ . '/../pdf/archivos_temp/';
-if (!is_dir($tempDir)) {
-    mkdir($tempDir, 0777, true);
-}
+if (!is_dir($tempDir)) mkdir($tempDir, 0777, true);
 
+// Nombre del archivo temporal
 $pdfFilename = "payroll_" . $facturaId . ".pdf";
 $pdfFilePath = $tempDir . $pdfFilename;
 $pdfUrl      = $url . '/pdf/archivos_temp/' . $pdfFilename;
 
+// Generar el PDF desde el generador existente
 $pdfSourceUrl = $url . '/pdf/?type=payroll&id=' . $facturaId;
 
+// Descargar y guardar el PDF temporal
 $pdfContent = file_get_contents($pdfSourceUrl);
 if ($pdfContent === false) {
     echo 'Error: No se pudo generar el PDF de nómina.';
@@ -33,22 +35,14 @@ if ($pdfContent === false) {
 }
 file_put_contents($pdfFilePath, $pdfContent);
 
-/* ───────────── 3) NORMALIZAR NÚMERO (SIEMPRE SIN +) ───────────── */
-// Elimina +, espacios, guiones y caracteres no numéricos
-$cp_dialCode = preg_replace('/\D/', '', $cp_dialCode);
-$cp_telefono = preg_replace('/\D/', '', $cp_telefono);
-
-// Número final concatenado SIN +
-$numeroDestino = $cp_dialCode . $cp_telefono;
-
-/* ───────────── 4) PREPARAR MENSAJE Y PAYLOAD ───────────── */
+/* ───────────── 3) PREPARAR MENSAJE Y PAYLOAD ───────────── */
 $data = [
-    'phonenumber' => $numeroDestino,
+    'phonenumber' => $cp_dialCode . $cp_telefono,
     'text'        => $mensaje,
     'url'         => $pdfUrl
 ];
 
-/* ───────────── 5) ENVÍO VIA CURL ───────────── */
+/* ───────────── 4) ENVÍO VIA CURL ───────────── */
 $ch = curl_init();
 curl_setopt_array($ch, [
     CURLOPT_URL => $urlEndpoint,
@@ -64,31 +58,36 @@ curl_setopt_array($ch, [
 
 $response = curl_exec($ch);
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-$error = curl_error($ch);
+$error    = curl_error($ch);
 curl_close($ch);
 
-/* ───────────── 6) VALIDACIÓN DE RESPUESTA ───────────── */
+/* ───────────── 5) VALIDACIÓN DE RESPUESTA ───────────── */
 $successFlag = false;
 if (!$error && $httpCode >= 200 && $httpCode < 300) {
     $decoded = json_decode($response, true);
     $successFlag = !empty($decoded['success']);
 }
 
-/* ───────────── 7) MANEJO DE FALLOS ───────────── */
+
+
 if (!$successFlag) {
-    // Guardar registro del mensaje fallido (mantiene el PDF)
-    saveFailedWSMessage($numeroDestino, $mensaje, $pdfUrl);
+    echo "DEBUG - Guardando fallido con: '" . $data['phonenumber'] . "'<br>";
+    saveFailedWSMessage($data['phonenumber'], $data['text'], $pdfUrl);
 }
 
-/* ───────────── 8) LIMPIEZA DE ARCHIVO TEMPORAL ───────────── */
-/*
-if ($successFlag && file_exists($pdfFilePath)) {
+/* ───────────── 6) MANEJO DE FALLOS ───────────── */
+if (!$successFlag) {
+    // Guardar registro del mensaje fallido (mantiene el PDF para reenviar)
+    saveFailedWSMessage($data['phonenumber'], $data['text'], $pdfUrl);
+}
+
+/* ───────────── 7) LIMPIEZA DE ARCHIVO TEMPORAL ───────────── */
+/*if ($successFlag && file_exists($pdfFilePath)) {
     sleep(3); // esperar que WhatsApp lo descargue
     unlink($pdfFilePath);
-}
-*/
+}*/
 
-/* ───────────── 9) SALIDA ───────────── */
+/* ───────────── 8) SALIDA ───────────── */
 if ($error) {
     echo 'Error: ' . $error;
 } else {
@@ -96,7 +95,6 @@ if ($error) {
     echo "Response: " . $response;
 }
 ?>
-
 
 
 
