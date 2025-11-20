@@ -42,4 +42,13 @@
   }
 </script>
 
- 
+ <style>
+  html[data-theme="dark"],
+  html.dark-mode {
+    color-scheme: dark;
+  }
+  
+  html[data-theme="light"] {
+    color-scheme: light;
+  }
+</style>
