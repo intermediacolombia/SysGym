@@ -4,6 +4,17 @@ $permisopage = 'Ver Clientes Pre-inscritos';
 include('../login/restriction.php');
 require_once __DIR__ . '/../../inc/config.php';
 
+
+// ======================================================
+// 2. CONSULTA DE CLIENTES PREINSCRITOS
+// ======================================================
+try {
+    $stmt = db()->query("SELECT * FROM clientes_preinscritos ORDER BY created_at DESC");
+    $preinscritos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $preinscritos = []; // Evita errores y mantiene la tabla vacía
+}
+
 /* ======================================================
    1.  BLOQUE PARA ELIMINAR – debe ir ANTES de imprimir HTML
    ======================================================*/
