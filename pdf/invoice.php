@@ -122,8 +122,8 @@ $logoDataURI = 'data:image/png;base64,' . $logoData;
     <div class="header">
       <img src="<?php echo $logoDataURI; ?>" width="150" style="margin: 0; padding: 0;" alt="Logo">
       <p>NO RESPONSABLE DE IVA</p>
-      <p>NIT. 10753739</p>
-      <p>Tel.: 3224318775 | Correo: activgymar@gmail.com</p>
+      <p>NIT. <?= NIT_GYM; ?></p>
+      <p>Tel.: 3<?= TEL_GYM; ?> | Correo: <?= EMAIL_GYM; ?></p>
     </div>
 
     <hr>
@@ -224,7 +224,7 @@ $mostrarFechaVencimiento = (!empty($factura['fecha_vencimiento']) && $factura['f
     ?>
 
     <hr>
-    <center><h3>¡Gracias por ser parte de Activ Gym!</h3></center>
+    <center><h3>¡Gracias por ser parte de <?= NAME_GYM; ?>!</h3></center>
   </div>
 </body>
 </html>

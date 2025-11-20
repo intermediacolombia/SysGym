@@ -146,6 +146,9 @@ $wa_consent_pending     = $settings['wa_consent_pending'] ?? '';
 define('CONSENT', $settings['wa_consent_html'] ?? '');
 
 define('NAME_GYM', $settings['name_gym'] ?? '');
+define('EMAIL_GYM', $settings['email_gym'] ?? '');
+define('NIT_GYM', $settings['nit_gym'] ?? '');
+define('TEL_GYM', $settings['tel_gym'] ?? '');
 define('SITE_LOGO', '/admin/uploads/' . ($settings['system_logo'] ?? ''));
 define('SITE_ICON', '/admin/uploads/' . ($settings['system_favicon'] ?? ''));
 
