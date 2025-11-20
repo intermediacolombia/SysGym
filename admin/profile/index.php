@@ -1,7 +1,5 @@
 <?php
 require_once __DIR__ . '/../login/session.php';
-
-session_start();
 // Verificar que el usuario esté logueado
 if (!isset($_SESSION['user'])) {
     header("Location: ../login/");
