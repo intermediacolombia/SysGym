@@ -2,7 +2,7 @@
   <div class="card border-0 shadow-sm mt-3">
     <div class="card-body">
 		
-		<!-- LOGO -->
+		<!-- NOMBRE -->
 		<div class="mb-3">
         <label class="form-label"><strong>Nombre del Gimnasio</strong></label>
         <input type="text" class="form-control" name="name_gym" value="<?= htmlspecialchars($settings['name_gym'] ?? '') ?>">
@@ -29,6 +29,27 @@
         <?php endif; ?>
         <input type="file" class="form-control" name="system_favicon" accept="image/x-icon,image/png">
         <small class="text-muted">Formato permitido: .ico o .png (32x32 px)</small>
+      </div>
+		
+		<!-- EMAIL -->
+		<div class="mb-3">
+        <label class="form-label"><strong>Email del Gimnasio</strong></label>
+        <input type="email" class="form-control" name="email_gym" value="<?= htmlspecialchars($settings['email_gym'] ?? '') ?>">
+		<small class="text-muted">Se imprimirá en la información de la factura.</small>
+      </div>
+		
+		<!-- NIT -->
+		<div class="mb-3">
+        <label class="form-label"><strong>NIT del Gimnasio</strong></label>
+        <input type="text" class="form-control" name="nit_gym" value="<?= htmlspecialchars($settings['nit_gym'] ?? '') ?>">
+		<small class="text-muted">Se imprimirá en la información de la factura.</small>
+      </div>
+		
+		<!-- TELEFONO -->
+		<div class="mb-3">
+        <label class="form-label"><strong>Teléfono del Gimnasio</strong></label>
+        <input type="text" class="form-control" name="tel_gym" value="<?= htmlspecialchars($settings['tel_gym'] ?? '') ?>">
+		<small class="text-muted">Se imprimirá en la información de la factura.</small>
       </div>
 
       <hr class="my-4">     
