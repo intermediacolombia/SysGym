@@ -168,7 +168,7 @@ $(function () {
     maxDate: 'today',
     onChange: function(sel) {
       const fecha = sel[0].toISOString().slice(0, 10);
-      tabla.column(0).search('^' + fecha + '$', true, false).draw();
+      tabla.column(1).search('^' + fecha + '$', true, false).draw();
     }
   });
 });
