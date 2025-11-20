@@ -31,8 +31,48 @@ if ($rol <= 0) {
 
 // Datos de conexión
 require_once __DIR__ . '/../../inc/config.php';
+
 try {
-    
+
+    // Obtener datos actuales del usuario (incluye foto actual)
+    $stmtUser = db()->prepare("SELECT foto_perfil FROM usuarios WHERE id = :id LIMIT 1");
+    $stmtUser->execute([':id' => $id]);
+    $userData = $stmtUser->fetch(PDO::FETCH_ASSOC);
+
+    if (!$userData) {
+        $_SESSION['error'] = "El usuario no existe.";
+        header("Location: $url/admin/users");
+        exit();
+    }
+
+    $fotoActual = $userData['foto_perfil'];
+
+    // ==============================================================  
+    // SUBIR NUEVA FOTO SI VIENE UNA
+    // ==============================================================  
+    $fotoNueva = $fotoActual; // Por defecto mantener la actual
+
+    if (!empty($_FILES['foto_perfil']['name'])) {
+
+        // Eliminar foto anterior si existe
+        if ($fotoActual && file_exists(__DIR__ . '/../../' . $fotoActual)) {
+            unlink(__DIR__ . '/../../' . $fotoActual);
+        }
+
+        $ext = pathinfo($_FILES['foto_perfil']['name'], PATHINFO_EXTENSION);
+        $fileName = 'user_' . time() . '.' . $ext;
+
+        $uploadDir = __DIR__ . '/../../uploads/users/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        $destino = $uploadDir . $fileName;
+
+        if (move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $destino)) {
+            $fotoNueva = 'uploads/users/' . $fileName;
+        }
+    }
 
     // Verificar que el rol exista
     $stmtCheckRole = db()->prepare("SELECT id FROM roles WHERE id = :id AND borrado = 0");
@@ -53,6 +93,7 @@ try {
             exit();
         }
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
         $sql = "UPDATE usuarios SET 
                     nombre = :nombre,
                     apellido = :apellido,
@@ -62,6 +103,7 @@ try {
                     dialcode = :dialcode,
                     telefono = :telefono,
                     recibe_alertas_stock = :recibe_alertas_stock,
+                    foto_perfil = :foto_perfil,
                     password = :password
                 WHERE id = :id";
 
@@ -74,10 +116,12 @@ try {
             ':dialcode' => $dialcode,
             ':telefono' => $telefono,
             ':recibe_alertas_stock' => $recibe_alertas_stock,
+            ':foto_perfil' => $fotoNueva,
             ':password' => $passwordHash,
             ':id'       => $id
         ];
     } else {
+
         $sql = "UPDATE usuarios SET 
                     nombre = :nombre,
                     apellido = :apellido,
@@ -86,7 +130,8 @@ try {
                     estado = :estado,
                     dialcode = :dialcode,
                     telefono = :telefono,
-                    recibe_alertas_stock = :recibe_alertas_stock
+                    recibe_alertas_stock = :recibe_alertas_stock,
+                    foto_perfil = :foto_perfil
                 WHERE id = :id";
 
         $params = [
@@ -98,6 +143,7 @@ try {
             ':dialcode' => $dialcode,
             ':telefono' => $telefono,
             ':recibe_alertas_stock' => $recibe_alertas_stock,
+            ':foto_perfil' => $fotoNueva,
             ':id'       => $id
         ];
     }
@@ -119,10 +165,10 @@ try {
         'estado'   => $estado,
         'dialcode' => $dialcode,
         'telefono' => $telefono,
-        'recibe_alertas_stock' => $recibe_alertas_stock
+        'recibe_alertas_stock' => $recibe_alertas_stock,
+        'foto_perfil' => $fotoNueva
     ], JSON_UNESCAPED_UNICODE);
     log_action('Edición de Usuario', $desc, 'Usuarios');
-    // END LOGS
 
     $_SESSION['success'] = "Usuario actualizado correctamente.";
     header("Location: $url/admin/users");
@@ -134,5 +180,6 @@ try {
     exit();
 }
 ?>
+
 
 

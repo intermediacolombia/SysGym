@@ -92,6 +92,7 @@ try {
   <table id="formularios" class="table table-striped table-bordered">
     <thead>
       <tr>
+		  <th>Foto</th>
         <th>Nombre de Usuario</th>
         <th>Nombre</th>
         <th>Apellido</th>
@@ -123,6 +124,7 @@ try {
           while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
               echo '<tr class="user-row" 
 				data-id="' . ($row['id'] ?? '') . '"
+				data-foto="' . htmlspecialchars($row['foto_perfil'] ?? '') . '"
 				data-username="' . htmlspecialchars($row['username'] ?? '') . '"
 				data-nombre="' . htmlspecialchars($row['nombre'] ?? '') . '"
 				data-apellido="' . htmlspecialchars($row['apellido'] ?? '') . '"
@@ -133,6 +135,8 @@ try {
 				data-telefono="' . htmlspecialchars($row['telefono'] ?? '') . '"
 				data-recibe_alertas_stock="' . (int)($row['recibe_alertas_stock'] ?? 0) . '">';
 
+			  	echo '<td><img src="' . ($row['foto_perfil'] ?: '../img/default-user.png') . '" 
+style="width:40px;height:40px;border-radius:6px;object-fit:cover;"></td>';
 				echo '<td>' . htmlspecialchars($row['username'] ?? '') . '</td>';
 				echo '<td>' . htmlspecialchars($row['nombre'] ?? '') . '</td>';
 				echo '<td>' . htmlspecialchars($row['apellido'] ?? '') . '</td>';
@@ -170,7 +174,7 @@ try {
 <div class="modal fade" id="newUserModal" tabindex="-1" role="dialog" aria-labelledby="newUserModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <form method="post" action="new.php" class="needs-validation" novalidate>
+      <form method="post" action="new.php" enctype="multipart/form-data" class="needs-validation" novalidate>
         <div class="modal-header">
           <h5 class="modal-title" id="newUserModalLabel">Nuevo Usuario</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
@@ -179,6 +183,13 @@ try {
         </div>
         <div class="modal-body">
           <!-- Campos de registro -->
+			
+			<div class="form-group">
+    <label for="newFotoPerfil">Foto de Perfil</label>
+    <input type="file" class="form-control" id="newFotoPerfil" name="foto_perfil" accept="image/*">
+</div>
+
+			
           <div class="form-group">
             <label for="newNombre">Nombre</label>
             <input type="text" class="form-control" id="newNombre" name="nombre" required>
@@ -281,7 +292,7 @@ try {
 <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
  <div class="modal-dialog" role="document">
    <div class="modal-content">
-     <form method="post" action="update_user.php" class="needs-validation" novalidate id="editForm">
+     <form method="post" action="update_user.php" enctype="multipart/form-data" class="needs-validation" novalidate id="editForm">
        <div class="modal-header">
          <h5 class="modal-title" id="editModalLabel">Editar Usuario</h5>
          <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
@@ -291,6 +302,19 @@ try {
        <div class="modal-body">
          <!-- Campo oculto para el ID -->
          <input type="hidden" id="editId" name="id">
+		   
+		   <div class="form-group text-center">
+    <label>Foto actual</label><br>
+    <img id="editFotoVista" src="" style="width: 90px; height: 90px; object-fit: cover; border-radius: 10px; border:1px solid #ccc;">
+</div>
+
+<div class="form-group">
+    <label for="editFotoPerfil">Cambiar Foto</label>
+    <input type="file" class="form-control" id="editFotoPerfil" name="foto_perfil" accept="image/*">
+</div>
+
+		   
+		   
          <div class="form-group">
            <label for="editUsername">Nombre de Usuario</label>
            <input type="text" class="form-control" id="editUsername" name="username" readonly>
@@ -431,6 +455,7 @@ $('#formularios tbody').on('click', 'tr.user-row', function(e) {
   if ($(e.target).closest('.delete-btn').length > 0) return;
 
   var id = $(this).data('id');
+	var foto = $(this).data('foto');
   var username = $(this).data('username');
   var nombre = $(this).data('nombre');
   var apellido = $(this).data('apellido');
@@ -443,6 +468,14 @@ $('#formularios tbody').on('click', 'tr.user-row', function(e) {
 
   // Rellenar campos base
   $('#editId').val(id);
+	
+	if (foto) {
+    $('#editFotoVista').attr('src', '../../' + foto);
+} else {
+    $('#editFotoVista').attr('src', '../img/default-user.png');
+}
+
+	
   $('#editUsername').val(username);
   $('#editNombre').val(nombre);
   $('#editApellido').val(apellido);
