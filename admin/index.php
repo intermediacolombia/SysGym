@@ -91,9 +91,7 @@ require_once __DIR__ . '/../inc/config.php';
 	
 	
   <?php include('inc/menu.php'); ?>
-	
-	<?php
-session_start();
+<?php
 if(isset($_SESSION['error'])): ?>
   <div class="alert alert-danger alert-dismissible fade show" role="alert">
     <?php 

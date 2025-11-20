@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../login/session.php';
 $permisopage = 'Ver Empleados';
 include('../login/restriction.php');
-session_start();
+
 ?>
 <!DOCTYPE html>
 <html lang="es">

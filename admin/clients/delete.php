@@ -6,7 +6,7 @@ include('../login/restriction.php');
 
 <?php
 // NO llames session_start() si session.php ya lo hace
-// session_start();
+
 
 require_once __DIR__ . '/../../inc/config.php';
 

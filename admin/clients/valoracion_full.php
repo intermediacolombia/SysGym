@@ -1,6 +1,6 @@
 <?php
+require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
-session_start();
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
   echo json_encode(['error' => 'ID inválido']); exit;

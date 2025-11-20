@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../login/session.php';
-session_start();
 require_once __DIR__ . '/../../inc/config.php';
 
 header('Content-Type: application/json; charset=UTF-8');

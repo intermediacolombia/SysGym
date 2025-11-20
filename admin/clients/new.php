@@ -4,7 +4,6 @@
  */
 
 require_once __DIR__ . '/../login/session.php';
-session_start();
 require_once __DIR__ . '/../../inc/config.php';
 $permisopage = 'Agregar Clientes';
 include('../login/restriction.php');
