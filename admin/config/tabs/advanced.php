@@ -15,20 +15,21 @@
           <i class="fas fa-bug"></i> Mostrar informes de depuración
         </label>
 
-        <!-- Switch Bootstrap -->
-        <div class="form-check form-switch">
-          <input 
-            class="form-check-input"
-            type="checkbox"
-            id="debugMode"
-            name="debug_mode"
-            value="1"
-            <?= !empty($settings['debug_mode']) && $settings['debug_mode'] == 1 ? 'checked' : '' ?>
-          >
-          <label class="form-check-label" for="debugMode">
-            Activar informes de depuración en el sistema.
-          </label>
-        </div>
+        <input type="hidden" name="debug_mode" value="0">
+
+		<div class="form-check form-switch">
+		  <input 
+			class="form-check-input"
+			type="checkbox"
+			id="debugMode"
+			name="debug_mode"
+			value="1"
+			<?= isset($settings['debug_mode']) && $settings['debug_mode'] == "1" ? "checked" : "" ?>
+		  >
+		  <label class="form-check-label" for="debugMode">
+			Activar informes de depuración.
+		  </label>
+		</div>
 
         <small class="text-danger">
           Esta opción solo debe utilizarse en entornos de prueba. Habilitarla en producción puede exponer datos internos o afectar el rendimiento.
