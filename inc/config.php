@@ -89,11 +89,10 @@ function fechaBonita($fecha) {
         IntlDateFormatter::GREGORIAN,
         "d 'de' MMMM 'de' yyyy"
     );
+		$texto = $fmt->format($dt);
 
-    $texto = $fmt->format($dt);
-
-    // Convertir la primera letra a mayúscula
-    return ucfirst($texto);
+		// Primera letra mayúscula y resto igual
+		return mb_convert_case($texto, MB_CASE_TITLE, "UTF-8");
 }
 
 
