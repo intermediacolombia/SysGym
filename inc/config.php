@@ -25,7 +25,7 @@ $hora = date('H:i:s');
 # ============================================================
 #  FUNCIÓN GLOBAL DE CONEXIÓN PDO (REUTILIZA UNA SOLA CONEXIÓN)
 # ============================================================
-function db() {
+/*function db() {
     static $pdo = null;
     if ($pdo !== null) {
         return $pdo;
@@ -55,7 +55,7 @@ function db() {
         // En páginas normales HTML
         die("Error de conexión. Intenta más tarde.");
     }
-}
+}*/
 # ===============================
 #  CARGAR SETTINGS DEL SISTEMA
 # ===============================
