@@ -98,14 +98,17 @@
             </p>
           </div>
           <div class="col-md-6">
-            <p><strong>Pago:</strong> <span id="fecha_pago_display"><?php echo !empty($cliente['pago_plan']) ? htmlspecialchars($cliente['pago_plan']) : 'No registrado'; ?></span></p>
+            <p><strong>Pago:</strong> <span id="fecha_pago_display"><?= fechaBonita($cliente['pago_plan']); ?></span></p>
             <p><strong>Vencimiento:</strong>
-              <?php if (!empty($cliente['vencimiento_plan'])): ?>
-                <span id="fecha_vencimiento_display" class="<?php echo ($vencido) ? 'text-danger fw-bold' : ''; ?>">
-                  <?php echo htmlspecialchars($cliente['vencimiento_plan']); ?>
-                </span>
-              <?php else: ?> No registrado <?php endif; ?>
-            </p>
+					<?php if (!empty($cliente['vencimiento_plan'])): ?>
+						<span id="fecha_vencimiento_display" class="<?= $vencido ? 'text-danger fw-bold' : '' ?>">
+							<?= fechaBonita($cliente['vencimiento_plan']); ?>
+						</span>
+					<?php else: ?>
+						No registrado
+					<?php endif; ?>
+				</p>
+
           </div>
         </div>
 
@@ -122,7 +125,7 @@
         <div class="mt-3 d-flex flex-wrap gap-2">
           <?php if ($cliente['congelado'] == 1): ?>
             <button id="btnUnFreezePlan" class="btn btn-info"><i class="fa fa-thermometer-4"></i> Descongelar Plan</button>
-            <p class="mb-0 ms-2"><strong>Fecha de Congelado:</strong> <?php echo htmlspecialchars($cliente['fecha_congelado']); ?></p>
+            <p class="mb-0 ms-2"><strong>Fecha de Congelado:</strong> <?= fechaBonita($cliente['fecha_congelado']); ?></p>
           <?php else: ?>
             <?php if (isset($_SESSION["user_permissions"]) && in_array('Usar Cajas', $_SESSION["user_permissions"]) && $caja_id): ?>
               <button id="btnPago" class="btn btn-success"><i class="fa fa-money"></i> Marcar Pago</button>
