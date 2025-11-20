@@ -25,6 +25,59 @@ $hora = date('H:i:s');
 # ============================================================
 #  FUNCIÓN GLOBAL DE CONEXIÓN PDO (REUTILIZA UNA SOLA CONEXIÓN)
 # ============================================================
+
+function db() {
+    static $pdo = null;
+
+    if ($pdo !== null) {
+        return $pdo;
+    }
+
+    try {
+
+        // Extraer variables desde config
+        $host   = $GLOBALS['host'];
+        $dbname = $GLOBALS['dbname'];
+        $dbuser = $GLOBALS['dbuser'];
+        $dbpass = $GLOBALS['dbpass'];
+
+        $pdo = new PDO(
+            "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
+            $dbuser,
+            $dbpass,
+            [
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+            ]
+        );
+
+        return $pdo;
+
+    } catch (PDOException $e) {
+
+        // Detectar si es AJAX o API
+        $isAjax =
+            (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+             strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+            ||
+            (str_contains($_SERVER['CONTENT_TYPE'] ?? '', 'application/json'));
+
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'status'  => 'error',
+                'message' => 'Error de conexión a la base de datos.',
+                'code'    => $e->getCode()
+            ]);
+            exit;
+        }
+
+        // Página normal HTML
+        die("Error de conexión. Intenta más tarde.");
+    }
+}
+
+
 /*function db() {
     static $pdo = null;
     if ($pdo !== null) {
