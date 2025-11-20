@@ -54,14 +54,14 @@
             <div class="card-body small">
               <p><strong>Identificación:</strong> <?php echo htmlspecialchars($cliente['identificacion']); ?></p>
               <p><strong>Fecha Nacimiento:</strong>
-                <?php $fechaNacimiento = new DateTime($cliente['fecha_nacimiento']); echo strftime("%d de %B de %Y", $fechaNacimiento->getTimestamp()); ?>
+                <?= fechaBonita($cliente['fecha_nacimiento']); ?>
               </p>
               <?php if($edad !== ""): ?>
                 <p><strong>Edad:</strong> <?php echo $edad; ?> años</p>
               <?php endif; ?>
               <p><strong>Género:</strong> <?php echo htmlspecialchars($cliente['genero']); ?></p>
-              <p><strong>Registro:</strong> <?php $fecha = new DateTime($cliente['created_at']); echo strftime("%d de %B de %Y", $fecha->getTimestamp()); ?></p>
-              <p><strong>Última actualización:</strong> <?php $fecha = new DateTime($cliente['updated_at']); echo strftime("%d de %B de %Y", $fecha->getTimestamp()); ?></p>
+              <p><strong>Registro:</strong> <?= fechaBonita($cliente['created_at']); ?></p>
+              <p><strong>Última actualización:</strong> <?= fechaBonita($cliente['updated_at']);?></p>
             </div>
           </div>
         </div>

@@ -72,37 +72,21 @@ function db() {
 }
 
 
-/*function db() {
-    static $pdo = null;
-    if ($pdo !== null) {
-        return $pdo;
-	}
-    try {
-        $pdo = new PDO(
-            "mysql:host=$GLOBALS[host];dbname=$GLOBALS[dbname];charset=utf8mb4",
-            $GLOBALS['dbuser'],
-            $GLOBALS['dbpass'],
-			[
-                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-            ]
-        );
-        return $pdo;
-    } catch (PDOException $e) {        
-        // Detectar si es un endpoint (AJAX / API)
-        if (preg_match('/\.php$/', $_SERVER['REQUEST_URI'])) {
-            header('Content-Type: application/json');
-            echo json_encode([
-                'status'  => 'error',
-                'message' => 'Error de conexión a la base de datos.',
-                'code'    => $e->getCode()
-            ]);
-            exit;
-        }
-        // En páginas normales HTML
-        die("Error de conexión. Intenta más tarde.");
-    }
-}*/
+function fechaBonita($fecha) {
+    if (empty($fecha)) return 'No registrado';
+    
+    $dt = new DateTime($fecha);
+    $fmt = new IntlDateFormatter(
+        'es_ES',
+        IntlDateFormatter::LONG,
+        IntlDateFormatter::NONE,
+        'America/Bogota',
+        IntlDateFormatter::GREGORIAN,
+        "d 'de' MMMM 'de' yyyy"
+    );
+    return $fmt->format($dt);
+}
+
 # ===============================
 #  CARGAR SETTINGS DEL SISTEMA
 # ===============================
