@@ -8,7 +8,7 @@
         <div class="logo-container">
             <img src="<?php echo $url;?>/<?php echo SITE_LOGO;?>" alt="Logo">
 			 <br><br>
-	<img src="<?php echo htmlspecialchars($foto_perfil);?>">
+	<img src="<?php echo URLBASE .'/'.htmlspecialchars($foto_perfil);?>">
    	<?php echo htmlspecialchars($nombre . " " . $apellido); ?>
     <p><strong><?php echo htmlspecialchars($rolUser); ?></strong></p>
 			
