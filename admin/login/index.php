@@ -1,16 +1,15 @@
 <?php
 session_start(); // DEBE SER LO PRIMERO
-if (session_status() === PHP_SESSION_ACTIVE) {
-    // La sesión ya está activa, asegúrate de que redirect_after_login exista
-    if (!isset($_SESSION['redirect_after_login'])) {
-        $_SESSION['redirect_after_login'] = null;
-    }
-}
 
 require_once __DIR__ . '/../../inc/config.php';
-$cookieDomain = str_replace(['https://','http://'], '', $url);
 
-// Si el usuario ya está logueado, opcionalmente se puede redirigir a dashboard
+// Extraer el dominio correctamente (sin protocolo)
+$cookieDomain = str_replace(['https://', 'http://', 'www.'], '', $url);
+if ($cookieDomain === 'localhost' || strpos($cookieDomain, 'localhost:') === 0) {
+    $cookieDomain = '';
+}
+
+// Si el usuario ya está logueado, redirigir al admin
 if(isset($_SESSION['user'])) {
     header("Location: /admin");
     exit();
@@ -18,13 +17,11 @@ if(isset($_SESSION['user'])) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // Credenciales de la base de datos
-   //include('../../inc/config.php');
-// Conexión a la base de datos mediante PDO
+    // Validar que exista la conexión a BD
     try {
         db();
     } catch (PDOException $e) {
-        $_SESSION['error'] = "Error de conexión: " . $e->getMessage();
+        $_SESSION['error'] = "Error de conexión a la base de datos.";
         header("Location: $url/admin/login/");
         exit();
     }
@@ -32,6 +29,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Recuperar y sanitizar los datos del formulario
     $username = strtolower(trim($_POST["username"] ?? ""));
     $password = $_POST["password"] ?? "";
+
+    // Validar que los campos no estén vacíos
+    if (empty($username) || empty($password)) {
+        $_SESSION["error"] = "Por favor ingresa usuario y contraseña.";
+        header("Location: $url/admin/login/");
+        exit();
+    }
 
     // Buscar el usuario por nombre de usuario (único)
     $stmt = db()->prepare("SELECT * FROM usuarios WHERE username = :username LIMIT 1");
@@ -76,6 +80,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt = db()->prepare("UPDATE usuarios SET intentos = 0 WHERE id = :id");
     $stmt->execute(["id" => $user["id"]]);
 
+    // Regenerar el ID de sesión para evitar session fixation
+    session_regenerate_id(true);
+
     // Iniciar sesión: almacenar los datos del usuario en sesión
     $_SESSION["user"] = $user;
 
@@ -87,25 +94,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Define el tiempo de expiración (por ejemplo, 30 días)
         $expiry = time() + (30 * 24 * 60 * 60);
 
-        // Inserta el token en la base de datos (asegúrate de tener la tabla user_tokens)
-        $stmtToken = db()->prepare("INSERT INTO user_tokens (user_id, token, expires_at) VALUES (:user_id, :token, :expires_at)");
-        $stmtToken->execute([
-             ':user_id'    => $user["id"],
-             ':token'      => $token,
-             ':expires_at' => $expiry
-        ]);
+        try {
+            // Inserta el token en la base de datos
+            $stmtToken = db()->prepare("INSERT INTO user_tokens (user_id, token, expires_at) VALUES (:user_id, :token, :expires_at)");
+            $stmtToken->execute([
+                 ':user_id'    => $user["id"],
+                 ':token'      => $token,
+                 ':expires_at' => $expiry
+            ]);
 
-        // Guarda el token en una cookie persistente
-        // Asegúrate de que el dominio y demás parámetros coincidan con tu configuración
-        setcookie('remember_me', $token, $expiry, '/', $cookieDomain, true, true);
+            // Guarda el token en una cookie persistente con parámetros seguros
+            setcookie('remember_me', $token, [
+                'expires'  => $expiry,
+                'path'     => '/',
+                'domain'   => $cookieDomain,
+                'secure'   => true,
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ]);
+        } catch (PDOException $e) {
+            // Si falla el remember me, continuar sin él
+            error_log("Error al crear token remember_me: " . $e->getMessage());
+        }
     }
 
-    // Verificar si hay una URL de redirección en GET
-    if (isset($_GET['redirect'])) {
+    // Redirigir a la URL solicitada o al admin por defecto
+    if (isset($_GET['redirect']) && !empty($_GET['redirect'])) {
         $redirectUrl = urldecode($_GET['redirect']);
-        header("Location: $redirectUrl");
+        // Validar que la URL sea relativa (seguridad)
+        if (strpos($redirectUrl, '/') === 0 && strpos($redirectUrl, '//') !== 0) {
+            header("Location: $redirectUrl");
+        } else {
+            header("Location: $url/admin/");
+        }
     } else {
-        // Redirigir al admin por defecto
         header("Location: $url/admin/");
     }
     exit();
