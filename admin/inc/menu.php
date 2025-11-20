@@ -21,6 +21,7 @@ $foto = (!empty($foto_perfil) && file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $
     src="<?php echo URLBASE . '/' . $foto; ?>" 
     class="foto-perfil-rounded"
     alt="Foto de usuario">
+<br>
 
 			
 			
