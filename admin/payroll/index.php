@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // Obtener el salario y el teléfono del empleado seleccionado
-        $sql_empleado = "SELECT nombre, apellido, salario, telefono FROM empleados WHERE id = :id";
+        $sql_empleado = "SELECT * FROM empleados WHERE id = :id";
         $stmt_empleado = db()->prepare($sql_empleado);
         $stmt_empleado->execute([':id' => $id_empleado]);
         $empleado = $stmt_empleado->fetch(PDO::FETCH_ASSOC);
@@ -74,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Preparar los datos para enviar el mensaje por WhatsApp
         $cp_nombres = $empleado['nombre'];
         $cp_apellidos = $empleado['apellido'];
+        $cp_dialCode = $empleado['dialCode']; // Asegúrate de que este campo esté correctamente registrado
         $cp_telefono = $empleado['telefono']; // Asegúrate de que este campo esté correctamente registrado
         $cp_pago_plan = $fecha_inicio_pago;
         $cp_vencimiento_plan = $fecha_fin_pago;
