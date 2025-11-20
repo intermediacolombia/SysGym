@@ -92,6 +92,7 @@ try {
   <table id="formularios" class="table table-striped table-bordered">
     <thead>
       <tr>
+		  <th>ID</th>
 		  <th>Foto</th>
         <th>Nombre de Usuario</th>
         <th>Nombre</th>
@@ -134,10 +135,11 @@ try {
 				data-dialcode="' . htmlspecialchars($row['dialcode'] ?? '') . '"
 				data-telefono="' . htmlspecialchars($row['telefono'] ?? '') . '"
 				data-recibe_alertas_stock="' . (int)($row['recibe_alertas_stock'] ?? 0) . '">';
-
+			  	echo '<td>' . htmlspecialchars($row['id'] ?? '') . '</td>';	
 			  	echo '<td><img src="'. URLBASE .'/'. ($row['foto_perfil'] ?: '/assets/img/default-user.png') . '" 
 style="width:40px;height:40px;border-radius:6px;object-fit:cover;"></td>';
 				echo '<td>' . htmlspecialchars($row['username'] ?? '') . '</td>';
+				
 				echo '<td>' . htmlspecialchars($row['nombre'] ?? '') . '</td>';
 				echo '<td>' . htmlspecialchars($row['apellido'] ?? '') . '</td>';
 				echo '<td>' . htmlspecialchars(($row['dialcode'] ?? '') . ' ' . ($row['telefono'] ?? '')) . '</td>';
