@@ -283,36 +283,46 @@ if ($caja['usuario_id'] != $id_user &&
       </tr>
     </thead>
     <tbody>
-  <?php if(count($ventas) > 0): ?>
-    <?php foreach($ventas as $v): ?>
+  <?php if (!empty($ventas)): ?>
+    <?php foreach ($ventas as $v): ?>
       <tr>
-        <td><?php echo htmlspecialchars($v['detalle']); ?></td>
-        <td><?php echo $v['cantidad']; ?></td>
-        <td>$<?php echo number_format($v['valor'], 0, '', '.'); ?></td>
-		  
-		<?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Coste y Ganancias en Caja', $_SESSION["user_permissions"])): ?>
-		<td>$<?php echo number_format($v['coste'] , 0, '', '.'); ?></td>
-		<!--td>$<?php echo number_format($v['valor'] - $v['coste'] , 0, '', '.'); ?></td-->
-		<td><?php
-if ($v['payment_method'] === 'Egreso') {
-    echo '$0';
-} else {
-    echo '$' . number_format($v['valor'] - $v['coste'], 0, '', '.');
-}
-?>
-</td>
-		<?php endif; ?>
-		  
-        <td><?php echo htmlspecialchars($v['payment_method']); ?></td>
-        <td><?php echo htmlspecialchars($v['bank']); ?></td>
-        <td><?php echo htmlspecialchars($v['fecha']); ?></td>
-        <td data-order="<?php echo htmlspecialchars($v['hora']); ?>">
-  <?php echo date("g:i:s A", strtotime($v['hora'])); ?>
-</td>
+        <td><?= htmlspecialchars($v['detalle'] ?? '') ?></td>
+        <td><?= htmlspecialchars($v['cantidad'] ?? '') ?></td>
+
+        <td>$<?= number_format($v['valor'] ?? 0, 0, '', '.') ?></td>
+
+        <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Coste y Ganancias en Caja', $_SESSION["user_permissions"])): ?>
+
+        <td>$<?= number_format($v['coste'] ?? 0, 0, '', '.') ?></td>
+
+        <td>
+          <?php
+          $valor = $v['valor'] ?? 0;
+          $coste = $v['coste'] ?? 0;
+          $method = $v['payment_method'] ?? '';
+
+          if ($method === 'Egreso') {
+              echo '$0';
+          } else {
+              echo '$' . number_format($valor - $coste, 0, '', '.');
+          }
+          ?>
+        </td>
+
+        <?php endif; ?>
+
+        <td><?= htmlspecialchars($v['payment_method'] ?? '') ?></td>
+        <td><?= htmlspecialchars($v['bank'] ?? '') ?></td>
+        <td><?= htmlspecialchars($v['fecha'] ?? '') ?></td>
+
+        <td data-order="<?= htmlspecialchars($v['hora'] ?? '') ?>">
+            <?= !empty($v['hora']) ? date("g:i:s A", strtotime($v['hora'])) : '' ?>
+        </td>
 
       </tr>
     <?php endforeach; ?>
-  <?php endif; ?>
+<?php endif; ?>
+
 </tbody>
 
   </table>
