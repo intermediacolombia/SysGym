@@ -1,10 +1,4 @@
 <?php
-//error_reporting(E_ALL);          // Muestra todos los errores y warnings
-//ini_set('display_errors', 1);    // Activa la visualización de errores
-//ini_set('display_startup_errors', 1);
-?>
-
-<?php
 date_default_timezone_set('America/Bogota');
 
 # ===============================
@@ -122,6 +116,23 @@ try {
 } catch (PDOException $e) {
     die("Error cargando configuración: " . $e->getMessage());
 }
+
+
+# ============================================================
+#  CONTROL DINÁMICO DE ERRORES SEGÚN LA CONFIGURACIÓN
+# ============================================================
+$debug = isset($settings['debug_mode']) && $settings['debug_mode'] == 1;
+
+if ($debug) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+} else {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+    ini_set('display_startup_errors', 0);
+}
+
 
 # ===============================
 #  VARIABLES DE CONFIGURACIÓN
