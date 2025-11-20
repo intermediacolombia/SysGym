@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../login/session.php';  // Inicia la sesión y carga la información del usuario
 $permisopage = 'Ver y Editar Usuarios';
 include('../login/restriction.php');
-session_start();
+
 
 // ==========================================================
 // MANEJO DEL ENVÍO DEL FORMULARIO

@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../login/session.php';
 $permisopage = 'Ver y Editar Usuarios';
 include('../login/restriction.php');
-session_start();
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     require_once __DIR__ . '/../../inc/config.php';

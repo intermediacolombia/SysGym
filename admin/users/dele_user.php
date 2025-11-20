@@ -1,9 +1,8 @@
-<?php require_once __DIR__ . '/../login/session.php';?>
-<?php 
+<?php require_once __DIR__ . '/../login/session.php';
+
 $permisopage = 'Ver y Editar Usuarios';
-include('../login/restriction.php');?>
-<?php
-session_start();
+include('../login/restriction.php');
+
 if(!isset($_GET['id'])) {
     $_SESSION['error'] = "ID no proporcionado.";
     header("Location: $url$url/admin/users");
