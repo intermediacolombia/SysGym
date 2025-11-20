@@ -74,8 +74,13 @@ function db() {
 
 function fechaBonita($fecha) {
     if (empty($fecha)) return 'No registrado';
-    
-    $dt = new DateTime($fecha);
+
+    try {
+        $dt = new DateTime($fecha);
+    } catch (Exception $e) {
+        return 'Fecha inválida';
+    }
+
     $fmt = new IntlDateFormatter(
         'es_ES',
         IntlDateFormatter::LONG,
@@ -84,8 +89,13 @@ function fechaBonita($fecha) {
         IntlDateFormatter::GREGORIAN,
         "d 'de' MMMM 'de' yyyy"
     );
-    return $fmt->format($dt);
+
+    $texto = $fmt->format($dt);
+
+    // Convertir la primera letra a mayúscula
+    return ucfirst($texto);
 }
+
 
 # ===============================
 #  CARGAR SETTINGS DEL SISTEMA
