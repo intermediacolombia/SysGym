@@ -42,7 +42,13 @@
   }
 </script>
 
- <style>
+<style>
+  /* Oculta el loader mientras se aplica el tema */
+  #page-loader {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  
   html[data-theme="dark"],
   html.dark-mode {
     color-scheme: dark;

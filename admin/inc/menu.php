@@ -1,5 +1,5 @@
 <!-- ===== LOADER GLOBAL ===== -->
-<div id="page-loader">
+<div id="page-loader" class="loader-container">
   <div class="loader-circle"></div>
 </div>
 
