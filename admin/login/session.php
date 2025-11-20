@@ -49,9 +49,9 @@ if (!isset($_SESSION["user"]) && isset($_COOKIE['remember_me'])) {
 }
 // Verificar que el usuario esté logueado
 if (!isset($_SESSION["user"])) {
-    // Guardar la URL a la que intentó acceder
-    $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-    header("Location: $url/admin/login");
+    // Guardar la URL a la que intentó acceder como parámetro GET
+    $currentUrl = urlencode($_SERVER['REQUEST_URI']);
+    header("Location: $url/admin/login?redirect=$currentUrl");
     exit();
 }
 // Obtener datos del usuario para usarlos en la aplicación

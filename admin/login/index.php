@@ -100,16 +100,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         setcookie('remember_me', $token, $expiry, '/', $cookieDomain, true, true);
     }
 
-    // Verificar si hay una URL guardada a donde redirigir después del login
-    if (isset($_SESSION['redirect_after_login'])) {
-        $redirectUrl = $_SESSION['redirect_after_login'];
-        echo "DEBUG: Redirigiendo a: $redirectUrl<br>";
-        echo "PRE: " . print_r($_SESSION, true);
-        unset($_SESSION['redirect_after_login']); // Limpiar la variable
+    // Verificar si hay una URL de redirección en GET
+    if (isset($_GET['redirect'])) {
+        $redirectUrl = urldecode($_GET['redirect']);
         header("Location: $redirectUrl");
     } else {
-        echo "DEBUG: No hay redirect_after_login, redirigiendo a /admin/<br>";
-        echo "SESSION: " . print_r($_SESSION, true);
         // Redirigir al admin por defecto
         header("Location: $url/admin/");
     }
