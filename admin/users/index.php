@@ -474,7 +474,7 @@ $('#formularios tbody').on('click', 'tr.user-row', function(e) {
 	if (foto) {
     $('#editFotoVista').attr('src', '../../' + foto);
 } else {
-    $('#editFotoVista').attr('src', '../img/default-user.png');
+    $('#editFotoVista').attr('src', '/assets/img/default-user.png');
 }
 
 	
