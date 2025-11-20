@@ -61,7 +61,7 @@ try {
 		log_action('Editar Contraseña', $desc, 'Perfil');
 		// END LOGS	
     
-    $_SESSION['success'] = "Contraseña actualizada correctamente. La sesión se cerrará en 5 segundos.";
+    $_SESSION['success'] = "Contraseña actualizada correctamente. La sesión se cerrará en 10 segundos.";
 header("Location: $url/admin/password_changed.php");
 exit();
 
