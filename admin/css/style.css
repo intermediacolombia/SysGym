@@ -251,5 +251,44 @@ table tbody tr {
 }
 
 
+.profile-card {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.07);
+}
+
+.foto-perfil-rounded {
+    width: 120px !important;
+    height: 120px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 4px solid var(--system-color-primary);
+    padding: 3px;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.info-row {
+    padding: 10px 0;
+    border-bottom: 1px solid #eaeaea;
+    font-size: 15px;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.btn-outline-primary {
+    border-radius: 8px;
+}
+
+.btn-primary {
+    border-radius: 8px;
+}
+
+
 
 

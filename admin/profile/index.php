@@ -38,53 +38,107 @@ $user = $_SESSION['user']; // Contiene, por ejemplo, id, nombre, apellido, corre
 <?php include('../inc/menu.php'); ?>
 
 <div class="profile-card">
-  
-	<div class="row">
-    <div class="col-sm-3 font-weight-bold">Usuario:</div>
-    <div class="col-sm-9"><?php echo htmlspecialchars($user['username']); ?></div>
-  </div>
-	<div class="row">
-    <div class="col-sm-3 font-weight-bold">Rol:</div>
-    <div class="col-sm-9"><?php echo htmlspecialchars($rolUser); ?></div>
-  </div>
-  <div class="row">
-    <div class="col-sm-3 font-weight-bold">Nombre:</div>
-    <div class="col-sm-9"><?php echo htmlspecialchars($user['nombre']); ?></div>
-  </div>
-  <div class="row">
-    <div class="col-sm-3 font-weight-bold">Apellido:</div>
-    <div class="col-sm-9"><?php echo htmlspecialchars($user['apellido']); ?></div>
-  </div>
-  <div class="row">
-    <div class="col-sm-3 font-weight-bold">Correo:</div>
-    <div class="col-sm-9"><?php echo htmlspecialchars($user['correo']); ?></div>
-  </div>
-  <!-- No se muestra nombre de usuario, rol ni estado -->
-  <div class="mt-4 text-center">
-	  
-	  <!-- Alertas de Bootstrap para mensajes de sesión -->
-      <?php if(isset($_SESSION['error'])): ?>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-          <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
-          <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-      <?php endif; ?>
-      <?php if(isset($_SESSION['success'])): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-          <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
-          <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-      <?php endif; ?>
-	  
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#changePasswordModal"><i class='fas fa-key'></i> 
-      Cambiar Contraseña
+
+  <div class="text-center mb-4">
+    <?php
+    $foto = (!empty($user['foto_perfil']) && file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $user['foto_perfil']))
+        ? $user['foto_perfil']
+        : 'assets/img/default-user.png';
+    ?>
+
+    <img src="<?php echo URLBASE . '/' . $foto; ?>" 
+         class="foto-perfil-rounded" 
+         id="previewFotoPerfil">
+
+    <br>
+
+    <button class="btn btn-outline-primary mt-3" data-toggle="modal" data-target="#changePhotoModal">
+      <i class="fas fa-camera"></i> Cambiar foto
     </button>
   </div>
+
+  <h3 class="text-center mb-4 font-weight-bold">Información Personal</h3>
+
+  <div class="row info-row">
+    <div class="col-sm-4 font-weight-bold">Usuario:</div>
+    <div class="col-sm-8"><?php echo htmlspecialchars($user['username']); ?></div>
+  </div>
+
+  <div class="row info-row">
+    <div class="col-sm-4 font-weight-bold">Rol:</div>
+    <div class="col-sm-8"><?php echo htmlspecialchars($rolUser); ?></div>
+  </div>
+
+  <div class="row info-row">
+    <div class="col-sm-4 font-weight-bold">Nombre:</div>
+    <div class="col-sm-8"><?php echo htmlspecialchars($user['nombre']); ?></div>
+  </div>
+
+  <div class="row info-row">
+    <div class="col-sm-4 font-weight-bold">Apellido:</div>
+    <div class="col-sm-8"><?php echo htmlspecialchars($user['apellido']); ?></div>
+  </div>
+
+  <div class="row info-row">
+    <div class="col-sm-4 font-weight-bold">Correo:</div>
+    <div class="col-sm-8"><?php echo htmlspecialchars($user['correo']); ?></div>
+  </div>
+
+  <div class="text-center mt-4">
+      <?php if(isset($_SESSION['error'])): ?>
+        <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+      <?php endif; ?>
+
+      <?php if(isset($_SESSION['success'])): ?>
+        <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+      <?php endif; ?>
+
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#changePasswordModal">
+        <i class='fas fa-key'></i> Cambiar Contraseña
+      </button>
+  </div>
+
 </div>
+
+<!-- Modal Cambiar Foto -->
+<div class="modal fade" id="changePhotoModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form method="post" action="change_photo.php" enctype="multipart/form-data">
+
+        <div class="modal-header">
+          <h5 class="modal-title">Cambiar Foto de Perfil</h5>
+          <button type="button" class="close" data-dismiss="modal">
+            <span>&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+
+          <div class="text-center mb-3">
+            <img id="previewNuevaFoto" 
+                 src="<?php echo URLBASE . '/' . $foto; ?>" 
+                 class="foto-perfil-rounded">
+          </div>
+
+          <div class="form-group">
+            <label>Seleccionar nueva foto</label>
+            <input type="file" class="form-control" id="nuevaFotoInput" name="foto_perfil" accept="image/*" required>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Guardar Foto
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
 
 <!-- Modal para cambiar contraseña -->
 <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
@@ -201,6 +255,22 @@ $(document).ready(function() {
       });
     }, false);
   })();
+	
+	
+	// PREVISUALIZAR NUEVA FOTO
+$("#nuevaFotoInput").on("change", function () {
+    const file = this.files[0];
+    if (file) {
+        let reader = new FileReader();
+        reader.onload = function (e) {
+            $("#previewNuevaFoto").attr("src", e.target.result);
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+	
+	
 });
 </script>
 </body>
