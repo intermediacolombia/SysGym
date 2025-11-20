@@ -8,7 +8,22 @@
         <div class="logo-container">
             <img src="<?php echo $url;?>/<?php echo SITE_LOGO;?>" alt="Logo">
 			 <br><br>
-	<img src="<?php echo URLBASE .'/'.htmlspecialchars($foto_perfil);?>">
+	
+			
+			<?php
+// Validar si existe foto
+$foto = (!empty($foto_perfil) && file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $foto_perfil))
+        ? $foto_perfil
+        : 'assets/img/default-user.png';
+?>
+
+<img 
+    src="<?php echo URLBASE . '/' . $foto; ?>" 
+    class="foto-perfil-rounded"
+    alt="Foto de usuario">
+
+			
+			
    	<?php echo htmlspecialchars($nombre . " " . $apellido); ?>
     <p><strong><?php echo htmlspecialchars($rolUser); ?></strong></p>
 			
