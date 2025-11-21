@@ -106,7 +106,7 @@ body:not(.dark-mode) .loader-circle {
 
 /* MENSAJE 1 → Aparece a los 5s */
 .mensaje1 {
-  animation: aparecerDesaparecer 12s linear forwards;
+  animation: aparecerDesaparecer 10s linear forwards;
   animation-delay: 5s;    /* ← aparece a los 5 segundos */
 }
 
