@@ -128,6 +128,80 @@ document.addEventListener('DOMContentLoaded', function() {
     const toggle = document.getElementById('themeToggle');
     const icon = document.getElementById('themeIcon');
     const labelIcon = document.getElementById('themeLabelIcon');
+    const loader = document.getElementById('page-loader');
+
+    // Leer estado guardado
+    const savedTheme = localStorage.getItem('theme-mode') || 'light';
+
+    if (savedTheme === 'dark') {
+      body.classList.add('dark-mode');
+      if (toggle) toggle.checked = true;
+    }
+
+    setTimeout(() => body.classList.add('theme-ready'), 50);
+
+    function updateIcons(isDark) {
+      if (!icon || !labelIcon) return;
+      if (isDark) {
+        icon.className = 'fas fa-moon text-info';
+        labelIcon.className = 'fas fa-sun me-2 text-warning';
+      } else {
+        icon.className = 'fas fa-sun text-warning';
+        labelIcon.className = 'fas fa-moon me-2 text-info';
+      }
+    }
+
+    updateIcons(savedTheme === 'dark');
+
+    if (toggle) {
+      toggle.addEventListener('change', function () {
+        const isDark = this.checked;
+        body.classList.toggle('dark-mode', isDark);
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        localStorage.setItem('theme-mode', isDark ? 'dark' : 'light');
+        updateIcons(isDark);
+      });
+    }
+
+    /* ============================================================
+       MENSAJE AUTOMÁTICO SI LA PÁGINA TARDA MÁS DE 5 SEGUNDOS
+    ============================================================ */
+    setTimeout(() => {
+      if (loader && loader.style.visibility !== 'hidden') {
+        // Crear el mensaje solo si no existe
+        if (!document.getElementById('slow-loader-message')) {
+          const msg = document.createElement('div');
+          msg.id = 'slow-loader-message';
+          msg.textContent = "Estamos procesando la solicitud, por favor espera...";
+          msg.style.cssText = `
+            margin-top: 15px;
+            font-size: 15px;
+            color: #ffffff;
+            text-align: center;
+            animation: fadeIn 0.4s ease;
+          `;
+          loader.appendChild(msg);
+        }
+      }
+    }, 5000);
+  });
+
+  // Ocultar loader cuando TODO cargue (incluidas imágenes)
+  window.addEventListener('load', () => {
+    const loader = document.getElementById('page-loader');
+    if (loader) {
+      loader.style.cssText = 'opacity: 0 !important; visibility: hidden !important; transition: opacity 0.3s ease-out;';
+      console.log('Loader ocultado');
+    }
+  });
+</script>
+
+<!--script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const body = document.body;
+    const toggle = document.getElementById('themeToggle');
+    const icon = document.getElementById('themeIcon');
+    const labelIcon = document.getElementById('themeLabelIcon');
 
     // Leer estado guardado
     const savedTheme = localStorage.getItem('theme-mode') || 'light';
@@ -176,5 +250,5 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('Loader ocultado'); // Debug
     }
   });
-</script>
+</script-->
 
