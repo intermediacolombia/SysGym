@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
             requestAnimationFrame(() => msg.style.opacity = '1');
         }
 
-    }, 5000);
+    }, 2000);
 })();
 </script>
 
