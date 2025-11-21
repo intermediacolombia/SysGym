@@ -94,12 +94,22 @@ body:not(.dark-mode) .loader-circle {
   animation-delay: 5s; /* ← aparece a los 5 segundos exactos */
 }
 
-/* KEYFRAMES: aparece y sube suave */
+/* Animación para mostrar mensaje */
 @keyframes mostrarMensaje {
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Mensaje 1 -> aparece a los 5 segundos */
+.mensaje1 {
+  animation-delay: 5s;
+}
+
+/* Mensaje 2 -> aparece a los 10 segundos */
+.mensaje2 {
+  animation-delay: 10s;
 }
 
 

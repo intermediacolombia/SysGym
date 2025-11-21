@@ -2,10 +2,18 @@
 <div id="page-loader" class="loader-container">
   <div class="loader-circle"></div>
 
-  <div id="slow-loader-message" class="mensaje-carga">
+  <!-- Mensaje 1 a los 5s -->
+  <div class="mensaje-carga mensaje1">
     Estamos procesando la solicitud, por favor espera...
   </div>
+
+  <!-- Mensaje 2 a los 10s -->
+  <div class="mensaje-carga mensaje2">
+    Esto está tardando un poco... por favor sé paciente.
+  </div>
 </div>
+
+
 
 <div class="menu">
         <div class="logo-container">
