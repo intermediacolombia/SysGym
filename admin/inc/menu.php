@@ -3,7 +3,7 @@
     <div class="loader-circle"></div>
 
     <div id="slow-loader-message"
-         style="margin-top:15px; font-size:16px; color:#fff; text-align:center; display:none;">
+         style="margin-top:15px; font-size:16px; color:#fff; text-align:center; display:block;">
         Estamos procesando la solicitud, por favor espera...
     </div>
 </div>

@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const msg = document.getElementById('slow-loader-message');
 
         if (msg) {
-            msg.style.display = 'block';
+            msg.style.display = 'none';
             msg.style.opacity = '0';
             msg.style.transition = 'opacity 0.4s ease';
             requestAnimationFrame(() => msg.style.opacity = '1');
