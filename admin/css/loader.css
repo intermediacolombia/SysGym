@@ -82,14 +82,19 @@ body:not(.dark-mode) .loader-circle {
 /* Mensaje oculto por defecto */
 .mensaje-carga {
   opacity: 0;
-  position: absolute;
-  bottom: 20%; /* Ajusta si quieres */
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
   color: #000;
+  margin-top: 15px;
   font-size: 16px;
   text-align: center;
-  width: 100%;
+
+  /* ESTA ANIMACIÓN HACE QUE APAREZCA A LOS 5 SEGUNDOS */
+  animation: mostrarMensaje 0.5s ease forwards;
+  animation-delay: 5s; /* ← aparece a los 5 segundos exactos */
 }
 
+/* Animación para mostrar mensaje */
 @keyframes aparecerDesaparecer {
   0%   { opacity: 0; }
   10%  { opacity: 1; }   /* aparece */
