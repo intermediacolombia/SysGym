@@ -8,22 +8,18 @@ if ($cookieDomain === 'localhost' || strpos($cookieDomain, 'localhost:') === 0) 
     $cookieDomain = '';
 }
 
-// Configurar los parámetros de la cookie de sesión
-$tiempoUnAno = 365 * 24 * 60 * 60;
-
-session_set_cookie_params([
-    'lifetime' => $tiempoUnAno,
-    'path'     => '/',
-    'domain'   => $cookieDomain,
-    'secure'   => true,
-    'httponly' => true,
-    'samesite' => 'Lax'
-]);
-
-ini_set('session.gc_maxlifetime', $tiempoUnAno);
-
-// Iniciar sesión si no está iniciada
+// Iniciar sesión si no está iniciada (login ya la inició)
 if (session_status() === PHP_SESSION_NONE) {
+    $tiempoUnAno = 365 * 24 * 60 * 60;
+    session_set_cookie_params([
+        'lifetime' => $tiempoUnAno,
+        'path'     => '/',
+        'domain'   => $cookieDomain,
+        'secure'   => true,
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+    ini_set('session.gc_maxlifetime', $tiempoUnAno);
     session_start();
 }
 

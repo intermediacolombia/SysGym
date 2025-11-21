@@ -1,6 +1,4 @@
 <?php
-session_start(); // DEBE SER LO PRIMERO
-
 require_once __DIR__ . '/../../inc/config.php';
 
 // Extraer el dominio correctamente (sin protocolo)
@@ -8,6 +6,20 @@ $cookieDomain = str_replace(['https://', 'http://', 'www.'], '', $url);
 if ($cookieDomain === 'localhost' || strpos($cookieDomain, 'localhost:') === 0) {
     $cookieDomain = '';
 }
+
+// Configurar sesión ANTES de iniciarla
+$tiempoUnAno = 365 * 24 * 60 * 60;
+session_set_cookie_params([
+    'lifetime' => $tiempoUnAno,
+    'path'     => '/',
+    'domain'   => $cookieDomain,
+    'secure'   => true,
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
+ini_set('session.gc_maxlifetime', $tiempoUnAno);
+
+session_start(); // AHORA sí, después de configurar
 
 // Si el usuario ya está logueado, redirigir al admin
 if(isset($_SESSION['user'])) {
@@ -271,5 +283,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   </script>
 </body>
 </html>
-
 
