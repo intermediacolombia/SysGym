@@ -106,18 +106,18 @@ body:not(.dark-mode) .loader-circle {
 
 /* MENSAJE 1 → Aparece a los 5s */
 .mensaje1 {
-  animation: aparecerDesaparecer 13s linear forwards;
+  animation: aparecerDesaparecer 12s linear forwards;
   animation-delay: 5s;    /* ← aparece a los 5 segundos */
 }
 
 /* MENSAJE 2 → Aparece a los 15s */
 .mensaje2 {
-  animation: aparecerDesaparecer 13s linear forwards;
+  animation: aparecerDesaparecer 25s linear forwards;
   animation-delay: 15s;   /* ← aparece a los 15 segundos */
 }
 
 .mensaje3 {
-  animation: aparecerDesaparecer 60s linear forwards;
+  animation: aparecerDesaparecer 120s linear forwards;
   animation-delay: 30s;   /* ← aparece a los 15 segundos */
 }
 
