@@ -79,18 +79,21 @@ body:not(.dark-mode) .loader-circle {
   border-top-color: var(--system-color-primary, #214A82);
 }
 
-/* Mensajes base: ocultos, mismo lugar */
+/* Mensajes base: ocultos y pegados al spinner */
 .mensaje-carga {
-  position: absolute;
-  bottom: 15%; /* ajusta si lo quieres más arriba/abajo */
-  left: 50%;
-  transform: translateX(-50%) translateY(10px);
   opacity: 0;
-  color: #000; /* pon #fff si estás en modo oscuro */
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  color: #000; /* #fff si es modo oscuro */
+  margin-top: 15px;  /* ← ESTE ES EL QUE LO DEJA PEGADO AL SPINNER */
   font-size: 16px;
   text-align: center;
-  width: 100%;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+
+  /* Esto permite que las animaciones secuenciales funcionen */
+  position: absolute;
+  top: calc(50% + 55px); /* justo debajo del círculo */
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
 }
 
 /* Animación: aparece → permanece → desaparece */
@@ -101,17 +104,18 @@ body:not(.dark-mode) .loader-circle {
   100% { opacity: 0; transform: translateX(-50%) translateY(10px); }
 }
 
-/* MENSAJE 1 → Aparece a los 5s, se va a los 10s */
+/* MENSAJE 1 → Aparece a los 5s */
 .mensaje1 {
   animation: aparecerDesaparecer 5s linear forwards;
   animation-delay: 5s;
 }
 
-/* MENSAJE 2 → Aparece a los 10s, se va a los 15s */
+/* MENSAJE 2 → Reemplaza al mensaje 1 a los 10s */
 .mensaje2 {
   animation: aparecerDesaparecer 5s linear forwards;
   animation-delay: 10s;
 }
+
 
 
 
