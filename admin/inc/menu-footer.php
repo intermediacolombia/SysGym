@@ -127,79 +127,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+
+
+
+
+
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-
-    const body = document.body;
-    const toggle = document.getElementById('themeToggle');
-    const icon = document.getElementById('themeIcon');
-    const labelIcon = document.getElementById('themeLabelIcon');
-
-    const loader = document.getElementById('page-loader');
-    const msg = document.getElementById('slow-loader-message');
-
-    // Leer estado guardado del tema
-    const savedTheme = localStorage.getItem('theme-mode') || 'light';
-
-    if (savedTheme === 'dark') {
-        body.classList.add('dark-mode');
-        if (toggle) toggle.checked = true;
-    }
-
-    setTimeout(() => body.classList.add('theme-ready'), 50);
-
-    function updateIcons(isDark) {
-        if (!icon || !labelIcon) return;
-        if (isDark) {
-            icon.className = 'fas fa-moon text-info';
-            labelIcon.className = 'fas fa-sun me-2 text-warning';
-        } else {
-            icon.className = 'fas fa-sun text-warning';
-            labelIcon.className = 'fas fa-moon me-2 text-info';
-        }
-    }
-
-    updateIcons(savedTheme === 'dark');
-
-    if (toggle) {
-        toggle.addEventListener('change', function () {
-            const isDark = this.checked;
-            body.classList.toggle('dark-mode', isDark);
-            document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-            localStorage.setItem('theme-mode', isDark ? 'dark' : 'light');
-            updateIcons(isDark);
-        });
-    }
-
-    /* ===========================================================
-       MOSTRAR MENSAJE EXACTAMENTE A LOS 5 SEGUNDOS (SIEMPRE)
-    =========================================================== */
-    setTimeout(() => {
-        msg.style.display = 'block';
-        msg.style.opacity = '0';
-        msg.style.transition = 'opacity 0.4s ease';
-        requestAnimationFrame(() => msg.style.opacity = '1');
-    }, 5000);
-
-});
-
-/* ===========================================================
-   OCULTAR LOADER CUANDO TODO CARGUE
-=========================================================== */
-window.addEventListener('load', () => {
-    const loader = document.getElementById('page-loader');
-    if (loader) {
-        loader.style.cssText =
-            'opacity: 0 !important; visibility: hidden !important; transition: opacity 0.3s ease-out;';
-        console.log('Loader ocultado');
-    }
-});
-</script>
-
-
-
-
-<!--script>
   document.addEventListener('DOMContentLoaded', () => {
     const body = document.body;
     const toggle = document.getElementById('themeToggle');
@@ -253,5 +186,27 @@ window.addEventListener('load', () => {
       console.log('Loader ocultado'); // Debug
     }
   });
-</script-->
+</script>
+
+<script>
+// FUNCIÓN TOTALMENTE SEPARADA PARA MOSTRAR EL MENSAJE A LOS 5 SEGUNDOS
+
+(function() {
+    // Espera 5 segundos
+    setTimeout(function () {
+
+        // Accede directamente al mensaje y lo muestra
+        const msg = document.getElementById('slow-loader-message');
+
+        if (msg) {
+            msg.style.display = 'block';
+            msg.style.opacity = '0';
+            msg.style.transition = 'opacity 0.4s ease';
+            requestAnimationFrame(() => msg.style.opacity = '1');
+        }
+
+    }, 5000);
+})();
+</script>
+
 
