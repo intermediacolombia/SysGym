@@ -125,26 +125,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+// Mostrar mensaje a los 5 segundos SIEMPRE
+setTimeout(() => {
+    const msg = document.getElementById("slow-loader-message");
+    if (msg) msg.style.display = "block";
+}, 5000);
 
-    const loader = document.getElementById('page-loader');
-
-    // Evento simulado despues de 5s
-    setTimeout(() => {
-
-        loader.classList.add('mostrar-mensaje-loader');
-
-    }, 5000);
-
-});
-
-// Ocultar loader cuando cargue TODO
+// Ocultar loader después del mensaje (a los 6 segundos)
 window.addEventListener('load', () => {
     setTimeout(() => {
         const loader = document.getElementById('page-loader');
-        loader.style.cssText =
-            'opacity: 0 !important; visibility: hidden !important; transition: opacity 0.3s ease-out;';
-    }, 5500);
+        if (loader) {
+            loader.style.cssText = `
+                opacity: 0 !important;
+                visibility: hidden !important;
+                transition: opacity 0.3s ease-out;
+            `;
+        }
+    }, 6000); // ? se oculta DESPUÉS del mensaje
 });
 </script>
 
