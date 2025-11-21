@@ -162,31 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
 
-    /* ============================================================
-       MENSAJE SI LA PÁGINA TARDA MÁS DE 5 SEGUNDOS EN CARGAR
-    ============================================================ */
-    setTimeout(() => {
-      if (loader && loader.style.visibility !== 'hidden') {
-
-        // Si el mensaje no existe, lo creamos
-        if (!document.getElementById('slow-loader-message')) {
-
-          const msg = document.createElement('div');
-          msg.id = 'slow-loader-message';
-          msg.textContent = "Estamos procesando la solicitud, por favor espera...";
-
-          msg.style.cssText = `
-            margin-top: 15px;
-            font-size: 14px;
-            color: #fff;
-            text-align: center;
-            animation: fadeIn 0.4s ease;
-          `;
-
-          loader.appendChild(msg);
-        }
-      }
-    }, 5000);
+   
   });
 
   window.addEventListener('load', () => {
@@ -198,6 +174,50 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 </script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const loader = document.getElementById('page-loader');
+
+  // Mostrar mensaje si pasan 5 segundos y aún se ve el loader
+  setTimeout(() => {
+    if (loader && loader.style.visibility !== 'hidden') {
+
+      if (!document.getElementById('slow-loader-message')) {
+
+        const msg = document.createElement('div');
+        msg.id = 'slow-loader-message';
+        msg.textContent = "Estamos procesando la solicitud, por favor espera...";
+        msg.style.cssText = `
+          margin-top: 15px;
+          font-size: 15px;
+          color: #fff;
+          text-align: center;
+          animation: fadeIn 0.4s ease;
+        `;
+
+        loader.appendChild(msg);
+      }
+    }
+  }, 5000);
+
+});
+
+// Ocultar loader cuando la página termine de cargar
+window.addEventListener('load', () => {
+  const loader = document.getElementById('page-loader');
+  if (loader) {
+    loader.style.cssText = `
+      opacity: 0 !important; 
+      visibility: hidden !important; 
+      transition: opacity 0.3s ease-out;
+    `;
+  }
+});
+</script>
+
 
 
 <!--script>

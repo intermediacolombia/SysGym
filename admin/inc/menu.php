@@ -1,11 +1,6 @@
 <!-- ===== LOADER GLOBAL ===== -->
 <div id="page-loader" class="loader-container">
   <div class="loader-circle"></div>
-
-  <div id="loader-test-message"
-       style="margin-top:15px; font-size:16px; color:#fff; text-align:center;">
-    Cargando, por favor espera...
-  </div>
 </div>
 
 
