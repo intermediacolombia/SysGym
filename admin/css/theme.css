@@ -419,6 +419,10 @@ body.dark-mode .nav-tabs .nav-link {
   color: #C8CDD0; /* Contenido */
 }
 
+body.dark-mode .mensaje-carga {
+  color: #fff;
+}
+
 body.dark-mode .nav-link {
     color: #D1D1D1!important;
 }
