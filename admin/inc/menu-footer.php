@@ -125,12 +125,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <script>
-  // Espera 5 segundos (5000 milisegundos)
-  setTimeout(function() {
-    // Oculta el div cambiando su propiedad 'display' a 'none'
-    document.getElementById("slow-loader-message").style.display = "none";
-  }, 5000);
+document.addEventListener('DOMContentLoaded', () => {
+
+    const loader = document.getElementById('page-loader');
+
+    // Evento simulado despues de 5s
+    setTimeout(() => {
+
+        loader.classList.add('mostrar-mensaje-loader');
+
+    }, 5000);
+
+});
+
+// Ocultar loader cuando cargue TODO
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        const loader = document.getElementById('page-loader');
+        loader.style.cssText =
+            'opacity: 0 !important; visibility: hidden !important; transition: opacity 0.3s ease-out;';
+    }, 5500);
+});
 </script>
+
 
 
 

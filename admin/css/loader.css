@@ -79,3 +79,11 @@ body:not(.dark-mode) .loader-circle {
   border-top-color: var(--system-color-primary, #214A82);
 }
 
+/* Cuando se active esta clase, el mensaje aparece */
+#page-loader.mostrar-mensaje-loader #slow-loader-message {
+    display: block !important;
+    opacity: 1 !important;
+    transition: opacity 0.3s ease;
+}
+
+
