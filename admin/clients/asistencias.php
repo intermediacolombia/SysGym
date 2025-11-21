@@ -3,50 +3,22 @@ require_once __DIR__ . '/../login/session.php';
 $permisopage = 'Ver Asistencias';
 include('../login/restriction.php');
 
-require_once __DIR__ . '/../../inc/config.php'; // ya no se usa session_start()
+require_once __DIR__ . '/../../inc/config.php';
 
-try {
-    // activar idioma español
-    db()->exec("SET lc_time_names = 'es_ES';");
-
-    $sql = "
-        SELECT  
-            a.fecha,
-            a.hora,
-            DATE_FORMAT(a.fecha,'%W') AS dia,
-            c.id AS idCliente,
-            c.identificacion,
-            c.nombres,
-            c.apellidos
-        FROM asistencias a
-        JOIN clientes c ON c.id = a.idCliente
-        WHERE c.borrado = 0
-        ORDER BY a.fecha DESC, a.hora DESC
-    ";
-
-    $stmt = db()->query($sql);
-    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-} catch (PDOException $e) {
-    die('Error DB: ' . $e->getMessage());
-}
+// Fecha de hoy (para el filtro inicial)
+$hoy = date('Y-m-d');
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Listado de Asistencias</title>
+<meta charset="UTF-8">
+<title>Listado de Asistencias</title>
+<?php include('../inc/header.php'); ?>
 
-  <?php include('../inc/header.php'); ?>
-
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- DataTables Bootstrap 5 CSS -->
-  <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-
-
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 </head>
+
 <body>
 
 <div class="container" style="padding:0;background:rgba(0,0,0,.00)">
@@ -56,93 +28,107 @@ try {
 </div>
 
 <?php include('../inc/menu.php'); ?>
-	
-<!-- ---------------  SELECTOR DE FECHA --------------- -->
-
-
-  
-
 
 <div class="container mt-4">
-	
-	<div class="d-flex align-items-center mb-3">
-  <label for="filtroFecha" class="me-2 mb-0">
-    <i class="fa fa-calendar"></i> Fecha:
-  </label>
-  <input type="text" id="filtroFecha" class="form-control" style="max-width:180px"
-         value="<?= $hoy ?>">
-</div>
-  <!-- ---------------  TABLA --------------- -->
-<table id="asist-global" class="table table-striped table-bordered w-100">
-  <thead class="table-dark">
-    <tr>
-      <th>Fecha</th>
-      <th>Día</th>
-      <th>Hora</th>
-      <th>Identificación</th>
-      <th>Nombre</th>
-    </tr>
-  </thead>
-  <tbody>
-    <?php foreach ($rows as $r): ?>
-      <tr data-id="<?= $r['idCliente'] ?>">
-        <td><?= htmlspecialchars($r['fecha']) ?></td>
-        <td><?= ucfirst($r['dia']) ?></td>
-        <td data-order="<?= $r['hora'] ?>">
-          <?php
-            $h = DateTime::createFromFormat('H:i:s',$r['hora']);
-            echo $h->format('g:i a');
-          ?>
-        </td>
-        <td><?= htmlspecialchars($r['identificacion']) ?></td>
-        <td><?= htmlspecialchars($r['nombres'].' '.$r['apellidos']) ?></td>
+
+  <!-- Filtro por fecha -->
+  <div class="d-flex align-items-center mb-3">
+    <label for="filtroFecha" class="me-2 mb-0">
+      <i class="fa fa-calendar"></i> Fecha:
+    </label>
+    <input type="text" id="filtroFecha" class="form-control" style="max-width:180px"
+           value="<?= $hoy ?>">
+  </div>
+
+  <!-- Tabla -->
+  <table id="asist-global" class="table table-striped table-bordered w-100">
+    <thead class="table-dark">
+      <tr>
+        <th>Fecha</th>
+        <th>Día</th>
+        <th>Hora</th>
+        <th>Identificación</th>
+        <th>Nombre</th>
       </tr>
-    <?php endforeach; ?>
-  </tbody>
-</table>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 
 <?php include('../inc/menu-footer.php'); ?>
 
-<!-- SweetAlert2 CSS -->
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-
-<!-- jQuery, Bootstrap, DataTables, SweetAlert2 JS -->
+<!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-<!-- ---------------  SCRIPTS --------------- -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 
 <script>
-$(function () {
+$(async function(){
 
-  /* === 1. DataTable === */
+  /* === 1. Cargar JSON === */
+  let data = [];
+  try {
+    data = await $.getJSON("asistencias.json"); // ← archivo estático
+  } catch (error) {
+    console.error("Error cargando asistencias.json", error);
+    Swal.fire("Error", "No se pudo cargar el listado de asistencias.", "error");
+    return;
+  }
+
+  /* === 2. Inicializar DataTable === */
   const tabla = $('#asist-global').DataTable({
+    ajax: {
+        url: "get_asistencias_all.php",
+        dataSrc: "data"
+    },
+    columns: [
+      { data: 'fecha' },
+      { data: 'dia' },
+      { 
+        data: 'hora',
+        render: function (h) {
+          const [HH,MM] = h.split(":");
+          const ampm = (HH >= 12 ? 'pm' : 'am');
+          const g = ((HH % 12) || 12);
+          return g + ":" + MM + " " + ampm;
+        }
+      },
+      { data: 'identificacion' },
+      { data: null, render: r => r.nombres + " " + r.apellidos }
+    ],
     order: [[0,'desc'],[2,'desc']],
     pageLength: 50,
     language:{url:'//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'}
+});
+
+
+  /* === Click → detalle cliente === */
+  $('#asist-global tbody').on('click','tr',function(){
+    const row = tabla.row(this).data();
+    if (row?.idCliente) {
+      window.location.href = "detail.php?id="+row.idCliente;
+    }
   });
 
-  /*  fila → perfil cliente  */
-  $(document).on('click','#asist-global tbody tr',function(){
-    const id = $(this).data('id');
-    if (id) window.location.href = "detail.php?id="+encodeURIComponent(id);
-  });
-
-  /* === 2. Calendario Flatpickr === */
+  /* === 3. Filtro por fecha === */
   flatpickr('#filtroFecha',{
     dateFormat:'Y-m-d',
     locale:'es',
     defaultDate:'<?= $hoy ?>',
-	  maxDate : 'today',
+    maxDate : 'today',
     onChange: function(sel){
-      const fecha = sel[0].toISOString().slice(0,10);   // YYYY-MM-DD
+      const fecha = sel[0].toISOString().slice(0,10);
       tabla.column(0).search('^'+fecha+'$', true, false).draw();
     }
   });
+
 });
 </script>
-	</body>
+
+</body>
 </html>
+
