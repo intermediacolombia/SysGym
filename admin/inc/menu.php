@@ -4,13 +4,12 @@
 
   <!-- Mensaje 1 a los 5s -->
   <div class="mensaje-carga mensaje1">
-    Estamos procesando la solicitud, por favor espera...
-  </div>
+  Estamos procesando la solicitud<span class="puntos"></span>
+</div>
 
-  <!-- Mensaje 2 a los 10s -->
-  <div class="mensaje-carga mensaje2">
-    Esto está tardando un poco... por favor sé paciente.
-  </div>
+<div class="mensaje-carga mensaje2">
+  Esto está tardando un poco<span class="puntos"></span>
+</div>
 </div>
 
 
