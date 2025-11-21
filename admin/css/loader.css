@@ -84,14 +84,14 @@ body:not(.dark-mode) .loader-circle {
   opacity: 0;
   transform: translateY(10px);
   transition: opacity 0.3s ease, transform 0.3s ease;
-  color: #000; /* #fff si es modo oscuro */
-  margin-top: 15px;  /* ← ESTE ES EL QUE LO DEJA PEGADO AL SPINNER */
+  color: #000; /* #fff si usas dark mode */
+  margin-top: 15px;
   font-size: 16px;
   text-align: center;
 
-  /* Esto permite que las animaciones secuenciales funcionen */
+  /* Permite animación secuencial */
   position: absolute;
-  top: calc(50% + 55px); /* justo debajo del círculo */
+  top: calc(50% + 55px); /* justo debajo del spinner */
   left: 50%;
   transform: translateX(-50%) translateY(10px);
 }
@@ -106,30 +106,20 @@ body:not(.dark-mode) .loader-circle {
 
 /* MENSAJE 1 → Aparece a los 5s */
 .mensaje1 {
-  animation: aparecerDesaparecer 5s linear forwards;
-  animation-delay: 15s;
+  animation: aparecerDesaparecer 8s linear forwards;
+  animation-delay: 5s;    /* ← aparece a los 5 segundos */
 }
 
-/* MENSAJE 2 → Reemplaza al mensaje 1 a los 10s */
+/* MENSAJE 2 → Aparece a los 15s */
 .mensaje2 {
-  animation: aparecerDesaparecer 15s linear forwards;
-  animation-delay: 40s;
+  animation: aparecerDesaparecer 8s linear forwards;
+  animation-delay: 15s;   /* ← aparece a los 15 segundos */
 }
 
-/* Puntos animados */
-.puntos::after {
-  content: "";
-  animation: puntosAnimados 1.5s steps(3, end) infinite;
+.mensaje3 {
+  animation: aparecerDesaparecer 8s linear forwards;
+  animation-delay: 30s;   /* ← aparece a los 15 segundos */
 }
-
-/* Ciclo de puntos */
-@keyframes puntosAnimados {
-  0%   { content: ""; }
-  33%  { content: "."; }
-  66%  { content: ".."; }
-  100% { content: "..."; }
-}
-
 
 
 
