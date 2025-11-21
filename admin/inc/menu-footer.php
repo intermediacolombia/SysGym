@@ -124,7 +124,26 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 
 
+<script>
+// FUNCIÓN TOTALMENTE SEPARADA PARA MOSTRAR EL MENSAJE A LOS 5 SEGUNDOS
 
+(function() {
+    // Espera 5 segundos
+    setTimeout(function () {
+
+        // Accede directamente al mensaje y lo muestra
+        const msg = document.getElementById('slow-loader-message');
+
+        if (msg) {
+            msg.style.display = 'none';
+            msg.style.opacity = '0';
+            msg.style.transition = 'opacity 0.4s ease';
+            requestAnimationFrame(() => msg.style.opacity = '1');
+        }
+
+    }, 2000);
+})();
+</script>
 
 
 
@@ -188,25 +207,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 </script>
 
-<script>
-// FUNCIÓN TOTALMENTE SEPARADA PARA MOSTRAR EL MENSAJE A LOS 5 SEGUNDOS
 
-(function() {
-    // Espera 5 segundos
-    setTimeout(function () {
-
-        // Accede directamente al mensaje y lo muestra
-        const msg = document.getElementById('slow-loader-message');
-
-        if (msg) {
-            msg.style.display = 'none';
-            msg.style.opacity = '0';
-            msg.style.transition = 'opacity 0.4s ease';
-            requestAnimationFrame(() => msg.style.opacity = '1');
-        }
-
-    }, 2000);
-})();
-</script>
 
 
