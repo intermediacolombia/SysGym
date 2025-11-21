@@ -71,7 +71,7 @@ $(async function(){
 
   const tabla = $('#asist-global').DataTable({
       ajax: {
-          url: "gets/get_asistencias_all.php",
+          url: "<?= URLBASE ?>/admin/clients/gets/get_asistencias_all.php",
           dataSrc: "data"
       },
       columns: [
