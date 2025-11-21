@@ -135,9 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const icon = document.getElementById('themeIcon');
     const labelIcon = document.getElementById('themeLabelIcon');
 
-    // Loader y mensaje
     const loader = document.getElementById('page-loader');
-    const msg = document.getElementById('slow-loader-message'); // el mensaje estático oculto
+    const msg = document.getElementById('slow-loader-message');
 
     // Leer estado guardado del tema
     const savedTheme = localStorage.getItem('theme-mode') || 'light';
@@ -173,21 +172,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ===========================================================
-       MOSTRAR MENSAJE DESPUÉS DE 5 SEGUNDOS
+       MOSTRAR MENSAJE EXACTAMENTE A LOS 5 SEGUNDOS (SIEMPRE)
     =========================================================== */
     setTimeout(() => {
-        if (loader && loader.style.visibility !== 'hidden') {
-            msg.style.display = 'block';
-            msg.style.opacity = '0';
-            msg.style.transition = 'opacity 0.4s ease';
-            requestAnimationFrame(() => msg.style.opacity = '1');
-        }
+        msg.style.display = 'block';
+        msg.style.opacity = '0';
+        msg.style.transition = 'opacity 0.4s ease';
+        requestAnimationFrame(() => msg.style.opacity = '1');
     }, 5000);
 
 });
 
 /* ===========================================================
-   OCULTAR LOADER EN CUANTO TODO TERMINE DE CARGAR
+   OCULTAR LOADER CUANDO TODO CARGUE
 =========================================================== */
 window.addEventListener('load', () => {
     const loader = document.getElementById('page-loader');
@@ -198,6 +195,7 @@ window.addEventListener('load', () => {
     }
 });
 </script>
+
 
 
 
