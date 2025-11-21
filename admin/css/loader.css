@@ -79,39 +79,39 @@ body:not(.dark-mode) .loader-circle {
   border-top-color: var(--system-color-primary, #214A82);
 }
 
-/* Mensaje oculto por defecto */
+/* Mensajes base: ocultos, mismo lugar */
 .mensaje-carga {
+  position: absolute;
+  bottom: 15%; /* ajusta si lo quieres más arriba/abajo */
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
   opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  color: #000;
-  margin-top: 15px;
+  color: #000; /* pon #fff si estás en modo oscuro */
   font-size: 16px;
   text-align: center;
-
-  /* ESTA ANIMACIÓN HACE QUE APAREZCA A LOS 5 SEGUNDOS */
-  animation: mostrarMensaje 0.5s ease forwards;
-  animation-delay: 5s; /* ← aparece a los 5 segundos exactos */
+  width: 100%;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* Animación para mostrar mensaje */
+/* Animación: aparece → permanece → desaparece */
 @keyframes aparecerDesaparecer {
-  0%   { opacity: 0; }
-  10%  { opacity: 1; }   /* aparece */
-  90%  { opacity: 1; }   /* permanece visible */
-  100% { opacity: 0; }   /* desaparece */
+  0%   { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  10%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  90%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(10px); }
 }
 
-/* MENSAJE 1 -> Aparece a los 5s, desaparece a los 10s */
+/* MENSAJE 1 → Aparece a los 5s, se va a los 10s */
 .mensaje1 {
   animation: aparecerDesaparecer 5s linear forwards;
   animation-delay: 5s;
 }
 
-/* MENSAJE 2 -> Aparece a los 10s, desaparece después */
+/* MENSAJE 2 → Aparece a los 10s, se va a los 15s */
 .mensaje2 {
   animation: aparecerDesaparecer 5s linear forwards;
   animation-delay: 10s;
 }
+
 
 
