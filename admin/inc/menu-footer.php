@@ -128,73 +128,77 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
+
     const body = document.body;
     const toggle = document.getElementById('themeToggle');
     const icon = document.getElementById('themeIcon');
     const labelIcon = document.getElementById('themeLabelIcon');
 
-    // Leer estado guardado
+    // Loader y mensaje
+    const loader = document.getElementById('page-loader');
+    const msg = document.getElementById('slow-loader-message'); // el mensaje estático oculto
+
+    // Leer estado guardado del tema
     const savedTheme = localStorage.getItem('theme-mode') || 'light';
 
-    // Aplicar tema guardado (ya debería estar, pero lo reafirmamos)
     if (savedTheme === 'dark') {
-      body.classList.add('dark-mode');
-      if (toggle) toggle.checked = true;
+        body.classList.add('dark-mode');
+        if (toggle) toggle.checked = true;
     }
 
-    // Mostrar body con transición lista
     setTimeout(() => body.classList.add('theme-ready'), 50);
 
-    // Función para actualizar íconos
     function updateIcons(isDark) {
-      if (!icon || !labelIcon) return;
-      if (isDark) {
-        icon.className = 'fas fa-moon text-info';
-        labelIcon.className = 'fas fa-sun me-2 text-warning';
-      } else {
-        icon.className = 'fas fa-sun text-warning';
-        labelIcon.className = 'fas fa-moon me-2 text-info';
-      }
+        if (!icon || !labelIcon) return;
+        if (isDark) {
+            icon.className = 'fas fa-moon text-info';
+            labelIcon.className = 'fas fa-sun me-2 text-warning';
+        } else {
+            icon.className = 'fas fa-sun text-warning';
+            labelIcon.className = 'fas fa-moon me-2 text-info';
+        }
     }
 
     updateIcons(savedTheme === 'dark');
 
-    // Evento del switch
     if (toggle) {
-      toggle.addEventListener('change', function () {
-        const isDark = this.checked;
-        body.classList.toggle('dark-mode', isDark);
-        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-        localStorage.setItem('theme-mode', isDark ? 'dark' : 'light');
-        updateIcons(isDark);
-      });
+        toggle.addEventListener('change', function () {
+            const isDark = this.checked;
+            body.classList.toggle('dark-mode', isDark);
+            document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            localStorage.setItem('theme-mode', isDark ? 'dark' : 'light');
+            updateIcons(isDark);
+        });
     }
-  });
-	
-	
-	// A los 5 segundos mostramos el mensaje
+
+    /* ===========================================================
+       MOSTRAR MENSAJE DESPUÉS DE 5 SEGUNDOS
+    =========================================================== */
     setTimeout(() => {
-        // Si el loader aún está visible
         if (loader && loader.style.visibility !== 'hidden') {
             msg.style.display = 'block';
             msg.style.opacity = '0';
             msg.style.transition = 'opacity 0.4s ease';
-            requestAnimationFrame(() => msg.style.opacity = '1'); // fade-in
+            requestAnimationFrame(() => msg.style.opacity = '1');
         }
     }, 5000);
+
 });
 
-  // Ocultar loader cuando TODO cargue (incluyendo imágenes)
-  window.addEventListener('load', () => {
+/* ===========================================================
+   OCULTAR LOADER EN CUANTO TODO TERMINE DE CARGAR
+=========================================================== */
+window.addEventListener('load', () => {
     const loader = document.getElementById('page-loader');
     if (loader) {
-      // Usar !important para forzar los estilos
-      loader.style.cssText = 'opacity: 0 !important; visibility: hidden !important; transition: opacity 0.3s ease-out;';
-      console.log('Loader ocultado'); // Debug
+        loader.style.cssText =
+            'opacity: 0 !important; visibility: hidden !important; transition: opacity 0.3s ease-out;';
+        console.log('Loader ocultado');
     }
-  });
+});
 </script>
+
 
 
 <!--script>
