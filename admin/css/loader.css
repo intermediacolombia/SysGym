@@ -79,5 +79,27 @@ body:not(.dark-mode) .loader-circle {
   border-top-color: var(--system-color-primary, #214A82);
 }
 
+/* Mensaje oculto por defecto */
+.mensaje-carga {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  color: #fff;
+  margin-top: 15px;
+  font-size: 16px;
+  text-align: center;
+
+  /* ESTA ANIMACIÓN HACE QUE APAREZCA A LOS 5 SEGUNDOS */
+  animation: mostrarMensaje 0.5s ease forwards;
+  animation-delay: 5s; /* ← aparece a los 5 segundos exactos */
+}
+
+/* KEYFRAMES: aparece y sube suave */
+@keyframes mostrarMensaje {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 

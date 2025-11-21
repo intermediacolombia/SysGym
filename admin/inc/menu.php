@@ -2,18 +2,10 @@
 <div id="page-loader" class="loader-container">
   <div class="loader-circle"></div>
 
-  <div id="slow-loader-message"
-       style="margin-top:15px; font-size:16px; color:#fff; text-align:center; display:none;">
-      Estamos procesando la solicitud, por favor espera...
+  <div id="slow-loader-message" class="mensaje-carga">
+    Estamos procesando la solicitud, por favor espera...
   </div>
 </div>
-
-
-
-
-
-
-
 
 <div class="menu">
         <div class="logo-container">
