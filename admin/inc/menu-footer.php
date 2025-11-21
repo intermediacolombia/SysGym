@@ -130,7 +130,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const labelIcon = document.getElementById('themeLabelIcon');
     const loader = document.getElementById('page-loader');
 
-    // Leer estado guardado
     const savedTheme = localStorage.getItem('theme-mode') || 'light';
 
     if (savedTheme === 'dark') {
@@ -164,37 +163,42 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /* ============================================================
-       MENSAJE AUTOMÁTICO SI LA PÁGINA TARDA MÁS DE 5 SEGUNDOS
+       MENSAJE SI LA PÁGINA TARDA MÁS DE 5 SEGUNDOS EN CARGAR
     ============================================================ */
     setTimeout(() => {
       if (loader && loader.style.visibility !== 'hidden') {
-        // Crear el mensaje solo si no existe
+
+        // Si el mensaje no existe, lo creamos
         if (!document.getElementById('slow-loader-message')) {
+
           const msg = document.createElement('div');
           msg.id = 'slow-loader-message';
           msg.textContent = "Estamos procesando la solicitud, por favor espera...";
+
           msg.style.cssText = `
             margin-top: 15px;
-            font-size: 15px;
-            color: #ffffff;
+            font-size: 14px;
+            color: #fff;
             text-align: center;
             animation: fadeIn 0.4s ease;
           `;
+
           loader.appendChild(msg);
         }
       }
     }, 5000);
   });
 
-  // Ocultar loader cuando TODO cargue (incluidas imágenes)
   window.addEventListener('load', () => {
     const loader = document.getElementById('page-loader');
     if (loader) {
-      loader.style.cssText = 'opacity: 0 !important; visibility: hidden !important; transition: opacity 0.3s ease-out;';
+      loader.style.cssText =
+        'opacity: 0 !important; visibility: hidden !important; transition: opacity 0.3s ease-out;';
       console.log('Loader ocultado');
     }
   });
 </script>
+
 
 <!--script>
   document.addEventListener('DOMContentLoaded', () => {
