@@ -69,44 +69,31 @@ $hoy = date('Y-m-d');
 <script>
 $(async function(){
 
-  /* === 1. Cargar JSON === */
-  let data = [];
-  try {
-    data = await $.getJSON("asistencias.json"); // ← archivo estático
-  } catch (error) {
-    console.error("Error cargando asistencias.json", error);
-    Swal.fire("Error", "No se pudo cargar el listado de asistencias.", "error");
-    return;
-  }
-
-  /* === 2. Inicializar DataTable === */
   const tabla = $('#asist-global').DataTable({
-    ajax: {
-        url: "get_asistencias_all.php",
-        dataSrc: "data"
-    },
-    columns: [
-      { data: 'fecha' },
-      { data: 'dia' },
-      { 
-        data: 'hora',
-        render: function (h) {
-          const [HH,MM] = h.split(":");
-          const ampm = (HH >= 12 ? 'pm' : 'am');
-          const g = ((HH % 12) || 12);
-          return g + ":" + MM + " " + ampm;
-        }
+      ajax: {
+          url: "get_asistencias_all.php",
+          dataSrc: "data"
       },
-      { data: 'identificacion' },
-      { data: null, render: r => r.nombres + " " + r.apellidos }
-    ],
-    order: [[0,'desc'],[2,'desc']],
-    pageLength: 50,
-    language:{url:'//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'}
-});
+      columns: [
+        { data: 'fecha' },
+        { data: 'dia' },
+        { 
+          data: 'hora',
+          render: function (h) {
+            const [HH,MM] = h.split(":");
+            const ampm = (HH >= 12 ? 'pm' : 'am');
+            const g = ((HH % 12) || 12);
+            return g + ":" + MM + " " + ampm;
+          }
+        },
+        { data: 'identificacion' },
+        { data: null, render: r => r.nombres + " " + r.apellidos }
+      ],
+      order: [[0,'desc'],[2,'desc']],
+      pageLength: 50,
+      language:{url:'//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'}
+  });
 
-
-  /* === Click → detalle cliente === */
   $('#asist-global tbody').on('click','tr',function(){
     const row = tabla.row(this).data();
     if (row?.idCliente) {
@@ -114,7 +101,6 @@ $(async function(){
     }
   });
 
-  /* === 3. Filtro por fecha === */
   flatpickr('#filtroFecha',{
     dateFormat:'Y-m-d',
     locale:'es',
@@ -127,6 +113,7 @@ $(async function(){
   });
 
 });
+
 </script>
 
 </body>
