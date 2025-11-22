@@ -1,45 +1,24 @@
 <?php 
-
 require_once __DIR__ . '/../login/session.php';
-
 $permisopage = 'Ver Clientes';
 include('../login/restriction.php');
-
-// Incluir la configuración de la base de datos
-require_once __DIR__ . '/../../inc/config.php';
-
-try {
-   // Traer todos los clientes no borrados
-    $stmt = db()->prepare("SELECT * FROM clientes WHERE borrado = 0 ORDER BY identificacion DESC");
-    $stmt->execute();
-    $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-} catch (PDOException $e) {
-    die("Error en la conexión: " . $e->getMessage());
-}
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Listado de Clientes</title>
-  
-  <!-- ✅ ORDEN CORRECTO: Primero header.php -->
+
   <?php include('../inc/header.php'); ?>
-  
-  <!-- ✅ Solo cargar si header.php NO incluye Bootstrap 5 -->
-  <!-- Verifica esto y comenta estas líneas si ya están en header.php -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  
-  <!-- DataTables Bootstrap 5 CSS -->
-  <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-  
-  <!-- SweetAlert2 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
+
 <body>
 
-<div class="container" style="padding: 0px; background:rgba(0,0,0,0.00)">
+<div class="container" style="padding: 0; background:rgba(0,0,0,0)">
   <div class="portada">
     <h1>Listado de Clientes</h1>
 
@@ -58,6 +37,7 @@ try {
 <?php include('../inc/menu.php'); ?>
 
 <div class="container mt-3">
+
   <div class="form-check form-switch mb-3">
     <input class="form-check-input" type="checkbox" id="toggleInactiveSwitch">
     <label class="form-check-label" for="toggleInactiveSwitch">
@@ -78,129 +58,89 @@ try {
         <th>Estado</th>
       </tr>
     </thead>
-    <tbody>
-      <?php foreach ($clientes as $cliente): ?>
-      <tr data-id="<?= htmlspecialchars($cliente['id']) ?>">
-        <td><?= htmlspecialchars($cliente['id']) ?></td>
-        <td><?= htmlspecialchars($cliente['identificacion']) ?></td>
-        <td><?= htmlspecialchars($cliente['nombres']) ?></td>
-        <td><?= htmlspecialchars($cliente['apellidos']) ?></td>
-        <td>+<?= htmlspecialchars($cliente['dialCode']) ?> <?= htmlspecialchars($cliente['telefono']) ?></td>
-        <td>
-          <?php
-            if (!empty($cliente['plan'])) {
-              $stmtPlan = db()->prepare("SELECT nombre FROM planes WHERE id = :plan AND borrado = 0");
-              $stmtPlan->execute([':plan' => $cliente['plan']]);
-              echo htmlspecialchars($stmtPlan->fetchColumn());
-            }
-            if ($cliente['congelado'] == 1) {
-              echo ' <i class="fa fa-snowflake-o text-info"></i>';
-            }
-          ?>
-        </td>
-        <td>
-          <?= !empty($cliente['vencimiento_plan'])
-               ? htmlspecialchars($cliente['vencimiento_plan'])
-               : '—' ?>
-        </td>
-        <td>
-          <?php if ($cliente['estado'] === 'activo'): ?>
-            <span class="badge bg-success">Activo</span>
-          <?php else: ?>
-            <span class="badge bg-danger">Inactivo</span>
-          <?php endif; ?>
-        </td>
-      </tr>
-      <?php endforeach; ?>
-    </tbody>
+    <tbody></tbody>
   </table>
 </div>
 
 <?php include('../inc/menu-footer.php'); ?>
 
-<!-- ✅ ORDEN CORRECTO DE SCRIPTS -->
-<!-- 1. jQuery PRIMERO -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- 2. Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- 3. DataTables -->
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-
-<!-- 4. SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
-<!-- 5. TU SCRIPT (debe ir AL FINAL) -->
 <script>
-$(document).ready(function() {
-  console.log('🔍 Verificación inicial:');
-  console.log('jQuery:', typeof jQuery !== 'undefined');
-  console.log('Bootstrap:', typeof bootstrap !== 'undefined');
-  console.log('Swal:', typeof Swal !== 'undefined');
+$(function() {
 
-  // 1) Inicializa DataTable
   var table = $('#clients-table').DataTable({
+    ajax: {
+      url: "gets/get_clientes_all.php",
+      dataSrc: "data"
+    },
     pageLength: 50,
+    columns: [
+      { data: 'id' },
+      { data: 'identificacion' },
+      { data: 'nombres' },
+      { data: 'apellidos' },
+      { 
+        data: null,
+        render: r => "+" + r.dialCode + " " + r.telefono
+      },
+      { 
+        data: null,
+        render: r => {
+          let html = "";
+          if (r.nombre_plan) html += r.nombre_plan;
+          if (r.congelado == 1) html += ' <i class="fa fa-snowflake-o text-info"></i>';
+          return html || "—";
+        }
+      },
+      { 
+        data: 'vencimiento_plan',
+        render: v => v ? v : "—"
+      },
+      { 
+        data: 'estado',
+        render: e => e === "activo" 
+            ? '<span class="badge bg-success">Activo</span>' 
+            : '<span class="badge bg-danger">Inactivo</span>'
+      }
+    ],
     language: { url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json" }
   });
 
-  // 2) Función que cuenta cuántos "Inactivo" hay
-  function updateInactiveCount() {
-    var allStatus = table
-      .column(7, { search: 'none' })
-      .data()
-      .toArray();
-    var count = allStatus.filter(function(v){
-      return v.indexOf('Inactivo') !== -1;
-    }).length;
+  // Recuento de inactivos
+  table.on('xhr', function() {
+    let rows = table.ajax.json().data || [];
+    let count = rows.filter(r => r.estado !== "activo").length;
     $('#inactiveCount').text(count);
-  }
+  });
 
-  // Ejecutar al inicio
-  updateInactiveCount();
-
-  // 3) Al cambiar el switch
+  // Switch inactivos
   $('#toggleInactiveSwitch').on('change', function() {
     if (this.checked) {
-      table.column(7).search('^Activo$', true, false).draw();
+      table.column(7).search('Activo', true, false).draw();
     } else {
       table.column(7).search('', false, true).draw();
     }
   });
 
-  // 4) Click en fila → detalle
+  // Click → detalle
   $('#clients-table tbody').on('click', 'tr', function() {
-    var id = $(this).data('id');
-    if (id) {
-      window.location.href = 'detail.php?id=' + encodeURIComponent(id);
+    const row = table.row(this).data();
+    if (row?.id) {
+      window.location.href = "detail.php?id=" + row.id;
     }
   });
 
-  // 5) SweetAlerts de sesión
-  <?php if(isset($_SESSION['success'])): ?>
-    Swal.fire({ 
-      icon: 'success', 
-      title: 'Éxito', 
-      text: '<?= addslashes($_SESSION['success']) ?>' 
-    });
-    <?php unset($_SESSION['success']); ?>
-  <?php endif; ?>
-
-  <?php if(isset($_SESSION['error'])): ?>
-    Swal.fire({ 
-      icon: 'error', 
-      title: 'Error', 
-      text: '<?= addslashes($_SESSION['error']) ?>' 
-    });
-    <?php unset($_SESSION['error']); ?>
-  <?php endif; ?>
 });
 </script>
 
 </body>
 </html>
+
 
 
 
