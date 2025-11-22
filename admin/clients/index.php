@@ -125,7 +125,7 @@ $(function() {
   // Filtro de clientes inactivos
   $('#toggleInactiveSwitch').on('change', function() {
     if (this.checked) {
-      table.column(8).search('activo', true, false).draw(); 
+      table.column(8).search('Activo', true, false).draw(); 
     } else {
       table.column(8).search('', false, true).draw();
     }
