@@ -124,12 +124,15 @@ $(function() {
 
   // Filtro de clientes inactivos
   $('#toggleInactiveSwitch').on('change', function() {
-    if (this.checked) {
-      table.column(8).search('Activo', true, false).draw(); 
-    } else {
-      table.column(8).search('', false, true).draw();
-    }
-  });
+  if (this.checked) {
+    // Mostrar SOLO los activos (evita que "inactivo" coincida)
+    table.column(8).search('^activo$', true, false).draw();
+  } else {
+    // Mostrar todos
+    table.column(8).search('', false, true).draw();
+  }
+});
+
 
   // Click → detalle
   $('#clients-table tbody').on('click', 'tr', function() {
