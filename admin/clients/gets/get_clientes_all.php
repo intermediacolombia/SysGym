@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../../login/session.php';
 require_once __DIR__ . '/../../../inc/config.php';
 $permisopage = 'Ver Clientes';
-include('../login/restriction.php');
+include('../../login/restriction.php');
 
 
 
