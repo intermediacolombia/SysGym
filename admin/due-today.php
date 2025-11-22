@@ -134,7 +134,7 @@ try {
         ?>
 
         <!-- CARD CLICKEABLE: redirige al perfil -->
-        <div class="venc-card" onclick="window.location.href='clientes/ver.php?id=<?= $u['id'] ?>'">
+        <div class="venc-card" onclick="window.location.href='clients/detail.php?id=<?= $u['id'] ?>'">
 
             <div class="avatar">
                 <img src="<?= $foto ?>" class="avatar-img" alt="foto">
