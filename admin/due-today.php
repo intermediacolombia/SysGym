@@ -43,7 +43,7 @@ try {
     align-items: center;
     padding: 12px 10px;
     border-bottom: 1px solid #f0f0f0;
-    transition: background 0.2s ease;
+    transition: background 0.2s ease, transform .1s ease;
     cursor: pointer;
 }
 
@@ -53,6 +53,7 @@ try {
 
 .venc-card:hover {
     background: #f7faff;
+    transform: translateX(3px);
 }
 
 .avatar {
@@ -126,13 +127,14 @@ try {
     <?php foreach ($vencenHoy as $u): ?>
 
         <?php
-            /* Foto real o avatar */
+            // Foto real o avatar
             $foto = (!empty($u['imagen_perfil']))
                 ? '../uploads/clientes/'.$u['imagen_perfil']
                 : 'https://ui-avatars.com/api/?name='.urlencode($u['nombres'].' '.$u['apellidos']).'&background=6c63ff&color=fff';
         ?>
 
-        <div class="venc-card" data-id="<?= $u['id'] ?>">
+        <!-- CARD CLICKEABLE: redirige al perfil -->
+        <div class="venc-card" onclick="window.location.href='clientes/ver.php?id=<?= $u['id'] ?>'">
 
             <div class="avatar">
                 <img src="<?= $foto ?>" class="avatar-img" alt="foto">
