@@ -106,24 +106,28 @@ $(function() {
         render: e => e === "activo" 
             ? '<span class="badge bg-success">Activo</span>' 
             : '<span class="badge bg-danger">Inactivo</span>'
+      },
+      {   // COLUMNA OCULTA PARA FILTRO REAL
+        data: 'estado',
+        visible: false
       }
     ],
     language: { url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json" }
   });
 
-  // Recuento de inactivos
+  // Recuento de clientes inactivos
   table.on('xhr', function() {
     let rows = table.ajax.json().data || [];
     let count = rows.filter(r => r.estado !== "activo").length;
     $('#inactiveCount').text(count);
   });
 
-  // Switch inactivos
+  // Filtro de clientes inactivos
   $('#toggleInactiveSwitch').on('change', function() {
     if (this.checked) {
-      table.column(7).search('Activo', true, false).draw();
+      table.column(8).search('activo', true, false).draw(); 
     } else {
-      table.column(7).search('', false, true).draw();
+      table.column(8).search('', false, true).draw();
     }
   });
 
@@ -140,6 +144,7 @@ $(function() {
 
 </body>
 </html>
+
 
 
 
