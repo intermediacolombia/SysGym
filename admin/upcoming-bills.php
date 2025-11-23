@@ -35,87 +35,13 @@ try {
 }
 ?>
 
-<style>
-.prox-wrapper {
-    background: #fff;
-    border-radius: 12px;
-    padding: 15px;
-    border: 1px solid #e5e5e5;
-}
-
-.prox-card {
-    display: flex;
-    align-items: center;
-    padding: 15px 10px;
-    border-bottom: 1px solid #f0f0f0;
-    transition: background 0.2s ease, transform .1s ease;
-    cursor: pointer;
-}
-
-.prox-card:last-child {
-    border-bottom: none;
-}
-
-.prox-card:hover {
-    background: #f7faff;
-    transform: translateX(3px);
-}
-
-.avatar {
-    width: 45px;
-    height: 45px;
-    margin-right: 15px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid #e3e3e3;
-}
-
-.avatar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.prox-info {
-    flex: 1;
-}
-
-.prox-name {
-    font-size: 15px;
-    font-weight: 600;
-    color: #333;
-}
-
-.prox-sub {
-    font-size: 13px;
-    color: #666;
-}
-
-.prox-price {
-    font-size: 14px;
-    font-weight: bold;
-}
-
-.badge-days {
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: bold;
-    color: #fff;
-}
-
-.badge-green { background: #4caf50; }
-.badge-yellow { background: #fbc02d; }
-.badge-red { background: #f44336; }
-</style>
-
 <div class="section-title mb-3">Próximos pagos a vencer (7&nbsp;días)</div>
 
-<div class="prox-wrapper">
+<div class="card-list-wrapper">
 
 <?php if (empty($proxPagos)): ?>
 
-    <div class="no-asist">No hay pagos por vencer en los próximos 7 días.</div>
+    <div class="card-list-empty">No hay pagos por vencer en los próximos 7 días.</div>
 
 <?php else: ?>
 
@@ -127,7 +53,7 @@ try {
                 ? '../uploads/clientes/'.$p['imagen_perfil']
                 : 'https://ui-avatars.com/api/?name='.urlencode($p['nombres'].' '.$p['apellidos']).'&background=2196f3&color=fff';
 
-            // Días restantes con color
+            // Badge según días restantes
             if ($p['dias_restantes'] <= 1) {
                 $badgeClass = 'badge-red';
             } elseif ($p['dias_restantes'] <= 3) {
@@ -137,27 +63,29 @@ try {
             }
         ?>
 
-        <div class="prox-card" onclick="window.location.href='clients/detail.php?id=<?= $p['id'] ?>'">
+        <div class="card-item" onclick="window.location.href='clients/detail.php?id=<?= $p['id'] ?>'">
 
-            <div class="avatar">
-                <img src="<?= $foto ?>" class="avatar-img">
+            <div class="card-avatar">
+                <img src="<?= $foto ?>" class="card-avatar-img">
             </div>
 
-            <div class="prox-info">
-                <div class="prox-name">
+            <div class="card-info">
+                <div class="card-title">
                     <?= htmlspecialchars($p['nombres'].' '.$p['apellidos']) ?>
                 </div>
-                <div class="prox-sub">
-                    Plan: <?= htmlspecialchars($p['plan']) ?>  
+
+                <div class="card-sub">
+                    Plan: <?= htmlspecialchars($p['plan']) ?>
                     · Tel: <?= htmlspecialchars($p['telefono']) ?>
                 </div>
             </div>
 
             <div style="text-align:right;">
-                <div class="prox-price">
+                <div class="card-title" style="font-weight:700; font-size:14px;">
                     $<?= number_format($p['valor_pago'], 0, ',', '.') ?>
                 </div>
-                <span class="badge-days <?= $badgeClass ?>">
+
+                <span class="badge-pill <?= $badgeClass ?>">
                     <?= $p['dias_restantes'] ?> días
                 </span>
             </div>
@@ -169,6 +97,7 @@ try {
 <?php endif; ?>
 
 </div>
+
 
 
 

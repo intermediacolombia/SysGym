@@ -27,95 +27,13 @@ try {
 }
 ?>
 
-<style>
-.latest-wrapper {
-    background: #fff;
-    border-radius: 12px;
-    padding: 15px;
-    border: 1px solid #e5e5e5;
-}
-
-.latest-card {
-    display: flex;
-    align-items: center;
-    padding: 12px 10px;
-    border-bottom: 1px solid #f0f0f0;
-    transition: background 0.2s ease, transform .1s ease;
-    cursor: pointer;
-}
-
-.latest-card:last-child {
-    border-bottom: none;
-}
-
-.latest-card:hover {
-    background: #f7faff;
-    transform: translateX(3px);
-}
-
-.avatar {
-    width: 45px;
-    height: 45px;
-    margin-right: 15px;
-    border-radius: 50%;
-    overflow: hidden;
-    flex-shrink: 0;
-    border: 2px solid #e3e3e3;
-}
-
-.avatar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.latest-info {
-    flex: 1;
-}
-
-.latest-name {
-    font-size: 15px;
-    font-weight: 600;
-    color: #333;
-}
-
-.latest-sub {
-    font-size: 13px;
-    color: #666;
-}
-
-.badge-plan {
-    background: #6c63ff;
-    padding: 3px 9px;
-    border-radius: 12px;
-    color: #fff;
-    font-size: 11px;
-    margin-left: 5px;
-}
-
-.badge-venc {
-    background: #ff9800;
-    padding: 3px 9px;
-    border-radius: 12px;
-    color: #fff;
-    font-size: 11px;
-}
-
-.no-data-5 {
-    text-align: center;
-    padding: 25px;
-    color: #777;
-    font-size: 15px;
-}
-</style>
-
 <div class="section-title mb-3">Últimos 5 clientes inscritos</div>
 
-<div class="latest-wrapper">
+<div class="card-list-wrapper">
 
 <?php if (empty($clientes5)): ?>
 
-    <div class="no-data-5">
+    <div class="card-list-empty">
         No hay clientes registrados aún.
     </div>
 
@@ -130,25 +48,28 @@ try {
                 : 'https://ui-avatars.com/api/?name='.urlencode($c['nombres'].' '.$c['apellidos']).'&background=6c63ff&color=fff';
         ?>
 
-        <div class="latest-card" onclick="window.location.href='clients/detail.php?id=<?= $c['id'] ?>'">
+        <div class="card-item" onclick="window.location.href='clients/detail.php?id=<?= $c['id'] ?>'">
 
-            <div class="avatar">
-                <img src="<?= $foto ?>" class="avatar-img" alt="foto">
+            <div class="card-avatar">
+                <img src="<?= $foto ?>" class="card-avatar-img" alt="foto">
             </div>
 
-            <div class="latest-info">
-                <div class="latest-name">
+            <div class="card-info">
+                <div class="card-title">
                     <?= htmlspecialchars($c['nombres'].' '.$c['apellidos']) ?>
                 </div>
-                <div class="latest-sub">
-                    Tel: <?= htmlspecialchars($c['telefono'] ?: '—') ?>
-                    <br>
-                    <span class="badge-plan"><?= htmlspecialchars($c['plan'] ?: 'Sin plan') ?></span>
+
+                <div class="card-sub">
+                    Tel: <?= htmlspecialchars($c['telefono'] ?: '—') ?><br>
+
+                    <span class="badge-pill badge-purple">
+                        <?= htmlspecialchars($c['plan'] ?: 'Sin plan') ?>
+                    </span>
                 </div>
             </div>
 
-            <div class="latest-venc">
-                <span class="badge-venc">
+            <div>
+                <span class="badge-pill badge-orange">
                     <?= htmlspecialchars($c['vencimiento_plan'] ?: '—') ?>
                 </span>
             </div>
@@ -160,6 +81,7 @@ try {
 <?php endif; ?>
 
 </div>
+
 
 
 

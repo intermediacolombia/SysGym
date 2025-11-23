@@ -30,90 +30,10 @@ try {
 }
 ?>
 
-<style>
-.vencen-hoy-wrapper {
-    background: #fff;
-    border-radius: 12px;
-    padding: 15px;
-    border: 1px solid #e5e5e5;
-}
-
-.venc-card {
-    display: flex;
-    align-items: center;
-    padding: 12px 10px;
-    border-bottom: 1px solid #f0f0f0;
-    transition: background 0.2s ease, transform .1s ease;
-    cursor: pointer;
-}
-
-.venc-card:last-child {
-    border-bottom: none;
-}
-
-.venc-card:hover {
-    background: #f7faff;
-    transform: translateX(3px);
-}
-
-.avatar {
-    width: 45px;
-    height: 45px;
-    margin-right: 15px;
-    border-radius: 50%;
-    overflow: hidden;
-    flex-shrink: 0;
-    border: 2px solid #e3e3e3;
-}
-
-.avatar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.venc-info {
-    flex: 1;
-}
-
-.venc-name {
-    font-size: 15px;
-    font-weight: 600;
-    color: #333;
-}
-
-.venc-sub {
-    font-size: 13px;
-    color: #666;
-}
-
-.venc-days .dias {
-    background: #ff5252;
-    color: #fff;
-    font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-weight: bold;
-}
-
-.no-data {
-    text-align: center;
-    padding: 25px;
-    color: #777;
-    font-size: 15px;
-}
-
-.no-data i {
-    font-size: 28px;
-    color: #28a745;
-    margin-bottom: 8px;
-    display: block;
-}
-</style>
-
 <div class="section-title mb-3">Usuarios cuyo plan vence hoy</div>
 
-<div class="vencen-hoy-wrapper">
+<div class="card-list-wrapper">
+
 
 <?php if (empty($vencenHoy)): ?>
 
@@ -134,7 +54,7 @@ try {
         ?>
 
         <!-- CARD CLICKEABLE: redirige al perfil -->
-        <div class="venc-card" onclick="window.location.href='clients/detail.php?id=<?= $u['id'] ?>'">
+        <div class="card-item" onclick="window.location.href='clients/detail.php?id=<?= $u['id'] ?>'">
 
             <div class="avatar">
                 <img src="<?= $foto ?>" class="avatar-img" alt="foto">

@@ -29,83 +29,10 @@ try {
 }
 ?>
 
-<style>
-.asis-wrapper {
-    background: #fff;
-    border-radius: 12px;
-    padding: 15px;
-    border: 1px solid #e5e5e5;
-}
-
-.asis-card {
-    display: flex;
-    align-items: center;
-    padding: 12px 10px;
-    border-bottom: 1px solid #f0f0f0;
-    transition: background 0.2s ease, transform .1s ease;
-    cursor: pointer;
-}
-
-.asis-card:last-child {
-    border-bottom: none;
-}
-
-.asis-card:hover {
-    background: #f7faff;
-    transform: translateX(3px);
-}
-
-.avatar {
-    width: 45px;
-    height: 45px;
-    margin-right: 15px;
-    border-radius: 50%;
-    overflow: hidden;
-    flex-shrink: 0;
-    border: 2px solid #e3e3e3;
-}
-
-.avatar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.asis-info {
-    flex: 1;
-}
-
-.asis-name {
-    font-size: 15px;
-    font-weight: 600;
-    color: #333;
-}
-
-.asis-sub {
-    font-size: 13px;
-    color: #666;
-}
-
-.asis-hour {
-    background: #2196f3;
-    padding: 4px 10px;
-    border-radius: 12px;
-    color: #fff;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.no-asist {
-    text-align: center;
-    padding: 25px;
-    color: #777;
-    font-size: 15px;
-}
-</style>
-
 <div class="section-title mb-3">Asistencias únicas registradas hoy</div>
 
-<div class="asis-wrapper">
+<div class="card-list-wrapper">
+
 
 <?php if (empty($asistencias)): ?>
 

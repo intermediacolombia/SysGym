@@ -1,0 +1,257 @@
+/* CSS Document */
+
+/* ============================================================
+   SISTEMA UNIFICADO DE TARJETAS (APLICA A TODOS LOS MÓDULOS)
+   Cumpleaños – Asistencias – Últimos – Vencen Hoy – Créditos – Próximos Pagos
+============================================================ */
+
+/* ----------- WRAPPER GENERAL DE LISTAS ----------- */
+.card-list-wrapper {
+    background: #fff;
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid #e5e5e5;
+}
+
+/* ----------- CADA ITEM/CARD ----------- */
+.card-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s ease, transform .1s ease;
+    cursor: pointer;
+}
+
+.card-item:last-child {
+    border-bottom: none;
+}
+
+.card-item:hover {
+    background: #f7faff;
+    transform: translateX(3px);
+}
+
+/* ----------- AVATAR ----------- */
+.card-avatar {
+    width: 45px;
+    height: 45px;
+    margin-right: 15px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid #e3e3e3;
+}
+
+.card-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ----------- CONTENIDO ----------- */
+.card-info {
+    flex: 1;
+}
+
+.card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+}
+
+.card-sub {
+    font-size: 13px;
+    color: #666;
+}
+
+/* ----------- BADGES UNIFICADOS ----------- */
+.badge-pill {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.badge-red { background: #ff5252; }
+.badge-orange { background: #ff9800; }
+.badge-blue { background: #2196f3; }
+.badge-purple { background: #6c63ff; }
+.badge-green { background: #4caf50; }
+.badge-yellow { background: #fbc02d; }
+
+/* ----------- CUANDO NO HAY DATOS ----------- */
+.card-list-empty {
+    text-align: center;
+    padding: 25px;
+    color: #777;
+    font-size: 15px;
+}
+
+/* ============================================================
+   TARJETA CONTENEDORA DEL DASHBOARD
+============================================================ */
+.dashboard-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: 1px solid #e9e9e9;
+    height: 380px;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-card .section-title {
+    font-size: 1.05rem;
+    font-weight: bold;
+    margin-bottom: 12px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 6px;
+}
+
+/* Scroll interno */
+.dashboard-scroll {
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 5px;
+}
+
+/* Scroll estético */
+.dashboard-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+.dashboard-scroll::-webkit-scrollbar-thumb {
+    background: #bbb;
+    border-radius: 3px;
+}
+
+/* ============================================================
+   TABLAS INTERIORES
+============================================================ */
+.custom-table {
+  width: 100%;
+  font-size: 13px!important;
+  border-collapse: collapse;
+}
+.custom-table thead {
+  background-color: #343a40;
+  color: #fff;
+}
+.custom-table th,
+.custom-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+.custom-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* ============================================================
+   MODO OSCURO – TARJETAS Y DASHBOARD
+============================================================ */
+body.dark-mode .card-list-wrapper {
+    background: #212E36;
+    border-color: #2A3B47;
+}
+
+body.dark-mode .card-item {
+    border-bottom-color: #2A3B47;
+}
+
+body.dark-mode .card-item:hover {
+    background: #2A3B47;
+}
+
+body.dark-mode .card-title {
+    color: #EFF3F5;
+}
+
+body.dark-mode .card-sub {
+    color: #A0A7AC;
+}
+
+body.dark-mode .card-avatar {
+    border-color: #3A4A55;
+}
+
+body.dark-mode .card-list-empty {
+    color: #C8CDD0;
+}
+
+body.dark-mode .badge-red { background: #d94141; }
+body.dark-mode .badge-orange { background: #e2872b; }
+body.dark-mode .badge-blue { background: #3a9be6; }
+body.dark-mode .badge-purple { background: #7c6bff; }
+body.dark-mode .badge-green { background: #3ea85b; }
+body.dark-mode .badge-yellow { background: #d9b72d; }
+
+/* DASHBOARD-CARD */
+body.dark-mode .dashboard-card {
+    background: #212E36;
+    border-color: #2A3B47;
+}
+
+body.dark-mode .dashboard-card .section-title {
+    color: #EFF3F5;
+    border-bottom-color: #2A3B47;
+}
+
+body.dark-mode .dashboard-scroll::-webkit-scrollbar-thumb {
+    background: #666;
+}
+
+/* ============================================================
+   DATATABLES – MODO OSCURO
+============================================================ */
+body.dark-mode table.dataTable {
+  background-color: #212E36 !important;
+  color: #EFF3F5 !important;
+}
+body.dark-mode table.dataTable thead th {
+  background-color: #52A5E0 !important;
+  color: #EFF3F5 !important;
+}
+body.dark-mode table.dataTable tbody tr:nth-child(odd) {
+  background-color: #212E36 !important;
+}
+body.dark-mode table.dataTable tbody tr:nth-child(even) {
+  background-color: #2A3B47 !important;
+}
+body.dark-mode table.dataTable tbody tr:hover {
+  background-color: #3A4A55 !important;
+  color: #EFF3F5 !important;
+}
+body.dark-mode table.dataTable td {
+  color: #EFF3F5 !important;
+  border-color: #2A3B47 !important;
+}
+
+/* ============================================================
+   WELCOME – CONTADOR
+============================================================ */
+.welcome-wrapper { position:relative; }
+.text-primary { color:#000!important; }
+
+body.dark-mode .text-primary { color:#fff!important; }
+
+.asistencias-counter{
+  position:absolute;
+  right:0;
+  top:50%;
+  transform:translateY(-50%);
+  width:250px;
+  background:linear-gradient(135deg,var(--system-color-primary) 0%,#8A0002 100%);
+  border-radius:12px;
+  color:#fff;
+  box-shadow:0 4px 10px rgba(0,0,0,.15);
+}
+.asistencias-counter .display-4{
+  font-size:40px;
+  font-weight:700;
+  line-height:1;
+}
+
+
