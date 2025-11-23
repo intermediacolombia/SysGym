@@ -162,14 +162,7 @@ require_once __DIR__ . '/../inc/config.php';
         </div>
         <?php endif; ?>
 
-        <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver y Crear Creditos', $_SESSION["user_permissions"])): ?>
-        <div class="dashboard-card">
-          <div class="dashboard-scroll">
-            <?php include('credits.php'); ?>
-          </div>
-        </div>
-        <?php endif; ?>
-
+        
       </div>
 
 
@@ -193,6 +186,16 @@ require_once __DIR__ . '/../inc/config.php';
           </div>
         </div>
         <?php endif; ?>
+		  
+		  
+		  <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver y Crear Creditos', $_SESSION["user_permissions"])): ?>
+        <div class="dashboard-card">
+          <div class="dashboard-scroll">
+            <?php include('credits.php'); ?>
+          </div>
+        </div>
+        <?php endif; ?>
+
 
       </div>
 
