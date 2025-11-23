@@ -202,13 +202,13 @@ require_once __DIR__ . '/../inc/config.php';
           Bienvenido al panel principal. Aquí puedes ver rápidamente
           los clientes que asisten, cumplen años, vencen hoy y más.
         </div>
-        <div class="hero-tag">
+        <!--div class="hero-tag">
           <i class="fas fa-bolt"></i> Panel de control en tiempo real
-        </div>
+        </div-->
       </div>
 
       <!-- Aquí sigue usándose tu archivo de estadísticas -->
-      <div class="hero-extra">
+      <div class="hero-extra" style="border-radius:25px;">
         <?php include('statistics_home.php'); ?>
       </div>
   </div>
