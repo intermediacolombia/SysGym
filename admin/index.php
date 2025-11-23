@@ -32,7 +32,7 @@ require_once __DIR__ . '/../inc/config.php';
 
   <!-- ——— TITULO + CONTADOR ——— -->
   <div class="welcome-wrapper position-relative mb-4">
-      <h1 class="welcome-title text-primary text-center m-0">
+      <h1 class="welcome-title text-center m-0">
         Bienvenido, <br><span style="color:var(--system-color-primary);">
         <?php echo htmlspecialchars($nombre . " " . $apellido); ?>
         </span>
