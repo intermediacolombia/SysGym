@@ -28,7 +28,7 @@ try {
 
 <?php if (empty($cumples)): ?>
 
-    <div class="card-list-empty">No hay cumpleaños hoy.</div>
+    <div class="no-cumples">No hay cumpleaños hoy.</div>
 
 <?php else: ?>
 
@@ -48,21 +48,21 @@ try {
 
         <div class="card-item" onclick="window.location.href='clients/detail.php?id=<?= $c['id'] ?>'">
 
-            <div class="card-avatar">
-                <img src="<?= $foto ?>" class="card-avatar-img" alt="foto">
+            <div class="avatar">
+                <img src="<?= $foto ?>" class="avatar-img" alt="foto">
             </div>
 
-            <div class="card-info">
-                <div class="card-title">
+            <div class="cumple-info">
+                <div class="cumple-name">
                     <?= htmlspecialchars($c['nombres'].' '.$c['apellidos']) ?>
                 </div>
-                <div class="card-sub">
+                <div class="cumple-sub">
                     Tel: <?= htmlspecialchars($c['telefono'] ?: '—') ?>
                 </div>
             </div>
 
             <div>
-                <span class="badge-pill badge-orange"><?= $edad ?> años</span>
+                <span class="badge-age"><?= $edad ?> años</span>
             </div>
 
         </div>
@@ -72,6 +72,5 @@ try {
 <?php endif; ?>
 
 </div>
-
 
 
