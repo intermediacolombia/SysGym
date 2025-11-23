@@ -12,23 +12,7 @@ require_once __DIR__ . '/../inc/config.php';
   <style>
 	  
 	  
-	  /* ================================================
-   GRID INTERNO DE LAS TARJETAS (estilo mockup)
-   Cada dashboard-card tendrá un grid 2×2
-==================================================*/
-
-.dashboard-card .card-list-wrapper {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* ← AQUÍ LO QUE QUERÍAS */
-    gap: 16px;
-}
-
-@media (max-width: 768px) {
-    .dashboard-card .card-list-wrapper {
-        grid-template-columns: 1fr; /* En móvil → 1 por línea */
-    }
-}
-
+	  
     /* ===========================
        LAYOUT GENERAL DASHBOARD
     ============================*/
