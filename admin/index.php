@@ -115,10 +115,7 @@ require_once __DIR__ . '/../inc/config.php';
         gap: 28px;
     }
 
-    /* separador entre tarjetas */
-    .dashboard-card {
-        margin-bottom: 0; /* el gap del grid ya maneja el espacio */
-    }
+   
 
     /* Responsive */
     @media (max-width: 991.98px) {
