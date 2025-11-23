@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="<?php echo URLBASE; ?>/admin/css/buttons.css?cache=<?php echo time(); ?>">
 <link rel="stylesheet" href="<?php echo URLBASE; ?>/admin/css/forms.css?cache=<?php echo time(); ?>">
 <link rel="stylesheet" href="<?php echo URLBASE; ?>/admin/css/style.css?cache=<?php echo time(); ?>">
+<link rel="stylesheet" href="<?php echo URLBASE; ?>/admin/css/cards-home.css?cache=<?php echo time(); ?>">
 <link rel="stylesheet" href="<?php echo URLBASE; ?>/admin/css/cards.css?cache=<?php echo time(); ?>">
 <link rel="stylesheet" href="<?php echo URLBASE; ?>/admin/css/siluet.css?cache=<?php echo time(); ?>">
 <link rel="stylesheet" href="<?php echo URLBASE; ?>/admin/css/theme.css?cache=<?php echo time(); ?>">
