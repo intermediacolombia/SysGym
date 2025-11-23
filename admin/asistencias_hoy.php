@@ -33,10 +33,9 @@ try {
 
 <div class="card-list-wrapper">
 
-
 <?php if (empty($asistencias)): ?>
 
-    <div class="no-asist">No hay asistencias registradas hoy.</div>
+    <div class="card-list-empty">No hay asistencias registradas hoy.</div>
 
 <?php else: ?>
 
@@ -46,30 +45,30 @@ try {
             // Foto o avatar
             $foto = (!empty($row['imagen_perfil']))
                 ? '../uploads/clientes/'.$row['imagen_perfil']
-                : 'https://ui-avatars.com/api/?name='.urlencode($row['nombres'].' '.$row['apellidos']).'&background=2196f3&color=fff';
+                : 'https://ui-avatars.com/api/?name=' . urlencode($row['nombres'].' '.$row['apellidos']) . '&background=2196f3&color=fff';
 
             // Formato hora
             $horaObj = DateTime::createFromFormat('H:i:s', $row['hora']);
             $horaBonita = $horaObj ? $horaObj->format('g:i a') : $row['hora'];
         ?>
 
-        <div class="asis-card" onclick="window.location.href='clients/detail.php?id=<?= $row['id'] ?>'">
+        <div class="card-item" onclick="window.location.href='clients/detail.php?id=<?= $row['id'] ?>'">
 
-            <div class="avatar">
-                <img src="<?= $foto ?>" class="avatar-img">
+            <div class="card-avatar">
+                <img src="<?= $foto ?>" class="card-avatar-img">
             </div>
 
-            <div class="asis-info">
-                <div class="asis-name">
+            <div class="card-info">
+                <div class="card-title">
                     <?= htmlspecialchars($row['nombres'].' '.$row['apellidos']) ?>
                 </div>
-                <div class="asis-sub">
+                <div class="card-sub">
                     Última asistencia registrada
                 </div>
             </div>
 
-            <div>
-                <span class="asis-hour"><?= $horaBonita ?></span>
+            <div class="text-end">
+                <span class="badge-pill badge-blue"><?= $horaBonita ?></span>
             </div>
 
         </div>
@@ -79,6 +78,7 @@ try {
 <?php endif; ?>
 
 </div>
+
 
 
 

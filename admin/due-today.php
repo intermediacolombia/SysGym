@@ -30,15 +30,15 @@ try {
 }
 ?>
 
+
 <div class="section-title mb-3">Usuarios cuyo plan vence hoy</div>
 
 <div class="card-list-wrapper">
 
-
 <?php if (empty($vencenHoy)): ?>
 
-    <div class="no-data">
-        <i class="fas fa-check-circle"></i>
+    <div class="card-list-empty">
+        <i class="fas fa-check-circle" style="font-size:22px;display:block;margin-bottom:6px;"></i>
         No hay planes por vencer hoy.
     </div>
 
@@ -53,27 +53,24 @@ try {
                 : 'https://ui-avatars.com/api/?name='.urlencode($u['nombres'].' '.$u['apellidos']).'&background=6c63ff&color=fff';
         ?>
 
-        <!-- CARD CLICKEABLE: redirige al perfil -->
         <div class="card-item" onclick="window.location.href='clients/detail.php?id=<?= $u['id'] ?>'">
 
-            <div class="avatar">
-                <img src="<?= $foto ?>" class="avatar-img" alt="foto">
+            <div class="card-avatar">
+                <img src="<?= $foto ?>" class="card-avatar-img" alt="foto">
             </div>
 
-            <div class="venc-info">
-                <div class="venc-name">
+            <div class="card-info">
+                <div class="card-title">
                     <?= htmlspecialchars($u['nombres'].' '.$u['apellidos']) ?>
                 </div>
-                <div class="venc-sub">
+
+                <div class="card-sub">
                     Plan: <?= htmlspecialchars($u['plan'] ?: '—') ?>
-                    <?php if ($u['congelado'] == 1): ?>
-                        <i class="fa fa-snowflake-o text-info"></i>
-                    <?php endif; ?>
                 </div>
             </div>
 
-            <div class="venc-days">
-                <span class="dias">HOY</span>
+            <div class="text-end">
+                <span class="badge-pill badge-red">HOY</span>
             </div>
 
         </div>
