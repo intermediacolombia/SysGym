@@ -256,6 +256,7 @@
     background: inherit; /* se adapta al modo claro/oscuro */
     padding: 8px 0;
     border-bottom: 2px solid #eee;
+	background-color: #ffffff !important;
 }
 
 
@@ -341,6 +342,7 @@ body.dark-mode table.dataTable td {
 
 body.dark-mode .dashboard-card .section-title {
     border-bottom: 2px solid #2A3B47;
+	background-color: #3A4A55 !important;
 }
 
 
