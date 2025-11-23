@@ -28,14 +28,14 @@ try {
 
 <?php if (empty($cumples)): ?>
 
-    <div class="no-cumples">No hay cumpleaños hoy.</div>
+    <div class="card-list-empty">No hay cumpleaños hoy.</div>
 
 <?php else: ?>
 
     <?php foreach ($cumples as $c): ?>
 
         <?php
-            // FOTO
+            // FOTO real o avatar
             $foto = (!empty($c['imagen_perfil']))
                 ? '../uploads/clientes/'.$c['imagen_perfil']
                 : 'https://ui-avatars.com/api/?name='.urlencode($c['nombres'].' '.$c['apellidos']).'&background=ff5722&color=fff';
@@ -48,21 +48,22 @@ try {
 
         <div class="card-item" onclick="window.location.href='clients/detail.php?id=<?= $c['id'] ?>'">
 
-            <div class="avatar">
-                <img src="<?= $foto ?>" class="avatar-img" alt="foto">
+            <div class="card-avatar">
+                <img src="<?= $foto ?>" class="card-avatar-img" alt="foto">
             </div>
 
-            <div class="cumple-info">
-                <div class="cumple-name">
+            <div class="card-info">
+                <div class="card-title">
                     <?= htmlspecialchars($c['nombres'].' '.$c['apellidos']) ?>
                 </div>
-                <div class="cumple-sub">
+
+                <div class="card-sub">
                     Tel: <?= htmlspecialchars($c['telefono'] ?: '—') ?>
                 </div>
             </div>
 
             <div>
-                <span class="badge-age"><?= $edad ?> años</span>
+                <span class="badge-pill badge-orange"><?= $edad ?> años</span>
             </div>
 
         </div>
@@ -72,5 +73,6 @@ try {
 <?php endif; ?>
 
 </div>
+
 
 
