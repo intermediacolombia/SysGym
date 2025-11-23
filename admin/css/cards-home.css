@@ -248,6 +248,17 @@
   background-color: #f8f9fa;
 }
 
+
+.dashboard-card .section-title {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: inherit; /* se adapta al modo claro/oscuro */
+    padding: 8px 0;
+    border-bottom: 2px solid #eee;
+}
+
+
 /* ============================================================
    MODO OSCURO – TARJETAS Y DASHBOARD
 ============================================================ */
@@ -327,6 +338,11 @@ body.dark-mode table.dataTable td {
   color: #EFF3F5 !important;
   border-color: #2A3B47 !important;
 }
+
+body.dark-mode .dashboard-card .section-title {
+    border-bottom: 2px solid #2A3B47;
+}
+
 
 /* ============================================================
    WELCOME – CONTADOR
