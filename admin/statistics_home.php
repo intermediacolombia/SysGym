@@ -79,7 +79,7 @@ $asistenciasUnicasCount = (int)$stmtAsistenciasUnicas->fetchColumn();
 
 
 
-<div class="container mt-4" style="border-radius: 25px;">
+<div class="container mt-4" style="border-radius: 14px;">
   <div class="row row-cols-1 row-cols-md-5 g-3 text-center">
 
     <div class="col">
