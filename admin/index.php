@@ -9,11 +9,38 @@ require_once __DIR__ . '/../inc/config.php';
   <title>Sistema</title>
   <?php include('inc/header.php'); ?>
 
+  <style>
+    /* GRID PRINCIPAL DEL DASHBOARD */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+    }
+
+    /* Mejor separación del título */
+    .welcome-wrapper {
+        margin-bottom: 50px !important;
+        text-align: center;
+    }
+
+    .welcome-title {
+        font-size: 2.4rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        line-height: 1.2;
+    }
+
+    /* Para que todo respire mejor */
+    .dashboard-card {
+        margin-bottom: 32px;
+    }
+  </style>
 
 </head>
 <body>
 
 <?php include('inc/menu.php'); ?>
+
 
 <?php if(isset($_SESSION['error'])): ?>
   <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -30,11 +57,12 @@ require_once __DIR__ . '/../inc/config.php';
 
 <div class="container my-5">
 
-  <!-- ——— TITULO + CONTADOR ——— -->
-  <div class="welcome-wrapper position-relative mb-4">
-      <h1 class="welcome-title text-center m-0">
-        Bienvenido, <br><span style="color:var(--system-color-primary);">
-        <?php echo htmlspecialchars($nombre . " " . $apellido); ?>
+  <!-- ——— BIENVENIDA ——— -->
+  <div class="welcome-wrapper position-relative">
+      <h1 class="welcome-title">
+        Bienvenido,<br>
+        <span style="color:var(--system-color-primary);">
+          <?= htmlspecialchars($nombre . " " . $apellido); ?>
         </span>
       </h1>
 
@@ -42,76 +70,72 @@ require_once __DIR__ . '/../inc/config.php';
   </div>
 
 
-  <div class="card card-custom p-4">
-    <div class="row">
+  <!-- ——— GRID PRINCIPAL ——— -->
+  <div class="dashboard-grid">
 
-      <!-- ========================================================= -->
-      <!-- ===================== COLUMNA IZQUIERDA ================= -->
-      <!-- ========================================================= -->
-      <div class="col-md-6">
+    <!-- ========================================================= -->
+    <!-- ===================== COLUMNA IZQUIERDA ================= -->
+    <!-- ========================================================= -->
+    <div>
 
-        <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Clientes que cumplen años hoy', $_SESSION["user_permissions"])): ?>
-        <div class="dashboard-card">
-          <div class="dashboard-scroll">
-            <?php include('bd-today.php'); ?>
-          </div>
+      <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Clientes que cumplen años hoy', $_SESSION["user_permissions"])): ?>
+      <div class="dashboard-card">
+        <div class="dashboard-scroll">
+          <?php include('bd-today.php'); ?>
         </div>
-        <?php endif; ?>
-
-        <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Asistencias', $_SESSION["user_permissions"])): ?>
-        <div class="dashboard-card">
-          <div class="dashboard-scroll">
-            <?php include('asistencias_hoy.php'); ?>
-          </div>
-        </div>
-        <?php endif; ?>
-
-        <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Clientes', $_SESSION["user_permissions"])): ?>
-        <div class="dashboard-card">
-          <div class="dashboard-scroll">
-            <?php include('lastests-clients.php'); ?>
-          </div>
-        </div>
-        <?php endif; ?>
-
-        
       </div>
+      <?php endif; ?>
 
-
-      <!-- ========================================================= -->
-      <!-- ===================== COLUMNA DERECHA =================== -->
-      <!-- ========================================================= -->
-      <div class="col-md-6">
-
-        <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Vencimientos de Hoy', $_SESSION["user_permissions"])): ?>
-        <div class="dashboard-card">
-          <div class="dashboard-scroll">
-            <?php include('due-today.php'); ?>
-          </div>
+      <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Asistencias', $_SESSION["user_permissions"])): ?>
+      <div class="dashboard-card">
+        <div class="dashboard-scroll">
+          <?php include('asistencias_hoy.php'); ?>
         </div>
-        <?php endif; ?>
-
-        <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Próximos Pagos a Vencer', $_SESSION["user_permissions"])): ?>
-        <div class="dashboard-card">
-          <div class="dashboard-scroll">
-            <?php include('upcoming-bills.php'); ?>
-          </div>
-        </div>
-        <?php endif; ?>
-		  
-		  
-		  <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver y Crear Creditos', $_SESSION["user_permissions"])): ?>
-        <div class="dashboard-card">
-          <div class="dashboard-scroll">
-            <?php include('credits.php'); ?>
-          </div>
-        </div>
-        <?php endif; ?>
-
-
       </div>
+      <?php endif; ?>
+
+      <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Clientes', $_SESSION["user_permissions"])): ?>
+      <div class="dashboard-card">
+        <div class="dashboard-scroll">
+          <?php include('lastests-clients.php'); ?>
+        </div>
+      </div>
+      <?php endif; ?>
 
     </div>
+
+
+    <!-- ========================================================= -->
+    <!-- ===================== COLUMNA DERECHA =================== -->
+    <!-- ========================================================= -->
+    <div>
+
+      <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Vencimientos de Hoy', $_SESSION["user_permissions"])): ?>
+      <div class="dashboard-card">
+        <div class="dashboard-scroll">
+          <?php include('due-today.php'); ?>
+        </div>
+      </div>
+      <?php endif; ?>
+
+      <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Próximos Pagos a Vencer', $_SESSION["user_permissions"])): ?>
+      <div class="dashboard-card">
+        <div class="dashboard-scroll">
+          <?php include('upcoming-bills.php'); ?>
+        </div>
+      </div>
+      <?php endif; ?>
+
+      <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver y Crear Creditos', $_SESSION["user_permissions"])): ?>
+      <div class="dashboard-card">
+        <div class="dashboard-scroll">
+          <?php include('credits.php'); ?>
+        </div>
+      </div>
+      <?php endif; ?>
+
+    </div>
+
   </div>
 
 </div>
@@ -119,39 +143,33 @@ require_once __DIR__ . '/../inc/config.php';
 
 <!-- BOTÓN SOPORTE -->
 <div class="text-center mt-4">
-  <a href="<?php echo $url;?>/admin/support/" class="btn btn-outline-primary">
+  <a href="<?= $url; ?>/admin/support/" class="btn btn-outline-primary">
     <i class="fas fa-question-circle"></i> ¿Necesitas ayuda?
   </a>
 </div>
 
 <?php include('inc/menu-footer.php'); ?>
 
-<!-- ========================== SCRIPTS ========================== -->
 
+<!-- Scripts: contador asistencias y DataTables (igual que antes) -->
 <script>
-/* Contador asistencias */
 function actualizarContadorAsistencias(){
-  fetch('<?php echo $url; ?>/admin/asistencias_count.php')
+  fetch('<?= $url; ?>/admin/asistencias_count.php')
     .then(r => r.json())
     .then(d => {
       if (typeof d.count !== 'undefined'){
         document.getElementById('asistencias-count').textContent = d.count;
       }
-    })
-    .catch(err => console.error('Error contador asistencias:', err));
+    });
 }
-
 document.addEventListener('DOMContentLoaded', () => {
   actualizarContadorAsistencias();
   setInterval(actualizarContadorAsistencias, 10000);
 });
 </script>
 
-
 <script>
 $(function () {
-
-  /* DataTables solo si existe la tabla */
   function iniDT(selector, orderCol, orderDir='asc') {
     if ($(selector).length && !$.fn.DataTable.isDataTable(selector)) {
       $(selector).DataTable({
@@ -169,17 +187,15 @@ $(function () {
   iniDT('#planes-hoy', 0, 'asc');
   iniDT('#upcoming-payments', 4, 'asc');
 
-  /* Click en filas → perfil cliente */
   $(document).on('click', 'table tbody tr[data-id]', function () {
     const id = $(this).data('id');
     if (id) {
-      window.location.href =
-        "<?php echo $url; ?>/admin/clients/detail.php?id=" + encodeURIComponent(id);
+      window.location.href = "<?= $url; ?>/admin/clients/detail.php?id=" + encodeURIComponent(id);
     }
   });
-
 });
 </script>
 
 </body>
 </html>
+
