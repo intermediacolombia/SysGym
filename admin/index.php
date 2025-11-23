@@ -10,161 +10,198 @@ require_once __DIR__ . '/../inc/config.php';
   <?php include('inc/header.php'); ?>
 
   <style>
-    /* ===========================
-       LAYOUT GENERAL DASHBOARD
-    ============================*/
+    /* ===================================================================
+   DASHBOARD – TARJETAS ESTILO "SMART HOME" (tipo mockup)
+   Totalmente unificado – Claroscuro compatible
+=================================================================== */
 
-    .dashboard-container {
-        max-width: 1400px;
-        margin-top: 40px;
-    }
+/* ---- Contenedor general dentro de dashboard-card ---- */
+.card-list-wrapper {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+}
 
-    /* Hero tipo “Hi Jasica!” */
-    .hero-card {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 24px;
-        padding: 26px 30px;
-        border-radius: 22px;
-        background: linear-gradient(135deg, var(--system-color-primary) 0%, #8A0002 100%);
-        color: #fff;
-        box-shadow: 0 14px 30px rgba(0,0,0,0.30);
-        overflow: hidden;
-        margin-bottom: 32px;
-    }
+/* ======================================================
+   TARJETAS PRINCIPALES (tipo My Devices)
+====================================================== */
+.card-item {
+    position: relative;
+    padding: 18px 20px;
+    background: #ffffff;
+    border-radius: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    min-height: 85px;
 
-    .hero-main {
-        z-index: 1;
-        max-width: 60%;
-    }
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    transition: transform .12s ease, box-shadow .15s ease, background .20s ease;
+}
 
-    .hero-title {
-        font-size: 2.3rem;
-        font-weight: 700;
-        margin: 0 0 8px;
-    }
+.card-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
 
-    .hero-title span {
-        display: inline-block;
-    }
+/* ======================================================
+   AVATAR – estilo moderno
+====================================================== */
+.card-avatar {
+    width: 55px;
+    height: 55px;
+    border-radius: 14px;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+}
 
-    .hero-sub {
-        font-size: 0.95rem;
-        opacity: 0.92;
-        margin-bottom: 10px;
-    }
+.card-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
-    .hero-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 4px 10px;
-        border-radius: 999px;
-        background: rgba(0,0,0,0.20);
-        font-size: 0.8rem;
-        font-weight: 600;
-    }
+/* ======================================================
+   TEXTO
+====================================================== */
+.card-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
 
-    .hero-extra {
-        z-index: 1;
-        flex: 1;
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-    }
+.card-sub {
+    font-size: 13px;
+    color: #555;
+    margin-top: 3px;
+}
 
-    /* “Ilustración” de fondo suave */
-    .hero-card::before {
-        content: "";
-        position: absolute;
-        right: -40px;
-        bottom: -40px;
-        width: 220px;
-        height: 220px;
-        background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.55), transparent 60%);
-        opacity: 0.4;
-        pointer-events: none;
-    }
+.card-info {
+    flex: 1;
+}
 
-    /* Asistencias counter que ya tenías (se posiciona dentro del hero) */
-    .asistencias-counter{
-      position:absolute;
-      right: 24px;
-      bottom: 24px;
-      width: 230px;
-      background: rgba(0,0,0,0.35);
-      border-radius: 16px;
-      color:#fff;
-      box-shadow:0 4px 10px rgba(0,0,0,.25);
-    }
-    .asistencias-counter .display-4{
-      font-size:32px;
-      font-weight:700;
-      line-height:1;
-    }
+/* ======================================================
+   BADGES (edades, días, planes...)
+====================================================== */
+.badge-pill {
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+}
 
-    /* GRID PRINCIPAL DEL DASHBOARD (dos columnas como el mockup) */
-    .dashboard-layout {
-        display: grid;
-        grid-template-columns: minmax(0, 1.9fr) minmax(0, 1.1fr);
-        gap: 28px;
-    }
+/* Colores estilo mockup */
+.badge-orange { background: #ff9d43; }
+.badge-purple { background: #7a66ff; }
+.badge-blue   { background: #2196f3; }
+.badge-green  { background: #2ecc71; }
+.badge-red    { background: #ff5252; }
+.badge-yellow { background: #fbc02d; }
 
-    /* separador entre tarjetas */
-    .dashboard-card {
-        margin-bottom: 0; /* el gap del grid ya maneja el espacio */
-    }
+/* ======================================================
+   NO HAY DATOS
+====================================================== */
+.card-list-empty {
+    padding: 35px 20px;
+    text-align: center;
+    border-radius: 16px;
+    background: #f0f0f0;
+    color: #666;
+    font-size: 15px;
+}
 
-    /* Responsive */
-    @media (max-width: 991.98px) {
-        .hero-card {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .hero-main {
-            max-width: 100%;
-        }
-        .hero-extra {
-            width: 100%;
-            justify-content: flex-start;
-        }
-        .dashboard-layout {
-            grid-template-columns: 1fr;
-        }
-    }
+/* ======================================================
+   TITULOS DENTRO DEL DASHBOARD
+====================================================== */
+.section-title {
+    font-size: 17px;
+    font-weight: 800;
+    margin-bottom: 14px;
+    padding-left: 4px;
+}
 
-    @media (max-width: 575.98px){
-        .hero-title {
-            font-size: 1.9rem;
-        }
-    }
+/* Título fijo arriba de cada tarjeta */
+.dashboard-card .section-title {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: inherit;
+    padding: 12px 4px;
+}
 
-    /* ===========================
-       MODO OSCURO – HERO / LAYOUT
-    ============================*/
-    body.dark-mode .hero-card {
-        background: linear-gradient(135deg, #141b23 0%, #222f3b 100%);
-        box-shadow: 0 12px 26px rgba(0,0,0,0.45);
-    }
+/* ======================================================
+   TARJETA CONTENEDORA (dashboard-card)
+====================================================== */
+.dashboard-card {
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.10);
+    border: none;
+    height: 420px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 30px;
+}
 
-    body.dark-mode .hero-card::before {
-        background: radial-gradient(circle at 30% 30%, rgba(82,165,224,0.35), transparent 60%);
-        opacity: 0.5;
-    }
+/* SCROLL INTERNO */
+.dashboard-scroll {
+    overflow-y: auto;
+    margin-top: 10px;
+    padding-right: 6px;
+}
 
-    body.dark-mode .hero-tag {
-        background: rgba(0,0,0,0.35);
-    }
+.dashboard-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+.dashboard-scroll::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,.2);
+    border-radius: 4px;
+}
 
-    body.dark-mode .asistencias-counter {
-        background: rgba(0,0,0,0.55);
-    }
+/* ======================================================
+   MODO OSCURO
+====================================================== */
+body.dark-mode .dashboard-card {
+    background: #1b2330;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+}
 
-    .welcome-title { /* ya no centrada en body, se integra al hero */
-        color: #fff;
-    }
+body.dark-mode .section-title {
+    color: #fff;
+}
+
+body.dark-mode .card-item {
+    background: #253140;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.30);
+}
+
+body.dark-mode .card-item:hover {
+    background: #2e3d51;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+}
+
+body.dark-mode .card-title {
+    color: #fff;
+}
+
+body.dark-mode .card-sub {
+    color: #c7cdd3;
+}
+
+body.dark-mode .card-list-empty {
+    background: #2a3747;
+    color: #c7cdd3;
+}
+
+body.dark-mode .dashboard-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,.2);
+}
+
   </style>
 
 </head>
