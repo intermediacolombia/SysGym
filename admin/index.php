@@ -110,10 +110,10 @@ require_once __DIR__ . '/../inc/config.php';
 
     /* GRID PRINCIPAL DEL DASHBOARD (dos columnas como el mockup) */
     .dashboard-layout {
-        display: grid;
-        grid-template-columns: minmax(0, 1.9fr) minmax(0, 1.1fr);
-        gap: 28px;
-    }
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
+}
 
    
 
