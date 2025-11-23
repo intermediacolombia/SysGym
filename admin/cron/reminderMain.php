@@ -1,5 +1,5 @@
 <?php
-include(__DIR__ . '/../../inc/config.php');
+require_once __DIR__ . '/../../inc/config.php';;
 
 try {
    // Consulta para obtener los clientes activos cuyo plan vence en 7 días
