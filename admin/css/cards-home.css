@@ -128,6 +128,105 @@
     border-radius: 3px;
 }
 
+/* ————————————————
+   LISTA DE TARJETAS GENERAL
+——————————————— */
+.card-list-wrapper {
+    background: #fff;
+    border-radius: 12px;
+    padding: 10px 12px;
+    border: 1px solid #e5e5e5;
+}
+
+/* Sin resultados */
+.card-list-empty {
+    text-align: center;
+    padding: 25px;
+    color: #777;
+    font-size: 15px;
+}
+
+
+/* ————————————————
+   TARJETA
+——————————————— */
+.card-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.card-item:last-child {
+    border-bottom: none;
+}
+
+.card-item:hover {
+    background: #f7faff;
+    transform: translateX(3px);
+}
+
+
+/* ————————————————
+   AVATAR
+——————————————— */
+.card-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    margin-right: 15px;
+    border: 2px solid #e3e3e3;
+}
+
+.card-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+/* ————————————————
+   INFO
+——————————————— */
+.card-info {
+    flex: 1;
+}
+
+.card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 2px;
+}
+
+.card-sub {
+    font-size: 13px;
+    color: #666;
+}
+
+
+/* ————————————————
+   BADGES
+——————————————— */
+.badge-pill {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.badge-orange { background: #ff9800; }
+.badge-purple { background: #6c63ff; }
+.badge-green  { background: #4caf50; }
+.badge-yellow { background: #fbc02d; }
+.badge-red    { background: #f44336; }
+
+
 /* ============================================================
    TABLAS INTERIORES
 ============================================================ */
