@@ -8,27 +8,33 @@ $ayer = date('Y-m-d', strtotime("$hoy -1 day"));
 
 try {
 
-    // TOTAL HOY → suma de total_vendido de todas las cajas abiertas ese día
+    /* ===========================
+       TOTAL HOY — tabla ventas
+       =========================== */
     $stmt1 = db()->prepare("
-        SELECT COALESCE(SUM(total_vendido), 0)
-        FROM cajas
-        WHERE fecha_apertura = :hoy
-          AND borrado = 0
+        SELECT COALESCE(SUM(valor), 0)
+        FROM ventas
+        WHERE fecha = :hoy
     ");
     $stmt1->execute([':hoy' => $hoy]);
     $ventasHoy = (float)$stmt1->fetchColumn();
 
-    // TOTAL AYER
+
+    /* ===========================
+       TOTAL AYER — tabla ventas
+       =========================== */
     $stmt2 = db()->prepare("
-        SELECT COALESCE(SUM(total_vendido), 0)
-        FROM cajas
-        WHERE fecha_apertura = :ayer
-          AND borrado = 0
+        SELECT COALESCE(SUM(valor), 0)
+        FROM ventas
+        WHERE fecha = :ayer
     ");
     $stmt2->execute([':ayer' => $ayer]);
     $ventasAyer = (float)$stmt2->fetchColumn();
 
-    // CÁLCULOS
+
+    /* ===========================
+       DIFERENCIAS
+       =========================== */
     $diff = $ventasHoy - $ventasAyer;
 
     if ($ventasAyer > 0) {
@@ -58,4 +64,5 @@ try {
         "error"      => $e->getMessage()
     ]);
 }
+
 
