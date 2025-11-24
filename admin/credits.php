@@ -1,118 +1,103 @@
-<?php
-/* ——— Créditos activos ——— */
-require_once __DIR__ . '/login/session.php';
-require_once __DIR__ . '/../inc/config.php';
-date_default_timezone_set('America/Bogota');
-
-try {
-
-    $stmt = db()->prepare("
-        SELECT  
-            c.id,
-            c.idCliente, 
-            cli.nombres,
-            cli.apellidos,
-            cli.imagen_perfil,
-            c.fecha,
-            c.descripcion,
-            c.valor,
-            c.fecha_limite,
-            DATEDIFF(c.fecha_limite, :hoy) AS dias_restantes
-        FROM creditos c
-        JOIN clientes cli ON cli.id = c.idCliente
-        WHERE c.estado = 'activo' 
-          AND cli.estado = 'activo'
-        ORDER BY c.fecha_limite ASC
-    ");
-    $stmt->execute([':hoy'=>$hoy]);
-    $creditos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-} catch (PDOException $e) {
-    die('Error: '.$e->getMessage());
-}
-?>
-
 <div class="section-title mb-3">Créditos activos</div>
 
-<div class="card-list-wrapper">
-
-<?php 
-$total = 0;
-
-if (empty($creditos)): ?>
-
-    <div class="card-list-empty">No hay créditos activos.</div>
-
-<?php else: ?>
-
-    <?php foreach ($creditos as $cr): ?>
-
-        <?php 
-            $total += $cr['valor'];
-
-            // Foto
-            $foto = (!empty($cr['imagen_perfil']))
-                ? '../uploads/clientes/'.$cr['imagen_perfil']
-                : 'https://ui-avatars.com/api/?name='.urlencode($cr['nombres'].' '.$cr['apellidos']).'&background=f44336&color=fff';
-
-            // Badge unificada por días restantes
-            if ($cr['dias_restantes'] < 0) {
-                $diasTxt = 'Vencido hace '.abs($cr['dias_restantes']).' días';
-                $badgeClass = 'badge-red';
-            } elseif ($cr['dias_restantes'] == 0) {
-                $diasTxt = 'Vence hoy';
-                $badgeClass = 'badge-yellow';
-            } elseif ($cr['dias_restantes'] <= 3) {
-                $diasTxt = $cr['dias_restantes'].' días (urgente)';
-                $badgeClass = 'badge-yellow';
-            } else {
-                $diasTxt = $cr['dias_restantes'].' días';
-                $badgeClass = 'badge-green';
-            }
-        ?>
-
-        <div class="card-item" onclick="window.location.href='clients/detail.php?id=<?= $cr['idCliente'] ?>'">
-
-            <div class="card-avatar">
-                <img src="<?= $foto ?>" class="card-avatar-img" alt="foto">
-            </div>
-
-            <div class="card-info">
-                <div class="card-title">
-                    <?= htmlspecialchars($cr['nombres'].' '.$cr['apellidos']) ?>
-                </div>
-
-                <div class="card-sub">
-                    <?= htmlspecialchars($cr['descripcion']) ?>
-                    · <?= htmlspecialchars($cr['fecha']) ?>
-                </div>
-            </div>
-
-            <div style="text-align:right;">
-                <div class="card-title" style="font-size:14px; font-weight:700;">
-                    $<?= number_format($cr['valor'], 0, ',', '.') ?>
-                </div>
-
-                <span class="badge-pill <?= $badgeClass ?>">
-                    <?= $diasTxt ?>
-                </span>
-            </div>
-
-        </div>
-
-    <?php endforeach; ?>
-
-<?php endif; ?>
-
-</div>
-
-<!-- TOTAL GLOBAL -->
-<div class="card-list-wrapper" style="margin-top:10px;">
-    <div class="card-title" style="font-size:15px;">
-        Total global en créditos:  
-        <strong>$<?= number_format($total,0,',','.') ?></strong>
+<div class="card-list-wrapper" id="creditos-list">
+    <div class="card-list-empty" id="creditos-empty" style="display:none;">
+        No hay créditos activos.
     </div>
 </div>
+
+<div class="card-list-wrapper" style="margin-top:10px;">
+    <div class="card-title" id="creditos-total" style="font-size:15px; display:none;">
+        Total global en créditos: <strong></strong>
+    </div>
+</div>
+
+<script>
+fetch('gets_home/get_creditos_activos.php')
+    .then(r => r.json())
+    .then(result => {
+
+        const data  = result.data || [];
+        const total = result.total || 0;
+
+        const list  = document.getElementById('creditos-list');
+        const empty = document.getElementById('creditos-empty');
+        const totalBox = document.getElementById('creditos-total');
+
+        if (data.length === 0) {
+            empty.style.display = 'block';
+            return;
+        }
+
+        empty.style.display = 'none';
+
+        data.forEach(cr => {
+
+            let foto = cr.imagen_perfil
+                ? '../uploads/clientes/' + cr.imagen_perfil
+                : 'https://ui-avatars.com/api/?name=' + 
+                    encodeURIComponent(cr.nombres + " " + cr.apellidos) +
+                    '&background=f44336&color=fff';
+
+            let badgeClass, diasTxt;
+
+            if (cr.dias_restantes < 0) {
+                diasTxt = "Vencido hace " + Math.abs(cr.dias_restantes) + " días";
+                badgeClass = "badge-red";
+            } else if (cr.dias_restantes == 0) {
+                diasTxt = "Vence hoy";
+                badgeClass = "badge-yellow";
+            } else if (cr.dias_restantes <= 3) {
+                diasTxt = cr.dias_restantes + " días (urgente)";
+                badgeClass = "badge-yellow";
+            } else {
+                diasTxt = cr.dias_restantes + " días";
+                badgeClass = "badge-green";
+            }
+
+            let html = `
+            <div class="card-item" onclick="window.location.href='clients/detail.php?id=${cr.idCliente}'">
+
+                <div class="card-avatar">
+                    <img src="${foto}" class="card-avatar-img" alt="foto">
+                </div>
+
+                <div class="card-info">
+                    <div class="card-title">${cr.nombres} ${cr.apellidos}</div>
+                    <div class="card-sub">
+                        ${cr.descripcion} · ${cr.fecha}
+                    </div>
+                </div>
+
+                <div style="text-align:right;">
+                    <div class="card-title" style="font-size:14px; font-weight:700;">
+                        $${Number(cr.valor).toLocaleString('es-CO')}
+                    </div>
+
+                    <span class="badge-pill ${badgeClass}">
+                        ${diasTxt}
+                    </span>
+                </div>
+
+            </div>`;
+
+            list.insertAdjacentHTML('beforeend', html);
+        });
+
+        // Total global
+        totalBox.style.display = 'block';
+        totalBox.querySelector('strong').textContent = 
+            "$" + total.toLocaleString('es-CO');
+
+    })
+    .catch(err => {
+        console.error(err);
+        const empty = document.getElementById('creditos-empty');
+        empty.style.display = 'block';
+        empty.textContent = "Error al cargar créditos.";
+    });
+</script>
+
 
 
 
