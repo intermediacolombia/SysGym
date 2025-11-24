@@ -1,6 +1,7 @@
 <div class="section-title mb-3">Clientes que cumplen años hoy</div>
 <div class="card-list-wrapper" id="cumple-list">
     <div class="card-list-empty" id="cumple-empty" style="display:none;">
+		<i class="fas fa-check-circle btn-succes" style="font-size:22px;display:block;margin-bottom:6px;"></i>
         No hay cumpleaños hoy.
     </div>
 </div>
