@@ -515,7 +515,147 @@ require_once __DIR__ . '/../inc/config.php';
     </div>
   </section>
 
-  <!-- ================= KPI CARDS ================= -->
+  <!-- ================= KPI CARDS - FILA SUPERIOR ================= -->
+  <div class="kpi-grid">
+    
+    <?php
+    // Consultas para las métricas adicionales
+    try {
+        // Vencimientos hoy
+        $stmt = db()->prepare("
+            SELECT COUNT(*) 
+            FROM clientes 
+            WHERE borrado = 0 
+              AND estado = 'activo' 
+              AND DATE(vencimiento_plan) = :hoy 
+              AND congelado = 0
+        ");
+        $stmt->execute([':hoy' => $hoy]);
+        $vencimientosHoyCount = (int)$stmt->fetchColumn();
+
+        // Clientes activos
+        $stmtActivos = db()->prepare("
+            SELECT COUNT(*) 
+            FROM clientes 
+            WHERE borrado = 0 AND estado = 'activo'
+        ");
+        $stmtActivos->execute();
+        $clientesActivosCount = (int)$stmtActivos->fetchColumn();
+
+        // Nuevos clientes este mes
+        $primerDiaMes = date('Y-m-01');
+        $ultimoDiaMes = date('Y-m-t');
+        $stmtNuevos = db()->prepare("
+            SELECT COUNT(*) 
+            FROM clientes 
+            WHERE borrado = 0 
+              AND DATE(created_at) BETWEEN :inicio AND :fin
+        ");
+        $stmtNuevos->execute([
+            ':inicio' => $primerDiaMes,
+            ':fin' => $ultimoDiaMes
+        ]);
+        $nuevosClientesCount = (int)$stmtNuevos->fetchColumn();
+
+        // Asistencias únicas este mes
+        $stmtAsistenciasUnicas = db()->prepare("
+            SELECT COUNT(DISTINCT idCliente) 
+            FROM asistencias 
+            WHERE DATE(fecha) BETWEEN :inicio AND :fin
+        ");
+        $stmtAsistenciasUnicas->execute([
+            ':inicio' => $primerDiaMes,
+            ':fin' => $ultimoDiaMes
+        ]);
+        $asistenciasUnicasCount = (int)$stmtAsistenciasUnicas->fetchColumn();
+    } catch (PDOException $e) {
+        $vencimientosHoyCount = 0;
+        $clientesActivosCount = 0;
+        $nuevosClientesCount = 0;
+        $asistenciasUnicasCount = 0;
+    }
+    ?>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <div class="kpi-content">
+          <div class="kpi-label">Vencen Hoy</div>
+          <div class="kpi-value"><?= $vencimientosHoyCount ?></div>
+          <div class="kpi-trend neutral">
+            <i class="fas fa-exclamation-circle"></i> Requieren atención
+          </div>
+        </div>
+        <div class="kpi-icon blue">
+          <i class="fas fa-calendar-times"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <div class="kpi-content">
+          <div class="kpi-label">Clientes Activos</div>
+          <div class="kpi-value"><?= $clientesActivosCount ?></div>
+          <div class="kpi-trend positive">
+            <i class="fas fa-check-circle"></i> Con plan vigente
+          </div>
+        </div>
+        <div class="kpi-icon green">
+          <i class="fas fa-users"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <div class="kpi-content">
+          <div class="kpi-label">Nuevos Este Mes</div>
+          <div class="kpi-value"><?= $nuevosClientesCount ?></div>
+          <div class="kpi-trend neutral">
+            <i class="fas fa-calendar"></i> <?= date('F') ?>
+          </div>
+        </div>
+        <div class="kpi-icon orange">
+          <i class="fas fa-user-plus"></i>
+        </div>
+      </div>
+    </div>
+
+    <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Asistencias', $_SESSION["user_permissions"])): ?>
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <div class="kpi-content">
+          <div class="kpi-label">Asistencias Hoy</div>
+          <div class="kpi-value" id="asistencias-count">0</div>
+          <div class="kpi-trend neutral">
+            <i class="fas fa-clock"></i> Tiempo real
+          </div>
+        </div>
+        <div class="kpi-icon purple">
+          <i class="fas fa-walking"></i>
+        </div>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <div class="kpi-content">
+          <div class="kpi-label">Asist. Únicas Mes</div>
+          <div class="kpi-value"><?= $asistenciasUnicasCount ?></div>
+          <div class="kpi-trend neutral">
+            <i class="fas fa-chart-bar"></i> Clientes únicos
+          </div>
+        </div>
+        <div class="kpi-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+          <i class="fas fa-chart-line"></i>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= KPI CARDS - FILA INFERIOR ================= -->
   <div class="kpi-grid">
     
     <div class="kpi-card">
@@ -528,7 +668,7 @@ require_once __DIR__ . '/../inc/config.php';
           </div>
         </div>
         <div class="kpi-icon blue">
-          <i class="fas fa-walking"></i>
+          <i class="fas fa-clipboard-check"></i>
         </div>
       </div>
     </div>
@@ -539,11 +679,11 @@ require_once __DIR__ . '/../inc/config.php';
           <div class="kpi-label">Clientes Activos</div>
           <div class="kpi-value" id="kpi-clientes-activos">--</div>
           <div class="kpi-trend neutral" id="kpi-clientes-trend">
-            Con plan vigente
+            Actualizando...
           </div>
         </div>
         <div class="kpi-icon green">
-          <i class="fas fa-users"></i>
+          <i class="fas fa-user-check"></i>
         </div>
       </div>
     </div>
