@@ -10,6 +10,23 @@ require_once __DIR__ . '/../inc/config.php';
   <?php include('inc/header.php'); ?>
 
   <style>
+    :root {
+      --dash-bg-light: #f3f4f6;
+      --dash-card-bg: rgba(255,255,255,0.92);
+      --dash-border-subtle: rgba(148,163,184,0.25);
+    }
+    body.dark-mode {
+      --dash-bg-light: #020617;
+      --dash-card-bg: rgba(15,23,42,0.92);
+      --dash-border-subtle: rgba(148,163,184,0.15);
+    }
+
+    body {
+      background: radial-gradient(circle at top, rgba(95,202,0,0.08), transparent 55%),
+                  radial-gradient(circle at bottom, rgba(139,0,0,0.12), transparent 65%),
+                  var(--dash-bg-light) !important;
+    }
+
     /* ===========================
        LAYOUT GENERAL DASHBOARD
     ============================*/
@@ -20,33 +37,56 @@ require_once __DIR__ . '/../inc/config.php';
     }
 
     /* ===========================
-       HERO PRINCIPAL
+       HERO PRINCIPAL (ULTRA MODERNO)
     ============================*/
     .hero-card {
       position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1.2fr);
       gap: 24px;
       padding: 22px 26px;
-      border-radius: 22px;
-      background: linear-gradient(135deg, var(--system-color-primary, #5FCA00) 0%, #8A0002 100%);
+      border-radius: 26px;
+      background: radial-gradient(circle at top left, rgba(255,255,255,0.28), transparent 45%),
+                  linear-gradient(120deg, var(--system-color-primary, #5FCA00) 0%, #8A0002 45%, #111827 100%);
       color: #fff;
-      box-shadow: 0 14px 30px rgba(0,0,0,0.30);
+      box-shadow: 0 22px 40px rgba(15,23,42,0.65);
       overflow: hidden;
       margin-bottom: 24px;
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.15);
     }
 
     .hero-main {
       z-index: 1;
-      max-width: 60%;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 10px;
+    }
+
+    .hero-header-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .hero-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 24px rgba(15,23,42,0.6);
+    }
+
+    .hero-avatar i {
+      font-size: 26px;
     }
 
     .hero-title {
-      font-size: 2.2rem;
+      font-size: 1.95rem;
       font-weight: 700;
       margin: 0;
       display: flex;
@@ -61,19 +101,28 @@ require_once __DIR__ . '/../inc/config.php';
 
     .hero-sub {
       font-size: 0.95rem;
-      opacity: 0.95;
+      opacity: 0.97;
+      max-width: 620px;
+    }
+
+    .hero-tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
     }
 
     .hero-tag {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 4px 12px;
+      gap: 7px;
+      padding: 4px 11px;
       border-radius: 999px;
-      background: rgba(0,0,0,0.20);
-      font-size: 0.8rem;
+      background: rgba(15,23,42,0.45);
+      font-size: 0.78rem;
       font-weight: 600;
-      margin-top: 6px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
     }
 
     .hero-tag i {
@@ -82,38 +131,43 @@ require_once __DIR__ . '/../inc/config.php';
 
     .hero-extra {
       z-index: 1;
-      flex: 1;
       display: flex;
       justify-content: flex-end;
       align-items: center;
-      min-width: 220px;
+      min-width: 260px;
     }
 
-    .hero-avatar {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 8px;
-    }
-
-    .hero-avatar i {
-      font-size: 24px;
+    .hero-card::before,
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(0);
+      opacity: 0.55;
+      pointer-events: none;
+      mix-blend-mode: screen;
     }
 
     .hero-card::before {
-      content: "";
-      position: absolute;
-      right: -40px;
-      bottom: -40px;
-      width: 230px;
-      height: 230px;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.55), transparent 60%);
-      opacity: 0.4;
-      pointer-events: none;
+      right: -60px;
+      bottom: -80px;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.85), transparent 60%);
+    }
+
+    .hero-card::after {
+      left: -90px;
+      top: -120px;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle at 40% 40%, rgba(255,255,255,0.35), transparent 60%);
+    }
+
+    body.dark-mode .hero-card {
+      background: radial-gradient(circle at top left, rgba(37,99,235,0.22), transparent 45%),
+                  linear-gradient(120deg, #0f172a 0%, #111827 55%, #020617 100%);
+      border-color: rgba(148,163,184,0.38);
     }
 
     /* ===========================
@@ -122,59 +176,83 @@ require_once __DIR__ . '/../inc/config.php';
     .kpi-row {
       display: grid;
       grid-template-columns: repeat(4, minmax(0,1fr));
-      gap: 18px;
-      margin-bottom: 26px;
+      gap: 22px;
+      margin: 30px 0;
     }
 
     .kpi-card {
-      border-radius: 18px;
-      padding: 14px 16px;
-      background: var(--system-bg-secondary, #ffffff);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+      position: relative;
+      border-radius: 20px;
+      padding: 18px 18px 16px;
+      background: var(--dash-card-bg);
+      box-shadow: 0 18px 40px rgba(15,23,42,0.16);
+      border: 1px solid var(--dash-border-subtle);
+      backdrop-filter: blur(12px);
       display: flex;
       flex-direction: column;
       gap: 4px;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content:"";
+      position:absolute;
+      inset:auto -40px -60px auto;
+      height:120px;
+      width:120px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, rgba(95,202,0,0.22), transparent 60%);
+      opacity: 0.8;
+      pointer-events:none;
     }
 
     .kpi-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.08em;
       opacity: 0.8;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
     .kpi-header i {
-      font-size: 1rem;
+      font-size: 1.05rem;
       opacity: 0.9;
     }
 
     .kpi-value {
-      font-size: 1.65rem;
+      font-size: 1.9rem;
       font-weight: 700;
       line-height: 1.2;
     }
 
     .kpi-sub {
       font-size: 0.8rem;
-      opacity: 0.8;
+      opacity: 0.75;
     }
 
     .kpi-trend {
       font-size: 0.78rem;
       font-weight: 600;
-      margin-top: 2px;
+      margin-top: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(148,163,184,0.1);
     }
 
     .kpi-trend.positive {
       color: #16a34a;
+      background: rgba(22,163,74,0.08);
     }
 
     .kpi-trend.negative {
       color: #dc2626;
+      background: rgba(220,38,38,0.08);
     }
 
     .kpi-trend.neutral {
@@ -186,27 +264,29 @@ require_once __DIR__ . '/../inc/config.php';
     ============================*/
     .chart-row {
       display: grid;
-      grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr);
-      gap: 18px;
-      margin-bottom: 18px;
-    }
-
-    .chart-full-row {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.1fr);
+      gap: 20px;
       margin-bottom: 26px;
     }
 
     .chart-card {
-      border-radius: 18px;
-      padding: 16px 18px;
-      background: var(--system-bg-secondary, #ffffff);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+      border-radius: 20px;
+      padding: 14px 16px 10px;
+      background: var(--dash-card-bg);
+      box-shadow: 0 18px 40px rgba(15,23,42,0.16);
+      border: 1px solid var(--dash-border-subtle);
+      backdrop-filter: blur(12px);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
     }
 
     .chart-card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
+      gap: 10px;
     }
 
     .chart-card-title {
@@ -216,7 +296,11 @@ require_once __DIR__ . '/../inc/config.php';
 
     .chart-card-sub {
       font-size: 0.78rem;
-      opacity: 0.7;
+      opacity: 0.72;
+    }
+
+    .chart-card canvas {
+      max-height: 260px !important;
     }
 
     /* ===========================
@@ -229,10 +313,12 @@ require_once __DIR__ . '/../inc/config.php';
     }
 
     .panel-card {
-      border-radius: 18px;
+      border-radius: 20px;
       padding: 14px 16px 10px;
-      background: var(--system-bg-secondary, #ffffff);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+      background: var(--dash-card-bg);
+      box-shadow: 0 18px 40px rgba(15,23,42,0.16);
+      border: 1px solid var(--dash-border-subtle);
+      backdrop-filter: blur(10px);
       max-height: 420px;
       display: flex;
       flex-direction: column;
@@ -243,6 +329,7 @@ require_once __DIR__ . '/../inc/config.php';
       justify-content: space-between;
       align-items: center;
       margin-bottom: 6px;
+      gap: 10px;
     }
 
     .panel-title {
@@ -252,10 +339,17 @@ require_once __DIR__ . '/../inc/config.php';
 
     .panel-tag {
       font-size: 0.75rem;
-      padding: 2px 8px;
+      padding: 3px 9px;
       border-radius: 999px;
-      background: rgba(0,0,0,0.05);
-      opacity: 0.75;
+      background: rgba(148,163,184,0.16);
+      opacity: 0.9;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .panel-tag i {
+      font-size: 0.85rem;
     }
 
     .panel-body-scroll {
@@ -268,44 +362,12 @@ require_once __DIR__ . '/../inc/config.php';
       width: 4px;
     }
     .panel-body-scroll::-webkit-scrollbar-thumb {
-      background: rgba(0,0,0,0.12);
+      background: rgba(148,163,184,0.4);
       border-radius: 999px;
     }
 
-    /* ===========================
-       MODO OSCURO
-    ============================*/
-    body.dark-mode .hero-card {
-      background: linear-gradient(135deg, #141b23 0%, #222f3b 100%);
-      box-shadow: 0 12px 26px rgba(0,0,0,0.6);
-    }
-
-    body.dark-mode .hero-card::before {
-      background: radial-gradient(circle at 30% 30%, rgba(82,165,224,0.35), transparent 60%);
-      opacity: 0.5;
-    }
-
-    body.dark-mode .hero-tag {
-      background: rgba(0,0,0,0.35);
-    }
-
-    body.dark-mode .kpi-card,
-    body.dark-mode .chart-card,
-    body.dark-mode .panel-card {
-      background: #111827;
-      box-shadow: 0 10px 22px rgba(0,0,0,0.75);
-    }
-
-    body.dark-mode .kpi-header,
-    body.dark-mode .kpi-sub,
-    body.dark-mode .chart-card-sub,
-    body.dark-mode .panel-tag {
-      color: #9ca3af;
-      opacity: 0.85;
-    }
-
     body.dark-mode .panel-body-scroll::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.16);
+      background: rgba(148,163,184,0.65);
     }
 
     /* RESPONSIVE */
@@ -320,14 +382,9 @@ require_once __DIR__ . '/../inc/config.php';
 
     @media (max-width: 767.98px) {
       .hero-card {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .hero-main {
-        max-width: 100%;
+        grid-template-columns: 1fr;
       }
       .hero-extra {
-        width: 100%;
         justify-content: flex-start;
       }
       .kpi-row {
@@ -358,19 +415,29 @@ require_once __DIR__ . '/../inc/config.php';
   <!-- ================= HERO PRINCIPAL ================= -->
   <div class="hero-card">
     <div class="hero-main">
-      <div class="hero-avatar">
-        <i class="fas fa-user-circle"></i>
+      <div class="hero-header-row">
+        <div class="hero-avatar">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div>
+          <h1 class="hero-title">
+            Hola,
+            <span class="name"><?= htmlspecialchars($nombre . " " . $apellido); ?></span>
+          </h1>
+          <div class="hero-sub">
+            Este es tu panel principal. Visualiza asistencias, vencimientos, ventas,
+            créditos y la actividad diaria del gimnasio en un solo lugar.
+          </div>
+        </div>
       </div>
-      <h1 class="hero-title">
-        Hola,
-        <span class="name"><?= htmlspecialchars($nombre . " " . $apellido); ?></span>
-      </h1>
-      <div class="hero-sub">
-        Bienvenido al panel principal. Aquí tienes una vista rápida de la actividad del gimnasio:
-        asistencias, vencimientos, ventas y créditos.
-      </div>
-      <div class="hero-tag">
-        <i class="fas fa-bolt"></i> Panel de control en tiempo real
+
+      <div class="hero-tags-row">
+        <div class="hero-tag">
+          <i class="fas fa-bolt"></i> Panel en tiempo real
+        </div>
+        <div class="hero-tag">
+          <i class="fas fa-dumbbell"></i> Gestión de clientes y planes
+        </div>
       </div>
     </div>
 
@@ -389,7 +456,9 @@ require_once __DIR__ . '/../inc/config.php';
       </div>
       <div class="kpi-value" id="kpi-asistencias-hoy">--</div>
       <div class="kpi-sub">Clientes que han registrado asistencia hoy.</div>
-      <div class="kpi-trend neutral" id="kpi-asistencias-trend"></div>
+      <div class="kpi-trend neutral" id="kpi-asistencias-trend">
+        Esperando datos…
+      </div>
     </div>
 
     <div class="kpi-card">
@@ -399,7 +468,9 @@ require_once __DIR__ . '/../inc/config.php';
       </div>
       <div class="kpi-value" id="kpi-clientes-activos">--</div>
       <div class="kpi-sub">Clientes con plan activo y no borrados.</div>
-      <div class="kpi-trend neutral" id="kpi-clientes-trend"></div>
+      <div class="kpi-trend neutral" id="kpi-clientes-trend">
+        Actualizado diariamente
+      </div>
     </div>
 
     <div class="kpi-card">
@@ -409,7 +480,9 @@ require_once __DIR__ . '/../inc/config.php';
       </div>
       <div class="kpi-value" id="kpi-ventas-hoy">$ --</div>
       <div class="kpi-sub">Total vendido hoy (todas las cajas, sin base).</div>
-      <div class="kpi-trend neutral" id="kpi-ventas-trend"></div>
+      <div class="kpi-trend neutral" id="kpi-ventas-trend">
+        Comparando con el día anterior…
+      </div>
     </div>
 
     <div class="kpi-card">
@@ -419,44 +492,54 @@ require_once __DIR__ . '/../inc/config.php';
       </div>
       <div class="kpi-value" id="kpi-creditos-activos">--</div>
       <div class="kpi-sub">Créditos abiertos de clientes activos.</div>
-      <div class="kpi-trend neutral" id="kpi-creditos-trend"></div>
+      <div class="kpi-trend neutral" id="kpi-creditos-trend">
+        Cartera en seguimiento
+      </div>
     </div>
 
   </div>
 
   <!-- ================= GRÁFICOS PRINCIPALES ================= -->
   <div class="chart-row">
-    <div class="chart-card">
-      <div class="chart-card-header">
-        <div>
-          <div class="chart-card-title">Asistencias por hora (hoy)</div>
-          <div class="chart-card-sub">Distribución de asistencias durante la jornada.</div>
+
+    <!-- Columna principal: asistencias + ventas -->
+    <div style="display:flex; flex-direction:column; gap:20px;">
+
+      <!-- Asistencias por hora -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <div class="chart-card-title">Asistencias por hora (hoy)</div>
+            <div class="chart-card-sub">Distribución de asistencias durante la jornada.</div>
+          </div>
         </div>
+        <?php include('asis-chart-home.php'); ?>
       </div>
-      <?php include('asis-chart-home.php'); ?>
+
+      <!-- Ventas hoy vs ayer -->
+      <div class="chart-card" style="height: 320px;">
+        <div class="chart-card-header">
+          <div>
+            <div class="chart-card-title">Ventas comparadas (hoy vs ayer)</div>
+            <div class="chart-card-sub">Total vendido por día, sumando todas las cajas.</div>
+          </div>
+        </div>
+        <?php include('ventas-today.php'); ?>
+      </div>
+
     </div>
 
+    <!-- Columna lateral: asistencias vs día anterior -->
     <div class="chart-card">
       <div class="chart-card-header">
         <div>
           <div class="chart-card-title">Asistencias vs. día anterior</div>
-          <div class="chart-card-sub">Comparativo rápido de actividad.</div>
+          <div class="chart-card-sub">Comparativo rápido de actividad diaria.</div>
         </div>
       </div>
       <?php include('asis-chart-home-compara.php'); ?>
     </div>
-  </div>
 
-  <div class="chart-full-row">
-    <div class="chart-card">
-      <div class="chart-card-header">
-        <div>
-          <div class="chart-card-title">Ventas comparadas con el día anterior</div>
-          <div class="chart-card-sub">Total vendido por día, sumando todas las cajas.</div>
-        </div>
-      </div>
-      <?php include('ventas-today.php'); ?>
-    </div>
   </div>
 
   <!-- ================= GRID PRINCIPAL DE LISTAS ================= -->
@@ -465,10 +548,12 @@ require_once __DIR__ . '/../inc/config.php';
     <!-- COLUMNA IZQUIERDA -->
     <div>
       <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Clientes que cumplen años hoy', $_SESSION["user_permissions"])): ?>
-        <div class="panel-card">
+        <div class="panel-card mb-3">
           <div class="panel-header">
             <div class="panel-title">Cumpleaños de hoy</div>
-            <span class="panel-tag"><i class="far fa-smile"></i> Felicitaciones</span>
+            <span class="panel-tag">
+              <i class="far fa-smile"></i> Felicitaciones
+            </span>
           </div>
           <div class="panel-body-scroll">
             <?php include('bd-today.php'); ?>
@@ -477,10 +562,12 @@ require_once __DIR__ . '/../inc/config.php';
       <?php endif; ?>
 
       <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Asistencias', $_SESSION["user_permissions"])): ?>
-        <div class="panel-card">
+        <div class="panel-card mb-3">
           <div class="panel-header">
-            <div class="panel-title">Asistencias únicas de hoy</div>
-            <span class="panel-tag"><i class="fas fa-walking"></i> Actividad</span>
+            <div class="panel-title">Asistencias únicas registradas hoy</div>
+            <span class="panel-tag">
+              <i class="fas fa-walking"></i> Actividad
+            </span>
           </div>
           <div class="panel-body-scroll">
             <?php include('asistencias_hoy.php'); ?>
@@ -492,7 +579,9 @@ require_once __DIR__ . '/../inc/config.php';
         <div class="panel-card">
           <div class="panel-header">
             <div class="panel-title">Últimos clientes inscritos</div>
-            <span class="panel-tag"><i class="fas fa-user-plus"></i> Nuevos</span>
+            <span class="panel-tag">
+              <i class="fas fa-user-plus"></i> Nuevos
+            </span>
           </div>
           <div class="panel-body-scroll">
             <?php include('lastests-clients.php'); ?>
@@ -504,10 +593,12 @@ require_once __DIR__ . '/../inc/config.php';
     <!-- COLUMNA DERECHA -->
     <div>
       <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Vencimientos de Hoy', $_SESSION["user_permissions"])): ?>
-        <div class="panel-card">
+        <div class="panel-card mb-3">
           <div class="panel-header">
             <div class="panel-title">Planes que vencen hoy</div>
-            <span class="panel-tag"><i class="far fa-clock"></i> Urgente</span>
+            <span class="panel-tag">
+              <i class="far fa-clock"></i> Urgente
+            </span>
           </div>
           <div class="panel-body-scroll">
             <?php include('due-today.php'); ?>
@@ -516,10 +607,12 @@ require_once __DIR__ . '/../inc/config.php';
       <?php endif; ?>
 
       <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Próximos Pagos a Vencer', $_SESSION["user_permissions"])): ?>
-        <div class="panel-card">
+        <div class="panel-card mb-3">
           <div class="panel-header">
             <div class="panel-title">Próximos pagos (7 días)</div>
-            <span class="panel-tag"><i class="fas fa-calendar-alt"></i> Agenda</span>
+            <span class="panel-tag">
+              <i class="fas fa-calendar-alt"></i> Agenda
+            </span>
           </div>
           <div class="panel-body-scroll">
             <?php include('upcoming-bills.php'); ?>
@@ -531,7 +624,9 @@ require_once __DIR__ . '/../inc/config.php';
         <div class="panel-card">
           <div class="panel-header">
             <div class="panel-title">Créditos activos</div>
-            <span class="panel-tag"><i class="fas fa-file-invoice-dollar"></i> Cartera</span>
+            <span class="panel-tag">
+              <i class="fas fa-file-invoice-dollar"></i> Cartera
+            </span>
           </div>
           <div class="panel-body-scroll">
             <?php include('credits.php'); ?>
@@ -600,7 +695,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('kpi-creditos-activos').textContent = d.creditos_activos;
       }
 
-      // Si quieres, puedes usar d.ventas_vs_ayer para trend aquí
+      // Trend ventas vs ayer
       if (d.ventas_vs_ayer && typeof d.ventas_vs_ayer.percent !== 'undefined') {
         const trend = document.getElementById('kpi-ventas-trend');
         const p = d.ventas_vs_ayer.percent;
@@ -618,11 +713,13 @@ document.addEventListener('DOMContentLoaded', () => {
           trend.classList.add('neutral');
         }
       }
-
     })
-    .catch(err => console.error('Error KPIs home:', err));
+    .catch(err => {
+      console.error('Error KPIs home:', err);
+    });
 });
 </script>
 
 </body>
 </html>
+
