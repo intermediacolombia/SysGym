@@ -543,9 +543,9 @@ require_once __DIR__ . '/../inc/config.php';
         <div class="chart-title">Comparativa Diaria</div>
         <div class="chart-subtitle">Asistencias vs. día anterior</div>
       </div>
-      <div class="chart-body">
+      
         <?php include('asis-chart-home-compara.php'); ?>
-      </div>
+      
     </div>
 
   </div>
