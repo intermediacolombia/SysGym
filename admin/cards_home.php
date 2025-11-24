@@ -88,11 +88,12 @@ try {
     /* ===========================
        6. VENTAS HOY (todas las cajas de hoy, sin base)
     ============================ */
-   $stmtVentasHoy = db()->prepare("
-    SELECT COALESCE(SUM(COALESCE(total_vendido, 0)), 0) AS total
-    FROM cajas
-    WHERE fecha_apertura = :hoy
-      AND borrado = 0
+  
+
+$stmtVentasHoy = db()->prepare("
+    SELECT COALESCE(SUM(valor),0) 
+    FROM ventas
+    WHERE fecha = :hoy
 ");
 $stmtVentasHoy->execute([':hoy' => $hoy]);
 $ventasHoyTotal = (float)$stmtVentasHoy->fetchColumn();
