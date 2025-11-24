@@ -73,16 +73,16 @@ try {
        usamos total_vendido en tabla `cajas`
     ============================ */
     $stmtVentasMes = db()->prepare("
-        SELECT COALESCE(SUM(total_vendido), 0)
-        FROM cajas
-        WHERE fecha_apertura BETWEEN :inicio AND :fin
-          AND borrado = 0
-    ");
-    $stmtVentasMes->execute([
-        ':inicio' => $primerDiaMes,
-        ':fin'    => $ultimoDiaMes
-    ]);
-    $ventasMesTotal = (float)$stmtVentasMes->fetchColumn();
+    SELECT COALESCE(SUM(valor), 0)
+    FROM ventas
+    WHERE fecha BETWEEN :inicio AND :fin
+");
+$stmtVentasMes->execute([
+    ':inicio' => $primerDiaMes,
+    ':fin'    => $ultimoDiaMes
+]);
+$ventasMesTotal = (float)$stmtVentasMes->fetchColumn();
+
 
 
     /* ===========================
