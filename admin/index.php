@@ -210,6 +210,8 @@ require_once __DIR__ . '/../inc/config.php';
       </div>
   </div>
 
+	
+	<?php include('asis-chart-home.php'); ?>
   <!-- ================= GRID PRINCIPAL DE TARJETAS ================= -->
   <div class="dashboard-layout">
 

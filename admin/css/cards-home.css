@@ -259,7 +259,11 @@
 	background-color: #ffffff !important;
 }
 
-
+.chart-card {
+    padding: 20px;
+    border-radius: 18px;
+    background: var(--system-bg-secondary);
+}
 /* ============================================================
    MODO OSCURO – TARJETAS Y DASHBOARD
 ============================================================ */
@@ -343,6 +347,16 @@ body.dark-mode table.dataTable td {
 body.dark-mode .dashboard-card .section-title {
     border-bottom: 2px solid #2A3B47;
 	background-color: #212E36 !important;
+}
+
+/* modo claro */
+body:not(.dark-mode) .chart-card {
+    background: #ffffff;
+}
+
+/* modo oscuro */
+body.dark-mode .chart-card {
+    background: #151822;
 }
 
 
