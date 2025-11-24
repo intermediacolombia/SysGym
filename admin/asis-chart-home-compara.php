@@ -1,5 +1,3 @@
-<div class="section-title mb-3">Comparativa con la semana pasada</div>
-
 <div class="card-list-wrapper" id="comp-wrapper">
 
     <div class="card-list-empty" id="comp-empty" style="display:none;">

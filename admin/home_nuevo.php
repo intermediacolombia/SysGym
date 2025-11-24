@@ -739,25 +739,6 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 	
-	<script>
-function applyChartTheme(chartInstance) {
-
-    const dark = document.body.classList.contains('dark-mode');
-
-    chartInstance.options.scales.x.ticks.color   = dark ? "#fff" : "#333";
-    chartInstance.options.scales.y.ticks.color   = dark ? "#fff" : "#333";
-
-    chartInstance.options.scales.x.grid.color    = dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)";
-    chartInstance.options.scales.y.grid.color    = dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)";
-
-    chartInstance.options.plugins.legend.labels.color = dark ? "#fff" : "#333";
-    chartInstance.options.plugins.title.color         = dark ? "#fff" : "#333";
-    chartInstance.options.plugins.tooltip.titleColor  = dark ? "#fff" : "#333";
-    chartInstance.options.plugins.tooltip.bodyColor   = dark ? "#fff" : "#333";
-
-    chartInstance.update();
-}
-</script>
 
 	
 </body>
