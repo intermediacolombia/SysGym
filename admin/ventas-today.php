@@ -1,8 +1,4 @@
-
-
-<div class="card-list-wrapper" id="ventas-wrapper">
-
-    <div class="card-list-empty" id="ventas-empty" style="display:none;">
+<div class="card-list-empty" id="ventas-empty" style="display:none;">
         No hay información disponible.
     </div>
 
@@ -10,7 +6,7 @@
         <canvas id="graficoVentas"></canvas>
     </div>
 
-</div>
+
 
 <style>
 .chart-card {
