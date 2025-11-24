@@ -21,6 +21,9 @@ $(async function(){
             return;
         }
 
+        // 🔥 ESTA ES LA LÍNEA QUE FALTABA
+        $("#cumple-empty").hide();
+
         data.forEach(c => {
 
             let foto = c.imagen_perfil 
@@ -55,6 +58,7 @@ $(async function(){
 
 });
 </script>
+
 
 
 
