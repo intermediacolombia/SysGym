@@ -37,3 +37,50 @@
     color: #fff !important;
 }
 </style>
+<script>
+fetch("gets_home/get_asistencias_comparadas.php")
+    .then(r => r.json())
+    .then(res => {
+
+        const card = document.getElementById("comp-card");
+        const empty = document.getElementById("comp-empty");
+
+        if (!res || res.today === undefined) {
+            empty.style.display = "block";
+            return;
+        }
+
+        empty.style.display = "none";
+        card.style.display = "flex";
+
+        let title = `${res.today} asistencias hoy`;
+        let sub = `La semana pasada fueron ${res.last_week}`;
+
+        let badgeClass = "badge-yellow";
+        let badgeText = "";
+
+        if (res.diff > 0) {
+            badgeClass = "badge-green";
+            badgeText = `+${res.percent}%`;
+        } else if (res.diff < 0) {
+            badgeClass = "badge-red";
+            badgeText = `${res.percent}%`; 
+        } else {
+            badgeClass = "badge-yellow";
+            badgeText = "0%";
+        }
+
+        document.getElementById("comp-title").innerText = title;
+        document.getElementById("comp-sub").innerText = sub;
+
+        const badge = document.getElementById("comp-badge");
+        badge.className = "badge-pill " + badgeClass;
+        badge.innerText = badgeText;
+
+    })
+    .catch(err => {
+        console.error("Error comparativa", err);
+        document.getElementById("comp-empty").style.display = "block";
+        document.getElementById("comp-card").style.display = "none";
+    });
+</script>
