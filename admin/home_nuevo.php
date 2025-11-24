@@ -533,9 +533,9 @@ require_once __DIR__ . '/../inc/config.php';
         <div class="chart-title">Asistencias por Hora</div>
         <div class="chart-subtitle">Distribución de visitas durante el día de hoy</div>
       </div>
-      <div class="chart-body">
+      
         <?php include('asis-chart-home.php'); ?>
-      </div>
+      
     </div>
 
     <div class="chart-card">
