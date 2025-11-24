@@ -121,7 +121,7 @@ require_once __DIR__ . '/../inc/config.php';
     ============================*/
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 1.5rem;
       margin-bottom: 3rem;
     }
@@ -400,6 +400,10 @@ require_once __DIR__ . '/../inc/config.php';
       .charts-grid {
         grid-template-columns: 1fr;
       }
+
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     @media (max-width: 768px) {
@@ -515,11 +519,11 @@ require_once __DIR__ . '/../inc/config.php';
     </div>
   </section>
 
-  <!-- ================= KPI CARDS - FILA SUPERIOR ================= -->
+  <!-- ================= KPI CARDS - 2x4 GRID ================= -->
   <div class="kpi-grid">
     
     <?php
-    // Consultas para las métricas adicionales
+    // Consultas para las métricas
     try {
         // Vencimientos hoy
         $stmt = db()->prepare("
@@ -568,14 +572,42 @@ require_once __DIR__ . '/../inc/config.php';
             ':fin' => $ultimoDiaMes
         ]);
         $asistenciasUnicasCount = (int)$stmtAsistenciasUnicas->fetchColumn();
+
+        // Ventas del mes (todas las cajas, sin base)
+        $stmtVentasMes = db()->prepare("
+            SELECT COALESCE(SUM(monto - base), 0) as total
+            FROM cajas 
+            WHERE DATE(fecha) BETWEEN :inicio AND :fin
+        ");
+        $stmtVentasMes->execute([
+            ':inicio' => $primerDiaMes,
+            ':fin' => $ultimoDiaMes
+        ]);
+        $ventasMesTotal = (float)$stmtVentasMes->fetchColumn();
+
+        // Créditos activos
+        $stmtCreditos = db()->prepare("
+            SELECT COUNT(*) 
+            FROM creditos c
+            INNER JOIN clientes cl ON c.idCliente = cl.id
+            WHERE c.estado = 'abierto' 
+              AND cl.borrado = 0 
+              AND cl.estado = 'activo'
+        ");
+        $stmtCreditos->execute();
+        $creditosActivosCount = (int)$stmtCreditos->fetchColumn();
+
     } catch (PDOException $e) {
         $vencimientosHoyCount = 0;
         $clientesActivosCount = 0;
         $nuevosClientesCount = 0;
         $asistenciasUnicasCount = 0;
+        $ventasMesTotal = 0;
+        $creditosActivosCount = 0;
     }
     ?>
 
+    <!-- PRIMERA FILA -->
     <div class="kpi-card">
       <div class="kpi-header">
         <div class="kpi-content">
@@ -636,8 +668,24 @@ require_once __DIR__ . '/../inc/config.php';
         </div>
       </div>
     </div>
+    <?php else: ?>
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <div class="kpi-content">
+          <div class="kpi-label">Créditos Activos</div>
+          <div class="kpi-value"><?= $creditosActivosCount ?></div>
+          <div class="kpi-trend neutral">
+            <i class="fas fa-wallet"></i> Cartera abierta
+          </div>
+        </div>
+        <div class="kpi-icon orange">
+          <i class="fas fa-file-invoice-dollar"></i>
+        </div>
+      </div>
+    </div>
     <?php endif; ?>
 
+    <!-- SEGUNDA FILA -->
     <div class="kpi-card">
       <div class="kpi-header">
         <div class="kpi-content">
@@ -653,48 +701,13 @@ require_once __DIR__ . '/../inc/config.php';
       </div>
     </div>
 
-  </div>
-
-  <!-- ================= KPI CARDS - FILA INFERIOR ================= -->
-  <div class="kpi-grid">
-    
-    <div class="kpi-card">
-      <div class="kpi-header">
-        <div class="kpi-content">
-          <div class="kpi-label">Asistencias Hoy</div>
-          <div class="kpi-value" id="kpi-asistencias-hoy">--</div>
-          <div class="kpi-trend neutral" id="kpi-asistencias-trend">
-            Cargando...
-          </div>
-        </div>
-        <div class="kpi-icon blue">
-          <i class="fas fa-clipboard-check"></i>
-        </div>
-      </div>
-    </div>
-
-    <div class="kpi-card">
-      <div class="kpi-header">
-        <div class="kpi-content">
-          <div class="kpi-label">Clientes Activos</div>
-          <div class="kpi-value" id="kpi-clientes-activos">--</div>
-          <div class="kpi-trend neutral" id="kpi-clientes-trend">
-            Actualizando...
-          </div>
-        </div>
-        <div class="kpi-icon green">
-          <i class="fas fa-user-check"></i>
-        </div>
-      </div>
-    </div>
-
     <div class="kpi-card">
       <div class="kpi-header">
         <div class="kpi-content">
           <div class="kpi-label">Ventas Hoy</div>
           <div class="kpi-value" id="kpi-ventas-hoy">$ --</div>
           <div class="kpi-trend neutral" id="kpi-ventas-trend">
-            Cargando...
+            <i class="fas fa-spinner fa-spin"></i> Cargando...
           </div>
         </div>
         <div class="kpi-icon purple">
@@ -703,17 +716,49 @@ require_once __DIR__ . '/../inc/config.php';
       </div>
     </div>
 
+    <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Asistencias', $_SESSION["user_permissions"])): ?>
     <div class="kpi-card">
       <div class="kpi-header">
         <div class="kpi-content">
           <div class="kpi-label">Créditos Activos</div>
-          <div class="kpi-value" id="kpi-creditos-activos">--</div>
-          <div class="kpi-trend neutral" id="kpi-creditos-trend">
-            Cartera pendiente
+          <div class="kpi-value"><?= $creditosActivosCount ?></div>
+          <div class="kpi-trend neutral">
+            <i class="fas fa-wallet"></i> Cartera abierta
           </div>
         </div>
         <div class="kpi-icon orange">
           <i class="fas fa-file-invoice-dollar"></i>
+        </div>
+      </div>
+    </div>
+    <?php else: ?>
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <div class="kpi-content">
+          <div class="kpi-label">Ventas Hoy</div>
+          <div class="kpi-value" id="kpi-ventas-hoy-alt">$ --</div>
+          <div class="kpi-trend neutral">
+            <i class="fas fa-spinner fa-spin"></i> Cargando...
+          </div>
+        </div>
+        <div class="kpi-icon purple">
+          <i class="fas fa-cash-register"></i>
+        </div>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <div class="kpi-content">
+          <div class="kpi-label">Ingresos del Mes</div>
+          <div class="kpi-value">$<?= number_format($ventasMesTotal, 0, ',', '.') ?></div>
+          <div class="kpi-trend positive">
+            <i class="fas fa-chart-pie"></i> Acumulado <?= date('F') ?>
+          </div>
+        </div>
+        <div class="kpi-icon" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
+          <i class="fas fa-dollar-sign"></i>
         </div>
       </div>
     </div>
