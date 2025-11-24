@@ -37,12 +37,6 @@ require_once __DIR__ . '/../inc/config.php';
       --shadow-lg: 0 20px 40px rgba(0,0,0,0.5);
     }
 
-    body {
-      background: var(--bg-light);
-      color: var(--text-primary);
-      transition: background 0.3s ease, color 0.3s ease;
-    }
-
     /* ===========================
        CONTAINER PRINCIPAL
     ============================*/
