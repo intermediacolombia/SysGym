@@ -6,32 +6,15 @@
 </div>
 
 <script>
-console.log("=== INICIO DIAGNÓSTICO ===");
-console.log("1. jQuery existe?", typeof jQuery !== 'undefined');
-console.log("2. $ existe?", typeof $ !== 'undefined');
-console.log("3. Elemento #cumple-list existe?", document.getElementById('cumple-list') !== null);
-console.log("4. Elemento #cumple-empty existe?", document.getElementById('cumple-empty') !== null);
-
-// Intentar con JavaScript puro primero
 fetch('gets_home/get_cumpleanos_hoy.php')
-    .then(response => {
-        console.log("5. Respuesta recibida, status:", response.status);
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        console.log("6. JSON parseado:", data);
-        console.log("7. Cantidad de registros:", data.data ? data.data.length : 0);
-        
         if (!data.data || data.data.length === 0) {
             document.getElementById('cumple-empty').style.display = 'block';
-            console.log("8. No hay cumpleaños");
         } else {
             document.getElementById('cumple-empty').style.display = 'none';
-            console.log("9. Procesando", data.data.length, "cumpleaños");
             
-            data.data.forEach((c, index) => {
-                console.log(`10.${index} Procesando:`, c.nombres, c.apellidos);
-                
+            data.data.forEach(c => {
                 let foto = c.imagen_perfil 
                     ? '../uploads/clientes/' + c.imagen_perfil
                     : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(c.nombres + ' ' + c.apellidos) + '&background=ff5722&color=fff';
@@ -51,18 +34,13 @@ fetch('gets_home/get_cumpleanos_hoy.php')
                 </div>`;
                 
                 document.getElementById('cumple-list').insertAdjacentHTML('beforeend', html);
-                console.log(`11.${index} Tarjeta insertada`);
             });
-            console.log("12. PROCESO COMPLETADO");
         }
     })
     .catch(error => {
-        console.error("ERROR:", error);
         document.getElementById('cumple-empty').style.display = 'block';
-        document.getElementById('cumple-empty').textContent = 'Error: ' + error.message;
+        document.getElementById('cumple-empty').textContent = 'Error al cargar cumpleaños';
     });
-
-console.log("=== FIN DIAGNÓSTICO ===");
 </script>
 
 
