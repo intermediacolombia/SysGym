@@ -8,7 +8,7 @@
 <script>
 $(document).ready(function(){
     $.ajax({
-        url: 'gets_home/get_cumpleanos_hoy.php',
+        url: 'https://app.activgym.com.co/admin/gets_home/get_cumpleanos_hoy.php',
         method: 'GET',
         dataType: 'json',
         timeout: 5000,
