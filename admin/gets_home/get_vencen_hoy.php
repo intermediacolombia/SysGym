@@ -3,7 +3,7 @@ require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
 
 date_default_timezone_set('America/Bogota');
-$hoy = date('Y-m-d');
+$hoy = "2025-11-23";
 
 try {
 
