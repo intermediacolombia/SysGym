@@ -522,7 +522,7 @@ require_once __DIR__ . '/../inc/config.php';
 
   <div class="charts-grid">
     
-    <div class="panel-card">
+    <div class="panel-card unique">
       <div class="chart-header">
         <div class="chart-title">Asistencias por Hora</div>
         <div class="chart-subtitle">Distribución de visitas durante el día de hoy</div>

@@ -24,6 +24,15 @@ body:not(.dark-mode) .chart-card {
 body.dark-mode .chart-card {
     background: #212E36!important;
 }
+	
+body.dark-mode .unique {
+	
+	background: #192229!important;
+	
+	}
+	
+	
+	
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
