@@ -15,7 +15,28 @@
 
 </div>
 
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<style>
+.chart-card {
+    padding: 22px;
+    border-radius: 18px;
+    background: var(--system-bg-secondary);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    width: 100%;
+}
+
+/* Modo claro */
+body:not(.dark-mode) .chart-card {
+    background: #ffffff;
+}
+
+/* Modo oscuro */
+body.dark-mode .chart-card {
+    background: #0f111a;
+}
+</style>
 
 <script>
 async function cargarGraficoAsistenciasHoy() {
@@ -94,3 +115,4 @@ cargarGraficoAsistenciasHoy();
 // Recargar si cambian de claro/oscuro
 document.addEventListener("theme-changed", cargarGraficoAsistenciasHoy);
 </script>
+
