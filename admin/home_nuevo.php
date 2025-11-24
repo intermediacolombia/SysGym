@@ -545,6 +545,7 @@ require_once __DIR__ . '/../inc/config.php';
       </div>
       
         <?php include('asis-chart-home-compara.php'); ?>
+		<?php include('ventas-today.php'); ?>
       
     </div>
 
@@ -556,7 +557,7 @@ require_once __DIR__ . '/../inc/config.php';
       <div class="chart-subtitle">Ingresos de hoy vs. ayer (todas las cajas)</div>
     </div>
     <div class="chart-body">
-      <?php include('ventas-today.php'); ?>
+      
     </div>
   </div>
 
