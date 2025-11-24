@@ -532,7 +532,7 @@ require_once __DIR__ . '/../inc/config.php';
       
     </div>
 
-    <div class="chart-card">
+    <div class="chart-card unique">
       <div class="chart-header">
         <div class="chart-title">Comparativa Diaria</div>
         <div class="chart-subtitle">Asistencias vs. día anterior</div>
