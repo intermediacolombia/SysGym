@@ -11,7 +11,7 @@ require_once __DIR__ . '/../inc/config.php';
 
   <style>
     :root {
-      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --primary-gradient: linear-gradient(135deg, <?= SYSTEM_COLOR_PRIMARY ?> 0%, <?= SYSTEM_COLOR_SECONDARY ?> 100%);
       --bg-light: #f8fafc;
       --card-bg: #ffffff;
       --text-primary: #0f172a;
