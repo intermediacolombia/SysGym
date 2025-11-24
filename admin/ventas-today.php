@@ -22,7 +22,7 @@ body:not(.dark-mode) .chart-card {
 }
 
 body.dark-mode .chart-card {
-    background: #192229!important;
+    background: #212E36!important;
 }
 </style>
 
