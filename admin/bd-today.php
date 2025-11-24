@@ -12,7 +12,7 @@
 $(async function(){
 
     try {
-        let res = await $.getJSON("gets_home/get_cumpleanos_hoy.php");
+        let res = await $.getJSON("/admin/gets_home/get_cumpleanos_hoy.php");
 
         let data = res.data || [];
 
@@ -21,7 +21,7 @@ $(async function(){
             return;
         }
 
-        // 🔥 ESTA ES LA LÍNEA QUE FALTABA
+        
         $("#cumple-empty").hide();
 
         data.forEach(c => {
