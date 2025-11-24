@@ -6,23 +6,32 @@
 </div>
 
 <script>
-$(document).ready(function(){
-    $.ajax({
-        url: 'https://app.activgym.com.co/admin/gets_home/get_cumpleanos_hoy.php',
-        method: 'GET',
-        dataType: 'json',
-        timeout: 5000,
-        success: function(res) {
-            let data = res.data || [];
+console.log("=== INICIO DIAGNÓSTICO ===");
+console.log("1. jQuery existe?", typeof jQuery !== 'undefined');
+console.log("2. $ existe?", typeof $ !== 'undefined');
+console.log("3. Elemento #cumple-list existe?", document.getElementById('cumple-list') !== null);
+console.log("4. Elemento #cumple-empty existe?", document.getElementById('cumple-empty') !== null);
+
+// Intentar con JavaScript puro primero
+fetch('gets_home/get_cumpleanos_hoy.php')
+    .then(response => {
+        console.log("5. Respuesta recibida, status:", response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log("6. JSON parseado:", data);
+        console.log("7. Cantidad de registros:", data.data ? data.data.length : 0);
+        
+        if (!data.data || data.data.length === 0) {
+            document.getElementById('cumple-empty').style.display = 'block';
+            console.log("8. No hay cumpleaños");
+        } else {
+            document.getElementById('cumple-empty').style.display = 'none';
+            console.log("9. Procesando", data.data.length, "cumpleaños");
             
-            if(data.length === 0){
-                $("#cumple-empty").show();
-                return;
-            }
-            
-            $("#cumple-empty").hide();
-            
-            data.forEach(function(c) {
+            data.data.forEach((c, index) => {
+                console.log(`10.${index} Procesando:`, c.nombres, c.apellidos);
+                
                 let foto = c.imagen_perfil 
                     ? '../uploads/clientes/' + c.imagen_perfil
                     : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(c.nombres + ' ' + c.apellidos) + '&background=ff5722&color=fff';
@@ -41,15 +50,19 @@ $(document).ready(function(){
                     </div>
                 </div>`;
                 
-                $("#cumple-list").append(html);
+                document.getElementById('cumple-list').insertAdjacentHTML('beforeend', html);
+                console.log(`11.${index} Tarjeta insertada`);
             });
-        },
-        error: function(xhr, status, error) {
-            console.error("Error al cargar cumpleaños:", status, error);
-            $("#cumple-empty").show().text("Error al cargar cumpleaños");
+            console.log("12. PROCESO COMPLETADO");
         }
+    })
+    .catch(error => {
+        console.error("ERROR:", error);
+        document.getElementById('cumple-empty').style.display = 'block';
+        document.getElementById('cumple-empty').textContent = 'Error: ' + error.message;
     });
-});
+
+console.log("=== FIN DIAGNÓSTICO ===");
 </script>
 
 
