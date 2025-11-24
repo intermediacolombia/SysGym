@@ -28,7 +28,7 @@ require_once __DIR__ . '/../inc/config.php';
 
     body.dark-mode {
       --bg-light: #0f172a;
-      --card-bg: #1e293b;
+      --card-bg: #192229;
       --text-primary: #f1f5f9;
       --text-secondary: #94a3b8;
       --border-color: #334155;
