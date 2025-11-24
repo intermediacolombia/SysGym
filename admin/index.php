@@ -6,294 +6,664 @@ require_once __DIR__ . '/../inc/config.php';
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>Sistema</title>
+  <title>Panel Principal</title>
   <?php include('inc/header.php'); ?>
 
   <style>
-	  
-	  
-	  
+    :root {
+      --primary-gradient: linear-gradient(135deg, <?= SYSTEM_COLOR_PRIMARY ?> 0%, <?= SYSTEM_COLOR_SECONDARY ?> 100%);
+      --bg-light: #f8fafc;
+      --card-bg: #ffffff;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+      --shadow-lg: 0 20px 40px rgba(0,0,0,0.08);
+      --accent-blue: #3b82f6;
+      --accent-green: #10b981;
+      --accent-purple: #8b5cf6;
+      --accent-orange: #f59e0b;
+    }
+
+    body.dark-mode {
+      --bg-light: #0f172a;
+      --card-bg: #192229;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --border-color: #334155;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+      --shadow-lg: 0 20px 40px rgba(0,0,0,0.5);
+    }
+
     /* ===========================
-       LAYOUT GENERAL DASHBOARD
+       CONTAINER PRINCIPAL
     ============================*/
-
-    .dashboard-container {
-        max-width: 1400px;
-        margin-top: 40px;
+    .dashboard-wrapper {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
     }
 
-    /* Hero tipo “Hi Jasica!” */
-    .hero-card {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 24px;
-        padding: 26px 30px;
-        border-radius: 22px;
-        background: linear-gradient(135deg, var(--system-color-primary) 0%, #8A0002 100%);
-        color: #fff;
-        box-shadow: 0 14px 30px rgba(0,0,0,0.30);
-        overflow: hidden;
-        margin-bottom: 32px;
+    /* ===========================
+       HERO SECTION - MINIMALISTA
+    ============================*/
+    .hero-section {
+      margin-bottom: 3rem;
     }
 
-    .hero-main {
-        z-index: 1;
-        max-width: 60%;
+    .hero-greeting {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 0.75rem;
     }
 
-    .hero-title {
-        font-size: 2.3rem;
-        font-weight: 700;
-        margin: 0 0 8px;
+    .hero-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      background: var(--primary-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 32px;
+      box-shadow: var(--shadow-md);
     }
 
-    .hero-title span {
-        display: inline-block;
+    .hero-text h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 0 0.25rem 0;
+      color: var(--text-primary);
     }
 
-    .hero-sub {
-        font-size: 0.95rem;
-        opacity: 0.92;
-        margin-bottom: 10px;
+    .hero-text p {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin: 0;
     }
 
-    .hero-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 4px 10px;
-        border-radius: 999px;
-        background: rgba(0,0,0,0.20);
-        font-size: 0.8rem;
-        font-weight: 600;
+    .hero-stats {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
     }
 
-    .hero-extra {
-        z-index: 1;
-        flex: 1;
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      box-shadow: var(--shadow-sm);
     }
 
-    /* “Ilustración” de fondo suave */
-    .hero-card::before {
-        content: "";
-        position: absolute;
-        right: -40px;
-        bottom: -40px;
-        width: 220px;
-        height: 220px;
-        background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.55), transparent 60%);
-        opacity: 0.4;
-        pointer-events: none;
+    .hero-badge i {
+      color: var(--accent-blue);
     }
 
-    /* Asistencias counter que ya tenías (se posiciona dentro del hero) */
-    .asistencias-counter{
-      position:absolute;
-      right: 24px;
-      bottom: 24px;
-      width: 230px;
-      background: rgba(0,0,0,0.35);
+    /* ===========================
+       KPI CARDS - MODERNOS
+    ============================*/
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 1.75rem;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--primary-gradient);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .kpi-card:hover::before {
+      opacity: 1;
+    }
+
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+    }
+
+    .kpi-icon {
+      width: 56px;
+      height: 56px;
       border-radius: 16px;
-      color:#fff;
-      box-shadow:0 4px 10px rgba(0,0,0,.25);
-    }
-    .asistencias-counter .display-4{
-      font-size:32px;
-      font-weight:700;
-      line-height:1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: white;
     }
 
-    /* GRID PRINCIPAL DEL DASHBOARD (dos columnas como el mockup) */
-    .dashboard-layout {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 28px;
-}
+    .kpi-icon.blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+    .kpi-icon.green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .kpi-icon.purple { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+    .kpi-icon.orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
 
-   
-
-    /* Responsive */
-    @media (max-width: 991.98px) {
-        .hero-card {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .hero-main {
-            max-width: 100%;
-        }
-        .hero-extra {
-            width: 100%;
-            justify-content: flex-start;
-        }
-        .dashboard-layout {
-            grid-template-columns: 1fr;
-        }
+    .kpi-content {
+      flex: 1;
     }
 
-    @media (max-width: 575.98px){
-        .hero-title {
-            font-size: 1.9rem;
-        }
+    .kpi-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .kpi-value {
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: 0.75rem;
+    }
+
+    .kpi-trend {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.375rem 0.75rem;
+      border-radius: 8px;
+    }
+
+    .kpi-trend.positive {
+      color: #059669;
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .kpi-trend.negative {
+      color: #dc2626;
+      background: rgba(220, 38, 38, 0.1);
+    }
+
+    .kpi-trend.neutral {
+      color: var(--text-secondary);
+      background: rgba(100, 116, 139, 0.1);
     }
 
     /* ===========================
-       MODO OSCURO – HERO / LAYOUT
+       CHARTS SECTION
     ============================*/
-    body.dark-mode .hero-card {
-        background: linear-gradient(135deg, #141b23 0%, #222f3b 100%);
-        box-shadow: 0 12px 26px rgba(0,0,0,0.45);
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
     }
 
-    body.dark-mode .hero-card::before {
-        background: radial-gradient(circle at 30% 30%, rgba(82,165,224,0.35), transparent 60%);
-        opacity: 0.5;
+    .chart-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 1.75rem;
+      box-shadow: var(--shadow-md);
     }
 
-    body.dark-mode .hero-tag {
-        background: rgba(0,0,0,0.35);
+    .chart-header {
+      margin-bottom: 1.5rem;
     }
 
-    body.dark-mode .asistencias-counter {
-        background: rgba(0,0,0,0.55);
+    .chart-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
     }
 
-    .welcome-title { /* ya no centrada en body, se integra al hero */
-        color: #fff;
+    .chart-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
     }
+
+    .chart-body {
+      position: relative;
+      height: 300px;
+    }
+
+    .chart-body canvas {
+      max-height: 100% !important;
+    }
+
+    /* ===========================
+       DATA PANELS
+    ============================*/
+    .panels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .panel-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 1.75rem;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      max-height: 500px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .panel-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .panel-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.375rem 0.75rem;
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--accent-blue);
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    .panel-body::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .panel-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .panel-body::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 10px;
+    }
+
+    .panel-body::-webkit-scrollbar-thumb:hover {
+      background: var(--text-secondary);
+    }
+
+    /* ===========================
+       SECTION DIVIDER
+    ============================*/
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 3rem 0 2rem 0;
+    }
+
+    .section-divider h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-color);
+    }
+
+    /* ===========================
+       FLOATING ACTION BUTTON
+    ============================*/
+    .fab-support {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--primary-gradient);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      text-decoration: none;
+    }
+
+    .fab-support:hover {
+      transform: scale(1.1);
+      box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
+    }
+
+    /* ===========================
+       RESPONSIVE
+    ============================*/
+    @media (max-width: 1200px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-wrapper {
+        padding: 1.5rem 1rem;
+      }
+
+      .hero-greeting {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .hero-avatar {
+        width: 64px;
+        height: 64px;
+        font-size: 28px;
+      }
+
+      .hero-text h1 {
+        font-size: 1.75rem;
+      }
+
+      .hero-stats {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .hero-badge {
+        width: 100%;
+      }
+
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .kpi-value {
+        font-size: 2rem;
+      }
+
+      .panels-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-divider h2 {
+        font-size: 1.25rem;
+      }
+    }
+
+    /* ===========================
+       ANIMATIONS
+    ============================*/
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .kpi-card,
+    .chart-card,
+    .panel-card {
+      animation: fadeInUp 0.5s ease-out backwards;
+    }
+
+    .kpi-card:nth-child(1) { animation-delay: 0.1s; }
+    .kpi-card:nth-child(2) { animation-delay: 0.2s; }
+    .kpi-card:nth-child(3) { animation-delay: 0.3s; }
+    .kpi-card:nth-child(4) { animation-delay: 0.4s; }
   </style>
-
 </head>
 <body>
 
 <?php include('inc/menu.php'); ?>
 
 <?php if(isset($_SESSION['error'])): ?>
-  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+  <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
     <?php 
       echo $_SESSION['error'];
       unset($_SESSION['error']);
     ?>
-    <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
-      <span aria-hidden="true">&times;</span>
-    </button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
   </div>
 <?php endif; ?>
 
+<div class="dashboard-wrapper">
 
-<div class="container dashboard-container">
-
-  <!-- ================= HERO PRINCIPAL (tipo “Hi Jasica!”) ================= -->
-  <div class="welcome-wrapper hero-card">
-
-      <div class="hero-main">
-        <h1 class="hero-title">
-          Hola,
-          <span><?= htmlspecialchars($nombre . " " . $apellido); ?></span>
-        </h1>
-        <div class="hero-sub">
-          Bienvenido al panel principal. Aquí puedes ver rápidamente
-          los clientes que asisten, cumplen años, vencen hoy y más.
-        </div>
-        <!--div class="hero-tag">
-          <i class="fas fa-bolt"></i> Panel de control en tiempo real
-        </div-->
+  <!-- ================= HERO SECTION ================= -->
+  <section class="hero-section">
+    <div class="hero-greeting">
+      <div class="hero-avatar">
+        <i class="fas fa-user-circle"></i>
       </div>
-
-      <!-- Aquí sigue usándose tu archivo de estadísticas -->
-      <div class="hero-extra" style="border-radius:25px;">
-        <?php include('statistics_home.php'); ?>
+      <div class="hero-text">
+        <h1>Hola, <?= htmlspecialchars($nombre . " " . $apellido); ?> 👋</h1>
+        <p>Bienvenido a tu panel de gestión del gimnasio</p>
       </div>
+    </div>
+    <!--div class="hero-stats">
+      <div class="hero-badge">
+        <i class="fas fa-chart-line"></i>
+        Panel en tiempo real
+      </div>
+      <div class="hero-badge">
+        <i class="fas fa-dumbbell"></i>
+        Gestión completa
+      </div>
+      <div style="flex: 1;"></div>
+      <?php include('statistics_home.php'); ?>
+    </div-->
+  </section>
+
+  <!-- ================= KPI CARDS - 2x4 GRID ================= -->
+  <?php include('cards_home.php'); ?>
+  <!-- ================= CHARTS SECTION ================= -->
+  <div class="section-divider">
+    <h2>Análisis y Métricas</h2>
   </div>
 
-	
-	<?php include('asis-chart-home.php'); ?>
-	<?php include('asis-chart-home-compara.php'); ?>
-	<?php include('ventas-today.php'); ?>
-  <!-- ================= GRID PRINCIPAL DE TARJETAS ================= -->
-  <div class="dashboard-layout">
-
-    <!-- ===================== COLUMNA IZQUIERDA ===================== -->
-    <div>
-
-      <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Clientes que cumplen años hoy', $_SESSION["user_permissions"])): ?>
-      <div class="dashboard-card">
-        <div class="dashboard-scroll">
-          <?php include('bd-today.php'); ?>
-        </div>
+  <div class="charts-grid">
+    
+    <div class="chart-card unique">
+      <div class="chart-header">
+        <div class="chart-title">Asistencias por Hora</div>
+        <div class="chart-subtitle">Distribución de visitas durante el día de hoy</div>
       </div>
-      <?php endif; ?>
-
-      <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Asistencias', $_SESSION["user_permissions"])): ?>
-      <div class="dashboard-card">
-        <div class="dashboard-scroll">
-          <?php include('asistencias_hoy.php'); ?>
-        </div>
-      </div>
-      <?php endif; ?>
-
-      <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Clientes', $_SESSION["user_permissions"])): ?>
-      <div class="dashboard-card">
-        <div class="dashboard-scroll">
-          <?php include('lastests-clients.php'); ?>
-        </div>
-      </div>
-      <?php endif; ?>
-
+      
+        <?php include('asis-chart-home.php'); ?>
+      
     </div>
 
-    <!-- ===================== COLUMNA DERECHA ======================= -->
-    <div>
-
-      <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Vencimientos de Hoy', $_SESSION["user_permissions"])): ?>
-      <div class="dashboard-card">
-        <div class="dashboard-scroll">
-          <?php include('due-today.php'); ?>
-        </div>
+    <div class="chart-card unique">
+      <div class="chart-header">
+        <div class="chart-title">Comparativa día semana</div>
+        <div class="chart-subtitle">Asistencia hoy Vs. mismo dia de la semana pasada </div>
       </div>
-      <?php endif; ?>
-
-      <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Próximos Pagos a Vencer', $_SESSION["user_permissions"])): ?>
-      <div class="dashboard-card">
-        <div class="dashboard-scroll">
-          <?php include('upcoming-bills.php'); ?>
-        </div>
+      
+        <?php include('asis-chart-home-compara.php'); ?>
+		<hr>
+		<div class="chart-header">
+        <div class="chart-title">Ventas Comparadas</div>
+      <div class="chart-subtitle">Ingresos de hoy vs. ayer (todas las cajas)</div>
       </div>
-      <?php endif; ?>
-
-      <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver y Crear Creditos', $_SESSION["user_permissions"])): ?>
-      <div class="dashboard-card">
-        <div class="dashboard-scroll">
-          <?php include('credits.php'); ?>
-        </div>
-      </div>
-      <?php endif; ?>
-
+		
+		<?php include('ventas-today.php'); ?>
+      
     </div>
 
-  </div><!-- /dashboard-layout -->
+  </div>
 
-</div><!-- /container -->
+  
+  <!-- ================= DATA PANELS ================= -->
+  <div class="section-divider">
+    <h2>Información Detallada</h2>
+  </div>
 
+  <div class="panels-grid">
 
-<!-- BOTÓN SOPORTE -->
-<div class="text-center mt-4">
-  <a href="<?php echo $url;?>/admin/support/" class="btn btn-outline-primary">
-    <i class="fas fa-question-circle"></i> ¿Necesitas ayuda?
-  </a>
+    <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Clientes que cumplen años hoy', $_SESSION["user_permissions"])): ?>
+    <div class="panel-card">
+      <div class="panel-header">
+        <div class="panel-title">🎂 Cumpleaños de Hoy</div>
+        <span class="panel-badge">
+          <i class="fas fa-cake-candles"></i>
+          Felicitaciones
+        </span>
+      </div>
+      <div class="panel-body">
+        <?php include('bd-today.php'); ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Vencimientos de Hoy', $_SESSION["user_permissions"])): ?>
+    <div class="panel-card">
+      <div class="panel-header">
+        <div class="panel-title">⏰ Planes que Vencen Hoy</div>
+        <span class="panel-badge">
+          <i class="fas fa-exclamation-triangle"></i>
+          Urgente
+        </span>
+      </div>
+      <div class="panel-body">
+        <?php include('due-today.php'); ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Asistencias', $_SESSION["user_permissions"])): ?>
+    <div class="panel-card">
+      <div class="panel-header">
+        <div class="panel-title">✅ Asistencias Registradas</div>
+        <span class="panel-badge">
+          <i class="fas fa-check-circle"></i>
+          Hoy
+        </span>
+      </div>
+      <div class="panel-body">
+        <?php include('asistencias_hoy.php'); ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Próximos Pagos a Vencer', $_SESSION["user_permissions"])): ?>
+    <div class="panel-card">
+      <div class="panel-header">
+        <div class="panel-title">📅 Próximos Pagos</div>
+        <span class="panel-badge">
+          <i class="fas fa-calendar-week"></i>
+          7 días
+        </span>
+      </div>
+      <div class="panel-body">
+        <?php include('upcoming-bills.php'); ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Clientes', $_SESSION["user_permissions"])): ?>
+    <div class="panel-card">
+      <div class="panel-header">
+        <div class="panel-title">👥 Últimos Clientes</div>
+        <span class="panel-badge">
+          <i class="fas fa-user-plus"></i>
+          Recientes
+        </span>
+      </div>
+      <div class="panel-body">
+        <?php include('lastests-clients.php'); ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver y Crear Creditos', $_SESSION["user_permissions"])): ?>
+    <div class="panel-card">
+      <div class="panel-header">
+        <div class="panel-title">💳 Créditos Activos</div>
+        <span class="panel-badge">
+          <i class="fas fa-money-bill-wave"></i>
+          Cartera
+        </span>
+      </div>
+      <div class="panel-body">
+        <?php include('credits.php'); ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
+  </div>
+
 </div>
 
-<?php include('inc/menu-footer.php'); ?>
+<!-- ================= FLOATING ACTION BUTTON ================= -->
+<a href="<?php echo $url;?>/admin/support/" class="fab-support" title="Soporte">
+  <i class="fas fa-question-circle"></i>
+</a>
 
+<?php include('inc/menu-footer.php'); ?>
 
 <!-- ========================== SCRIPTS ========================== -->
 
 <script>
-/* Contador asistencias */
+// Contador de asistencias
 function actualizarContadorAsistencias(){
   fetch('<?php echo $url; ?>/admin/asistencias_count.php')
     .then(r => r.json())
@@ -306,48 +676,71 @@ function actualizarContadorAsistencias(){
     .catch(err => console.error('Error contador asistencias:', err));
 }
 
+// KPIs superiores
+function actualizarKPIs() {
+  fetch('gets_home/get_kpis_home.php')
+    .then(r => r.json())
+    .then(d => {
+      // Asistencias hoy
+      if (typeof d.asistencias_hoy !== 'undefined') {
+        document.getElementById('kpi-asistencias-hoy').textContent = d.asistencias_hoy;
+      }
+      
+      // Clientes activos
+      if (typeof d.clientes_activos !== 'undefined') {
+        document.getElementById('kpi-clientes-activos').textContent = d.clientes_activos;
+      }
+      
+      // Ventas hoy
+      if (typeof d.ventas_hoy !== 'undefined') {
+        document.getElementById('kpi-ventas-hoy').textContent = 
+          "$" + Number(d.ventas_hoy).toLocaleString('es-CO', {maximumFractionDigits:0});
+      }
+      
+      // Créditos activos
+      if (typeof d.creditos_activos !== 'undefined') {
+        document.getElementById('kpi-creditos-activos').textContent = d.creditos_activos;
+      }
+
+      // Trend ventas vs ayer
+      if (d.ventas_vs_ayer && typeof d.ventas_vs_ayer.percent !== 'undefined') {
+        const trend = document.getElementById('kpi-ventas-trend');
+        const p = d.ventas_vs_ayer.percent;
+        if (p > 0) {
+          trend.innerHTML = `<i class="fas fa-arrow-up"></i> +${p}% vs ayer`;
+          trend.classList.remove('negative','neutral');
+          trend.classList.add('positive');
+        } else if (p < 0) {
+          trend.innerHTML = `<i class="fas fa-arrow-down"></i> ${p}% vs ayer`;
+          trend.classList.remove('positive','neutral');
+          trend.classList.add('negative');
+        } else {
+          trend.innerHTML = `<i class="fas fa-minus"></i> Sin cambios`;
+          trend.classList.remove('positive','negative');
+          trend.classList.add('neutral');
+        }
+      }
+    })
+    .catch(err => {
+      console.error('Error KPIs home:', err);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   actualizarContadorAsistencias();
-  setInterval(actualizarContadorAsistencias, 10000);
+  actualizarKPIs();
+  
+  // Actualizar cada 30 segundos
+  setInterval(() => {
+    actualizarContadorAsistencias();
+    actualizarKPIs();
+  }, 30000);
 });
 </script>
 
+	
 
-<script>
-$(function () {
-
-  /* DataTables solo si existe la tabla */
-  function iniDT(selector, orderCol, orderDir='asc') {
-    if ($(selector).length && !$.fn.DataTable.isDataTable(selector)) {
-      $(selector).DataTable({
-        pageLength: 10,
-        order: [[orderCol, orderDir]],
-        language: { url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json" }
-      });
-    }
-  }
-
-  iniDT('#asistencias-hoy', 1, 'desc');
-  iniDT('#cumpleanos-hoy', 0, 'asc');
-  iniDT('#latest-clients', 0, 'desc');
-  iniDT('#creditos-activos', 4, 'asc');
-  iniDT('#planes-hoy', 0, 'asc');
-  iniDT('#upcoming-payments', 4, 'asc');
-
-  /* Click en filas → perfil cliente (por si aún usas tablas en otro lado) */
-  $(document).on('click', 'table tbody tr[data-id]', function () {
-    const id = $(this).data('id');
-    if (id) {
-      window.location.href =
-        "<?php echo $url; ?>/admin/clients/detail.php?id=" + encodeURIComponent(id);
-    }
-  });
-
-});
-</script>
-
+	
 </body>
 </html>
-
-
 

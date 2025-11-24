@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../../inc/config.php';
 date_default_timezone_set('America/Bogota');
 
-$hoy = "2025-11-21";
+
 $hace7 = date('Y-m-d', strtotime("$hoy-7 days"));
 
 try {

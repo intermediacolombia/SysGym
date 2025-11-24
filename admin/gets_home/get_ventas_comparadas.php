@@ -1,8 +1,6 @@
 <?php
 require_once __DIR__ . '/../../inc/config.php';
-date_default_timezone_set('America/Bogota');
 
-// FECHA FIJA PARA PRUEBAS
 $ayer = date('Y-m-d', strtotime("$hoy -1 day"));
 
 try {
