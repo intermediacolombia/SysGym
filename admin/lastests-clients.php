@@ -3,6 +3,7 @@
 <div class="card-list-wrapper" id="ultimos-list">
 
     <div class="card-list-empty" id="ultimos-empty" style="display:none;">
+		<i class="fas fa-check-circle text-success" style="font-size:22px;display:block;margin-bottom:6px;"></i>
         No hay clientes registrados aún.
     </div>
 

@@ -3,6 +3,7 @@
 <div class="card-list-wrapper" id="prox-list">
 
     <div class="card-list-empty" id="prox-empty" style="display:none;">
+		<i class="fas fa-check-circle text-success" style="font-size:22px;display:block;margin-bottom:6px;"></i>
         No hay pagos por vencer en los próximos 7 días.
     </div>
 

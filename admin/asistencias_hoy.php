@@ -3,6 +3,7 @@
 <div class="card-list-wrapper" id="asis-list">
 
     <div class="card-list-empty" id="asis-empty" style="display:none;">
+		<i class="fas fa-check-circle text-success" style="font-size:22px;display:block;margin-bottom:6px;"></i>
         No hay asistencias registradas hoy.
     </div>
 

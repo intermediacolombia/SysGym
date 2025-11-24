@@ -3,7 +3,7 @@
 <div class="card-list-wrapper" id="vencen-list">
 
     <div class="card-list-empty" id="vencen-empty" style="display:none;">
-        <i class="fas fa-check-circle" style="font-size:22px;display:block;margin-bottom:6px;"></i>
+        <i class="fas fa-check-circle text-success" style="font-size:22px;display:block;margin-bottom:6px;"></i>
         No hay planes por vencer hoy.
     </div>
 

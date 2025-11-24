@@ -2,6 +2,7 @@
 
 <div class="card-list-wrapper" id="creditos-list">
     <div class="card-list-empty" id="creditos-empty" style="display:none;">
+		<i class="fas fa-check-circle text-success" style="font-size:22px;display:block;margin-bottom:6px;"></i>
         No hay créditos activos.
     </div>
 </div>
