@@ -1,86 +1,74 @@
-<?php
-/** Últimos 5 clientes inscritos */
-require_once __DIR__ . '/login/session.php';
-require_once __DIR__ . '/../inc/config.php';
-
-try {
-
-    $stmt = db()->prepare("
-        SELECT c.id,
-               c.nombres,
-               c.apellidos,
-               c.telefono,
-               c.vencimiento_plan,
-               c.imagen_perfil,
-               p.nombre AS plan
-        FROM clientes c
-        LEFT JOIN planes p ON c.plan = p.id
-        WHERE c.borrado = 0
-        ORDER BY c.id DESC
-        LIMIT 5
-    ");
-    $stmt->execute();
-    $clientes5 = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-} catch (PDOException $e) {
-    die('Error: '.$e->getMessage());
-}
-?>
-
 <div class="section-title mb-3">Últimos 5 clientes inscritos</div>
 
-<div class="card-list-wrapper">
+<div class="card-list-wrapper" id="ultimos-list">
 
-<?php if (empty($clientes5)): ?>
-
-    <div class="card-list-empty">
+    <div class="card-list-empty" id="ultimos-empty" style="display:none;">
         No hay clientes registrados aún.
     </div>
 
-<?php else: ?>
+</div>
 
-    <?php foreach ($clientes5 as $c): ?>
+<script>
+fetch('gets_home/get_ultimos_clientes.php')
+    .then(r => r.json())
+    .then(result => {
 
-        <?php
-            // Foto real o avatar
-            $foto = (!empty($c['imagen_perfil']))
-                ? '../uploads/clientes/'.$c['imagen_perfil']
-                : 'https://ui-avatars.com/api/?name='.urlencode($c['nombres'].' '.$c['apellidos']).'&background=6c63ff&color=fff';
-        ?>
+        const data = result.data || [];
 
-        <div class="card-item" onclick="window.location.href='clients/detail.php?id=<?= $c['id'] ?>'">
+        if (data.length === 0) {
+            document.getElementById('ultimos-empty').style.display = 'block';
+            return;
+        }
 
-            <div class="card-avatar">
-                <img src="<?= $foto ?>" class="card-avatar-img" alt="foto">
-            </div>
+        document.getElementById('ultimos-empty').style.display = 'none';
 
-            <div class="card-info">
-                <div class="card-title">
-                    <?= htmlspecialchars($c['nombres'].' '.$c['apellidos']) ?>
+        data.forEach(c => {
+
+            let foto = c.imagen_perfil
+                ? '../uploads/clientes/' + c.imagen_perfil
+                : 'https://ui-avatars.com/api/?name=' +
+                    encodeURIComponent(c.nombres + ' ' + c.apellidos) +
+                    '&background=6c63ff&color=fff';
+
+            let html = `
+            <div class="card-item" onclick="window.location.href='clients/detail.php?id=${c.id}'">
+
+                <div class="card-avatar">
+                    <img src="${foto}" class="card-avatar-img" alt="foto">
                 </div>
 
-                <div class="card-sub">
-                    Tel: <?= htmlspecialchars($c['telefono'] ?: '—') ?><br>
+                <div class="card-info">
+                    <div class="card-title">${c.nombres} ${c.apellidos}</div>
 
-                    <span class="badge-pill badge-purple">
-                        <?= htmlspecialchars($c['plan'] ?: 'Sin plan') ?>
+                    <div class="card-sub">
+                        Tel: ${c.telefono || '—'}<br>
+                        <span class="badge-pill badge-purple">
+                            ${c.plan || 'Sin plan'}
+                        </span>
+                    </div>
+                </div>
+
+                <div>
+                    <span class="badge-pill badge-orange">
+                        ${c.vencimiento_plan || '—'}
                     </span>
                 </div>
-            </div>
 
-            <div>
-                <span class="badge-pill badge-orange">
-                    <?= htmlspecialchars($c['vencimiento_plan'] ?: '—') ?>
-                </span>
-            </div>
+            </div>`;
 
-        </div>
+            document.getElementById('ultimos-list')
+                .insertAdjacentHTML('beforeend', html);
+        });
 
-    <?php endforeach; ?>
+    })
+    .catch(error => {
+        console.error("Error últimos clientes", error);
+        document.getElementById('ultimos-empty').style.display = 'block';
+        document.getElementById('ultimos-empty').textContent = 
+            'Error al cargar información.';
+    });
+</script>
 
-<?php endif; ?>
-
-</div>
 
 
 
