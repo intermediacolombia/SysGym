@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../inc/config.php';
+require_once __DIR__ . '/../../inc/config.php';
 date_default_timezone_set('America/Bogota');
 
 $hoy = "2025-11-21";
