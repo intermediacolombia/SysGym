@@ -551,16 +551,7 @@ require_once __DIR__ . '/../inc/config.php';
 
   </div>
 
-  <div class="chart-card" style="margin-bottom: 3rem;">
-    <div class="chart-header">
-      <div class="chart-title">Ventas Comparadas</div>
-      <div class="chart-subtitle">Ingresos de hoy vs. ayer (todas las cajas)</div>
-    </div>
-    <div class="chart-body">
-      
-    </div>
-  </div>
-
+  
   <!-- ================= DATA PANELS ================= -->
   <div class="section-divider">
     <h2>Información Detallada</h2>

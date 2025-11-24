@@ -1,4 +1,5 @@
-<div class="section-title mb-3">Ventas comparadas con el día anterior</div>
+<div class="chart-title">Ventas Comparadas</div>
+      <div class="chart-subtitle">Ingresos de hoy vs. ayer (todas las cajas)</div>
 
 <div class="card-list-wrapper" id="ventas-wrapper">
 
