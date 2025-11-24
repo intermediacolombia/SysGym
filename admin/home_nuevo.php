@@ -6,394 +6,472 @@ require_once __DIR__ . '/../inc/config.php';
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>Panel principal</title>
+  <title>Panel Principal</title>
   <?php include('inc/header.php'); ?>
 
   <style>
     :root {
-      --dash-bg-light: #f3f4f6;
-      --dash-card-bg: rgba(255,255,255,0.92);
-      --dash-border-subtle: rgba(148,163,184,0.25);
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --bg-light: #f8fafc;
+      --card-bg: #ffffff;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+      --shadow-lg: 0 20px 40px rgba(0,0,0,0.08);
+      --accent-blue: #3b82f6;
+      --accent-green: #10b981;
+      --accent-purple: #8b5cf6;
+      --accent-orange: #f59e0b;
     }
+
     body.dark-mode {
-      --dash-bg-light: #020617;
-      --dash-card-bg: rgba(15,23,42,0.92);
-      --dash-border-subtle: rgba(148,163,184,0.15);
+      --bg-light: #0f172a;
+      --card-bg: #1e293b;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --border-color: #334155;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+      --shadow-lg: 0 20px 40px rgba(0,0,0,0.5);
     }
 
     body {
-      background: radial-gradient(circle at top, rgba(95,202,0,0.08), transparent 55%),
-                  radial-gradient(circle at bottom, rgba(139,0,0,0.12), transparent 65%),
-                  var(--dash-bg-light) !important;
+      background: var(--bg-light);
+      color: var(--text-primary);
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     /* ===========================
-       LAYOUT GENERAL DASHBOARD
+       CONTAINER PRINCIPAL
     ============================*/
-    .dashboard-container {
-      max-width: 1400px;
-      margin-top: 32px;
-      margin-bottom: 40px;
+    .dashboard-wrapper {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
     }
 
     /* ===========================
-       HERO PRINCIPAL (ULTRA MODERNO)
+       HERO SECTION - MINIMALISTA
     ============================*/
-    .hero-card {
-      position: relative;
-      display: grid;
-      grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1.2fr);
-      gap: 24px;
-      padding: 22px 26px;
-      border-radius: 26px;
-      background: radial-gradient(circle at top left, rgba(255,255,255,0.28), transparent 45%),
-                  linear-gradient(120deg, var(--system-color-primary, #5FCA00) 0%, #8A0002 45%, #111827 100%);
-      color: #fff;
-      box-shadow: 0 22px 40px rgba(15,23,42,0.65);
-      overflow: hidden;
-      margin-bottom: 24px;
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.15);
+    .hero-section {
+      margin-bottom: 3rem;
     }
 
-    .hero-main {
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .hero-header-row {
+    .hero-greeting {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 1.5rem;
+      margin-bottom: 0.75rem;
     }
 
     .hero-avatar {
-      width: 56px;
-      height: 56px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.18);
-      border: 1px solid rgba(255,255,255,0.35);
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      background: var(--primary-gradient);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 10px 24px rgba(15,23,42,0.6);
+      color: white;
+      font-size: 32px;
+      box-shadow: var(--shadow-md);
     }
 
-    .hero-avatar i {
-      font-size: 26px;
-    }
-
-    .hero-title {
-      font-size: 1.95rem;
+    .hero-text h1 {
+      font-size: 2rem;
       font-weight: 700;
+      margin: 0 0 0.25rem 0;
+      color: var(--text-primary);
+    }
+
+    .hero-text p {
+      font-size: 1rem;
+      color: var(--text-secondary);
       margin: 0;
+    }
+
+    .hero-stats {
       display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      gap: 6px;
+      gap: 0.5rem;
+      margin-top: 1rem;
     }
 
-    .hero-title span.name {
-      font-weight: 700;
-    }
-
-    .hero-sub {
-      font-size: 0.95rem;
-      opacity: 0.97;
-      max-width: 620px;
-    }
-
-    .hero-tags-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    .hero-tag {
+    .hero-badge {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      padding: 4px 11px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.45);
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      box-shadow: var(--shadow-sm);
     }
 
-    .hero-tag i {
-      font-size: 0.9rem;
-    }
-
-    .hero-extra {
-      z-index: 1;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      min-width: 260px;
-    }
-
-    .hero-card::before,
-    .hero-card::after {
-      content: "";
-      position: absolute;
-      border-radius: 999px;
-      filter: blur(0);
-      opacity: 0.55;
-      pointer-events: none;
-      mix-blend-mode: screen;
-    }
-
-    .hero-card::before {
-      right: -60px;
-      bottom: -80px;
-      width: 260px;
-      height: 260px;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.85), transparent 60%);
-    }
-
-    .hero-card::after {
-      left: -90px;
-      top: -120px;
-      width: 260px;
-      height: 260px;
-      background: radial-gradient(circle at 40% 40%, rgba(255,255,255,0.35), transparent 60%);
-    }
-
-    body.dark-mode .hero-card {
-      background: radial-gradient(circle at top left, rgba(37,99,235,0.22), transparent 45%),
-                  linear-gradient(120deg, #0f172a 0%, #111827 55%, #020617 100%);
-      border-color: rgba(148,163,184,0.38);
+    .hero-badge i {
+      color: var(--accent-blue);
     }
 
     /* ===========================
-       KPI CARDS
+       KPI CARDS - MODERNOS
     ============================*/
-    .kpi-row {
+    .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0,1fr));
-      gap: 22px;
-      margin: 30px 0;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
     }
 
     .kpi-card {
-      position: relative;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
       border-radius: 20px;
-      padding: 18px 18px 16px;
-      background: var(--dash-card-bg);
-      box-shadow: 0 18px 40px rgba(15,23,42,0.16);
-      border: 1px solid var(--dash-border-subtle);
-      backdrop-filter: blur(12px);
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
+      padding: 1.75rem;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+      position: relative;
       overflow: hidden;
     }
 
+    .kpi-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
     .kpi-card::before {
-      content:"";
-      position:absolute;
-      inset:auto -40px -60px auto;
-      height:120px;
-      width:120px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 30% 30%, rgba(95,202,0,0.22), transparent 60%);
-      opacity: 0.8;
-      pointer-events:none;
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--primary-gradient);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .kpi-card:hover::before {
+      opacity: 1;
     }
 
     .kpi-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      opacity: 0.8;
-      margin-bottom: 3px;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
     }
 
-    .kpi-header i {
-      font-size: 1.05rem;
-      opacity: 0.9;
+    .kpi-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: white;
+    }
+
+    .kpi-icon.blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+    .kpi-icon.green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .kpi-icon.purple { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+    .kpi-icon.orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+
+    .kpi-content {
+      flex: 1;
+    }
+
+    .kpi-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
     }
 
     .kpi-value {
-      font-size: 1.9rem;
+      font-size: 2.25rem;
       font-weight: 700;
-      line-height: 1.2;
-    }
-
-    .kpi-sub {
-      font-size: 0.8rem;
-      opacity: 0.75;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: 0.75rem;
     }
 
     .kpi-trend {
-      font-size: 0.78rem;
-      font-weight: 600;
-      margin-top: 4px;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: rgba(148,163,184,0.1);
+      gap: 0.375rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.375rem 0.75rem;
+      border-radius: 8px;
     }
 
     .kpi-trend.positive {
-      color: #16a34a;
-      background: rgba(22,163,74,0.08);
+      color: #059669;
+      background: rgba(16, 185, 129, 0.1);
     }
 
     .kpi-trend.negative {
       color: #dc2626;
-      background: rgba(220,38,38,0.08);
+      background: rgba(220, 38, 38, 0.1);
     }
 
     .kpi-trend.neutral {
-      color: #6b7280;
+      color: var(--text-secondary);
+      background: rgba(100, 116, 139, 0.1);
     }
 
     /* ===========================
-       CHART CARDS
+       CHARTS SECTION
     ============================*/
-    .chart-row {
+    .charts-grid {
       display: grid;
-      grid-template-columns: minmax(0, 2fr) minmax(0, 1.1fr);
-      gap: 20px;
-      margin-bottom: 26px;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
     }
 
     .chart-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
       border-radius: 20px;
-      padding: 14px 16px 10px;
-      background: var(--dash-card-bg);
-      box-shadow: 0 18px 40px rgba(15,23,42,0.16);
-      border: 1px solid var(--dash-border-subtle);
-      backdrop-filter: blur(12px);
-      height: 100%;
-      display: flex;
-      flex-direction: column;
+      padding: 1.75rem;
+      box-shadow: var(--shadow-md);
     }
 
-    .chart-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-      gap: 10px;
+    .chart-header {
+      margin-bottom: 1.5rem;
     }
 
-    .chart-card-title {
-      font-size: 0.95rem;
+    .chart-title {
+      font-size: 1.125rem;
       font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
     }
 
-    .chart-card-sub {
-      font-size: 0.78rem;
-      opacity: 0.72;
+    .chart-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
     }
 
-    .chart-card canvas {
-      max-height: 260px !important;
+    .chart-body {
+      position: relative;
+      height: 300px;
+    }
+
+    .chart-body canvas {
+      max-height: 100% !important;
     }
 
     /* ===========================
-       GRID DE PANELES (LISTAS)
+       DATA PANELS
     ============================*/
-    .panels-row {
+    .panels-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 22px;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
     }
 
     .panel-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
       border-radius: 20px;
-      padding: 14px 16px 10px;
-      background: var(--dash-card-bg);
-      box-shadow: 0 18px 40px rgba(15,23,42,0.16);
-      border: 1px solid var(--dash-border-subtle);
-      backdrop-filter: blur(10px);
-      max-height: 420px;
+      padding: 1.75rem;
+      box-shadow: var(--shadow-md);
       display: flex;
       flex-direction: column;
+      max-height: 500px;
     }
 
     .panel-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 6px;
-      gap: 10px;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
     }
 
     .panel-title {
-      font-size: 0.95rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .panel-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.375rem 0.75rem;
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--accent-blue);
+      border-radius: 8px;
+      font-size: 0.8rem;
       font-weight: 600;
     }
 
-    .panel-tag {
-      font-size: 0.75rem;
-      padding: 3px 9px;
-      border-radius: 999px;
-      background: rgba(148,163,184,0.16);
-      opacity: 0.9;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .panel-tag i {
-      font-size: 0.85rem;
-    }
-
-    .panel-body-scroll {
-      margin-top: 4px;
+    .panel-body {
+      flex: 1;
       overflow-y: auto;
-      padding-right: 2px;
+      padding-right: 0.5rem;
     }
 
-    .panel-body-scroll::-webkit-scrollbar {
-      width: 4px;
-    }
-    .panel-body-scroll::-webkit-scrollbar-thumb {
-      background: rgba(148,163,184,0.4);
-      border-radius: 999px;
+    .panel-body::-webkit-scrollbar {
+      width: 6px;
     }
 
-    body.dark-mode .panel-body-scroll::-webkit-scrollbar-thumb {
-      background: rgba(148,163,184,0.65);
+    .panel-body::-webkit-scrollbar-track {
+      background: transparent;
     }
 
-    /* RESPONSIVE */
-    @media (max-width: 1199.98px) {
-      .kpi-row {
-        grid-template-columns: repeat(2, minmax(0,1fr));
-      }
-      .chart-row {
+    .panel-body::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 10px;
+    }
+
+    .panel-body::-webkit-scrollbar-thumb:hover {
+      background: var(--text-secondary);
+    }
+
+    /* ===========================
+       SECTION DIVIDER
+    ============================*/
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 3rem 0 2rem 0;
+    }
+
+    .section-divider h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-color);
+    }
+
+    /* ===========================
+       FLOATING ACTION BUTTON
+    ============================*/
+    .fab-support {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--primary-gradient);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      text-decoration: none;
+    }
+
+    .fab-support:hover {
+      transform: scale(1.1);
+      box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
+    }
+
+    /* ===========================
+       RESPONSIVE
+    ============================*/
+    @media (max-width: 1200px) {
+      .charts-grid {
         grid-template-columns: 1fr;
       }
     }
 
-    @media (max-width: 767.98px) {
-      .hero-card {
+    @media (max-width: 768px) {
+      .dashboard-wrapper {
+        padding: 1.5rem 1rem;
+      }
+
+      .hero-greeting {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .hero-avatar {
+        width: 64px;
+        height: 64px;
+        font-size: 28px;
+      }
+
+      .hero-text h1 {
+        font-size: 1.75rem;
+      }
+
+      .hero-stats {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .hero-badge {
+        width: 100%;
+      }
+
+      .kpi-grid {
         grid-template-columns: 1fr;
       }
-      .hero-extra {
-        justify-content: flex-start;
+
+      .kpi-value {
+        font-size: 2rem;
       }
-      .kpi-row {
+
+      .panels-grid {
         grid-template-columns: 1fr;
       }
-      .panels-row {
-        grid-template-columns: 1fr;
+
+      .section-divider h2 {
+        font-size: 1.25rem;
       }
     }
+
+    /* ===========================
+       ANIMATIONS
+    ============================*/
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .kpi-card,
+    .chart-card,
+    .panel-card {
+      animation: fadeInUp 0.5s ease-out backwards;
+    }
+
+    .kpi-card:nth-child(1) { animation-delay: 0.1s; }
+    .kpi-card:nth-child(2) { animation-delay: 0.2s; }
+    .kpi-card:nth-child(3) { animation-delay: 0.3s; }
+    .kpi-card:nth-child(4) { animation-delay: 0.4s; }
   </style>
 </head>
 <body>
@@ -410,249 +488,249 @@ require_once __DIR__ . '/../inc/config.php';
   </div>
 <?php endif; ?>
 
-<div class="container dashboard-container">
+<div class="dashboard-wrapper">
 
-  <!-- ================= HERO PRINCIPAL ================= -->
-  <div class="hero-card">
-    <div class="hero-main">
-      <div class="hero-header-row">
-        <div class="hero-avatar">
-          <i class="fas fa-user-circle"></i>
-        </div>
-        <div>
-          <h1 class="hero-title">
-            Hola,
-            <span class="name"><?= htmlspecialchars($nombre . " " . $apellido); ?></span>
-          </h1>
-          <div class="hero-sub">
-            Este es tu panel principal. Visualiza asistencias, vencimientos, ventas,
-            créditos y la actividad diaria del gimnasio en un solo lugar.
-          </div>
-        </div>
+  <!-- ================= HERO SECTION ================= -->
+  <section class="hero-section">
+    <div class="hero-greeting">
+      <div class="hero-avatar">
+        <i class="fas fa-user-circle"></i>
       </div>
-
-      <div class="hero-tags-row">
-        <div class="hero-tag">
-          <i class="fas fa-bolt"></i> Panel en tiempo real
-        </div>
-        <div class="hero-tag">
-          <i class="fas fa-dumbbell"></i> Gestión de clientes y planes
-        </div>
+      <div class="hero-text">
+        <h1>Hola, <?= htmlspecialchars($nombre . " " . $apellido); ?> 👋</h1>
+        <p>Bienvenido a tu panel de gestión del gimnasio</p>
       </div>
     </div>
-
-    <div class="hero-extra">
+    <div class="hero-stats">
+      <div class="hero-badge">
+        <i class="fas fa-chart-line"></i>
+        Panel en tiempo real
+      </div>
+      <div class="hero-badge">
+        <i class="fas fa-dumbbell"></i>
+        Gestión completa
+      </div>
+      <div style="flex: 1;"></div>
       <?php include('statistics_home.php'); ?>
     </div>
-  </div>
+  </section>
 
-  <!-- ================= KPIs SUPERIORES ================= -->
-  <div class="kpi-row">
-
+  <!-- ================= KPI CARDS ================= -->
+  <div class="kpi-grid">
+    
     <div class="kpi-card">
       <div class="kpi-header">
-        <span>Asistencias hoy</span>
-        <i class="fas fa-walking"></i>
-      </div>
-      <div class="kpi-value" id="kpi-asistencias-hoy">--</div>
-      <div class="kpi-sub">Clientes que han registrado asistencia hoy.</div>
-      <div class="kpi-trend neutral" id="kpi-asistencias-trend">
-        Esperando datos…
-      </div>
-    </div>
-
-    <div class="kpi-card">
-      <div class="kpi-header">
-        <span>Clientes activos</span>
-        <i class="fas fa-users"></i>
-      </div>
-      <div class="kpi-value" id="kpi-clientes-activos">--</div>
-      <div class="kpi-sub">Clientes con plan activo y no borrados.</div>
-      <div class="kpi-trend neutral" id="kpi-clientes-trend">
-        Actualizado diariamente
-      </div>
-    </div>
-
-    <div class="kpi-card">
-      <div class="kpi-header">
-        <span>Ventas de hoy</span>
-        <i class="fas fa-cash-register"></i>
-      </div>
-      <div class="kpi-value" id="kpi-ventas-hoy">$ --</div>
-      <div class="kpi-sub">Total vendido hoy (todas las cajas, sin base).</div>
-      <div class="kpi-trend neutral" id="kpi-ventas-trend">
-        Comparando con el día anterior…
-      </div>
-    </div>
-
-    <div class="kpi-card">
-      <div class="kpi-header">
-        <span>Créditos activos</span>
-        <i class="fas fa-file-invoice-dollar"></i>
-      </div>
-      <div class="kpi-value" id="kpi-creditos-activos">--</div>
-      <div class="kpi-sub">Créditos abiertos de clientes activos.</div>
-      <div class="kpi-trend neutral" id="kpi-creditos-trend">
-        Cartera en seguimiento
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ================= GRÁFICOS PRINCIPALES ================= -->
-  <div class="chart-row">
-
-    <!-- Columna principal: asistencias + ventas -->
-    <div style="display:flex; flex-direction:column; gap:20px;">
-
-      <!-- Asistencias por hora -->
-      <div class="chart-card">
-        <div class="chart-card-header">
-          <div>
-            <div class="chart-card-title">Asistencias por hora (hoy)</div>
-            <div class="chart-card-sub">Distribución de asistencias durante la jornada.</div>
+        <div class="kpi-content">
+          <div class="kpi-label">Asistencias Hoy</div>
+          <div class="kpi-value" id="kpi-asistencias-hoy">--</div>
+          <div class="kpi-trend neutral" id="kpi-asistencias-trend">
+            Cargando...
           </div>
         </div>
+        <div class="kpi-icon blue">
+          <i class="fas fa-walking"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <div class="kpi-content">
+          <div class="kpi-label">Clientes Activos</div>
+          <div class="kpi-value" id="kpi-clientes-activos">--</div>
+          <div class="kpi-trend neutral" id="kpi-clientes-trend">
+            Con plan vigente
+          </div>
+        </div>
+        <div class="kpi-icon green">
+          <i class="fas fa-users"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <div class="kpi-content">
+          <div class="kpi-label">Ventas Hoy</div>
+          <div class="kpi-value" id="kpi-ventas-hoy">$ --</div>
+          <div class="kpi-trend neutral" id="kpi-ventas-trend">
+            Cargando...
+          </div>
+        </div>
+        <div class="kpi-icon purple">
+          <i class="fas fa-cash-register"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <div class="kpi-content">
+          <div class="kpi-label">Créditos Activos</div>
+          <div class="kpi-value" id="kpi-creditos-activos">--</div>
+          <div class="kpi-trend neutral" id="kpi-creditos-trend">
+            Cartera pendiente
+          </div>
+        </div>
+        <div class="kpi-icon orange">
+          <i class="fas fa-file-invoice-dollar"></i>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= CHARTS SECTION ================= -->
+  <div class="section-divider">
+    <h2>Análisis y Métricas</h2>
+  </div>
+
+  <div class="charts-grid">
+    
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Asistencias por Hora</div>
+        <div class="chart-subtitle">Distribución de visitas durante el día de hoy</div>
+      </div>
+      <div class="chart-body">
         <?php include('asis-chart-home.php'); ?>
       </div>
-
-      <!-- Ventas hoy vs ayer -->
-      <div class="chart-card" style="height: 320px;">
-        <div class="chart-card-header">
-          <div>
-            <div class="chart-card-title">Ventas comparadas (hoy vs ayer)</div>
-            <div class="chart-card-sub">Total vendido por día, sumando todas las cajas.</div>
-          </div>
-        </div>
-        <?php include('ventas-today.php'); ?>
-      </div>
-
     </div>
 
-    <!-- Columna lateral: asistencias vs día anterior -->
     <div class="chart-card">
-      <div class="chart-card-header">
-        <div>
-          <div class="chart-card-title">Asistencias vs. día anterior</div>
-          <div class="chart-card-sub">Comparativo rápido de actividad diaria.</div>
-        </div>
+      <div class="chart-header">
+        <div class="chart-title">Comparativa Diaria</div>
+        <div class="chart-subtitle">Asistencias vs. día anterior</div>
       </div>
-      <?php include('asis-chart-home-compara.php'); ?>
+      <div class="chart-body">
+        <?php include('asis-chart-home-compara.php'); ?>
+      </div>
     </div>
 
   </div>
 
-  <!-- ================= GRID PRINCIPAL DE LISTAS ================= -->
-  <div class="panels-row">
-
-    <!-- COLUMNA IZQUIERDA -->
-    <div>
-      <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Clientes que cumplen años hoy', $_SESSION["user_permissions"])): ?>
-        <div class="panel-card mb-3">
-          <div class="panel-header">
-            <div class="panel-title">Cumpleaños de hoy</div>
-            <span class="panel-tag">
-              <i class="far fa-smile"></i> Felicitaciones
-            </span>
-          </div>
-          <div class="panel-body-scroll">
-            <?php include('bd-today.php'); ?>
-          </div>
-        </div>
-      <?php endif; ?>
-
-      <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Asistencias', $_SESSION["user_permissions"])): ?>
-        <div class="panel-card mb-3">
-          <div class="panel-header">
-            <div class="panel-title">Asistencias únicas registradas hoy</div>
-            <span class="panel-tag">
-              <i class="fas fa-walking"></i> Actividad
-            </span>
-          </div>
-          <div class="panel-body-scroll">
-            <?php include('asistencias_hoy.php'); ?>
-          </div>
-        </div>
-      <?php endif; ?>
-
-      <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Clientes', $_SESSION["user_permissions"])): ?>
-        <div class="panel-card">
-          <div class="panel-header">
-            <div class="panel-title">Últimos clientes inscritos</div>
-            <span class="panel-tag">
-              <i class="fas fa-user-plus"></i> Nuevos
-            </span>
-          </div>
-          <div class="panel-body-scroll">
-            <?php include('lastests-clients.php'); ?>
-          </div>
-        </div>
-      <?php endif; ?>
+  <div class="chart-card" style="margin-bottom: 3rem;">
+    <div class="chart-header">
+      <div class="chart-title">Ventas Comparadas</div>
+      <div class="chart-subtitle">Ingresos de hoy vs. ayer (todas las cajas)</div>
     </div>
-
-    <!-- COLUMNA DERECHA -->
-    <div>
-      <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Vencimientos de Hoy', $_SESSION["user_permissions"])): ?>
-        <div class="panel-card mb-3">
-          <div class="panel-header">
-            <div class="panel-title">Planes que vencen hoy</div>
-            <span class="panel-tag">
-              <i class="far fa-clock"></i> Urgente
-            </span>
-          </div>
-          <div class="panel-body-scroll">
-            <?php include('due-today.php'); ?>
-          </div>
-        </div>
-      <?php endif; ?>
-
-      <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Próximos Pagos a Vencer', $_SESSION["user_permissions"])): ?>
-        <div class="panel-card mb-3">
-          <div class="panel-header">
-            <div class="panel-title">Próximos pagos (7 días)</div>
-            <span class="panel-tag">
-              <i class="fas fa-calendar-alt"></i> Agenda
-            </span>
-          </div>
-          <div class="panel-body-scroll">
-            <?php include('upcoming-bills.php'); ?>
-          </div>
-        </div>
-      <?php endif; ?>
-
-      <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver y Crear Creditos', $_SESSION["user_permissions"])): ?>
-        <div class="panel-card">
-          <div class="panel-header">
-            <div class="panel-title">Créditos activos</div>
-            <span class="panel-tag">
-              <i class="fas fa-file-invoice-dollar"></i> Cartera
-            </span>
-          </div>
-          <div class="panel-body-scroll">
-            <?php include('credits.php'); ?>
-          </div>
-        </div>
-      <?php endif; ?>
+    <div class="chart-body">
+      <?php include('ventas-today.php'); ?>
     </div>
+  </div>
 
-  </div><!-- /panels-row -->
+  <!-- ================= DATA PANELS ================= -->
+  <div class="section-divider">
+    <h2>Información Detallada</h2>
+  </div>
 
-</div><!-- /dashboard-container -->
+  <div class="panels-grid">
 
+    <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Clientes que cumplen años hoy', $_SESSION["user_permissions"])): ?>
+    <div class="panel-card">
+      <div class="panel-header">
+        <div class="panel-title">🎂 Cumpleaños de Hoy</div>
+        <span class="panel-badge">
+          <i class="fas fa-cake-candles"></i>
+          Felicitaciones
+        </span>
+      </div>
+      <div class="panel-body">
+        <?php include('bd-today.php'); ?>
+      </div>
+    </div>
+    <?php endif; ?>
 
-<!-- BOTÓN SOPORTE -->
-<div class="text-center mt-4 mb-4">
-  <a href="<?php echo $url;?>/admin/support/" class="btn btn-outline-primary">
-    <i class="fas fa-question-circle"></i> ¿Necesitas ayuda?
-  </a>
+    <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Vencimientos de Hoy', $_SESSION["user_permissions"])): ?>
+    <div class="panel-card">
+      <div class="panel-header">
+        <div class="panel-title">⏰ Planes que Vencen Hoy</div>
+        <span class="panel-badge">
+          <i class="fas fa-exclamation-triangle"></i>
+          Urgente
+        </span>
+      </div>
+      <div class="panel-body">
+        <?php include('due-today.php'); ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Asistencias', $_SESSION["user_permissions"])): ?>
+    <div class="panel-card">
+      <div class="panel-header">
+        <div class="panel-title">✅ Asistencias Registradas</div>
+        <span class="panel-badge">
+          <i class="fas fa-check-circle"></i>
+          Hoy
+        </span>
+      </div>
+      <div class="panel-body">
+        <?php include('asistencias_hoy.php'); ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Próximos Pagos a Vencer', $_SESSION["user_permissions"])): ?>
+    <div class="panel-card">
+      <div class="panel-header">
+        <div class="panel-title">📅 Próximos Pagos</div>
+        <span class="panel-badge">
+          <i class="fas fa-calendar-week"></i>
+          7 días
+        </span>
+      </div>
+      <div class="panel-body">
+        <?php include('upcoming-bills.php'); ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Clientes', $_SESSION["user_permissions"])): ?>
+    <div class="panel-card">
+      <div class="panel-header">
+        <div class="panel-title">👥 Últimos Clientes</div>
+        <span class="panel-badge">
+          <i class="fas fa-user-plus"></i>
+          Recientes
+        </span>
+      </div>
+      <div class="panel-body">
+        <?php include('lastests-clients.php'); ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver y Crear Creditos', $_SESSION["user_permissions"])): ?>
+    <div class="panel-card">
+      <div class="panel-header">
+        <div class="panel-title">💳 Créditos Activos</div>
+        <span class="panel-badge">
+          <i class="fas fa-money-bill-wave"></i>
+          Cartera
+        </span>
+      </div>
+      <div class="panel-body">
+        <?php include('credits.php'); ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
+  </div>
+
 </div>
+
+<!-- ================= FLOATING ACTION BUTTON ================= -->
+<a href="<?php echo $url;?>/admin/support/" class="fab-support" title="Soporte">
+  <i class="fas fa-question-circle"></i>
+</a>
 
 <?php include('inc/menu-footer.php'); ?>
 
 <!-- ========================== SCRIPTS ========================== -->
 
 <script>
-// Contador de asistencias (si ya usas asistencias_count.php)
+// Contador de asistencias
 function actualizarContadorAsistencias(){
   fetch('<?php echo $url; ?>/admin/asistencias_count.php')
     .then(r => r.json())
@@ -665,15 +743,8 @@ function actualizarContadorAsistencias(){
     .catch(err => console.error('Error contador asistencias:', err));
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  actualizarContadorAsistencias();
-  setInterval(actualizarContadorAsistencias, 10000);
-});
-</script>
-
-<script>
-// KPIs superiores: usa gets_home/get_kpis_home.php
-document.addEventListener('DOMContentLoaded', () => {
+// KPIs superiores
+function actualizarKPIs() {
   fetch('gets_home/get_kpis_home.php')
     .then(r => r.json())
     .then(d => {
@@ -681,15 +752,18 @@ document.addEventListener('DOMContentLoaded', () => {
       if (typeof d.asistencias_hoy !== 'undefined') {
         document.getElementById('kpi-asistencias-hoy').textContent = d.asistencias_hoy;
       }
+      
       // Clientes activos
       if (typeof d.clientes_activos !== 'undefined') {
         document.getElementById('kpi-clientes-activos').textContent = d.clientes_activos;
       }
+      
       // Ventas hoy
       if (typeof d.ventas_hoy !== 'undefined') {
         document.getElementById('kpi-ventas-hoy').textContent = 
           "$" + Number(d.ventas_hoy).toLocaleString('es-CO', {maximumFractionDigits:0});
       }
+      
       // Créditos activos
       if (typeof d.creditos_activos !== 'undefined') {
         document.getElementById('kpi-creditos-activos').textContent = d.creditos_activos;
@@ -700,15 +774,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const trend = document.getElementById('kpi-ventas-trend');
         const p = d.ventas_vs_ayer.percent;
         if (p > 0) {
-          trend.textContent = `+${p}% vs ayer`;
+          trend.innerHTML = `<i class="fas fa-arrow-up"></i> +${p}% vs ayer`;
           trend.classList.remove('negative','neutral');
           trend.classList.add('positive');
         } else if (p < 0) {
-          trend.textContent = `${p}% vs ayer`;
+          trend.innerHTML = `<i class="fas fa-arrow-down"></i> ${p}% vs ayer`;
           trend.classList.remove('positive','neutral');
           trend.classList.add('negative');
         } else {
-          trend.textContent = `Igual que ayer`;
+          trend.innerHTML = `<i class="fas fa-minus"></i> Sin cambios`;
           trend.classList.remove('positive','negative');
           trend.classList.add('neutral');
         }
@@ -717,6 +791,17 @@ document.addEventListener('DOMContentLoaded', () => {
     .catch(err => {
       console.error('Error KPIs home:', err);
     });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  actualizarContadorAsistencias();
+  actualizarKPIs();
+  
+  // Actualizar cada 30 segundos
+  setInterval(() => {
+    actualizarContadorAsistencias();
+    actualizarKPIs();
+  }, 30000);
 });
 </script>
 
