@@ -15,6 +15,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+let graficoAsistenciasHoy = null; // instancia global
+
 async function cargarGraficoAsistenciasHoy() {
 
     const res = await fetch("gets_home/get_asistencias_por_hora.php");
@@ -22,15 +24,17 @@ async function cargarGraficoAsistenciasHoy() {
 
     const data = json.data || [];
 
-    // Si no hay asistencias → mostrar mensaje vacío
+    const emptyBox = document.getElementById("asist-hoy-empty");
+    const chartBox = document.getElementById("asist-hoy-chart");
+
     if (data.length === 0) {
-        document.getElementById("asist-hoy-empty").style.display = "block";
+        emptyBox.style.display = "block";
+        chartBox.style.display = "none";
         return;
     }
 
-    // Hay datos → ocultar mensaje y mostrar gráfico
-    document.getElementById("asist-hoy-empty").style.display = "none";
-    document.getElementById("asist-hoy-chart").style.display = "block";
+    emptyBox.style.display = "none";
+    chartBox.style.display = "block";
 
     const horas = data.map(r => r.hora + ":00");
     const totales = data.map(r => r.total);
@@ -49,7 +53,27 @@ async function cargarGraficoAsistenciasHoy() {
     gradient.addColorStop(0, fillColor);
     gradient.addColorStop(1, "rgba(0,0,0,0)");
 
-    new Chart(ctx, {
+    // Si ya existe → solo actualiza colores y datos
+    if (graficoAsistenciasHoy) {
+
+        graficoAsistenciasHoy.data.labels = horas;
+        graficoAsistenciasHoy.data.datasets[0].data = totales;
+
+        graficoAsistenciasHoy.data.datasets[0].borderColor = lineColor;
+        graficoAsistenciasHoy.data.datasets[0].backgroundColor = gradient;
+        graficoAsistenciasHoy.data.datasets[0].pointBackgroundColor = lineColor;
+
+        graficoAsistenciasHoy.options.scales.x.ticks.color = fontColor;
+        graficoAsistenciasHoy.options.scales.y.ticks.color = fontColor;
+        graficoAsistenciasHoy.options.scales.x.grid.color = gridColor;
+        graficoAsistenciasHoy.options.scales.y.grid.color = gridColor;
+
+        graficoAsistenciasHoy.update();
+        return;
+    }
+
+    // Crear el gráfico por primera vez
+    graficoAsistenciasHoy = new Chart(ctx, {
         type: "line",
         data: {
             labels: horas,
@@ -85,10 +109,13 @@ async function cargarGraficoAsistenciasHoy() {
 
 }
 
-// Cargar
+// Primera carga
 cargarGraficoAsistenciasHoy();
 
-// Recargar si cambian de claro/oscuro
-document.addEventListener("theme-changed", cargarGraficoAsistenciasHoy);
+// Recargar SOLO colores al cambiar tema
+document.addEventListener("theme-changed", () => {
+    cargarGraficoAsistenciasHoy();
+});
+
 </script>
 
