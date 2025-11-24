@@ -520,7 +520,8 @@ require_once __DIR__ . '/../inc/config.php';
   </section>
 
   <!-- ================= KPI CARDS - 2x4 GRID ================= -->
-  <div class="kpi-grid">
+  
+	<div class="kpi-grid">
 
 <?php
 try {
@@ -528,7 +529,7 @@ try {
     /* ===========================
        FECHAS
     ============================ */
-    $hoy = date('Y-m-d');
+    $hoy          = date('Y-m-d');
     $primerDiaMes = date('Y-m-01');
     $ultimoDiaMes = date('Y-m-t');
 
@@ -569,7 +570,7 @@ try {
     ");
     $stmtNuevos->execute([
         ':inicio' => $primerDiaMes,
-        ':fin' => $ultimoDiaMes
+        ':fin'    => $ultimoDiaMes
     ]);
     $nuevosClientesCount = (int)$stmtNuevos->fetchColumn();
 
@@ -584,14 +585,14 @@ try {
     ");
     $stmtAsistenciasUnicas->execute([
         ':inicio' => $primerDiaMes,
-        ':fin' => $ultimoDiaMes
+        ':fin'    => $ultimoDiaMes
     ]);
     $asistenciasUnicasCount = (int)$stmtAsistenciasUnicas->fetchColumn();
 
 
     /* ===========================
-       5. VENTAS DEL MES
-       SUM(total_vendido)
+       5. VENTAS DEL MES (todas las cajas, sin base)
+       usamos total_vendido en tabla `cajas`
     ============================ */
     $stmtVentasMes = db()->prepare("
         SELECT COALESCE(SUM(total_vendido), 0)
@@ -601,13 +602,26 @@ try {
     ");
     $stmtVentasMes->execute([
         ':inicio' => $primerDiaMes,
-        ':fin' => $ultimoDiaMes
+        ':fin'    => $ultimoDiaMes
     ]);
     $ventasMesTotal = (float)$stmtVentasMes->fetchColumn();
 
 
     /* ===========================
-       6. CREDITOS ACTIVOS
+       6. VENTAS HOY (todas las cajas de hoy, sin base)
+    ============================ */
+    $stmtVentasHoy = db()->prepare("
+        SELECT COALESCE(SUM(total_vendido), 0)
+        FROM cajas
+        WHERE fecha_apertura = :hoy
+          AND borrado = 0
+    ");
+    $stmtVentasHoy->execute([':hoy' => $hoy]);
+    $ventasHoyTotal = (float)$stmtVentasHoy->fetchColumn();
+
+
+    /* ===========================
+       7. CRÉDITOS ACTIVOS
     ============================ */
     $stmtCreditos = db()->query("
         SELECT COUNT(*) 
@@ -621,18 +635,20 @@ try {
 
 
 } catch (PDOException $e) {
-    $vencimientosHoyCount = 0;
-    $clientesActivosCount = 0;
-    $nuevosClientesCount = 0;
+    $vencimientosHoyCount   = 0;
+    $clientesActivosCount   = 0;
+    $nuevosClientesCount    = 0;
     $asistenciasUnicasCount = 0;
-    $ventasMesTotal = 0;
-    $creditosActivosCount = 0;
+    $ventasMesTotal         = 0;
+    $ventasHoyTotal         = 0;
+    $creditosActivosCount   = 0;
 }
 ?>
 
 
 <!-- ===================== TARJETAS KPI ===================== -->
 
+<!-- Vencen hoy -->
 <div class="kpi-card">
   <div class="kpi-header">
     <div class="kpi-content">
@@ -648,7 +664,7 @@ try {
   </div>
 </div>
 
-
+<!-- Clientes activos -->
 <div class="kpi-card">
   <div class="kpi-header">
     <div class="kpi-content">
@@ -664,7 +680,7 @@ try {
   </div>
 </div>
 
-
+<!-- Nuevos este mes -->
 <div class="kpi-card">
   <div class="kpi-header">
     <div class="kpi-content">
@@ -680,7 +696,7 @@ try {
   </div>
 </div>
 
-
+<!-- Asistencias hoy (si tiene permiso) / Créditos activos (si no) -->
 <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Asistencias', $_SESSION["user_permissions"])): ?>
 <div class="kpi-card">
   <div class="kpi-header">
@@ -713,7 +729,7 @@ try {
 </div>
 <?php endif; ?>
 
-
+<!-- Asistencias únicas mes -->
 <div class="kpi-card">
   <div class="kpi-header">
     <div class="kpi-content">
@@ -729,12 +745,32 @@ try {
   </div>
 </div>
 
+<!-- Ventas HOY -->
+<div class="kpi-card">
+  <div class="kpi-header">
+    <div class="kpi-content">
+      <div class="kpi-label">Ventas Hoy</div>
+      <div class="kpi-value">
+        $<?= number_format($ventasHoyTotal, 0, ',', '.') ?>
+      </div>
+      <div class="kpi-trend neutral">
+        <i class="fas fa-cash-register"></i> Todas las cajas de hoy
+      </div>
+    </div>
+    <div class="kpi-icon purple">
+      <i class="fas fa-cash-register"></i>
+    </div>
+  </div>
+</div>
 
+<!-- Ingresos del mes -->
 <div class="kpi-card">
   <div class="kpi-header">
     <div class="kpi-content">
       <div class="kpi-label">Ingresos del Mes</div>
-      <div class="kpi-value">$<?= number_format($ventasMesTotal, 0, ',', '.') ?></div>
+      <div class="kpi-value">
+        $<?= number_format($ventasMesTotal, 0, ',', '.') ?>
+      </div>
       <div class="kpi-trend positive">
         <i class="fas fa-chart-pie"></i> Acumulado <?= date('F') ?>
       </div>
@@ -745,7 +781,7 @@ try {
   </div>
 </div>
 
-
+<!-- Créditos activos (si además quieres verlo siempre) -->
 <div class="kpi-card">
   <div class="kpi-header">
     <div class="kpi-content">
@@ -763,6 +799,7 @@ try {
 
 </div>
 
+	
   <!-- ================= CHARTS SECTION ================= -->
   <div class="section-divider">
     <h2>Análisis y Métricas</h2>
