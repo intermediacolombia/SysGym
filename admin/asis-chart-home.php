@@ -1,6 +1,4 @@
-<div class="section-title mb-3">Asistencias por hora de hoy</div>
 
-<div class="card-list-wrapper" id="asist-hoy-wrapper">
 
     <!-- Mensaje vacío -->
     <div class="card-list-empty" id="asist-hoy-empty" style="display:none;">
@@ -12,8 +10,6 @@
     <div class="chart-card" id="asist-hoy-chart" style="display:none;">
         <canvas id="graficoAsistenciasHoy"></canvas>
     </div>
-
-</div>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
