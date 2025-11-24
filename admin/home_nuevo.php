@@ -505,7 +505,7 @@ require_once __DIR__ . '/../inc/config.php';
         <p>Bienvenido a tu panel de gestión del gimnasio</p>
       </div>
     </div>
-    <div class="hero-stats">
+    <!--div class="hero-stats">
       <div class="hero-badge">
         <i class="fas fa-chart-line"></i>
         Panel en tiempo real
@@ -516,7 +516,7 @@ require_once __DIR__ . '/../inc/config.php';
       </div>
       <div style="flex: 1;"></div>
       <?php include('statistics_home.php'); ?>
-    </div>
+    </div-->
   </section>
 
   <!-- ================= KPI CARDS - 2x4 GRID ================= -->
