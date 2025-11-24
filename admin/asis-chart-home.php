@@ -17,11 +17,13 @@
 <script>
 let graficoAsistenciasHoy = null;
 
+/* ============================================================
+   CARGAR GRÁFICO DE ASISTENCIAS HOY
+   ============================================================ */
 async function cargarGraficoAsistenciasHoy() {
 
     const res = await fetch("gets_home/get_asistencias_por_hora.php");
     const json = await res.json();
-
     const data = json.data || [];
 
     const emptyBox = document.getElementById("asist-hoy-empty");
@@ -32,12 +34,14 @@ async function cargarGraficoAsistenciasHoy() {
         return;
     }
 
+    // --- SIN ASISTENCIAS ---
     if (data.length === 0) {
         emptyBox.style.display = "block";
         chartBox.style.display = "none";
         return;
     }
 
+    // --- HAY DATA ---
     emptyBox.style.display = "none";
     chartBox.style.display = "block";
 
@@ -46,30 +50,37 @@ async function cargarGraficoAsistenciasHoy() {
 
     const canvas = document.getElementById("graficoAsistenciasHoy");
     if (!canvas) {
-        console.error("Falta canvas graficoAsistenciasHoy");
+        console.error("Falta el canvas graficoAsistenciasHoy");
         return;
     }
 
     const ctx = canvas.getContext("2d");
 
-    // Detectar modo oscuro
+    /* ============================================================
+       DETECTAR TEMA (claro / oscuro)
+       ============================================================ */
     const dark = document.body.classList.contains("dark-mode");
 
-    const lineColor = dark ? "rgba(255, 99, 132, 1)" : "rgba(255, 80, 80, 1)";
-    const fillColor = dark ? "rgba(255, 99, 132, 0.20)" : "rgba(255, 80, 80, 0.20)";
-    const gridColor = dark ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.08)";
-    const fontColor = dark ? "#fff" : "#222";
+    const lineColor  = dark ? "rgba(255, 99, 132, 1)"  : "rgba(255, 80, 80, 1)";
+    const fillColor  = dark ? "rgba(255, 99, 132, 0.20)" : "rgba(255, 80, 80, 0.20)";
+    const gridColor  = dark ? "rgba(255,255,255,0.20)" : "rgba(0,0,0,0.06)";
+    const fontColor  = dark ? "#ffffff" : "#222222";
 
-    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
     gradient.addColorStop(0, fillColor);
     gradient.addColorStop(1, "rgba(0,0,0,0)");
 
-    // Destruir el gráfico si ya existe
+    /* ============================================================
+       DESTRUIR EL GRÁFICO PREVIO SI EXISTE
+       ============================================================ */
     if (graficoAsistenciasHoy) {
         graficoAsistenciasHoy.destroy();
         graficoAsistenciasHoy = null;
     }
 
+    /* ============================================================
+       CREAR NUEVO GRÁFICO
+       ============================================================ */
     graficoAsistenciasHoy = new Chart(ctx, {
         type: "line",
         data: {
@@ -89,27 +100,37 @@ async function cargarGraficoAsistenciasHoy() {
         },
         options: {
             responsive: true,
-            plugins: { legend: { display: false } },
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
             scales: {
+                x: {
+                    ticks: { color: fontColor },
+                    grid: { color: gridColor }
+                },
                 y: {
                     beginAtZero: true,
-                    grid: { color: gridColor },
-                    ticks: { color: fontColor }
-                },
-                x: {
-                    grid: { color: gridColor },
-                    ticks: { color: fontColor }
+                    ticks: { color: fontColor },
+                    grid: { color: gridColor }
                 }
             }
         }
     });
 }
 
-// primera carga
+/* ============================================================
+   PRIMERA CARGA
+   ============================================================ */
 cargarGraficoAsistenciasHoy();
 
-// recargar cuando cambie el tema
-document.addEventListener("theme-changed", cargarGraficoAsistenciasHoy);
+/* ============================================================
+   RECARGAR AL CAMBIAR TEMA
+   ============================================================ */
+document.addEventListener("theme-changed", () => {
+    cargarGraficoAsistenciasHoy();
+});
+
 
 </script>
 
