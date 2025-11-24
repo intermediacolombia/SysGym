@@ -77,7 +77,7 @@ async function cargarComparativaAsistencias() {
 // Primera carga
 cargarComparativaAsistencias();
 
-// Actualizar cada 10 segundos
-setInterval(cargarComparativaAsistencias, 10000);
+// Actualizar cada 30 segundos
+setInterval(cargarComparativaAsistencias, 30000);
 </script>
 
