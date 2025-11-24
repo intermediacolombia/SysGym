@@ -15,7 +15,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-let graficoAsistenciasHoy = null;
+let graficoAsistenciasHoy = null; // instancia global
 
 async function cargarGraficoAsistenciasHoy() {
     const res = await fetch("gets_home/get_asistencias_por_hora.php");
@@ -23,11 +23,6 @@ async function cargarGraficoAsistenciasHoy() {
     const data = json.data || [];
     const emptyBox = document.getElementById("asist-hoy-empty");
     const chartBox = document.getElementById("asist-hoy-chart");
-    
-    if (!emptyBox || !chartBox) {
-        console.error("Faltan los contenedores del gráfico.");
-        return;
-    }
     
     if (data.length === 0) {
         emptyBox.style.display = "block";
@@ -40,30 +35,26 @@ async function cargarGraficoAsistenciasHoy() {
     
     const horas = data.map(r => r.hora + ":00");
     const totales = data.map(r => r.total);
-    const canvas = document.getElementById("graficoAsistenciasHoy");
-    
-    if (!canvas) {
-        console.error("Falta canvas graficoAsistenciasHoy");
-        return;
-    }
-    
-    const ctx = canvas.getContext("2d");
+    const ctx = document.getElementById("graficoAsistenciasHoy").getContext("2d");
     
     // Detectar modo oscuro
     const dark = document.body.classList.contains("dark-mode");
-    const gridColor = dark ? "rgba(255, 255, 255, 0.25)" : "rgba(0, 0, 0, 0.08)";
+    const lineColor = dark ? "rgba(255, 99, 132, 1)" : "rgba(255, 80, 80, 1)";
+    const fillColor = dark ? "rgba(255, 99, 132, 0.20)" : "rgba(255, 80, 80, 0.20)";
+    const gridColor = dark ? "rgba(255, 255, 255, 0.3)" : "rgba(0, 0, 0, 0.08)";
     const fontColor = dark ? "#ffffff" : "#222222";
     
     const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-    gradient.addColorStop(0, "rgba(255, 205, 86, 0.5)");
-    gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+    gradient.addColorStop(0, fillColor);
+    gradient.addColorStop(1, "rgba(0,0,0,0)");
     
-    // Destruir el gráfico si ya existe
+    // Destruir y recrear el gráfico siempre que cambie el tema
     if (graficoAsistenciasHoy) {
         graficoAsistenciasHoy.destroy();
         graficoAsistenciasHoy = null;
     }
     
+    // Crear el gráfico
     graficoAsistenciasHoy = new Chart(ctx, {
         type: "line",
         data: {
@@ -71,33 +62,49 @@ async function cargarGraficoAsistenciasHoy() {
             datasets: [{
                 label: "Asistencias",
                 data: totales,
-                borderColor: "rgba(255, 205, 86, 1)",
+                borderColor: lineColor,
                 backgroundColor: gradient,
                 borderWidth: 3,
                 tension: 0.35,
                 fill: true,
-                pointRadius: 4,
-                pointBackgroundColor: "rgba(255, 205, 86, 1)",
+                pointRadius: 5,
+                pointBackgroundColor: lineColor,
                 pointHoverRadius: 8
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: true,
             plugins: { 
                 legend: { display: false } 
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    grid: { color: gridColor },
+                    grid: { 
+                        color: gridColor,
+                        drawBorder: true,
+                        borderColor: fontColor
+                    },
                     ticks: { 
                         color: fontColor,
-                        precision: 0
+                        font: {
+                            size: 12
+                        }
                     }
                 },
                 x: {
-                    grid: { color: gridColor },
-                    ticks: { color: fontColor }
+                    grid: { 
+                        color: gridColor,
+                        drawBorder: true,
+                        borderColor: fontColor
+                    },
+                    ticks: { 
+                        color: fontColor,
+                        font: {
+                            size: 12
+                        }
+                    }
                 }
             }
         }
@@ -107,7 +114,9 @@ async function cargarGraficoAsistenciasHoy() {
 // Primera carga
 cargarGraficoAsistenciasHoy();
 
-// Recargar cuando cambie el tema
-document.addEventListener("theme-changed", cargarGraficoAsistenciasHoy);
+// Recargar completamente al cambiar tema
+document.addEventListener("theme-changed", () => {
+    cargarGraficoAsistenciasHoy();
+});
 </script>
 
