@@ -114,6 +114,8 @@ async function cargarGraficoAsistenciasHoy() {
 // Primera carga
 cargarGraficoAsistenciasHoy();
 
+setInterval(cargarGraficoAsistenciasHoy, 30000);
+
 // Recargar completamente al cambiar tema
 document.addEventListener("theme-changed", () => {
     cargarGraficoAsistenciasHoy();
