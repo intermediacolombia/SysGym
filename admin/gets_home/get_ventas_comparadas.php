@@ -1,36 +1,50 @@
 <?php
 require_once __DIR__ . '/../../inc/config.php';
+date_default_timezone_set('America/Bogota');
+
+// $hoy y $hora vienen desde config.php
+// Ejemplo:
+// $hoy  = date('Y-m-d');
+// $hora = date('H:i:s');
 
 $ayer = date('Y-m-d', strtotime("$hoy -1 day"));
 
 try {
 
     /* ===========================
-       TOTAL HOY — tabla ventas
+       TOTAL HOY — ventas hasta la hora actual
        =========================== */
     $stmt1 = db()->prepare("
         SELECT COALESCE(SUM(valor), 0)
         FROM ventas
         WHERE fecha = :hoy
+          AND hora <= :hora
     ");
-    $stmt1->execute([':hoy' => $hoy]);
+    $stmt1->execute([
+        ':hoy'  => $hoy,
+        ':hora' => $hora
+    ]);
     $ventasHoy = (float)$stmt1->fetchColumn();
 
 
     /* ===========================
-       TOTAL AYER — tabla ventas
+       TOTAL AYER — ventas hasta la misma hora
        =========================== */
     $stmt2 = db()->prepare("
         SELECT COALESCE(SUM(valor), 0)
         FROM ventas
         WHERE fecha = :ayer
+          AND hora <= :hora
     ");
-    $stmt2->execute([':ayer' => $ayer]);
+    $stmt2->execute([
+        ':ayer' => $ayer,
+        ':hora' => $hora
+    ]);
     $ventasAyer = (float)$stmt2->fetchColumn();
 
 
     /* ===========================
-       DIFERENCIAS
+       DIFERENCIA Y PORCENTAJE
        =========================== */
     $diff = $ventasHoy - $ventasAyer;
 
@@ -46,8 +60,9 @@ try {
         "diferencia" => $diff,
         "percent"    => $percent,
         "debug"      => [
-            "hoy"  => $hoy,
-            "ayer" => $ayer
+            "hoy"         => $hoy,
+            "ayer"        => $ayer,
+            "hora"        => $hora
         ]
     ]);
 
@@ -61,5 +76,6 @@ try {
         "error"      => $e->getMessage()
     ]);
 }
+
 
 
