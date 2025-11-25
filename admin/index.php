@@ -535,19 +535,15 @@ require_once __DIR__ . '/../inc/config.php';
     <div class="chart-card unique">
       <div class="chart-header">
         <div class="chart-title">Comparativa día semana</div>
-        <div class="chart-subtitle">Asistencia hoy VS. <?php
-setlocale(LC_TIME, 'es_ES.UTF-8', 'Spanish'); // Configura el locale a español
-
-// Obtiene la fecha actual y la formatea
-echo strftime("%A");
-?> de la semana pasada </div>
+        <div class="chart-subtitle">Asistencia hoy VS. <?php setlocale(LC_TIME, 'es_ES.UTF-8', 'Spanish'); 
+			echo strftime("%A"); ?> de la semana pasada </div>
       </div>
       
         <?php include('asis-chart-home-compara.php'); ?>
 		<hr>
 		<div class="chart-header">
         <div class="chart-title">Ventas Comparadas</div>
-      <div class="chart-subtitle">Ingresos de hoy vs. ayer (todas las cajas)</div>
+      <div class="chart-subtitle">Ingresos de hoy vs. ayer (todas las cajas) a las <?= $hora; ?></div>
       </div>
 		
 		<?php include('ventas-today.php'); ?>
