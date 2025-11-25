@@ -533,26 +533,33 @@ require_once __DIR__ . '/../inc/config.php';
     </div>
 
     <div class="chart-card unique">
-      <div class="chart-header">
-        <div class="chart-title">Comparativa día semana</div>
-        <div class="chart-subtitle">Asistencia hoy VS. <?php setlocale(LC_TIME, 'es_ES.UTF-8', 'Spanish'); 
-			echo strftime("%A"); ?> de la semana pasada <span id="hora-ventas"><?= $hora; ?></span></div>
-      </div>
-      
-        <?php include('asis-chart-home-compara.php'); ?>
-		<hr>
-		<div class="chart-header">
-        <div class="chart-title">Ventas Comparadas</div>
-      <div class="chart-subtitle">
-    Ingresos de hoy vs. ayer (todas las cajas) a las 
-    <span id="hora-ventas"><?= $hora; ?></span>
+  <div class="chart-header">
+    <div class="chart-title">Comparativa día semana</div>
+    <div class="chart-subtitle">
+      Asistencia hoy VS. 
+      <?php 
+      setlocale(LC_TIME, 'es_ES.UTF-8', 'Spanish'); 
+      echo strftime("%A"); 
+      ?> de la semana pasada 
+      <span id="hora-asis"><?= $hora; ?></span>
+    </div>
+  </div>
+
+  <?php include('asis-chart-home-compara.php'); ?>
+
+  <hr>
+
+  <div class="chart-header">
+    <div class="chart-title">Ventas Comparadas</div>
+    <div class="chart-subtitle">
+      Ingresos de hoy vs. ayer (todas las cajas) a las 
+      <span id="hora-ventas"><?= $hora; ?></span>
+    </div>
+  </div>
+
+  <?php include('ventas-today.php'); ?>
 </div>
 
-      </div>
-		
-		<?php include('ventas-today.php'); ?>
-      
-    </div>
 
   </div>
 
@@ -750,24 +757,31 @@ async function actualizarHora() {
         const res = await fetch("gets_home/get_hora.php");
         const data = await res.json();
 
-        if (data.hora) {
-            document.getElementById("hora-ventas").textContent = data.hora;
-        }
+        if (!data.hora) return;
+
+        // Actualizar hora en asistencia
+        const hAsis = document.getElementById("hora-asis");
+        if (hAsis) hAsis.textContent = data.hora;
+
+        // Actualizar hora en ventas
+        const hVentas = document.getElementById("hora-ventas");
+        if (hVentas) hVentas.textContent = data.hora;
 
     } catch (e) {
         console.error("Error actualizando hora", e);
     }
 }
 
-// primera carga
+// Primera carga
 actualizarHora();
 
-// refresco cada 60 segundos
+// Cada 60 segundos
 setInterval(actualizarHora, 60000);
 
-// también recargar al cambiar tema si quieres mantener consistencia visual
+// También actualizar si cambia tema
 document.addEventListener("theme-changed", actualizarHora);
 </script>
+
 
 	
 </body>
