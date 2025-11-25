@@ -543,7 +543,11 @@ require_once __DIR__ . '/../inc/config.php';
 		<hr>
 		<div class="chart-header">
         <div class="chart-title">Ventas Comparadas</div>
-      <div class="chart-subtitle">Ingresos de hoy vs. ayer (todas las cajas) a las <?= $hora; ?></div>
+      <div class="chart-subtitle">
+    Ingresos de hoy vs. ayer (todas las cajas) a las 
+    <span id="hora-ventas"><?= $hora; ?></span>
+</div>
+
       </div>
 		
 		<?php include('ventas-today.php'); ?>
@@ -740,6 +744,30 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 	
+<script>
+async function actualizarHora() {
+    try {
+        const res = await fetch("gets_home/get_hora.php");
+        const data = await res.json();
+
+        if (data.hora) {
+            document.getElementById("hora-ventas").textContent = data.hora;
+        }
+
+    } catch (e) {
+        console.error("Error actualizando hora", e);
+    }
+}
+
+// primera carga
+actualizarHora();
+
+// refresco cada 60 segundos
+setInterval(actualizarHora, 60000);
+
+// también recargar al cambiar tema si quieres mantener consistencia visual
+document.addEventListener("theme-changed", actualizarHora);
+</script>
 
 	
 </body>
