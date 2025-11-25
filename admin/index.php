@@ -540,7 +540,7 @@ require_once __DIR__ . '/../inc/config.php';
       <?php 
       setlocale(LC_TIME, 'es_ES.UTF-8', 'Spanish'); 
       echo strftime("%A"); 
-      ?> de la semana pasada 
+      ?> de la semana pasada a las 
       <span id="hora-asis"><?= $hora; ?></span>
     </div>
   </div>
