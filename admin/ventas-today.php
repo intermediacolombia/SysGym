@@ -108,4 +108,7 @@ cargarGraficoVentas();
 
 // Si tu sistema cambia de claro/oscuro en runtime:
 document.addEventListener("theme-changed", cargarGraficoVentas);
+	
+setInterval(cargarGraficoVentas, 60000);
+
 </script>
