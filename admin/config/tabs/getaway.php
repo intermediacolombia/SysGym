@@ -1,8 +1,8 @@
 <div class="tab-pane fade" id="pasarela" role="tabpanel" aria-labelledby="pasarela-tab">
   <div class="card border-0 shadow-sm mt-3">
     <div class="card-body">
-      <h5 class="mb-3"><i class="fas fa-credit-card me-2 text-primary"></i>Configuración de Pasarela de Pago</h5>
-      <p class="text-muted">Define los parámetros de conexión y ajustes financieros para los pagos en línea.</p>
+      <h5 class="mb-3"><i class="fas fa-bank me-2 text-primary"></i>Configuración de bancos</h5>
+      <p class="text-muted">Define los bancos que estaran disponibles para el pago del cleinte.</p>
       
       <!-- === BANCOS DISPONIBLES === -->
       <div class="row g-4 mb-4">
@@ -23,6 +23,9 @@
       </div>
       
       <hr class="my-4">
+		
+		<h5 class="mb-3"><i class="fas fa-credit-card me-2 text-primary"></i>Configuración de Pasarela de Pago</h5>
+      <p class="text-muted">Define los parámetros de conexión y ajustes financieros para los pagos en línea.</p>
       
       <h6 class="fw-bold text-secondary"><i class="fas fa-key me-2"></i> Credenciales Mercado Pago</h6>
       <div class="row g-4 mt-2">
