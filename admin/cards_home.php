@@ -108,9 +108,9 @@ $ventasHoyTotal = (float)$stmtVentasHoy->fetchColumn();
         SELECT COUNT(*) 
         FROM creditos c
         INNER JOIN clientes cl ON c.idCliente = cl.id
-        WHERE c.estado = 'abierto'
+        WHERE c.estado = 0
           AND cl.borrado = 0 
-          AND cl.estado = 'activo'
+          AND cl.estado = 'activo' AND c.deleted = 0
     ");
     $creditosActivosCount = (int)$stmtCreditos->fetchColumn();
 
