@@ -1,6 +1,9 @@
 <?php 
 require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
+
+// Verificar permisos
+$permisopage = 'Enviar WhatsApp Masivo';
 include('../login/restriction.php');
 ?>
 <!DOCTYPE html>

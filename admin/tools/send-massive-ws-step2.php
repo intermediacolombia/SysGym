@@ -1,4 +1,5 @@
 <?php 
+<?php 
 require_once __DIR__ . '/../login/session.php';
 require_once __DIR__ . '/../../inc/config.php';
 
