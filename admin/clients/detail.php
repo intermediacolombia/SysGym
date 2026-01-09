@@ -103,7 +103,7 @@ try {
     $stmtCr = db()->prepare("
       SELECT COALESCE(SUM(valor),0)
       FROM creditos
-      WHERE idCliente = :id AND estado = 0
+      WHERE idCliente = :id AND estado = 0 AND deleted = 0
     ");
     $stmtCr->execute([':id' => $id]);
     $pendingCredit = (float)$stmtCr->fetchColumn();
