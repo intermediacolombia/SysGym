@@ -538,12 +538,17 @@ $(document).ready(function(){
     // Inicializar DataTable
     if ($('#tablaClientes').length) {
         $('#tablaClientes').DataTable({
-            pageLength: 25,
-            language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json' },
-            columnDefs: [
-                { orderable: false, targets: 0 }
-            ]
-        });
+    paging: false,          // ← desactiva paginación
+    info: true,
+    searching: true,
+    ordering: true,
+    language: {
+        url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
+    },
+    columnDefs: [
+        { orderable: false, targets: 0 }
+    ]
+});
     }
     
     // Seleccionar todos
