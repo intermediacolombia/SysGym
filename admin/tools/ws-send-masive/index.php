@@ -186,6 +186,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
             margin: 3px;
             font-size: 0.85rem;
         }
+		
+		/* Botón flotante */
+.btn-flotante {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-flotante:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+
+.badge-cola {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    border: 2px solid white;
+}
+
+.mensaje-cola-item {
+    border-left: 4px solid #667eea;
+    padding: 12px;
+    margin-bottom: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.mensaje-cola-item:hover {
+    background: #e9ecef;
+}
     </style>
 </head>
 <body>
@@ -431,6 +486,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
     
 </div>
 
+	
+	
+<!-- Botón flotante para ver cola -->
+<button id="btnVerCola" class="btn-flotante" title="Ver mensajes en cola">
+    <i class="fas fa-clock"></i>
+    <span class="badge-cola" id="badgeCola">0</span>
+</button>
+
+<!-- Modal de Cola -->
+<div class="modal fade" id="modalCola" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-list-ul me-2"></i> Mensajes en Cola de Envío
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="contenidoCola">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> Cerrar
+                </button>
+                <button type="button" class="btn btn-danger" id="btnCancelarCola">
+                    <i class="fas fa-trash-alt me-1"></i> Cancelar Toda la Cola
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+	
 <?php include('../../inc/menu-footer.php'); ?>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -484,6 +578,153 @@ $(document).ready(function(){
         sessionStorage.setItem('clientesSeleccionados', JSON.stringify(seleccionados));
         window.location.href = 'send-massive-ws-step2.php';
     });
+	
+	
+	// ══════════════════════════════════════════════════
+// SISTEMA DE COLA DE MENSAJES
+// ══════════════════════════════════════════════════
+
+// Cargar contador de cola al cargar la página
+cargarContadorCola();
+
+// Actualizar cada 10 segundos
+setInterval(cargarContadorCola, 10000);
+
+// Abrir modal al hacer clic en el botón flotante
+$('#btnVerCola').on('click', function() {
+    cargarCola();
+    $('#modalCola').modal('show');
+});
+
+// Función para cargar el contador
+function cargarContadorCola() {
+    $.ajax({
+        url: 'get_cola_count.php',
+        method: 'GET',
+        dataType: 'json',
+        success: function(res) {
+            if (res.count > 0) {
+                $('#badgeCola').text(res.count).show();
+                $('#btnVerCola').show();
+            } else {
+                $('#btnVerCola').hide();
+            }
+        },
+        error: function() {
+            console.error('Error al cargar contador de cola');
+        }
+    });
+}
+
+// Función para cargar la cola completa
+function cargarCola() {
+    $('#contenidoCola').html(`
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+    `);
+    
+    $.ajax({
+        url: 'get_cola_messages.php',
+        method: 'GET',
+        dataType: 'json',
+        success: function(res) {
+            if (res.status === 'success' && res.mensajes.length > 0) {
+                let html = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>${res.mensajes.length}</strong> mensajes pendientes de envío.
+                        Se envían <strong>10 cada 5 minutos</strong> automáticamente.
+                    </div>
+                `;
+                
+                res.mensajes.forEach(function(msg, index) {
+                    html += `
+                        <div class="mensaje-cola-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong>${index + 1}. ${msg.nombre}</strong><br>
+                                    <small class="text-muted">
+                                        <i class="fab fa-whatsapp me-1"></i> ${msg.telefono}
+                                    </small>
+                                </div>
+                                <span class="badge bg-warning text-dark">Pendiente</span>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Mensaje:</small>
+                                <p class="mb-0 small" style="white-space: pre-wrap; max-height: 60px; overflow: hidden;">
+                                    ${msg.mensaje.substring(0, 100)}${msg.mensaje.length > 100 ? '...' : ''}
+                                </p>
+                            </div>
+                            ${msg.adjunto ? '<small class="text-success"><i class="fas fa-paperclip me-1"></i> Con adjunto</small>' : ''}
+                        </div>
+                    `;
+                });
+                
+                $('#contenidoCola').html(html);
+            } else {
+                $('#contenidoCola').html(`
+                    <div class="alert alert-success text-center">
+                        <i class="fas fa-check-circle fa-3x mb-3"></i>
+                        <h5>No hay mensajes en cola</h5>
+                        <p class="mb-0">Todos los mensajes han sido enviados.</p>
+                    </div>
+                `);
+                $('#btnCancelarCola').hide();
+            }
+        },
+        error: function() {
+            $('#contenidoCola').html(`
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error al cargar los mensajes en cola.
+                </div>
+            `);
+        }
+    });
+}
+
+// Cancelar toda la cola
+$('#btnCancelarCola').on('click', function() {
+    Swal.fire({
+        title: '¿Cancelar toda la cola?',
+        html: '<p class="text-danger"><strong>Advertencia:</strong> Deberás volver a crear de nuevo el mensaje masivo.</p><p>¿Seguro que quieres cancelar?</p>',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, cancelar todo',
+        cancelButtonText: 'No, mantener'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: 'cancel_cola.php',
+                method: 'POST',
+                dataType: 'json',
+                success: function(res) {
+                    if (res.status === 'success') {
+                        Swal.fire({
+                            title: '¡Cola cancelada!',
+                            text: `Se eliminaron ${res.eliminados} mensajes pendientes.`,
+                            icon: 'success',
+                            confirmButtonText: 'Aceptar'
+                        }).then(() => {
+                            $('#modalCola').modal('hide');
+                            cargarContadorCola();
+                        });
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'No se pudo cancelar la cola.', 'error');
+                }
+            });
+        }
+    });
+});
     
 });
 
