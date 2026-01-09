@@ -19,7 +19,6 @@
       <th>Valor</th>
       <th>Fecha Límite</th>
       <th>Descripción</th>
-      <th>Acciones</th>
     </tr>
   </thead>
   <tbody>
@@ -76,6 +75,8 @@
 </div>
 
 <!-- Modal para Editar Crédito -->
+
+<!-- Modal para Editar Crédito -->
 <div class="modal fade" id="editCreditModal" tabindex="-1" aria-labelledby="editCreditModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -101,18 +102,18 @@
             <p id="creditDetail" class="form-control-plaintext"></p>
           </div>
 			
-			<!-- Campo para ingresar el pago -->
+          <!-- Campo para ingresar el pago -->
           <div class="mb-3">
             <label for="editPago" class="form-label">Pago</label>
             <input type="number" id="editPago" name="pago" class="form-control" step="any" min="0" placeholder="Ingrese el pago" required>
           </div>
 			
-		<!-- Mostrar el valor restante (calculado en tiempo real) -->
+          <!-- Mostrar el valor restante (calculado en tiempo real) -->
           <div class="mb-3">
             <h2><p id="remainingValueDisplay" class="form-control-plaintext"></p></h2>
           </div>
 			
-          <!-- Nuevo: Selección de Medio de Pago -->
+          <!-- Selección de Medio de Pago -->
           <div class="mb-3">
             <label for="editCreditPaymentMethod" class="form-label">Medio de Pago</label>
             <select name="paymentMethod" id="editCreditPaymentMethod" class="form-select" required>
@@ -121,7 +122,7 @@
               <option value="Transferencia">Transferencia</option>
             </select>
           </div>
-          <!-- Nuevo: Selección de Banco (se muestra solo si es Transferencia) -->
+          <!-- Selección de Banco (se muestra solo si es Transferencia) -->
           <div class="mb-3" id="editCreditBankDiv" style="display: none;">
             <label for="editCreditBankSelection" class="form-label">Seleccione Banco</label>
             <select name="bank" id="editCreditBankSelection" class="form-select">
@@ -133,26 +134,31 @@
             </select>
           </div>
           
-          
           <!-- Otros campos editables -->
           <div class="mb-3">
             <label for="editCreditFechaLimite" class="form-label">Fecha Límite</label>
             <input type="date" class="form-control" id="editCreditFechaLimite" name="fecha_limite">
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-			
-			<?php if(!$caja_id): ?>
-				<div class="alert alert-danger">
-      			No tienes una caja abierta. Por favor abre la caja para continuar con las ventas.
-    			</div>
-			<?php else: ?>
-          		<button type="submit" class="btn btn-primary">Aplicar Pago</button>			
-			<?php endif; ?>
-			
-			
-			
+        <div class="modal-footer d-flex justify-content-between">
+          <!-- BOTÓN ELIMINAR A LA IZQUIERDA -->
+          <div>
+            <?php if (isset($_SESSION["user_permissions"]) && in_array('Eliminar Creditos', $_SESSION["user_permissions"])): ?>
+              <button type="button" id="btnDeleteCreditFromModal" class="btn btn-danger">
+                <i class="fa fa-trash"></i> Eliminar Crédito
+              </button>
+            <?php endif; ?>
+          </div>
+          
+          <!-- BOTONES CANCELAR Y GUARDAR A LA DERECHA -->
+          <div>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <?php if(!$caja_id): ?>
+              <span class="text-danger ms-2"><i class="fa fa-exclamation-circle"></i> Sin caja abierta</span>
+            <?php else: ?>
+              <button type="submit" class="btn btn-primary">Aplicar Pago</button>			
+            <?php endif; ?>
+          </div>
         </div>
       </form>
     </div>
