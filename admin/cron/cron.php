@@ -31,6 +31,7 @@ switch (true) {
 
     case ($minutos % 5 === 0): // cada 5 minutos → Intento envio mensajes de WS
         include 'try_ws.php';        
+        include 'send_massive_pending.php';        
         break;
 
     default:
