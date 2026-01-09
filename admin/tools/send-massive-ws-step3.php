@@ -78,23 +78,43 @@ $(document).ready(function() {
     const btn = $(this);
     const originalText = btn.html();
     
-    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Procesando...');
+    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Guardando...');
+
+    // Crear FormData para enviar archivos
+    const formData = new FormData();
+    formData.append('clientes', JSON.stringify(clientes));
+    formData.append('mensaje', mensaje);
+
+    // Si hay adjunto, recuperarlo del sessionStorage y convertirlo a Blob
+    if (adjunto && adjuntoNombre) {
+        // Convertir Base64 a Blob
+        const arr = adjunto.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        const file = new Blob([u8arr], {type: mime});
+        formData.append('adjunto', file, adjuntoNombre);
+        formData.append('tieneAdjunto', 'true');
+    } else {
+        formData.append('tieneAdjunto', 'false');
+    }
 
     $.ajax({
         url: 'save-massive-ws.php',
         method: 'POST',
-        data: {
-            clientes: clientes,
-            mensaje: mensaje,
-            adjunto: adjunto,
-            adjuntoNombre: adjuntoNombre
-        },
-        dataType: 'json', // Forzamos a que espere un JSON
+        data: formData,
+        processData: false,  // No procesar los datos
+        contentType: false,  // No establecer ningún tipo de contenido
+        dataType: 'json',
         success: function(res) {
             if (res.status === 'success') {
                 Swal.fire({
                     title: '¡Éxito!',
-                    text: 'Los datos se han guardado correctamente.',
+                    text: `Se guardaron ${res.total} mensajes correctamente.`,
                     icon: 'success',
                     confirmButtonText: 'Aceptar'
                 }).then(() => {
@@ -107,9 +127,8 @@ $(document).ready(function() {
             }
         },
         error: function(xhr, status, error) {
-            // Si hay un error de PHP (500) o el JSON está mal formado, entrará aquí
-            console.error(xhr.responseText); // Para que puedas ver el error real en la consola
-            Swal.fire('Error Crítico', 'No se pudo procesar la solicitud. Revisa la consola (F12).', 'error');
+            console.error('Error completo:', xhr.responseText);
+            Swal.fire('Error', 'No se pudo procesar. Revisa la consola (F12).', 'error');
             btn.prop('disabled', false).html(originalText);
         }
     });
