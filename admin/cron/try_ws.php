@@ -23,7 +23,7 @@ $rows = $st->fetchAll(PDO::FETCH_ASSOC);
 
 if (!$rows) {
     echo "No hay mensajes pendientes.\n";
-    exit;
+    return;
 }
 
 $deleteSt = db()->prepare("DELETE FROM ws_outbox WHERE id = :id");
