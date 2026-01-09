@@ -94,7 +94,7 @@ $(document).ready(function() {
     const adjuntoNombre = sessionStorage.getItem('adjuntoNombre');
 
     if (!clientes.length || !mensaje) {
-        window.location.href = 'send-massive-ws.php';
+        window.location.href = '/';
         return;
     }
 
@@ -124,7 +124,7 @@ $('#btnCancelar').on('click', function () {
     }).then((result) => {
         if (result.isConfirmed) {
             sessionStorage.clear();
-            window.location.href = 'send-massive-ws.php';
+            window.location.href = '/';
         }
     });
 });
@@ -181,7 +181,7 @@ $('#btnEditar').on('click', function () {
                     confirmButtonText: 'Aceptar'
                 }).then(() => {
                     sessionStorage.clear();
-                    window.location.href = 'send-massive-ws.php';
+                    window.location.href = '/';
                 });
             } else {
                 Swal.fire('Error', res.message, 'error');
