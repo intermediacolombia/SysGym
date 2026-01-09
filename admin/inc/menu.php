@@ -207,6 +207,7 @@ if (
 
     </div>	
 	<?php endif; ?>
+	
 	<?php if (isset($_SESSION["user_permissions"]) && in_array('Manejar Contabilidad', $_SESSION["user_permissions"])): ?>
 	<a href="#" class="has-submenu" onclick="toggleSubmenu(event)"><i class='fas fa-coins'></i> Contabilidad <i class="fas fa-chevron-down"></i></a>
         <div class="submenu">			
@@ -226,6 +227,21 @@ if (
         <?php endif; ?>
 	</div>	
 	<?php endif; ?>
+	
+	
+	<?php if (isset($_SESSION["user_permissions"]) && in_array('Enviar WhatsApp Masivo', $_SESSION["user_permissions"])): ?>
+	<a href="#" class="has-submenu" onclick="toggleSubmenu(event)"><i class='fas fa-tools'></i> Herramientas <i class="fas fa-chevron-down"></i></a>
+        <div class="submenu">			
+	<?php if (isset($_SESSION["user_permissions"]) && in_array('Enviar WhatsApp Masivo', $_SESSION["user_permissions"])): ?>		
+            <a href="<?php echo $url; ?>/admin/tools/ws-send-masive" onclick="closeSubmenus()">- Envio Masivo WhatsApp
+            </a>
+        <?php endif; ?>
+	
+	<?php endif; ?>
+	
+	
+	
+	
 	 <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver y Editar Usuarios', $_SESSION["user_permissions"])): ?>
 	<a href="#" class="has-submenu" onclick="toggleSubmenu(event)"><i class='fas fa-user-cog'></i> Usuarios <i class="fas fa-chevron-down"></i></a>
         <div class="submenu">
