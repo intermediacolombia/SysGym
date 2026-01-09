@@ -166,7 +166,7 @@ $nombreGimnasio = defined('NAME_GYM') ? NAME_GYM : 'Gimnasio';
     <!-- Alerta si no hay clientes -->
     <div class="alert alert-danger d-none" id="alertNoClientes">
         <i class="fas fa-exclamation-triangle me-2"></i>
-        No hay clientes seleccionados. <a href="send-massive-ws.php">Volver al paso 1</a>
+        No hay clientes seleccionados. <a href="index.php">Volver al paso 1</a>
     </div>
     
     <!-- Resumen de destinatarios -->
@@ -180,7 +180,7 @@ $nombreGimnasio = defined('NAME_GYM') ? NAME_GYM : 'Gimnasio';
                 <small>El mensaje se enviará a todos los clientes seleccionados</small>
             </div>
             <div class="col-auto">
-                <a href="send-massive-ws.php" class="btn btn-outline-light btn-sm">
+                <a href="index.php" class="btn btn-outline-light btn-sm">
                     <i class="fas fa-edit me-1"></i> Modificar selección
                 </a>
             </div>
@@ -354,7 +354,7 @@ $nombreGimnasio = defined('NAME_GYM') ? NAME_GYM : 'Gimnasio';
                         <button type="button" class="btn btn-success btn-lg" id="btnSiguiente" disabled>
                             <i class="fas fa-arrow-right me-2"></i> Siguiente: Confirmar y Enviar
                         </button>
-                        <a href="send-massive-ws.php" class="btn btn-outline-secondary">
+                        <a href="index.php" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left me-2"></i> Volver al Paso 1
                         </a>
                     </div>
