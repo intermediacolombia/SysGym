@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../../inc/config.php';
 
 // Verificar permisos
 $permisopage = 'Enviar WhatsApp Masivo';
-include('../login/restriction.php');
+include('../../login/restriction.php');
 
 // Obtener nombre del gimnasio para las variables
 $nombreGimnasio = defined('NAME_GYM') ? NAME_GYM : 'Gimnasio';

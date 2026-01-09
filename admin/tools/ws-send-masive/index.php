@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../../inc/config.php';
 
 // Verificar permisos
 $permisopage = 'Enviar WhatsApp Masivo';
-include('../login/restriction.php');
+include('../../login/restriction.php');
 
 // Obtener planes activos para el filtro
 $stmtPlanes = db()->prepare("SELECT id, nombre FROM planes WHERE borrado = 0 AND estado = 'activo' ORDER BY nombre");
