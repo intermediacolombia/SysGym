@@ -4,7 +4,7 @@
  * 
  * Envía hasta 10 mensajes masivos pendientes desde envios_masivos_ws.
  * - Si falla: guarda en ws_outbox usando saveFailedWSMessage()
- * - Si tiene éxito: elimina el registro de envios_masivos_ws
+ * - Siempre elimina el registro de envios_masivos_ws (éxito o fallo)
  * 
  * Uso: ejecutar manualmente o vía cron cada 5 minutos
  */
@@ -114,8 +114,9 @@ foreach ($pendientes as $row) {
         $ok++;
         echo "[OK] id=$id nombre='$nombre' phone=$telefono http=$httpCode\n";
     } else {
-        // FALLO: guardar en ws_outbox
+        // FALLO: guardar en ws_outbox Y eliminar de envios_masivos_ws
         saveFailedWSMessage($payload['phonenumber'], $payload['text'], $adjuntoUrl);
+        $deleteSt->execute([':id' => $id]); // ← LÍNEA CRÍTICA
         $fail++;
         
         $why = $error ? "curl: $error" : "http:$httpCode resp:$response";
@@ -130,6 +131,6 @@ foreach ($pendientes as $row) {
 echo "\n═══════════════════════════════════════\n";
 echo "Resumen del envío masivo:\n";
 echo "  ✓ Enviados OK: $ok\n";
-echo "  ✗ Fallidos: $fail\n";
+echo "  ✗ Fallidos (guardados en ws_outbox): $fail\n";
 echo "  Total procesados: " . count($pendientes) . "\n";
 echo "═══════════════════════════════════════\n";
