@@ -118,6 +118,22 @@ $nombreGimnasio = defined('NAME_GYM') ? NAME_GYM : 'Gimnasio';
             border-radius: 10px;
             padding: 15px;
         }
+		
+		.preview-attachment {
+    width: 100%;
+    border-radius: 10px 10px 0 0;
+    margin-bottom: 5px;
+    max-height: 200px;
+    object-fit: cover;
+}
+.preview-file-box {
+    background: rgba(0,0,0,0.05);
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+}
     </style>
 </head>
 <body>
@@ -261,6 +277,25 @@ $nombreGimnasio = defined('NAME_GYM') ? NAME_GYM : 'Gimnasio';
                             Usa las variables para personalizar el mensaje para cada cliente.
                         </small>
                     </div>
+					
+					
+					<!-- Archivo Adjunto -->
+<div class="mb-3">
+    <label for="adjunto" class="form-label"><strong><i class="fas fa-paperclip me-1"></i> Archivo Adjunto (Opcional)</strong></label>
+    <input class="form-control" type="file" id="adjunto" accept="image/*,.pdf,.doc,.docx">
+    <div id="previewAdjuntoContainer" class="mt-2 d-none">
+        <div class="position-relative d-inline-block">
+            <img id="imgPreview" src="#" alt="Vista previa" class="img-thumbnail" style="max-height: 150px;">
+            <div id="fileInfoPreview" class="alert alert-secondary p-2 mb-0 d-none">
+                <i class="fas fa-file-pdf me-2"></i> <span id="fileNameDisplay">archivo.pdf</span>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" id="btnRemoveAdjunto">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    <small class="text-muted d-block mt-1">Puedes adjuntar imágenes (JPG, PNG) o documentos (PDF, DOC).</small>
+</div>
                     
                     <!-- Opciones adicionales -->
                     <div class="mb-3">
@@ -445,6 +480,63 @@ $(document).ready(function(){
         actualizarContadorCaracteres();
         validarFormulario();
     });
+	
+	
+	// Evento: Cambio en el archivo adjunto
+$('#adjunto').on('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        $('#previewAdjuntoContainer').removeClass('d-none');
+        
+        if (file.type.startsWith('image/')) {
+            reader.onload = function(e) {
+                $('#imgPreview').attr('src', e.target.result).removeClass('d-none');
+                $('#fileInfoPreview').addClass('d-none');
+                // Actualizar burbuja de WhatsApp
+                $('#attachmentInPreview').html(`<img src="${e.target.result}" class="preview-attachment">`).removeClass('d-none');
+            }
+        } else {
+            $('#imgPreview').addClass('d-none');
+            $('#fileInfoPreview').removeClass('d-none');
+            $('#fileNameDisplay').text(file.name);
+            // Actualizar burbuja de WhatsApp
+            $('#attachmentInPreview').html(`<div class="preview-file-box"><i class="fas fa-file-alt me-2"></i> ${file.name}</div>`).removeClass('d-none');
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+// Evento: Quitar adjunto
+$('#btnRemoveAdjunto').on('click', function() {
+    $('#adjunto').val('');
+    $('#previewAdjuntoContainer').addClass('d-none');
+    $('#attachmentInPreview').addClass('d-none').html('');
+});
+
+// Modificar el evento del Botón Siguiente para manejar el archivo
+$('#btnSiguiente').on('click', function() {
+    var mensaje = $('#mensaje').val().trim();
+    var fileInput = document.getElementById('adjunto');
+    
+    sessionStorage.setItem('mensajeMasivo', mensaje);
+    
+    if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Guardamos el archivo en Base64 para pasarlo al siguiente paso
+            sessionStorage.setItem('adjuntoMasivo', e.target.result);
+            sessionStorage.setItem('adjuntoNombre', file.name);
+            sessionStorage.setItem('adjuntoTipo', file.type);
+            window.location.href = 'send-massive-ws-step3.php';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        sessionStorage.removeItem('adjuntoMasivo');
+        window.location.href = 'send-massive-ws-step3.php';
+    }
+});
     
     // Evento: Botón siguiente
     $('#btnSiguiente').on('click', function(){
