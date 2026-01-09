@@ -7,7 +7,7 @@ $permisopage = 'Enviar WhatsApp Masivo';
 include('../login/restriction.php');
 
 // Obtener nombre del gimnasio para las variables
-$nombreGimnasio = defined('GYM_NAME') ? GYM_NAME : 'Gimnasio';
+$nombreGimnasio = defined('NAME_GYM') ? NAME_GYM : 'Gimnasio';
 ?>
 <!DOCTYPE html>
 <html lang="es">
