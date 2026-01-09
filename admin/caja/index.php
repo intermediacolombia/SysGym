@@ -520,16 +520,16 @@ $tab-border-radius: 35px;
               <option value="Transferencia">Transferencia</option>
             </select>
           </div>
+			
+			
           <div class="mb-3 d-none" id="splitBankWrap2">
-            <label class="form-label">Banco</label>
-            <select class="form-select" id="splitBank2">
-              <option value="">Seleccione banco</option>
-              <option value="Bancolombia">Bancolombia</option>
-              <option value="Daviplata">Daviplata</option>
-              <option value="Nequi">Nequi</option>
-              <option value="Davivienda">Davivienda</option>
-            </select>
-          </div>
+			  <label class="form-label">Banco</label>
+			  <select class="form-select" id="splitBank2">
+				<?= getBancosOptions() ?>
+			  </select>
+			</div>
+			
+			
           <div class="mb-2">
             <label class="form-label">Valor Pago 2</label>
             <div class="input-group">
@@ -686,74 +686,73 @@ $(function(){
 });
 
   	
+	// Bancos disponibles desde PHP
+var bancosDisponibles = <?= json_encode(getBancosDisponibles()) ?>;
+	
 	//function refreshVentas(){
 	window.refreshVentas = function(){
-    console.log("Ejecutando refreshVentas...");
-    $.ajax({
-      url: 'get_total_caja.php',
-      type: 'GET',
-      data: { caja_id: "<?php echo $caja_id; ?>", _: new Date().getTime() },
-      dataType: 'json',
-      cache: false,
-      success: function(res){
-        console.log("Respuesta de get_total_caja:", res);
-        if(res.status === 'success'){
+  console.log("Ejecutando refreshVentas...");
+  $.ajax({
+    url: 'get_total_caja.php',
+    type: 'GET',
+    data: { caja_id: "<?php echo $caja_id; ?>", _: new Date().getTime() },
+    dataType: 'json',
+    cache: false,
+    success: function(res){
+      console.log("Respuesta de get_total_caja:", res);
+      if(res.status === 'success'){
 
-          var baseCaja = parseFloat($('#baseCaja2').text().replace(/\./g, ''));
-          var efectivoVentas = parseFloat(res.efectivo);
-          var egresos = parseFloat(res.egresos); // Aquí obtienes los egresos
-			
-			
-			
-		// Si egresos es mayor que 0, se muestra " - Egresos" en el span "egresosLabel"
-      	  if (egresos > 0) {
-        	$('#egresosLabel').text(" - Egresos");
-      		} else {
-        		$('#egresosLabel').text("");
-      		}			
-			//end texto
-			
-			
-			
+        var baseCaja = parseFloat($('#baseCaja2').text().replace(/\./g, ''));
+        var efectivoVentas = parseFloat(res.efectivo);
+        var egresos = parseFloat(res.egresos);
 
-          var totalEfectivo = baseCaja + efectivoVentas - egresos;
-
-          $('#efectivoVentas').text(efectivoVentas.toLocaleString('es-CO'));
-          $('#efectivoTotal').text(totalEfectivo.toLocaleString('es-CO'));
-          $('#egresosTotal').text(egresos.toLocaleString('es-CO')); // Mostrar egresos aquí
-
-          var totalBancolombia = parseFloat(res.Transferencias.Bancolombia);
-          var totalDaviplata   = parseFloat(res.Transferencias.Daviplata);
-          var totalNequi       = parseFloat(res.Transferencias.Nequi);
-          var totalDavivienda  = parseFloat(res.Transferencias.Davivienda);
-
-          $('#transferBancolombia2').text(totalBancolombia.toLocaleString('es-CO'));
-          $('#transferDaviplata2').text(totalDaviplata.toLocaleString('es-CO'));
-          $('#transferNequi2').text(totalNequi.toLocaleString('es-CO'));
-          $('#transferDavivienda2').text(totalDavivienda.toLocaleString('es-CO'));
-
-          var totalTransferencias = totalBancolombia + totalDaviplata + totalNequi + totalDavivienda;
-          
-          // Calcula el total final ya considerando egresos restados
-          var totalCaja = totalEfectivo + totalTransferencias;
-          $('#totalCaja2').text(totalCaja.toLocaleString('es-CO'));
-          $('#totalTransferencias').text(totalTransferencias.toLocaleString('es-CO'));
-
-          // Procesar dinámicamente los totales por bolsillos
-          if(res.bolsillos){
-            var bolsillosContainer = $('#bolsillosContainer'); // Asegúrate de tener este contenedor en el HTML
-            bolsillosContainer.empty(); // Limpia el contenedor antes de agregar
-            $.each(res.bolsillos, function(bolsillo, total){
-              bolsillosContainer.append('<strong>' + bolsillo + ':</strong> $' + parseFloat(total).toLocaleString('es-CO') + '<br>');
-            });
-          }
-
+        if (egresos > 0) {
+          $('#egresosLabel').text(" - Egresos");
+        } else {
+          $('#egresosLabel').text("");
         }
-      },
-      error: function(jqXHR, textStatus, errorThrown){
-        console.log("Error en get_total_caja:", textStatus, errorThrown);
+
+        var totalEfectivo = baseCaja + efectivoVentas - egresos;
+
+        $('#efectivoVentas').text(efectivoVentas.toLocaleString('es-CO'));
+        $('#efectivoTotal').text(totalEfectivo.toLocaleString('es-CO'));
+        $('#egresosTotal').text(egresos.toLocaleString('es-CO'));
+
+        // Actualizar transferencias dinámicamente
+        var totalTransferencias = 0;
+        
+        // Recorrer todos los bancos usando la clase
+        $('.transfer-banco').each(function() {
+          var banco = $(this).data('banco');
+          var valor = 0;
+          
+          // Buscar el valor en la respuesta
+          if (res.Transferencias && res.Transferencias[banco] !== undefined) {
+            valor = parseFloat(res.Transferencias[banco]);
+          }
+          
+          $(this).text(valor.toLocaleString('es-CO'));
+          totalTransferencias += valor;
+        });
+
+        var totalCaja = totalEfectivo + totalTransferencias;
+        $('#totalCaja2').text(totalCaja.toLocaleString('es-CO'));
+        $('#totalTransferencias').text(totalTransferencias.toLocaleString('es-CO'));
+
+        // Procesar dinámicamente los totales por bolsillos
+        if(res.bolsillos){
+          var bolsillosContainer = $('#bolsillosContainer');
+          bolsillosContainer.empty();
+          $.each(res.bolsillos, function(bolsillo, total){
+            bolsillosContainer.append('<strong>' + bolsillo + ':</strong> $' + parseFloat(total).toLocaleString('es-CO') + '<br>');
+          });
+        }
       }
-    });
+    },
+    error: function(jqXHR, textStatus, errorThrown){
+      console.log("Error en get_total_caja:", textStatus, errorThrown);
+    }
+  });
 }
 
 
