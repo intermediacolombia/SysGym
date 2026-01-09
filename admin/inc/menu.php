@@ -236,7 +236,7 @@ if (
             <a href="<?php echo $url; ?>/admin/tools/ws-send-masive" onclick="closeSubmenus()">- Envio Masivo WhatsApp
             </a>
         <?php endif; ?>
-	
+	</div>
 	<?php endif; ?>
 	
 	
