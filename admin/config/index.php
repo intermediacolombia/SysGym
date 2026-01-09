@@ -90,7 +90,7 @@ try {
 		
 		<li class="nav-item">
   <button class="nav-link" id="pasarela-tab" data-bs-toggle="tab" data-bs-target="#pasarela" type="button" role="tab" aria-controls="pasarela" aria-selected="false">
-    <i class="fas fa-credit-card"></i> Pasarela de Pago
+    <i class="fas fa-credit-card"></i> Pagos
   </button>
 </li>
 

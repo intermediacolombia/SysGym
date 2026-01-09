@@ -3,9 +3,29 @@
     <div class="card-body">
       <h5 class="mb-3"><i class="fas fa-credit-card me-2 text-primary"></i>Configuración de Pasarela de Pago</h5>
       <p class="text-muted">Define los parámetros de conexión y ajustes financieros para los pagos en línea.</p>
-
-      <div class="row g-4">
-
+      
+      <!-- === BANCOS DISPONIBLES === -->
+      <div class="row g-4 mb-4">
+        <div class="col-12">
+          <div class="mb-3">
+            <label class="form-label d-flex align-items-center gap-2">
+              <strong><i class="fas fa-university me-2 text-success"></i>Bancos Disponibles</strong>
+            </label>
+            <input type="text" name="bancos_disponibles" class="form-control" 
+                   value="<?= htmlspecialchars($settings['bancos_disponibles'] ?? 'Bancolombia,Daviplata,Nequi,Davivienda') ?>" 
+                   placeholder="Ej: Bancolombia,Daviplata,Nequi,Davivienda">
+            <small class="text-muted">
+              <i class="fas fa-info-circle me-1"></i>
+              Lista de bancos separados por coma. Estos aparecerán en los selectores de método de pago por transferencia.
+            </small>
+          </div>
+        </div>
+      </div>
+      
+      <hr class="my-4">
+      
+      <h6 class="fw-bold text-secondary"><i class="fas fa-key me-2"></i> Credenciales Mercado Pago</h6>
+      <div class="row g-4 mt-2">
         <!-- === PUBLIC KEY === -->
         <div class="col-lg-6">
           <div class="mb-4">
@@ -16,7 +36,6 @@
             <small class="text-muted">Clave pública utilizada para integrar el checkout en el frontend.</small>
           </div>
         </div>
-
         <!-- === ACCESS TOKEN === -->
         <div class="col-lg-6">
           <div class="mb-4">
@@ -27,11 +46,10 @@
             <small class="text-muted">Token privado del servidor. Se usa para verificar pagos desde el webhook.</small>
           </div>
         </div>
-
       </div>
-
+      
       <hr class="my-4">
-
+      
       <!-- === AJUSTES FINANCIEROS === -->
       <h6 class="fw-bold text-secondary"><i class="fas fa-percentage me-2"></i> Ajustes Financieros</h6>
       <div class="row g-4 mt-2">
@@ -49,7 +67,6 @@
             <small class="text-muted">Porcentaje adicional aplicado automáticamente al valor del plan al pagar por pasarela.</small>
           </div>
         </div>
-
         <!-- DÍAS PERMITIDOS -->
         <div class="col-lg-6">
           <div class="mb-3">
@@ -63,14 +80,12 @@
             <small class="text-muted">Número de días antes del vencimiento en los que el cliente puede realizar el pago en línea.</small>
           </div>
         </div>
-
       </div>
-
+      
       <div class="alert alert-info small mt-4 mb-0">
         <i class="fas fa-info-circle me-1"></i>
         El porcentaje adicional se usa para cubrir comisiones de la pasarela, y los días de margen controlan cuándo el cliente puede pagar anticipadamente su plan.
       </div>
-
     </div>
   </div>
 </div>
