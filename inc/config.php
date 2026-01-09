@@ -72,6 +72,16 @@ function db() {
 }
 
 
+function getBancosDisponibles() {
+    global $settings; // o como obtengas tus settings
+    
+    $bancos_string = $settings['bancos_disponibles'] ?? '';
+    $bancos = array_map('trim', explode(',', $bancos_string));
+    
+    return $bancos;
+}
+
+
 function fechaBonita($fecha) {
     if (empty($fecha)) return 'No registrado';
 

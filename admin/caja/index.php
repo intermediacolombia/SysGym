@@ -264,13 +264,18 @@ $tab-border-radius: 35px;
                         <option value="Efectivo" selected>Efectivo</option>
                         <option value="Transferencia">Transferencia</option>
                       </select>
-                      <select class="form-select bankSelect d-none" data-producto-id="<?php echo $producto['id']; ?>">
-                        <option value="">Seleccione banco</option>
-                        <option value="Bancolombia">Bancolombia</option>
-                        <option value="Daviplata">Daviplata</option>
-                        <option value="Nequi">Nequi</option>
-                        <option value="Davivienda">Davivienda</option>
-                      </select>
+						
+					<select class="form-select bankSelect d-none" data-producto-id="<?php echo $producto['id']; ?>">
+						  <option value="">Seleccione banco</option>
+						  <?php 
+						  $bancos_string = $settings['bancos_disponibles'] ?? '';
+						  $bancos = array_map('trim', explode(',', $bancos_string));
+						  foreach($bancos as $banco): 
+						  ?>
+							<option value="<?= htmlspecialchars($banco) ?>"><?= htmlspecialchars($banco) ?></option>
+						  <?php endforeach; ?>
+					</select>
+					
                     </td>
 					  <?php if (isset($_SESSION["user_permissions"]) && in_array('Crear creditos productos', $_SESSION["user_permissions"])): ?>
 					<td>
