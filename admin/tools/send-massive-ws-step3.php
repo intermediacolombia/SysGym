@@ -37,12 +37,48 @@ include('../login/restriction.php');
                     </div>
                 </div>
             </div>
+			
+			<!-- Nota de Seguridad Anti-Baneo -->
+<div class="alert alert-warning border-warning mt-4 mb-4">
+    <div class="d-flex">
+        <div class="me-3">
+            <i class="fas fa-shield-alt fa-2x text-warning"></i>
+        </div>
+        <div>
+            <h6 class="alert-heading fw-bold"><i class="fas fa-exclamation-triangle me-1"></i> Protección Anti-Baneo Activa</h6>
+            <p class="mb-0 small">
+                Para proteger tu cuenta de WhatsApp y evitar bloqueos, el sistema procesará los envíos de forma gradual. 
+                <strong>Se enviarán lotes de 10 mensajes cada 5 minutos</strong> automáticamente hasta completar el total de destinatarios.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Botones de acción (aquí van los que ya tienes) -->
+<div class="text-center mt-4">
+    <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <!-- ... tus botones ... -->
             
             <div class="text-center mt-4">
-                <button id="btnFinalizar" class="btn btn-success btn-lg">
-                    <i class="fas fa-save me-2"></i> Confirmar y Guardar en Base de Datos
-                </button>
-            </div>
+    <div class="d-flex justify-content-center gap-3 flex-wrap">
+
+        <!-- Cancelar -->
+        <button id="btnCancelar" class="btn btn-outline-danger btn-lg">
+            <i class="fas fa-times me-2"></i> Cancelar
+        </button>
+
+        <!-- Editar -->
+        <button id="btnEditar" class="btn btn-outline-primary btn-lg">
+            <i class="fas fa-edit me-2"></i> Editar mensaje
+        </button>
+
+        <!-- Confirmar -->
+        <button id="btnFinalizar" class="btn btn-success btn-lg">
+            <i class="fas fa-save me-2"></i> Confirmar
+        </button>
+
+    </div>
+</div>
         </div>
     </div>
 </div>
@@ -73,6 +109,32 @@ $(document).ready(function() {
         $('#adjuntoPreview').removeClass('d-none');
         $('#filePreview').html(`<small class="text-success">${adjuntoNombre}</small>`);
     }
+	
+	// ----------------------------------
+// Cancelar envío
+// ----------------------------------
+$('#btnCancelar').on('click', function () {
+    Swal.fire({
+        title: '¿Cancelar envío?',
+        text: 'Se perderá el mensaje y los adjuntos.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, cancelar',
+        cancelButtonText: 'No'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            sessionStorage.clear();
+            window.location.href = 'send-massive-ws.php';
+        }
+    });
+});
+
+// ----------------------------------
+// Editar mensaje (volver al step 2)
+// ----------------------------------
+$('#btnEditar').on('click', function () {
+    window.location.href = 'send-massive-ws-step2.php';
+});
 
     $('#btnFinalizar').on('click', function() {
     const btn = $(this);
