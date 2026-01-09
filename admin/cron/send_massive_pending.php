@@ -11,8 +11,8 @@
 
 header('Content-Type: text/plain; charset=UTF-8');
 
-require_once __DIR__ . '/../inc/config.php';
-require_once __DIR__ . '/../whatsapp/save_failed_ws.php'; // saveFailedWSMessage($phone, $text, $url)
+require_once __DIR__ . '/../../inc/config.php';
+require_once __DIR__ . '/../../whatsapp/save_failed_ws.php'; // saveFailedWSMessage($phone, $text, $url)
 
 $apiKey      = $api_ws;
 $urlEndpoint = 'https://api.360messenger.com/v2/sendMessage';
