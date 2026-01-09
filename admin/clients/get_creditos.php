@@ -14,7 +14,7 @@ if (!isset($_GET['client_id']) || empty($_GET['client_id'])) {
 $client_id = intval($_GET['client_id']);
 error_log("get_creditos.php: client_id = " . $client_id);
 
-$stmt = db()->prepare("SELECT * FROM creditos WHERE idCliente = :client_id AND estado = 0 ORDER BY id DESC");
+$stmt = db()->prepare("SELECT * FROM creditos WHERE idCliente = :client_id AND estado = 0 AND deleted = 0 ORDER BY id DESC");
 $stmt->bindParam(':client_id', $client_id, PDO::PARAM_INT);
 $stmt->execute();
 $creditos = $stmt->fetchAll(PDO::FETCH_ASSOC);

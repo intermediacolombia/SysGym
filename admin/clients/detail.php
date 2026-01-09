@@ -1110,6 +1110,9 @@ $('#resendConsent').on('click', function() {
  /*-----------------------------
     DataTable: Créditos
   -----------------------------*/
+/*-----------------------------
+    DataTable: Créditos
+  -----------------------------*/
 if ( ! $.fn.DataTable.isDataTable('#creditos-table') ) {
   var creditosTable = $('#creditos-table').DataTable({
     "ajax": {
@@ -1119,7 +1122,7 @@ if ( ! $.fn.DataTable.isDataTable('#creditos-table') ) {
       "dataSrc": "data"
     },
     "columns": [
-      { // ✅ Columna de selección múltiple
+      { // Columna de selección múltiple
         "data": "id",
         "orderable": false,
         "searchable": false,
@@ -1137,25 +1140,108 @@ if ( ! $.fn.DataTable.isDataTable('#creditos-table') ) {
         }
       },
       { "data": "fecha_limite" },
-      { "data": "descripcion" }
+      { "data": "descripcion" },
+      { // NUEVA COLUMNA DE ACCIONES
+        "data": null,
+        "orderable": false,
+        "searchable": false,
+        "className": "text-center",
+        "render": function(data, type, row) {
+          var buttons = '';
+          
+          // Botón Editar/Pagar
+          buttons += '<button type="button" class="btn btn-primary btn-sm me-1 btn-edit-credit" ';
+          buttons += 'data-id="' + row.id + '" ';
+          buttons += 'data-valor="' + row.valor + '" ';
+          buttons += 'data-fecha="' + row.fecha + '" ';
+          buttons += 'data-descripcion="' + (row.descripcion || '').replace(/"/g, '&quot;') + '" ';
+          buttons += 'data-fecha-limite="' + (row.fecha_limite || '') + '" ';
+          buttons += 'title="Editar/Pagar crédito">';
+          buttons += '<i class="fa fa-edit"></i></button>';
+          
+          // Botón Eliminar (solo si tiene permiso)
+          <?php if (isset($_SESSION["user_permissions"]) && in_array('Eliminar Creditos', $_SESSION["user_permissions"])): ?>
+          buttons += '<button type="button" class="btn btn-danger btn-sm btn-delete-credit" ';
+          buttons += 'data-id="' + row.id + '" ';
+          buttons += 'data-valor="' + row.valor + '" ';
+          buttons += 'data-descripcion="' + (row.descripcion || '').replace(/"/g, '&quot;') + '" ';
+          buttons += 'data-fecha="' + row.fecha + '" ';
+          buttons += 'title="Eliminar crédito">';
+          buttons += '<i class="fa fa-trash"></i></button>';
+          <?php endif; ?>
+          
+          return buttons;
+        }
+      }
     ],
-    "order": [[1, "desc"]], // ahora la columna 1 (fecha)
+    "order": [[1, "desc"]],
     "language": {
       "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
     }
   });
 
-  /*───────────────────────────────────────────────
-   * SELECCIÓN INDIVIDUAL Y GLOBAL DE CRÉDITOS
-   *───────────────────────────────────────────────*/
-  // Marcar/deseleccionar todos
+  // ═══════════════════════════════════════════════════════════
+  // EVENTOS DE BOTONES EN LA TABLA
+  // ═══════════════════════════════════════════════════════════
+  
+  // Botón EDITAR crédito
+  $('#creditos-table tbody').on('click', '.btn-edit-credit', function(e) {
+    e.stopPropagation(); // Evitar que se dispare el click de la fila
+    
+    var btn = $(this);
+    var id = btn.data('id');
+    var valor = btn.data('valor');
+    var fecha = btn.data('fecha');
+    var descripcion = btn.data('descripcion');
+    var fechaLimite = btn.data('fecha-limite');
+    
+    // Llenar el modal de edición
+    $('#editCreditId').val(id);
+    $('#editCreditFecha').val(fecha);
+    $('#editCreditFechaLimite').val(fechaLimite);
+    $('#creditDetail').text(descripcion);
+    
+    var originalValue = parseFloat(valor);
+    $('#originalCreditValue').text("$" + originalValue.toLocaleString('es-CO'));
+    $('#editCreditForm').data('originalValue', originalValue);
+    $('#remainingValueDisplay').text("Valor Restante: $" + originalValue.toLocaleString('es-CO'));
+    $('#editPago').val("");
+    
+    // Resetear campos de pago
+    $("#editCreditPaymentMethod").val("");
+    $("#editCreditBankDiv").hide();
+    $("#editCreditBankSelection").val("");
+    
+    var editModal = new bootstrap.Modal(document.getElementById('editCreditModal'));
+    editModal.show();
+  });
+  
+  // Botón ELIMINAR crédito
+  <?php if (isset($_SESSION["user_permissions"]) && in_array('Eliminar Creditos', $_SESSION["user_permissions"])): ?>
+  $('#creditos-table tbody').on('click', '.btn-delete-credit', function(e) {
+    e.stopPropagation(); // Evitar que se dispare el click de la fila
+    
+    var btn = $(this);
+    var id = btn.data('id');
+    var valor = btn.data('valor');
+    var descripcion = btn.data('descripcion');
+    var fecha = btn.data('fecha');
+    
+    // Abrir modal de confirmación
+    openDeleteCreditModal(id, '<?= htmlspecialchars($cliente['nombres'] . ' ' . $cliente['apellidos']) ?>', valor, descripcion, fecha);
+  });
+  <?php endif; ?>
+
+  // ═══════════════════════════════════════════════════════════
+  // SELECCIÓN DE CRÉDITOS (checkbox)
+  // ═══════════════════════════════════════════════════════════
+  
   $('#selectAllCredits').on('change', function() {
     const checked = this.checked;
     $('#creditos-table tbody input[type="checkbox"]').prop('checked', checked);
     togglePagoMasivoButton();
   });
 
-  // Detectar cambio individual
   $(document).on('change', '#creditos-table tbody input[type="checkbox"]', togglePagoMasivoButton);
 
   function togglePagoMasivoButton() {
@@ -1163,35 +1249,10 @@ if ( ! $.fn.DataTable.isDataTable('#creditos-table') ) {
     $('#btnPagarCreditosWrapper').toggle(anySelected);
   }
 
-  /*───────────────────────────────────────────────
-   * CLICK EN FILA: Editar crédito (mantiene flujo actual)
-   *───────────────────────────────────────────────*/
-  $('#creditos-table tbody').on('click', 'tr', function(e) {
-    // Evitar abrir modal si se hizo clic en checkbox
-    if ($(e.target).is('input[type="checkbox"]')) return;
-
-    var data = creditosTable.row(this).data();
-    if(data) {
-      $('#editCreditId').val(data.id);
-      $('#editCreditFecha').val(data.fecha);
-      $('#editCreditFechaLimite').val(data.fecha_limite);
-      $('#editCreditDescripcion').val(data.descripcion);
-      $('#creditDetail').text(data.descripcion);
-
-      var originalValue = parseFloat(data.valor);
-      $('#originalCreditValue').text("$" + originalValue.toLocaleString('es-CO'));
-      $('#editCreditForm').data('originalValue', originalValue);
-      $('#remainingValueDisplay').text("Valor Restante: $" + originalValue.toLocaleString('es-CO'));
-      $('#editPago').val("");
-
-      var editModal = new bootstrap.Modal(document.getElementById('editCreditModal'));
-      editModal.show();
-    }
-  });
-
-  /*───────────────────────────────────────────────
-   * Actualizar valor restante en pago individual
-   *───────────────────────────────────────────────*/
+  // ═══════════════════════════════════════════════════════════
+  // FORMULARIO DE EDICIÓN/PAGO
+  // ═══════════════════════════════════════════════════════════
+  
   $('#editCreditForm #editPago').on('input', function() {
     var pago = parseFloat($(this).val());
     if (isNaN(pago)) { pago = 0; }
@@ -1204,9 +1265,6 @@ if ( ! $.fn.DataTable.isDataTable('#creditos-table') ) {
     $('#remainingValueDisplay').text("Valor Restante: $" + restante.toLocaleString('es-CO'));
   });
 
-  /*───────────────────────────────────────────────
-   * Pago individual vía AJAX
-   *───────────────────────────────────────────────*/
   $('#editCreditForm').on('submit', function(e) {
     e.preventDefault();
     Swal.fire({
@@ -1767,6 +1825,64 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
+	  
+<script>
+// Función para abrir modal de eliminación de crédito
+function openDeleteCreditModal(creditId, cliente, value, detail, fecha) {
+    $('#deleteCreditId').val(creditId);
+    $('#deleteCreditCliente').text(cliente);
+    $('#deleteCreditValue').text(parseFloat(value).toLocaleString('es-CO'));
+    $('#deleteCreditDetail').text(detail);
+    $('#deleteCreditFecha').text(fecha);
+    $('#deleteCreditModal').modal('show');
+}
+
+// Evento para confirmar eliminación
+$('#confirmDeleteCredit').on('click', function() {
+    const creditId = $('#deleteCreditId').val();
+    const btn = $(this);
+    
+    btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Eliminando...');
+    
+    $.ajax({
+        url: 'delete_credit.php', // ← AJUSTA ESTA RUTA
+        type: 'POST',
+        data: { credit_id: creditId },
+        dataType: 'json',
+        success: function(response) {
+            if (response.status === 'success') {
+                $('#deleteCreditModal').modal('hide');
+                $('#creditos-table').DataTable().ajax.reload(null, false);
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: response.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: response.message
+                });
+            }
+        },
+        error: function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error de conexión.'
+            });
+        },
+        complete: function() {
+            btn.prop('disabled', false).html('<i class="fa fa-trash"></i> Eliminar');
+        }
+    });
+});
+	  
+	  </script>
 	
 
 </body>

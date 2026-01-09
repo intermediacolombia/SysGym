@@ -19,6 +19,7 @@
       <th>Valor</th>
       <th>Fecha Límite</th>
       <th>Descripción</th>
+      <th>Acciones</th>
     </tr>
   </thead>
   <tbody>
@@ -154,6 +155,43 @@
 			
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Confirmar Eliminación de Crédito -->
+<div class="modal fade" id="deleteCreditModal" tabindex="-1" aria-labelledby="deleteCreditModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deleteCreditModalLabel">
+          <i class="fa fa-exclamation-triangle"></i> Confirmar Eliminación
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="deleteCreditId">
+        <p>¿Está seguro que desea eliminar este crédito?</p>
+        <div class="alert alert-warning">
+          <strong>Cliente:</strong> <span id="deleteCreditCliente"></span><br>
+          <strong>Valor:</strong> $<span id="deleteCreditValue"></span><br>
+          <strong>Descripción:</strong> <span id="deleteCreditDetail"></span><br>
+          <strong>Fecha:</strong> <span id="deleteCreditFecha"></span>
+        </div>
+        <p class="text-muted">
+          <small><i class="fa fa-info-circle"></i> Esta acción marcará el crédito como eliminado y no aparecerá en los listados.</small>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fa fa-times"></i> Cancelar
+        </button>
+        <?php if (isset($_SESSION["user_permissions"]) && in_array('Eliminar Creditos', $_SESSION["user_permissions"])): ?>
+          <button type="button" id="confirmDeleteCredit" class="btn btn-danger">
+            <i class="fa fa-trash"></i> Eliminar
+          </button>
+        <?php endif; ?>
+      </div>
     </div>
   </div>
 </div>
