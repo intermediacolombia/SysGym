@@ -259,11 +259,7 @@
           <div class="mb-3" id="bankDiv" style="display: none;">
             <label for="bank" class="form-label">Banco</label>
             <select name="bank" id="bank" class="form-select">
-              <option value="">Seleccione banco</option>
-              <option value="Bancolombia">Bancolombia</option>
-              <option value="Daviplata">Daviplata</option>
-              <option value="Nequi">Nequi</option>
-              <option value="Davivienda">Davivienda</option>
+             <?= getBancosOptions() ?>
             </select>
           </div>
 
@@ -293,11 +289,7 @@
             <div class="mb-3" id="secondBankDiv" style="display: none;">
               <label for="second_bank" class="form-label">Banco para segundo pago</label>
               <select name="secondBank" id="second_bank" class="form-select">
-                <option value="">Seleccione banco</option>
-                <option value="Bancolombia">Bancolombia</option>
-                <option value="Daviplata">Daviplata</option>
-                <option value="Nequi">Nequi</option>
-                <option value="Davivienda">Davivienda</option>
+               <?= getBancosOptions() ?>
               </select>
             </div>
 

@@ -12,7 +12,7 @@
               <strong><i class="fas fa-university me-2 text-success"></i>Bancos Disponibles</strong>
             </label>
             <input type="text" name="bancos_disponibles" class="form-control" 
-                   value="<?= htmlspecialchars($settings['bancos_disponibles'] ?? 'Bancolombia,Daviplata,Nequi,Davivienda') ?>" 
+                   value="<?= htmlspecialchars($settings['bancos_disponibles'] ?? '') ?>" 
                    placeholder="Ej: Bancolombia,Daviplata,Nequi,Davivienda">
             <small class="text-muted">
               <i class="fas fa-info-circle me-1"></i>

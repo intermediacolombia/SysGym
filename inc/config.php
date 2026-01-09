@@ -75,7 +75,7 @@ function db() {
 // Función para obtener los bancos disponibles
 function getBancosDisponibles() {
     global $settings;
-    $bancos_string = $settings['bancos_disponibles'] ?? 'Bancolombia,Daviplata,Nequi,Davivienda';
+    $bancos_string = $settings['bancos_disponibles'] ?? '';
     return array_map('trim', explode(',', $bancos_string));
 }
 

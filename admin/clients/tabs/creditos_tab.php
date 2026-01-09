@@ -51,11 +51,7 @@
           <div class="mb-3" id="pagoMasivoBancoDiv" style="display:none;">
             <label for="pagoMasivoBanco" class="form-label">Seleccione Banco</label>
             <select id="pagoMasivoBanco" name="bank" class="form-select">
-              <option value="">Seleccione banco</option>
-              <option value="Bancolombia">Bancolombia</option>
-              <option value="Daviplata">Daviplata</option>
-              <option value="Nequi">Nequi</option>
-              <option value="Davivienda">Davivienda</option>
+              <?= getBancosOptions() ?>
             </select>
           </div>
         </div>
@@ -126,11 +122,7 @@
           <div class="mb-3" id="editCreditBankDiv" style="display: none;">
             <label for="editCreditBankSelection" class="form-label">Seleccione Banco</label>
             <select name="bank" id="editCreditBankSelection" class="form-select">
-              <option value="">Seleccione banco</option>
-              <option value="Bancolombia">Bancolombia</option>
-              <option value="Daviplata">Daviplata</option>
-              <option value="Nequi">Nequi</option>
-              <option value="Davivienda">Davivienda</option>
+              <?= getBancosOptions() ?>
             </select>
           </div>
           
