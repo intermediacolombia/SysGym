@@ -75,32 +75,45 @@ $(document).ready(function() {
     }
 
     $('#btnFinalizar').on('click', function() {
-        const btn = $(this);
-        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Guardando...');
+    const btn = $(this);
+    const originalText = btn.html();
+    
+    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Procesando...');
 
-        $.ajax({
-            url: 'save-massive-ws.php',
-            method: 'POST',
-            data: {
-                clientes: clientes,
-                mensaje: mensaje,
-                adjunto: adjunto,
-                adjuntoNombre: adjuntoNombre
-            },
-            success: function(res) {
-                if (res.status === 'success') {
-                    Swal.fire('¡Logrado!', 'Los mensajes se han guardado y están listos para procesar.', 'success')
-                    .then(() => {
-                        sessionStorage.clear();
-                        window.location.href = 'send-massive-ws.php';
-                    });
-                } else {
-                    Swal.fire('Error', res.message, 'error');
-                    btn.prop('disabled', false).text('Confirmar y Guardar');
-                }
+    $.ajax({
+        url: 'save-massive-ws.php',
+        method: 'POST',
+        data: {
+            clientes: clientes,
+            mensaje: mensaje,
+            adjunto: adjunto,
+            adjuntoNombre: adjuntoNombre
+        },
+        dataType: 'json', // Forzamos a que espere un JSON
+        success: function(res) {
+            if (res.status === 'success') {
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: 'Los datos se han guardado correctamente.',
+                    icon: 'success',
+                    confirmButtonText: 'Aceptar'
+                }).then(() => {
+                    sessionStorage.clear();
+                    window.location.href = 'send-massive-ws.php';
+                });
+            } else {
+                Swal.fire('Error', res.message, 'error');
+                btn.prop('disabled', false).html(originalText);
             }
-        });
+        },
+        error: function(xhr, status, error) {
+            // Si hay un error de PHP (500) o el JSON está mal formado, entrará aquí
+            console.error(xhr.responseText); // Para que puedas ver el error real en la consola
+            Swal.fire('Error Crítico', 'No se pudo procesar la solicitud. Revisa la consola (F12).', 'error');
+            btn.prop('disabled', false).html(originalText);
+        }
     });
+});
 });
 </script>
 </body>
