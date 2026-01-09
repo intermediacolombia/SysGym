@@ -734,7 +734,16 @@ $('#btnCancelarCola').on('click', function() {
 });
 
 function limpiarFiltros(){
+    // 1. Resetear el formulario (vuelve a valores iniciales de PHP)
     $('#formFiltros')[0].reset();
+    
+    // 2. Forzar el vaciado de todos los inputs, selects y fechas manualmente
+    $('#formFiltros').find('input, select').each(function() {
+        $(this).val(''); // Vacía el valor
+    });
+
+    // 3. Opcional: Si quieres que la página se refresque para limpiar los resultados de la tabla
+    // window.location.href = 'send-massive-ws.php'; 
 }
 </script>
 
