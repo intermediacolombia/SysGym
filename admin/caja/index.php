@@ -266,14 +266,7 @@ $tab-border-radius: 35px;
                       </select>
 						
 					<select class="form-select bankSelect d-none" data-producto-id="<?php echo $producto['id']; ?>">
-						  <option value="">Seleccione banco</option>
-						  <?php 
-						  $bancos_string = $settings['bancos_disponibles'] ?? '';
-						  $bancos = array_map('trim', explode(',', $bancos_string));
-						  foreach($bancos as $banco): 
-						  ?>
-							<option value="<?= htmlspecialchars($banco) ?>"><?= htmlspecialchars($banco) ?></option>
-						  <?php endforeach; ?>
+  					<?= getBancosOptions() ?>
 					</select>
 					
                     </td>
