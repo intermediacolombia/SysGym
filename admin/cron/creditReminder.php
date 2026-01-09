@@ -43,6 +43,7 @@ try {
       AND c.estado  = "activo"
       AND c.congelado = 0      
       AND cr.estado = 0
+      AND cr.deleted = 0
     GROUP BY c.id
     HAVING total_credito > 0
     ORDER BY c.apellidos, c.nombres
