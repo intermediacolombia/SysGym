@@ -1,94 +1,152 @@
 <?php
-require_once __DIR__ . '/../login/session.php';
+// ==========================================
+// NO mostrar errores que rompan el JSON
+// ==========================================
+error_reporting(0);
+ini_set('display_errors', 0);
+
+// Iniciar sesión manualmente (sin usar session.php que puede redirigir)
+session_start();
+
+// Verificar sesión de forma manual
+if (!isset($_SESSION['user'])) {
+    header('Content-Type: application/json');
+    echo json_encode(['status' => 'error', 'message' => 'Sesión no válida']);
+    exit;
+}
+
+// Cargar solo la configuración de BD
 require_once __DIR__ . '/../../inc/config.php';
 
-// Verificar sesión
-if (!isset($_SESSION['user'])) {
-    header("Location: $url/admin/login");
-    exit();
-}
+header('Content-Type: application/json');
+ob_clean();
 
-$userId = $_SESSION['user']['id'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $clientes = isset($_POST['clientes']) ? json_decode($_POST['clientes'], true) : [];
+    $mensajeBase = $_POST['mensaje'] ?? '';
+    $tieneAdjunto = isset($_POST['tieneAdjunto']) && $_POST['tieneAdjunto'] === 'true';
+    
+    if (empty($clientes) || empty($mensajeBase)) {
+        echo json_encode(['status' => 'error', 'message' => 'Datos incompletos']);
+        exit;
+    }
 
-// Validar archivo
-if (empty($_FILES['foto_perfil']['name'])) {
-    $_SESSION['error'] = "Debe seleccionar una imagen.";
-    header("Location: $url/admin/profile");
-    exit();
-}
-
-try {
-
-    // Obtener foto actual
-    $stmt = db()->prepare("SELECT foto_perfil FROM usuarios WHERE id = :id LIMIT 1");
-    $stmt->execute([':id' => $userId]);
-    $userRow = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    $fotoActual = $userRow['foto_perfil'] ?? null;
+    $urlAdjunto = null;
 
     // ==========================================
-    //  Eliminar foto anterior
+    //  Subir archivo adjunto (si existe)
     // ==========================================
-    if ($fotoActual && file_exists(__DIR__ . '/../../' . $fotoActual)) {
-        unlink(__DIR__ . '/../../' . $fotoActual);
+    if ($tieneAdjunto && !empty($_FILES['adjunto']['name'])) {
+        try {
+            $ext = strtolower(pathinfo($_FILES['adjunto']['name'], PATHINFO_EXTENSION));
+            
+            // Validar extensiones permitidas
+            $extensionesPermitidas = ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx'];
+            if (!in_array($ext, $extensionesPermitidas)) {
+                echo json_encode(['status' => 'error', 'message' => 'Tipo de archivo no permitido']);
+                exit;
+            }
+
+            $fileName = 'masivo_' . time() . '_' . uniqid() . '.' . $ext;
+            $uploadDir = __DIR__ . '/../../uploads/send_masive/';
+            
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            $destino = $uploadDir . $fileName;
+
+            if (!move_uploaded_file($_FILES['adjunto']['tmp_name'], $destino)) {
+                echo json_encode(['status' => 'error', 'message' => 'No se pudo subir el archivo adjunto']);
+                exit;
+            }
+
+            // Ruta relativa para guardar en BD
+            $urlAdjunto = 'uploads/send_masive/' . $fileName;
+
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Error al procesar adjunto: ' . $e->getMessage()]);
+            exit;
+        }
     }
 
     // ==========================================
-    //  Subir nueva foto
+    //  Insertar en la Base de Datos
     // ==========================================
-    $ext = strtolower(pathinfo($_FILES['foto_perfil']['name'], PATHINFO_EXTENSION));
-    $fileName = 'user_' . time() . '.' . $ext;
+    try {
+        $db = db(); // Usar tu función PDO
+        $db->beginTransaction();
 
-    $uploadDir = __DIR__ . '/../../uploads/users/';
-    if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+        $stmt = $db->prepare("INSERT INTO envios_masivos_ws (nombre, telefono, mensaje, adjunto) VALUES (:nombre, :telefono, :mensaje, :adjunto)");
+        
+        $totalInsertados = 0;
+        
+        foreach ($clientes as $cliente) {
+            if (!isset($cliente['nombre']) || !isset($cliente['telefono'])) {
+                continue; // Saltar clientes con datos incompletos
+            }
+            
+            $nombre = trim($cliente['nombre']);
+            
+            // Limpiar teléfono: quitar el '+', espacios, guiones, paréntesis
+            $telefono = preg_replace('/[^0-9]/', '', $cliente['telefono']);
+            
+            if (empty($telefono)) {
+                continue; // Saltar si no hay teléfono válido
+            }
+            
+            // Personalización del mensaje
+            $nombrePila = explode(' ', $nombre)[0];
+            $fechaHoy = date('d \d\e F \d\e Y');
+            
+            $mensajePersonalizado = str_replace(
+                ['{nombre}', '{gimnasio}', '{fecha_hoy}'],
+                [$nombrePila, defined('NAME_GYM') ? NAME_GYM : 'Gimnasio', $fechaHoy],
+                $mensajeBase
+            );
 
-    $destino = $uploadDir . $fileName;
+            $stmt->execute([
+                ':nombre' => $nombre,
+                ':telefono' => $telefono,
+                ':mensaje' => $mensajePersonalizado,
+                ':adjunto' => $urlAdjunto
+            ]);
+            
+            $totalInsertados++;
+        }
 
-    if (!move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $destino)) {
-        $_SESSION['error'] = "No se pudo subir la imagen.";
-        header("Location: $url/admin/profile");
-        exit();
+        $db->commit();
+
+        // ==========================================
+        //  LOGS (opcional)
+        // ==========================================
+        if (file_exists(__DIR__ . '/../inc/log_action.php')) {
+            try {
+                require_once __DIR__ . '/../inc/log_action.php';
+                $desc = json_encode([
+                    'total' => $totalInsertados, 
+                    'adjunto' => $urlAdjunto ? 'Sí' : 'No'
+                ], JSON_UNESCAPED_UNICODE);
+                log_action('Envío Masivo WhatsApp', $desc, 'WhatsApp');
+            } catch (Exception $e) {
+                // Ignorar errores de log
+            }
+        }
+
+        echo json_encode([
+            'status' => 'success', 
+            'message' => 'Guardado correctamente', 
+            'total' => $totalInsertados
+        ]);
+
+    } catch (PDOException $e) {
+        if (isset($db)) {
+            $db->rollBack();
+        }
+        echo json_encode(['status' => 'error', 'message' => 'Error en BD: ' . $e->getMessage()]);
     }
 
-    // Ruta para guardar en BD
-    $nuevaRuta = 'uploads/users/' . $fileName;
-
-    // ==========================================
-    //  Guardar en BD
-    // ==========================================
-    $stmtUpdate = db()->prepare("
-        UPDATE usuarios 
-        SET foto_perfil = :foto 
-        WHERE id = :id
-    ");
-
-    $stmtUpdate->execute([
-        ':foto' => $nuevaRuta,
-        ':id'   => $userId
-    ]);
-
-
-    // ==========================================
-    //  Actualizar sesión para reflejar cambio
-    // ==========================================
-    $_SESSION['user']['foto_perfil'] = $nuevaRuta;
-
-    // ==========================================
-    //  LOGS
-    // ==========================================
-    require_once __DIR__ . '/../inc/log_action.php';
-    $desc = json_encode(['id' => $userId], JSON_UNESCAPED_UNICODE);
-    log_action('Editar Foto de Perfil', $desc, 'Perfil');
-
-    $_SESSION['success'] = "Foto de perfil actualizada correctamente.";
-    header("Location: $url/admin/profile");
-    exit();
-
-} catch (PDOException $e) {
-
-    $_SESSION['error'] = "Error al actualizar la foto: " . $e->getMessage();
-    header("Location: $url/admin/profile");
-    exit();
-
+} else {
+    echo json_encode(['status' => 'error', 'message' => 'Método no permitido']);
 }
-?>
+exit;
