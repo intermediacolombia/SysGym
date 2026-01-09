@@ -12,7 +12,7 @@ require_once __DIR__ . '/../../inc/config.php'; // $host,$dbname,$dbuser,$dbpass
 $apiKey      = $api_ws;
 $urlEndpoint = 'https://api.360messenger.com/v2/sendMessage';
 
-$limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 200;
+$limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 10;
 
 // Traer pendientes (en orden FIFO)
 $sql = "SELECT id, phonenumber, text, url FROM ws_outbox ORDER BY id ASC LIMIT :lim";
