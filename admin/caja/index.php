@@ -183,31 +183,27 @@ $tab-border-radius: 35px;
 		  
 		  
       </div>
+		
+		
       <!-- Columna de Transferencias -->
-      <div class="col-md-6">
-        <h6 class="text-uppercase text-muted mb-3"><i class="fa fa-bank"></i> Transferencias</h6>
-        <p class="mb-2">
-          <strong>Total Transferencias:</strong> $<span id="totalTransferencias">0</span>
-        </p>
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
-            Bancolombia
-            <span>$<span id="transferBancolombia2">0</span></span>
-          </li>
-          <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
-            Daviplata
-            <span>$<span id="transferDaviplata2">0</span></span>
-          </li>
-          <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
-            Nequi
-            <span>$<span id="transferNequi2">0</span></span>
-          </li>
-          <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
-            Davivienda
-            <span>$<span id="transferDavivienda2">0</span></span>
-          </li>
-        </ul>
-      </div>
+<div class="col-md-6">
+  <h6 class="text-uppercase text-muted mb-3"><i class="fa fa-bank"></i> Transferencias</h6>
+  <p class="mb-2">
+    <strong>Total Transferencias:</strong> $<span id="totalTransferencias">0</span>
+  </p>
+  <ul class="list-group list-group-flush" id="listaBancosTransferencias">
+    <?php foreach(getBancosDisponibles() as $banco): 
+      $bancoId = preg_replace('/[^a-zA-Z0-9]/', '', $banco);
+    ?>
+    <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+      <?= htmlspecialchars($banco) ?>
+      <span>$<span id="transfer<?= $bancoId ?>" class="transfer-banco" data-banco="<?= htmlspecialchars($banco) ?>">0</span></span>
+    </li>
+    <?php endforeach; ?>
+  </ul>
+</div>
+		
+		
     </div>
     <hr class="my-4">
     <div class="text-center">
@@ -380,15 +376,11 @@ $tab-border-radius: 35px;
           </div>
 
           <div class="mb-3 d-none" id="ingresoBancoWrap">
-            <label for="ingresoBanco" class="form-label">Banco</label>
-            <select class="form-select" id="ingresoBanco" name="banco">
-              <option value="">Seleccione banco</option>
-              <option value="Bancolombia">Bancolombia</option>
-              <option value="Daviplata">Daviplata</option>
-              <option value="Nequi">Nequi</option>
-              <option value="Davivienda">Davivienda</option>
-            </select>
-          </div>
+  <label for="ingresoBanco" class="form-label">Banco</label>
+  <select class="form-select" id="ingresoBanco" name="banco">
+    <?= getBancosOptions() ?>
+  </select>
+</div>
 
           <p class="text-muted">El valor ingresado se sumará al total de la caja.</p>
         </div>
@@ -503,16 +495,14 @@ $tab-border-radius: 35px;
               <option value="Transferencia">Transferencia</option>
             </select>
           </div>
+			
+			
           <div class="mb-3 d-none" id="splitBankWrap1">
-            <label class="form-label">Banco</label>
-            <select class="form-select" id="splitBank1">
-              <option value="">Seleccione banco</option>
-              <option value="Bancolombia">Bancolombia</option>
-              <option value="Daviplata">Daviplata</option>
-              <option value="Nequi">Nequi</option>
-              <option value="Davivienda">Davivienda</option>
-            </select>
-          </div>
+  <label class="form-label">Banco</label>
+  <select class="form-select" id="splitBank1">
+    <?= getBancosOptions() ?>
+  </select>
+</div>
           <div class="mb-4">
             <label class="form-label">Valor Pago 1</label>
             <div class="input-group">

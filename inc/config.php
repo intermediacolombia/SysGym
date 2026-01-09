@@ -72,18 +72,21 @@ function db() {
 }
 
 
-function getBancosOptions($selected = '') {
+// Función para obtener los bancos disponibles
+function getBancosDisponibles() {
     global $settings;
-    
     $bancos_string = $settings['bancos_disponibles'] ?? 'Bancolombia,Daviplata,Nequi,Davivienda';
-    $bancos = array_map('trim', explode(',', $bancos_string));
-    
+    return array_map('trim', explode(',', $bancos_string));
+}
+
+// Función para generar las opciones de banco
+function getBancosOptions($selected = '') {
+    $bancos = getBancosDisponibles();
     $html = '<option value="">Seleccione banco</option>';
     foreach($bancos as $banco) {
         $sel = ($selected === $banco) ? 'selected' : '';
         $html .= '<option value="'.htmlspecialchars($banco).'" '.$sel.'>'.htmlspecialchars($banco).'</option>';
     }
-    
     return $html;
 }
 
