@@ -16,7 +16,7 @@ if (!isset($_SESSION['user'])) {
 }
 
 // Cargar solo la configuración de BD
-require_once __DIR__ . '/../../inc/config.php';
+require_once __DIR__ . '/../../../inc/config.php';
 
 header('Content-Type: application/json');
 ob_clean();
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $fileName = 'masivo_' . time() . '_' . uniqid() . '.' . $ext;
-            $uploadDir = __DIR__ . '/../../uploads/send_masive/';
+            $uploadDir = __DIR__ . '/../../../uploads/send_masive/';
             
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0777, true);
@@ -120,9 +120,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // ==========================================
         //  LOGS (opcional)
         // ==========================================
-        if (file_exists(__DIR__ . '/../inc/log_action.php')) {
+        if (file_exists(__DIR__ . '/../../inc/log_action.php')) {
             try {
-                require_once __DIR__ . '/../inc/log_action.php';
+                require_once __DIR__ . '/../../inc/log_action.php';
                 $desc = json_encode([
                     'total' => $totalInsertados, 
                     'adjunto' => $urlAdjunto ? 'Sí' : 'No'

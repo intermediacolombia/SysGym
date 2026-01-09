@@ -1,6 +1,6 @@
 <?php 
-require_once __DIR__ . '/../login/session.php';
-require_once __DIR__ . '/../../inc/config.php';
+require_once __DIR__ . '/../../login/session.php';
+require_once __DIR__ . '/../../../inc/config.php';
 
 // Verificar permisos
 $permisopage = 'Enviar WhatsApp Masivo';
@@ -11,10 +11,10 @@ include('../login/restriction.php');
 <head>
     <meta charset="UTF-8">
     <title>Paso 3: Confirmar Envío</title>
-    <?php include('../inc/header.php'); ?>
+    <?php include('../../inc/header.php'); ?>
 </head>
 <body>
-<?php include('../inc/menu.php'); ?>
+<?php include('../../inc/menu.php'); ?>
 
 <div class="container mt-4">
     <div class="card shadow">
@@ -82,7 +82,7 @@ include('../login/restriction.php');
         </div>
     </div>
 </div>
-<?php include('../inc/menu-footer.php'); ?>
+<?php include('../../inc/menu-footer.php'); ?>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

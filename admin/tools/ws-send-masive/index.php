@@ -1,6 +1,6 @@
 <?php 
-require_once __DIR__ . '/../login/session.php';
-require_once __DIR__ . '/../../inc/config.php';
+require_once __DIR__ . '/../../login/session.php';
+require_once __DIR__ . '/../../../inc/config.php';
 
 // Verificar permisos
 $permisopage = 'Enviar WhatsApp Masivo';
@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
 <head>
     <meta charset="UTF-8">
     <title>Envío Masivo de WhatsApp</title>
-    <?php include('../inc/header.php'); ?>
+    <?php include('../../inc/header.php'); ?>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
     <style>
         .step-indicator {
@@ -195,7 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
     </div>
 </div>
 
-<?php include('../inc/menu.php'); ?>
+<?php include('../../inc/menu.php'); ?>
 
 <div class="container mt-4">
     
@@ -431,7 +431,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
     
 </div>
 
-<?php include('../inc/menu-footer.php'); ?>
+<?php include('../../inc/menu-footer.php'); ?>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
