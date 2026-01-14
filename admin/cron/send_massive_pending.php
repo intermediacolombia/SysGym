@@ -21,7 +21,7 @@ require_once __DIR__ . '/../../whatsapp/save_failed_ws.php';
 // ============================================================================
 define('LIMITE_DIARIO', 50);          // Maximo de mensajes por dia
 define('HORA_INICIO', 7);              // Hora inicio (7 AM)
-define('HORA_FIN', 11);                // Hora fin (9 PM)
+define('HORA_FIN', 21);                // Hora fin (9 PM)
 
 $apiKey      = $api_ws;
 $urlEndpoint = 'https://api.360messenger.com/v2/sendMessage';
