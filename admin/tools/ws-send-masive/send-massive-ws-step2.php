@@ -378,45 +378,43 @@ var nombreGimnasio = '<?= addslashes($nombreGimnasio) ?>';
 
 // Plantillas predefinidas
 var plantillas = {
-    recordatorio: `¡Hola {nombre}! 👋
+    recordatorio: `¡Hola {nombre}! 👋 
 
-Te recordamos que tu membresía en *${nombreGimnasio}* está próxima a vencer.
+Te escribimos de *${nombreGimnasio}* para recordarte que tu membresía está próxima a vencer. 
 
-No pierdas tu racha de entrenamiento 💪 Renueva tu plan y sigue alcanzando tus metas.
+No pierdas tu racha de entrenamiento 💪 Queremos que sigas alcanzando tus metas con nosotros. 
 
-¡Te esperamos! 🏋️`,
+¿Te gustaría que te ayudemos con el proceso de renovación por aquí mismo?`,
     
-    promocion: `¡Hola {nombre}! 🎉
+    promocion: `¡Hola {nombre}! 🎉 
 
-En *${nombreGimnasio}* tenemos una promoción especial para ti.
+¡Tenemos una sorpresa para ti en *${nombreGimnasio}*! 
 
-¡No te la pierdas! Visítanos hoy y conoce todos los beneficios que tenemos para ti.
+Hemos lanzado una promoción especial y pensamos que te encantaría aprovecharla para darle un impulso extra a tu entrenamiento. 🚀
 
-¡Te esperamos! 💪`,
+¿Quieres que te envíe los detalles de la promo? Responde con un *SÍ* y te cuento todo.`,
     
-    bienvenida: `¡Bienvenido/a {nombre}! 🎊
+    bienvenida: `¡Bienvenido/a a la familia, {nombre}! 🎊 
 
-Nos alegra mucho que hagas parte de la familia *${nombreGimnasio}*.
+Nos alegra mucho que hayas elegido a *${nombreGimnasio}* para transformar tu estilo de vida. Estamos aquí para apoyarte en cada paso de tu entrenamiento. 🏋️‍♂️
 
-Estamos aquí para ayudarte a alcanzar tus metas. ¡Cuenta con nosotros!
-
-¡Éxitos en tu entrenamiento! 🏆`,
+¿Tienes alguna duda sobre nuestras clases o el uso de las máquinas? ¡Escríbenos, estamos para ayudarte!`,
     
-    vencimiento: `¡Hola {nombre}! ⏰
+    vencimiento: `¡Hola {nombre}! ⏰ 
 
-Tu plan en *${nombreGimnasio}* está por vencer.
+Tu plan en *${nombreGimnasio}* vence muy pronto. 
 
-Renueva ahora y no pierdas acceso a nuestras instalaciones y servicios.
+Para evitar filas y no perder el acceso a las instalaciones, puedes renovar hoy mismo. ¡No dejes que nada detenga tu progreso! 💪
 
-¡Te esperamos para seguir entrenando juntos! 💪`,
+¿Deseas que te enviemos los medios de pago electrónicos para mayor comodidad?`,
     
-    reactivacion: `¡Hola {nombre}! 👋
+    reactivacion: `¡Hola {nombre}! 👋 
 
-Te extrañamos en *${nombreGimnasio}*. ¿Qué tal si retomas tu rutina de ejercicios?
+Te extrañamos en *${nombreGimnasio}*. Notamos que hace unos días no nos visitas y queremos saber si todo está bien. 
 
-Recuerda que cada día es una nueva oportunidad para cuidar tu salud.
+Recuerda que cada día es una nueva oportunidad para cuidar tu salud. 🍎
 
-¡Vuelve pronto, te esperamos! 🏋️`,
+¿Te gustaría recibir un pase de cortesía para retomar tu rutina mañana mismo? ¡Dinos que sí!`,
     
     personalizado: ''
 };
