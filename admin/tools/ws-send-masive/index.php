@@ -974,31 +974,39 @@ function cargarProgresoEnvios() {
     
     // Función para cargar mensajes de cola
     function cargarCola() {
+    // Solo mostramos el spinner si el contenedor está vacío (primera carga)
+    if ($('#contenidoCola').html().trim() === '' || $('#contenidoCola').find('.spinner-border').length > 0) {
         $('#contenidoCola').html('<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>');
-        
-        $.ajax({
-            url: 'get_cola_messages.php',
-            method: 'GET',
-            dataType: 'json',
-            success: function(res) {
-                if (res.status === 'success' && res.mensajes.length > 0) {
-                    let html = '<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i><strong>' + res.mensajes.length + '</strong> mensajes pendientes de envio.</div>';
-                    
-                    res.mensajes.forEach(function(msg, index) {
-                        html += '<div class="mensaje-cola-item"><div class="d-flex justify-content-between align-items-start"><div><strong>' + (index + 1) + '. ' + msg.nombre + '</strong><br><small class="text-muted"><i class="fab fa-whatsapp me-1"></i> ' + msg.telefono + '</small></div><span class="badge bg-warning text-dark">Pendiente</span></div><div class="mt-2"><small class="text-muted">Mensaje:</small><p class="mb-0 small" style="white-space: pre-wrap; max-height: 60px; overflow: hidden;">' + msg.mensaje.substring(0, 100) + (msg.mensaje.length > 100 ? '...' : '') + '</p></div>' + (msg.adjunto ? '<small class="text-success"><i class="fas fa-paperclip me-1"></i> Con adjunto</small>' : '') + '</div>';
-                    });
-                    
-                    $('#contenidoCola').html(html);
-                } else {
-                    $('#contenidoCola').html('<div class="alert alert-success text-center"><i class="fas fa-check-circle fa-3x mb-3"></i><h5>No hay mensajes en cola</h5><p class="mb-0">Todos los mensajes han sido enviados.</p></div>');
-                    $('#btnCancelarCola').hide();
-                }
-            },
-            error: function() {
+    }
+    
+    $.ajax({
+        url: 'get_cola_messages.php',
+        method: 'GET',
+        dataType: 'json',
+        success: function(res) {
+            if (res.status === 'success' && res.mensajes.length > 0) {
+                let html = '<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i><strong>' + res.mensajes.length + '</strong> mensajes pendientes de envio.</div>';
+                
+                res.mensajes.forEach(function(msg, index) {
+                    html += '<div class="mensaje-cola-item"><div class="d-flex justify-content-between align-items-start"><div><strong>' + (index + 1) + '. ' + msg.nombre + '</strong><br><small class="text-muted"><i class="fab fa-whatsapp me-1"></i> ' + msg.telefono + '</small></div><span class="badge bg-warning text-dark">Pendiente</span></div><div class="mt-2"><small class="text-muted">Mensaje:</small><p class="mb-0 small" style="white-space: pre-wrap; max-height: 60px; overflow: hidden;">' + msg.mensaje.substring(0, 100) + (msg.mensaje.length > 100 ? '...' : '') + '</p></div>' + (msg.adjunto ? '<small class="text-success"><i class="fas fa-paperclip me-1"></i> Con adjunto</small>' : '') + '</div>';
+                });
+                
+                // Reemplazamos el contenido de golpe para que no haya parpadeo
+                $('#contenidoCola').html(html);
+                $('#btnCancelarCola').show(); // Aseguramos que el botón se vea si hay mensajes
+            } else {
+                $('#contenidoCola').html('<div class="alert alert-success text-center"><i class="fas fa-check-circle fa-3x mb-3"></i><h5>No hay mensajes en cola</h5><p class="mb-0">Todos los mensajes han sido enviados.</p></div>');
+                $('#btnCancelarCola').hide();
+            }
+        },
+        error: function() {
+            // Solo mostramos error si no había contenido previo
+            if ($('#contenidoCola').find('.mensaje-cola-item').length === 0) {
                 $('#contenidoCola').html('<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>Error al cargar los mensajes en cola.</div>');
             }
-        });
-    }
+        }
+    });
+}
     
     // Inicializar carga de progreso y contador
 cargarProgresoEnvios();
