@@ -88,6 +88,10 @@ try {
         <button class="nav-link" id="whatsapp-tab" data-bs-toggle="tab" data-bs-target="#whatsapp" type="button" role="tab"><i class="fa fa-whatsapp"></i> WhatsApp</button>
       </li>
 		
+		<li class="nav-item" role="presentation">
+        <button class="nav-link" id="whatsapp-tab" data-bs-toggle="tab" data-bs-target="#whatsapp" type="button" role="tab"><i class="fa fa-envelopes-bulk"></i> Envios Masivos WhatsApp</button>
+      </li>
+		
 		<li class="nav-item">
   <button class="nav-link" id="pasarela-tab" data-bs-toggle="tab" data-bs-target="#pasarela" type="button" role="tab" aria-controls="pasarela" aria-selected="false">
     <i class="fas fa-credit-card"></i> Pagos
