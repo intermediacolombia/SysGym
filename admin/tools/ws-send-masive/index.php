@@ -702,6 +702,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+				
+				<div id="barraProgresoEnvios" class="mb-3">
+  <div class="d-flex justify-content-between align-items-center mb-1">
+    <div>
+      <strong><i class="fas fa-chart-line me-1"></i> Progreso de envíos (cupo diario)</strong>
+      <div class="small text-muted" id="progressSubText">Calculando...</div>
+    </div>
+    <span class="badge bg-dark" id="progressBadge">0%</span>
+  </div>
+
+  <div class="progress" style="height: 18px; border-radius: 999px;">
+    <div
+      id="progressBar"
+      class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+      role="progressbar"
+      style="width: 0%; border-radius: 999px;"
+      aria-valuenow="0"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      <span class="small fw-bold" id="progressBarText">0%</span>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between mt-1">
+    <small class="text-muted" id="progressLeftText">Faltan: -</small>
+    <small class="text-muted" id="progressQueueText">En cola: -</small>
+  </div>
+</div>
+				
                 <div id="contenidoCola">
                     <div class="text-center py-4">
                         <div class="spinner-border text-primary" role="status">
@@ -871,17 +901,57 @@ $(document).ready(function(){
     });
     
     // ══════════════════════════════════════════════════
-    // SISTEMA DE COLA DE MENSAJES
+    // SISTEMA DE COLA DE MENSAJES Y PROGRESO
     // ══════════════════════════════════════════════════
     
-    cargarContadorCola();
-    setInterval(cargarContadorCola, 10000);
+    // Función para cargar progreso de envíos
+    function cargarProgresoEnvios() {
+        $.ajax({
+            url: 'get_cola_progress.php',
+            method: 'GET',
+            dataType: 'json',
+            success: function(res) {
+                if (res.status !== 'success') return;
+
+                const enviados = parseInt(res.enviados_hoy || 0);
+                const limite = parseInt(res.limite_diario || 0);
+                const cola = parseInt(res.cola_pendiente || 0);
+
+                let pct = 0;
+                if (limite > 0) pct = Math.round((enviados / limite)  100);
+                pct = Math.max(0, Math.min(100, pct));
+
+                const faltan = Math.max(0, limite - enviados);
+
+                // Texto
+                $('#progressBadge').text(pct + '%');
+                $('#progressBarText').text(pct + '%');
+                $('#progressSubText').text('Enviados hoy: ' + enviados + ' / ' + limite);
+                $('#progressLeftText').text('Faltan hoy: ' + faltan + ' mensaje(s) para completar el cupo');
+                $('#progressQueueText').text('En cola: ' + cola + ' mensaje(s)');
+
+                // Barra
+                $('#progressBar')
+                    .css('width', pct + '%')
+                    .attr('aria-valuenow', pct);
+
+                // Colores/estado bonito
+                $('#progressBar')
+                    .removeClass('bg-success bg-warning bg-danger');
+
+                if (pct >= 100) {
+                    $('#progressBar').addClass('bg-success');
+                    $('#progressSubText').html('<span class="text-success fw-bold">Cupo diario completado. Los envíos continúan el próximo día permitido.</span>');
+                } else if (pct >= 70) {
+                    $('#progressBar').addClass('bg-warning');
+                } else {
+                    $('#progressBar').addClass('bg-success');
+                }
+            }
+        });
+    }
     
-    $('#btnVerCola').on('click', function() {
-        cargarCola();
-        $('#modalCola').modal('show');
-    });
-    
+    // Función para cargar contador de cola
     function cargarContadorCola() {
         $.ajax({
             url: 'get_cola_count.php',
@@ -901,6 +971,7 @@ $(document).ready(function(){
         });
     }
     
+    // Función para cargar mensajes de cola
     function cargarCola() {
         $('#contenidoCola').html('<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>');
         
@@ -928,15 +999,31 @@ $(document).ready(function(){
         });
     }
     
+    // Inicializar carga de progreso y contador
+    cargarProgresoEnvios();
+    cargarContadorCola();
+    
+    // Actualizar cada 10 segundos
+    setInterval(cargarProgresoEnvios, 10000);
+    setInterval(cargarContadorCola, 10000);
+    
+    // Al hacer clic en el botón flotante
+    $('#btnVerCola').on('click', function() {
+        cargarProgresoEnvios();
+        cargarCola();
+        $('#modalCola').modal('show');
+    });
+    
+    // Cancelar toda la cola
     $('#btnCancelarCola').on('click', function() {
         Swal.fire({
-            title: 'Cancelar toda la cola?',
-            html: '<p class="text-danger"><strong>Advertencia:</strong> Deberas volver a crear el mensaje masivo.</p>',
+            title: '¿Cancelar toda la cola?',
+            html: '<p class="text-danger"><strong>Advertencia:</strong> Deberás volver a crear el mensaje masivo.</p>',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc3545',
             cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Si, cancelar todo',
+            confirmButtonText: 'Sí, cancelar todo',
             cancelButtonText: 'No, mantener'
         }).then((result) => {
             if (result.isConfirmed) {
@@ -946,9 +1033,10 @@ $(document).ready(function(){
                     dataType: 'json',
                     success: function(res) {
                         if (res.status === 'success') {
-                            Swal.fire('Cola cancelada!', 'Se eliminaron ' + res.eliminados + ' mensajes.', 'success').then(() => {
+                            Swal.fire('¡Cola cancelada!', 'Se eliminaron ' + res.eliminados + ' mensajes.', 'success').then(() => {
                                 $('#modalCola').modal('hide');
                                 cargarContadorCola();
+                                cargarProgresoEnvios();
                             });
                         } else {
                             Swal.fire('Error', res.message, 'error');
@@ -962,7 +1050,7 @@ $(document).ready(function(){
         });
     });
     
-});
+}); // Fin de $(document).ready
 
 function limpiarFiltros(){
     // Limpiar checkboxes de multi-select
