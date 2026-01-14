@@ -21,7 +21,7 @@ require_once __DIR__ . '/../../whatsapp/save_failed_ws.php';
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURACIÓN
 // ═══════════════════════════════════════════════════════════════════════════
-define('LIMITE_DIARIO', 50);          // Máximo de mensajes por día
+define('LIMITE_DIARIO', 2);          // Máximo de mensajes por día
 define('HORA_INICIO', 7);              // Hora inicio (7 AM)
 define('HORA_FIN', 21);                // Hora fin (9 PM)
 
