@@ -34,7 +34,7 @@ switch (true) {
    
     break;
 		
-   case true: // se evalúa cada minuto
+   case ($minutos % 1 === 0): // se evalúa cada minuto
 
     // Envío masivo con probabilidad ~6.6% por minuto
     if (rand(1, 15) === 1) {
