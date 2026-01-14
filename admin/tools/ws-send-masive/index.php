@@ -905,51 +905,52 @@ $(document).ready(function(){
     // ══════════════════════════════════════════════════
     
     // Función para cargar progreso de envíos
-    function cargarProgresoEnvios() {
-        $.ajax({
-            url: 'get_cola_progress.php',
-            method: 'GET',
-            dataType: 'json',
-            success: function(res) {
-                if (res.status !== 'success') return;
+    // Función para cargar progreso de envíos
+function cargarProgresoEnvios() {
+    $.ajax({
+        url: 'get_cola_progress.php',
+        method: 'GET',
+        dataType: 'json',
+        success: function(res) {
+            if (res.status !== 'success') return;
 
-                const enviados = parseInt(res.enviados_hoy || 0);
-                const limite = parseInt(res.limite_diario || 0);
-                const cola = parseInt(res.cola_pendiente || 0);
+            const enviados = parseInt(res.enviados_hoy || 0);
+            const limite = parseInt(res.limite_diario || 0);
+            const cola = parseInt(res.cola_pendiente || 0);
 
-                let pct = 0;
-                if (limite > 0) pct = Math.round((enviados / limite)  100);
-                pct = Math.max(0, Math.min(100, pct));
+            let pct = 0;
+            if (limite > 0) pct = Math.round((enviados / limite) * 100);
+            pct = Math.max(0, Math.min(100, pct));
 
-                const faltan = Math.max(0, limite - enviados);
+            const faltan = Math.max(0, limite - enviados);
 
-                // Texto
-                $('#progressBadge').text(pct + '%');
-                $('#progressBarText').text(pct + '%');
-                $('#progressSubText').text('Enviados hoy: ' + enviados + ' / ' + limite);
-                $('#progressLeftText').text('Faltan hoy: ' + faltan + ' mensaje(s) para completar el cupo');
-                $('#progressQueueText').text('En cola: ' + cola + ' mensaje(s)');
+            // Texto
+            $('#progressBadge').text(pct + '%');
+            $('#progressBarText').text(pct + '%');
+            $('#progressSubText').text('Enviados hoy: ' + enviados + ' / ' + limite);
+            $('#progressLeftText').text('Faltan hoy: ' + faltan + ' mensaje(s) para completar el cupo');
+            $('#progressQueueText').text('En cola: ' + cola + ' mensaje(s)');
 
-                // Barra
-                $('#progressBar')
-                    .css('width', pct + '%')
-                    .attr('aria-valuenow', pct);
+            // Barra
+            $('#progressBar')
+                .css('width', pct + '%')
+                .attr('aria-valuenow', pct);
 
-                // Colores/estado bonito
-                $('#progressBar')
-                    .removeClass('bg-success bg-warning bg-danger');
+            // Colores/estado bonito
+            $('#progressBar')
+                .removeClass('bg-success bg-warning bg-danger');
 
-                if (pct >= 100) {
-                    $('#progressBar').addClass('bg-success');
-                    $('#progressSubText').html('<span class="text-success fw-bold">Cupo diario completado. Los envíos continúan el próximo día permitido.</span>');
-                } else if (pct >= 70) {
-                    $('#progressBar').addClass('bg-warning');
-                } else {
-                    $('#progressBar').addClass('bg-success');
-                }
+            if (pct >= 100) {
+                $('#progressBar').addClass('bg-success');
+                $('#progressSubText').html('<span class="text-success fw-bold">Cupo diario completado. Los envíos continúan el próximo día permitido.</span>');
+            } else if (pct >= 70) {
+                $('#progressBar').addClass('bg-warning');
+            } else {
+                $('#progressBar').addClass('bg-success');
             }
-        });
-    }
+        }
+    });
+}
     
     // Función para cargar contador de cola
     function cargarContadorCola() {
