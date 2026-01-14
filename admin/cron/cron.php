@@ -30,14 +30,20 @@ switch (true) {
         break;
 
     case ($minutos % 5 === 0): // cada 5 minutos → Intento envio mensajes de WS
-    include 'try_ws.php';
-    
-    // Envío masivo con probabilidad del 25% (aprox cada 20 min)
-    // Ajusta el número: rand(1,4)=25%, rand(1,3)=33%, rand(1,5)=20%
-    if (rand(1, 4) === rand(1, 4)) {
+    include 'try_ws.php';   
+   
+    break;
+		
+   case true: // se evalúa cada minuto
+
+    // Envío masivo con probabilidad ~6.6% por minuto
+    if (rand(1, 15) === 1) {
         include 'send_massive_pending.php';
     }
+
     break;
+
+		
 
     default:
         echo "$hora No es la hora programada.";
