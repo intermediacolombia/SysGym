@@ -11,7 +11,7 @@ $stmtPlanes = db()->prepare("SELECT id, nombre FROM planes WHERE borrado = 0 AND
 $stmtPlanes->execute();
 $planes = $stmtPlanes->fetchAll(PDO::FETCH_ASSOC);
 
-// Procesar filtros si se envió el formulario
+// Procesar filtros si se envio el formulario
 $clientes = [];
 $filtrosAplicados = [];
 
@@ -20,45 +20,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
     $where = ["c.borrado = 0"];
     $params = [];
     
-    // Filtro: Estado del cliente
-    if (!empty($_POST['estado'])) {
-        $where[] = "c.estado = :estado";
-        $params[':estado'] = $_POST['estado'];
-        $filtrosAplicados[] = "Estado: " . ucfirst($_POST['estado']);
+    // Filtro: Estado del cliente (multiple)
+    if (!empty($_POST['estado']) && is_array($_POST['estado'])) {
+        $estadoPlaceholders = [];
+        foreach ($_POST['estado'] as $i => $estado) {
+            $key = ":estado_$i";
+            $estadoPlaceholders[] = $key;
+            $params[$key] = $estado;
+        }
+        $where[] = "c.estado IN (" . implode(',', $estadoPlaceholders) . ")";
+        $filtrosAplicados[] = "Estado: " . implode(', ', array_map('ucfirst', $_POST['estado']));
     }
     
-    // Filtro: Plan
-    if (!empty($_POST['plan'])) {
-        $where[] = "c.plan = :plan";
-        $params[':plan'] = $_POST['plan'];
-        // Obtener nombre del plan
+    // Filtro: Plan (multiple)
+    if (!empty($_POST['plan']) && is_array($_POST['plan'])) {
+        $planPlaceholders = [];
+        foreach ($_POST['plan'] as $i => $planId) {
+            $key = ":plan_$i";
+            $planPlaceholders[] = $key;
+            $params[$key] = $planId;
+        }
+        $where[] = "c.plan IN (" . implode(',', $planPlaceholders) . ")";
+        
+        // Obtener nombres de planes seleccionados
+        $nombresPlanes = [];
         foreach ($planes as $p) {
-            if ($p['id'] == $_POST['plan']) {
-                $filtrosAplicados[] = "Plan: " . $p['nombre'];
-                break;
+            if (in_array($p['id'], $_POST['plan'])) {
+                $nombresPlanes[] = $p['nombre'];
             }
         }
+        $filtrosAplicados[] = "Plan: " . implode(', ', $nombresPlanes);
     }
     
-    // Filtro: Género
-    if (!empty($_POST['genero'])) {
-        $where[] = "c.genero = :genero";
-        $params[':genero'] = $_POST['genero'];
-        $filtrosAplicados[] = "Género: " . ucfirst($_POST['genero']);
+    // Filtro: Genero (multiple)
+    if (!empty($_POST['genero']) && is_array($_POST['genero'])) {
+        $generoPlaceholders = [];
+        foreach ($_POST['genero'] as $i => $genero) {
+            $key = ":genero_$i";
+            $generoPlaceholders[] = $key;
+            $params[$key] = $genero;
+        }
+        $where[] = "c.genero IN (" . implode(',', $generoPlaceholders) . ")";
+        $filtrosAplicados[] = "Genero: " . implode(', ', array_map('ucfirst', $_POST['genero']));
     }
     
-    // Filtro: Congelado
-    if (isset($_POST['congelado']) && $_POST['congelado'] !== '') {
-        $where[] = "c.congelado = :congelado";
-        $params[':congelado'] = $_POST['congelado'];
-        $filtrosAplicados[] = "Congelado: " . ($_POST['congelado'] == 1 ? 'Sí' : 'No');
+    // Filtro: Congelado (multiple)
+    if (isset($_POST['congelado']) && is_array($_POST['congelado']) && count($_POST['congelado']) > 0) {
+        $congeladoPlaceholders = [];
+        foreach ($_POST['congelado'] as $i => $val) {
+            $key = ":congelado_$i";
+            $congeladoPlaceholders[] = $key;
+            $params[$key] = $val;
+        }
+        $where[] = "c.congelado IN (" . implode(',', $congeladoPlaceholders) . ")";
+        $labels = array_map(function($v) { return $v == 1 ? 'Si' : 'No'; }, $_POST['congelado']);
+        $filtrosAplicados[] = "Congelado: " . implode(', ', $labels);
     }
     
-    // Filtro: Notificaciones activas
-    if (isset($_POST['notificaciones']) && $_POST['notificaciones'] !== '') {
-        $where[] = "c.notificaciones = :notificaciones";
-        $params[':notificaciones'] = $_POST['notificaciones'];
-        $filtrosAplicados[] = "Notificaciones: " . ($_POST['notificaciones'] == 1 ? 'Activas' : 'Inactivas');
+    // Filtro: Notificaciones (multiple)
+    if (isset($_POST['notificaciones']) && is_array($_POST['notificaciones']) && count($_POST['notificaciones']) > 0) {
+        $notifPlaceholders = [];
+        foreach ($_POST['notificaciones'] as $i => $val) {
+            $key = ":notif_$i";
+            $notifPlaceholders[] = $key;
+            $params[$key] = $val;
+        }
+        $where[] = "c.notificaciones IN (" . implode(',', $notifPlaceholders) . ")";
+        $labels = array_map(function($v) { return $v == 1 ? 'Activas' : 'Inactivas'; }, $_POST['notificaciones']);
+        $filtrosAplicados[] = "Notificaciones: " . implode(', ', $labels);
     }
     
     // Filtro: Vencimiento del plan
@@ -77,18 +106,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
     // Filtro: Plan vencido (vencimiento < hoy)
     if (isset($_POST['plan_vencido']) && $_POST['plan_vencido'] == '1') {
         $where[] = "c.vencimiento_plan < CURDATE()";
-        $filtrosAplicados[] = "Plan vencido: Sí";
+        $filtrosAplicados[] = "Plan vencido: Si";
     }
     
-    // Filtro: Plan por vencer (próximos X días)
+    // Filtro: Plan por vencer (proximos X dias)
     if (!empty($_POST['dias_por_vencer'])) {
         $dias = intval($_POST['dias_por_vencer']);
         $where[] = "c.vencimiento_plan BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL :dias DAY)";
         $params[':dias'] = $dias;
-        $filtrosAplicados[] = "Plan por vencer en: $dias días";
+        $filtrosAplicados[] = "Plan por vencer en: $dias dias";
     }
     
-    // Filtro: Tiene teléfono
+    // Filtro: Tiene telefono
     $where[] = "c.telefono IS NOT NULL AND c.telefono != ''";
     $where[] = "c.dialCode IS NOT NULL AND c.dialCode != ''";
     
@@ -119,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Envío Masivo de WhatsApp</title>
+    <title>Envio Masivo de WhatsApp</title>
     <?php include('../../inc/header.php'); ?>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
     <style>
@@ -186,67 +215,158 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
             margin: 3px;
             font-size: 0.85rem;
         }
-		
-		/* Botón flotante */
-.btn-flotante {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    font-size: 24px;
-    cursor: pointer;
-    z-index: 1000;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.btn-flotante:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-}
-
-.badge-cola {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: #dc3545;
-    color: white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: bold;
-    border: 2px solid white;
-}
-
-.mensaje-cola-item {
-    border-left: 4px solid #667eea;
-    padding: 12px;
-    margin-bottom: 10px;
-    background: #f8f9fa;
-    border-radius: 8px;
-}
-
-.mensaje-cola-item:hover {
-    background: #e9ecef;
-}
+        
+        /* Boton flotante */
+        .btn-flotante {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-flotante:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        
+        .badge-cola {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+        
+        .mensaje-cola-item {
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .mensaje-cola-item:hover {
+            background: #e9ecef;
+        }
+        
+        /* Estilos para multi-select dropdown */
+        .multi-select-dropdown {
+            position: relative;
+        }
+        
+        .multi-select-btn {
+            width: 100%;
+            text-align: left;
+            background: #fff;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 38px;
+        }
+        
+        .multi-select-btn:hover {
+            border-color: #86b7fe;
+        }
+        
+        .multi-select-btn .selected-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+            color: #6c757d;
+        }
+        
+        .multi-select-btn .selected-text.has-selection {
+            color: #212529;
+        }
+        
+        .multi-select-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1050;
+            display: none;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .multi-select-menu.show {
+            display: block;
+        }
+        
+        .multi-select-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background 0.2s;
+        }
+        
+        .multi-select-item:hover {
+            background: #f0f0f0;
+        }
+        
+        .multi-select-item input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .multi-select-item label {
+            margin: 0;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .multi-select-actions {
+            border-top: 1px solid #eee;
+            padding: 8px;
+            display: flex;
+            gap: 5px;
+        }
+        
+        .multi-select-actions button {
+            flex: 1;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
 <div class="container" style="padding: 0px; background:rgba(0,0,0,0.00)">
     <div class="portada">
-        <h1><i class="fab fa-whatsapp"></i> Envío Masivo de WhatsApp</h1>
+        <h1><i class="fab fa-whatsapp"></i> Envio Masivo de WhatsApp</h1>
     </div>
 </div>
 
@@ -279,58 +399,137 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
             <form method="POST" id="formFiltros">
                 <div class="row g-3">
                     
-                    <!-- Estado del cliente -->
+                    <!-- Estado del cliente (Multi-select) -->
                     <div class="col-md-3">
                         <label class="form-label"><i class="fas fa-toggle-on me-1"></i> Estado</label>
-                        <select name="estado" class="form-select">
-                            <option value="">Todos</option>
-                            <option value="activo" <?= (isset($_POST['estado']) && $_POST['estado'] == 'activo') ? 'selected' : '' ?>>Activo</option>
-                            <option value="inactivo" <?= (isset($_POST['estado']) && $_POST['estado'] == 'inactivo') ? 'selected' : '' ?>>Inactivo</option>
-                        </select>
+                        <div class="multi-select-dropdown" data-name="estado">
+                            <div class="multi-select-btn">
+                                <span class="selected-text">Todos</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="multi-select-menu">
+                                <div class="multi-select-item">
+                                    <input type="checkbox" id="estado_activo" value="activo" 
+                                           <?= (isset($_POST['estado']) && in_array('activo', $_POST['estado'])) ? 'checked' : '' ?>>
+                                    <label for="estado_activo">Activo</label>
+                                </div>
+                                <div class="multi-select-item">
+                                    <input type="checkbox" id="estado_inactivo" value="inactivo"
+                                           <?= (isset($_POST['estado']) && in_array('inactivo', $_POST['estado'])) ? 'checked' : '' ?>>
+                                    <label for="estado_inactivo">Inactivo</label>
+                                </div>
+                                <div class="multi-select-actions">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-clear">Limpiar</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <!-- Plan -->
+                    <!-- Plan (Multi-select) -->
                     <div class="col-md-3">
                         <label class="form-label"><i class="fas fa-id-card me-1"></i> Plan</label>
-                        <select name="plan" class="form-select">
-                            <option value="">Todos los planes</option>
-                            <?php foreach ($planes as $plan): ?>
-                                <option value="<?= $plan['id'] ?>" <?= (isset($_POST['plan']) && $_POST['plan'] == $plan['id']) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($plan['nombre']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <div class="multi-select-dropdown" data-name="plan">
+                            <div class="multi-select-btn">
+                                <span class="selected-text">Todos los planes</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="multi-select-menu">
+                                <?php foreach ($planes as $plan): ?>
+                                <div class="multi-select-item">
+                                    <input type="checkbox" id="plan_<?= $plan['id'] ?>" value="<?= $plan['id'] ?>"
+                                           <?= (isset($_POST['plan']) && in_array($plan['id'], $_POST['plan'])) ? 'checked' : '' ?>>
+                                    <label for="plan_<?= $plan['id'] ?>"><?= htmlspecialchars($plan['nombre']) ?></label>
+                                </div>
+                                <?php endforeach; ?>
+                                <div class="multi-select-actions">
+                                    <button type="button" class="btn btn-sm btn-outline-primary btn-select-all">Todos</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-clear">Limpiar</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <!-- Género -->
+                    <!-- Genero (Multi-select) -->
                     <div class="col-md-3">
-                        <label class="form-label"><i class="fas fa-venus-mars me-1"></i> Género</label>
-                        <select name="genero" class="form-select">
-                            <option value="">Todos</option>
-                            <option value="masculino" <?= (isset($_POST['genero']) && $_POST['genero'] == 'masculino') ? 'selected' : '' ?>>Masculino</option>
-                            <option value="femenino" <?= (isset($_POST['genero']) && $_POST['genero'] == 'femenino') ? 'selected' : '' ?>>Femenino</option>
-                            <option value="otro" <?= (isset($_POST['genero']) && $_POST['genero'] == 'otro') ? 'selected' : '' ?>>Otro</option>
-                        </select>
+                        <label class="form-label"><i class="fas fa-venus-mars me-1"></i> Genero</label>
+                        <div class="multi-select-dropdown" data-name="genero">
+                            <div class="multi-select-btn">
+                                <span class="selected-text">Todos</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="multi-select-menu">
+                                <div class="multi-select-item">
+                                    <input type="checkbox" id="genero_masculino" value="masculino"
+                                           <?= (isset($_POST['genero']) && in_array('masculino', $_POST['genero'])) ? 'checked' : '' ?>>
+                                    <label for="genero_masculino">Masculino</label>
+                                </div>
+                                <div class="multi-select-item">
+                                    <input type="checkbox" id="genero_femenino" value="femenino"
+                                           <?= (isset($_POST['genero']) && in_array('femenino', $_POST['genero'])) ? 'checked' : '' ?>>
+                                    <label for="genero_femenino">Femenino</label>
+                                </div>
+                                <div class="multi-select-item">
+                                    <input type="checkbox" id="genero_otro" value="otro"
+                                           <?= (isset($_POST['genero']) && in_array('otro', $_POST['genero'])) ? 'checked' : '' ?>>
+                                    <label for="genero_otro">Otro</label>
+                                </div>
+                                <div class="multi-select-actions">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-clear">Limpiar</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <!-- Congelado -->
+                    <!-- Congelado (Multi-select) -->
                     <div class="col-md-3">
                         <label class="form-label"><i class="fas fa-snowflake me-1"></i> Plan Congelado</label>
-                        <select name="congelado" class="form-select">
-                            <option value="">Todos</option>
-                            <option value="0" <?= (isset($_POST['congelado']) && $_POST['congelado'] === '0') ? 'selected' : '' ?>>No congelado</option>
-                            <option value="1" <?= (isset($_POST['congelado']) && $_POST['congelado'] === '1') ? 'selected' : '' ?>>Congelado</option>
-                        </select>
+                        <div class="multi-select-dropdown" data-name="congelado">
+                            <div class="multi-select-btn">
+                                <span class="selected-text">Todos</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="multi-select-menu">
+                                <div class="multi-select-item">
+                                    <input type="checkbox" id="congelado_no" value="0"
+                                           <?= (isset($_POST['congelado']) && in_array('0', $_POST['congelado'])) ? 'checked' : '' ?>>
+                                    <label for="congelado_no">No congelado</label>
+                                </div>
+                                <div class="multi-select-item">
+                                    <input type="checkbox" id="congelado_si" value="1"
+                                           <?= (isset($_POST['congelado']) && in_array('1', $_POST['congelado'])) ? 'checked' : '' ?>>
+                                    <label for="congelado_si">Congelado</label>
+                                </div>
+                                <div class="multi-select-actions">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-clear">Limpiar</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <!-- Notificaciones -->
+                    <!-- Notificaciones (Multi-select) -->
                     <div class="col-md-3">
                         <label class="form-label"><i class="fas fa-bell me-1"></i> Notificaciones</label>
-                        <select name="notificaciones" class="form-select">
-                            <option value="">Todos</option>
-                            <option value="1" <?= (isset($_POST['notificaciones']) && $_POST['notificaciones'] === '1') ? 'selected' : '' ?>>Activas</option>
-                            <option value="0" <?= (isset($_POST['notificaciones']) && $_POST['notificaciones'] === '0') ? 'selected' : '' ?>>Inactivas</option>
-                        </select>
+                        <div class="multi-select-dropdown" data-name="notificaciones">
+                            <div class="multi-select-btn">
+                                <span class="selected-text">Todos</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="multi-select-menu">
+                                <div class="multi-select-item">
+                                    <input type="checkbox" id="notif_activas" value="1"
+                                           <?= (isset($_POST['notificaciones']) && in_array('1', $_POST['notificaciones'])) ? 'checked' : '' ?>>
+                                    <label for="notif_activas">Activas</label>
+                                </div>
+                                <div class="multi-select-item">
+                                    <input type="checkbox" id="notif_inactivas" value="0"
+                                           <?= (isset($_POST['notificaciones']) && in_array('0', $_POST['notificaciones'])) ? 'checked' : '' ?>>
+                                    <label for="notif_inactivas">Inactivas</label>
+                                </div>
+                                <div class="multi-select-actions">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-clear">Limpiar</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Plan vencido -->
@@ -342,9 +541,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
                         </select>
                     </div>
                     
-                    <!-- Días por vencer -->
+                    <!-- Dias por vencer -->
                     <div class="col-md-3">
-                        <label class="form-label"><i class="fas fa-hourglass-half me-1"></i> Por vencer en (días)</label>
+                        <label class="form-label"><i class="fas fa-hourglass-half me-1"></i> Por vencer en (dias)</label>
                         <input type="number" name="dias_por_vencer" class="form-control" min="1" max="365" 
                                value="<?= isset($_POST['dias_por_vencer']) ? htmlspecialchars($_POST['dias_por_vencer']) : '' ?>"
                                placeholder="Ej: 7">
@@ -412,7 +611,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
                         <tr>
                             <th><input type="checkbox" id="selectAll"></th>
                             <th>Nombre</th>
-                            <th>Teléfono</th>
+                            <th>Telefono</th>
                             <th>Plan</th>
                             <th>Vencimiento</th>
                             <th>Estado</th>
@@ -463,7 +662,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
             
             <hr class="my-4">
             
-            <!-- Botón siguiente paso -->
+            <!-- Boton siguiente paso -->
             <div class="text-center">
                 <button type="button" class="btn btn-success btn-lg" id="btnSiguiente" disabled>
                     <i class="fas fa-arrow-right me-2"></i> Siguiente: Redactar Mensaje
@@ -486,10 +685,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
     
 </div>
 
-	
-	
-<!-- Botón flotante para ver cola -->
-<button id="btnVerCola" class="btn-flotante" title="Ver mensajes en cola">
+<!-- Boton flotante para ver cola -->
+<button id="btnVerCola" class="btn-flotante" title="Ver mensajes en cola" style="display:none;">
     <i class="fas fa-clock"></i>
     <span class="badge-cola" id="badgeCola">0</span>
 </button>
@@ -500,7 +697,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title">
-                    <i class="fas fa-list-ul me-2"></i> Mensajes en Cola de Envío
+                    <i class="fas fa-list-ul me-2"></i> Mensajes en Cola de Envio
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -524,31 +721,121 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
         </div>
     </div>
 </div>
-	
+    
 <?php include('../../inc/menu-footer.php'); ?>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 $(document).ready(function(){
     
-    // Inicializar DataTable
+    // ══════════════════════════════════════════════════
+    // MULTI-SELECT DROPDOWN
+    // ══════════════════════════════════════════════════
+    
+    // Toggle dropdown
+    $('.multi-select-btn').on('click', function(e) {
+        e.stopPropagation();
+        var menu = $(this).siblings('.multi-select-menu');
+        
+        // Cerrar otros dropdowns
+        $('.multi-select-menu').not(menu).removeClass('show');
+        
+        menu.toggleClass('show');
+    });
+    
+    // Cerrar al hacer clic fuera
+    $(document).on('click', function() {
+        $('.multi-select-menu').removeClass('show');
+    });
+    
+    // Evitar que se cierre al hacer clic dentro del menu
+    $('.multi-select-menu').on('click', function(e) {
+        e.stopPropagation();
+    });
+    
+    // Actualizar texto al cambiar checkbox
+    $('.multi-select-item input[type="checkbox"]').on('change', function() {
+        var dropdown = $(this).closest('.multi-select-dropdown');
+        actualizarTextoMultiSelect(dropdown);
+    });
+    
+    // Boton "Limpiar"
+    $('.btn-clear').on('click', function() {
+        var dropdown = $(this).closest('.multi-select-dropdown');
+        dropdown.find('input[type="checkbox"]').prop('checked', false);
+        actualizarTextoMultiSelect(dropdown);
+    });
+    
+    // Boton "Todos"
+    $('.btn-select-all').on('click', function() {
+        var dropdown = $(this).closest('.multi-select-dropdown');
+        dropdown.find('input[type="checkbox"]').prop('checked', true);
+        actualizarTextoMultiSelect(dropdown);
+    });
+    
+    // Funcion para actualizar el texto del boton
+    function actualizarTextoMultiSelect(dropdown) {
+        var name = dropdown.data('name');
+        var checked = dropdown.find('input[type="checkbox"]:checked');
+        var textSpan = dropdown.find('.selected-text');
+        
+        if (checked.length === 0) {
+            textSpan.text('Todos').removeClass('has-selection');
+        } else {
+            var labels = [];
+            checked.each(function() {
+                labels.push($(this).siblings('label').text());
+            });
+            textSpan.text(labels.join(', ')).addClass('has-selection');
+        }
+    }
+    
+    // Inicializar textos al cargar
+    $('.multi-select-dropdown').each(function() {
+        actualizarTextoMultiSelect($(this));
+    });
+    
+    // Antes de enviar el formulario, crear inputs hidden con los valores
+    $('#formFiltros').on('submit', function() {
+        // Remover inputs hidden anteriores
+        $(this).find('input[type="hidden"].multi-select-value').remove();
+        
+        // Crear inputs hidden para cada multi-select
+        $('.multi-select-dropdown').each(function() {
+            var name = $(this).data('name');
+            $(this).find('input[type="checkbox"]:checked').each(function() {
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: name + '[]',
+                    value: $(this).val(),
+                    class: 'multi-select-value'
+                }).appendTo('#formFiltros');
+            });
+        });
+    });
+    
+    // ══════════════════════════════════════════════════
+    // DATATABLE Y SELECCION
+    // ══════════════════════════════════════════════════
+    
     if ($('#tablaClientes').length) {
         $('#tablaClientes').DataTable({
-    paging: false,          // ← desactiva paginación
-    info: true,
-    searching: true,
-    ordering: true,
-    language: {
-        url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
-    },
-    columnDefs: [
-        { orderable: false, targets: 0 }
-    ]
-});
+            paging: false,
+            info: true,
+            searching: true,
+            ordering: true,
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
+            },
+            columnDefs: [
+                { orderable: false, targets: 0 }
+            ]
+        });
     }
     
     // Seleccionar todos
@@ -568,7 +855,7 @@ $(document).ready(function(){
         $('#btnSiguiente').prop('disabled', count === 0);
     }
     
-    // Botón siguiente
+    // Boton siguiente
     $('#btnSiguiente').on('click', function(){
         var seleccionados = [];
         $('.cliente-check:checked').each(function(){
@@ -579,171 +866,114 @@ $(document).ready(function(){
             });
         });
         
-        // Guardar en sessionStorage y redirigir al paso 2
         sessionStorage.setItem('clientesSeleccionados', JSON.stringify(seleccionados));
         window.location.href = 'send-massive-ws-step2.php';
     });
-	
-	
-	// ══════════════════════════════════════════════════
-// SISTEMA DE COLA DE MENSAJES
-// ══════════════════════════════════════════════════
-
-// Cargar contador de cola al cargar la página
-cargarContadorCola();
-
-// Actualizar cada 10 segundos
-setInterval(cargarContadorCola, 10000);
-
-// Abrir modal al hacer clic en el botón flotante
-$('#btnVerCola').on('click', function() {
-    cargarCola();
-    $('#modalCola').modal('show');
-});
-
-// Función para cargar el contador
-function cargarContadorCola() {
-    $.ajax({
-        url: 'get_cola_count.php',
-        method: 'GET',
-        dataType: 'json',
-        success: function(res) {
-            if (res.count > 0) {
-                $('#badgeCola').text(res.count).show();
-                $('#btnVerCola').show();
-            } else {
-                $('#btnVerCola').hide();
-            }
-        },
-        error: function() {
-            console.error('Error al cargar contador de cola');
-        }
-    });
-}
-
-// Función para cargar la cola completa
-function cargarCola() {
-    $('#contenidoCola').html(`
-        <div class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
-            </div>
-        </div>
-    `);
     
-    $.ajax({
-        url: 'get_cola_messages.php',
-        method: 'GET',
-        dataType: 'json',
-        success: function(res) {
-            if (res.status === 'success' && res.mensajes.length > 0) {
-                let html = `
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>${res.mensajes.length}</strong> mensajes pendientes de envío.
-                        Se envían <strong>10 cada 5 minutos</strong> automáticamente.
-                    </div>
-                `;
-                
-                res.mensajes.forEach(function(msg, index) {
-                    html += `
-                        <div class="mensaje-cola-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <strong>${index + 1}. ${msg.nombre}</strong><br>
-                                    <small class="text-muted">
-                                        <i class="fab fa-whatsapp me-1"></i> ${msg.telefono}
-                                    </small>
-                                </div>
-                                <span class="badge bg-warning text-dark">Pendiente</span>
-                            </div>
-                            <div class="mt-2">
-                                <small class="text-muted">Mensaje:</small>
-                                <p class="mb-0 small" style="white-space: pre-wrap; max-height: 60px; overflow: hidden;">
-                                    ${msg.mensaje.substring(0, 100)}${msg.mensaje.length > 100 ? '...' : ''}
-                                </p>
-                            </div>
-                            ${msg.adjunto ? '<small class="text-success"><i class="fas fa-paperclip me-1"></i> Con adjunto</small>' : ''}
-                        </div>
-                    `;
-                });
-                
-                $('#contenidoCola').html(html);
-            } else {
-                $('#contenidoCola').html(`
-                    <div class="alert alert-success text-center">
-                        <i class="fas fa-check-circle fa-3x mb-3"></i>
-                        <h5>No hay mensajes en cola</h5>
-                        <p class="mb-0">Todos los mensajes han sido enviados.</p>
-                    </div>
-                `);
-                $('#btnCancelarCola').hide();
-            }
-        },
-        error: function() {
-            $('#contenidoCola').html(`
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    Error al cargar los mensajes en cola.
-                </div>
-            `);
-        }
+    // ══════════════════════════════════════════════════
+    // SISTEMA DE COLA DE MENSAJES
+    // ══════════════════════════════════════════════════
+    
+    cargarContadorCola();
+    setInterval(cargarContadorCola, 10000);
+    
+    $('#btnVerCola').on('click', function() {
+        cargarCola();
+        $('#modalCola').modal('show');
     });
-}
-
-// Cancelar toda la cola
-$('#btnCancelarCola').on('click', function() {
-    Swal.fire({
-        title: '¿Cancelar toda la cola?',
-        html: '<p class="text-danger"><strong>Advertencia:</strong> Deberás volver a crear de nuevo el mensaje masivo.</p><p>¿Seguro que quieres cancelar?</p>',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Sí, cancelar todo',
-        cancelButtonText: 'No, mantener'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: 'cancel_cola.php',
-                method: 'POST',
-                dataType: 'json',
-                success: function(res) {
-                    if (res.status === 'success') {
-                        Swal.fire({
-                            title: '¡Cola cancelada!',
-                            text: `Se eliminaron ${res.eliminados} mensajes pendientes.`,
-                            icon: 'success',
-                            confirmButtonText: 'Aceptar'
-                        }).then(() => {
-                            $('#modalCola').modal('hide');
-                            cargarContadorCola();
-                        });
-                    } else {
-                        Swal.fire('Error', res.message, 'error');
-                    }
-                },
-                error: function() {
-                    Swal.fire('Error', 'No se pudo cancelar la cola.', 'error');
+    
+    function cargarContadorCola() {
+        $.ajax({
+            url: 'get_cola_count.php',
+            method: 'GET',
+            dataType: 'json',
+            success: function(res) {
+                if (res.count > 0) {
+                    $('#badgeCola').text(res.count).show();
+                    $('#btnVerCola').show();
+                } else {
+                    $('#btnVerCola').hide();
                 }
-            });
-        }
+            },
+            error: function() {
+                console.error('Error al cargar contador de cola');
+            }
+        });
+    }
+    
+    function cargarCola() {
+        $('#contenidoCola').html('<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>');
+        
+        $.ajax({
+            url: 'get_cola_messages.php',
+            method: 'GET',
+            dataType: 'json',
+            success: function(res) {
+                if (res.status === 'success' && res.mensajes.length > 0) {
+                    let html = '<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i><strong>' + res.mensajes.length + '</strong> mensajes pendientes de envio.</div>';
+                    
+                    res.mensajes.forEach(function(msg, index) {
+                        html += '<div class="mensaje-cola-item"><div class="d-flex justify-content-between align-items-start"><div><strong>' + (index + 1) + '. ' + msg.nombre + '</strong><br><small class="text-muted"><i class="fab fa-whatsapp me-1"></i> ' + msg.telefono + '</small></div><span class="badge bg-warning text-dark">Pendiente</span></div><div class="mt-2"><small class="text-muted">Mensaje:</small><p class="mb-0 small" style="white-space: pre-wrap; max-height: 60px; overflow: hidden;">' + msg.mensaje.substring(0, 100) + (msg.mensaje.length > 100 ? '...' : '') + '</p></div>' + (msg.adjunto ? '<small class="text-success"><i class="fas fa-paperclip me-1"></i> Con adjunto</small>' : '') + '</div>';
+                    });
+                    
+                    $('#contenidoCola').html(html);
+                } else {
+                    $('#contenidoCola').html('<div class="alert alert-success text-center"><i class="fas fa-check-circle fa-3x mb-3"></i><h5>No hay mensajes en cola</h5><p class="mb-0">Todos los mensajes han sido enviados.</p></div>');
+                    $('#btnCancelarCola').hide();
+                }
+            },
+            error: function() {
+                $('#contenidoCola').html('<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>Error al cargar los mensajes en cola.</div>');
+            }
+        });
+    }
+    
+    $('#btnCancelarCola').on('click', function() {
+        Swal.fire({
+            title: 'Cancelar toda la cola?',
+            html: '<p class="text-danger"><strong>Advertencia:</strong> Deberas volver a crear el mensaje masivo.</p>',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Si, cancelar todo',
+            cancelButtonText: 'No, mantener'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: 'cancel_cola.php',
+                    method: 'POST',
+                    dataType: 'json',
+                    success: function(res) {
+                        if (res.status === 'success') {
+                            Swal.fire('Cola cancelada!', 'Se eliminaron ' + res.eliminados + ' mensajes.', 'success').then(() => {
+                                $('#modalCola').modal('hide');
+                                cargarContadorCola();
+                            });
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'No se pudo cancelar la cola.', 'error');
+                    }
+                });
+            }
+        });
     });
-});
     
 });
 
 function limpiarFiltros(){
-    // 1. Resetear el formulario (vuelve a valores iniciales de PHP)
-    $('#formFiltros')[0].reset();
+    // Limpiar checkboxes de multi-select
+    $('.multi-select-dropdown input[type="checkbox"]').prop('checked', false);
+    $('.multi-select-dropdown .selected-text').text('Todos').removeClass('has-selection');
     
-    // 2. Forzar el vaciado de todos los inputs, selects y fechas manualmente
-    $('#formFiltros').find('input, select').each(function() {
-        $(this).val(''); // Vacía el valor
-    });
-
-    // 3. Opcional: Si quieres que la página se refresque para limpiar los resultados de la tabla
-    // window.location.href = 'send-massive-ws.php'; 
+    // Limpiar otros campos
+    $('select[name="plan_vencido"]').val('');
+    $('input[name="dias_por_vencer"]').val('');
+    $('input[name="vencimiento_desde"]').val('');
+    $('input[name="vencimiento_hasta"]').val('');
 }
 </script>
 
