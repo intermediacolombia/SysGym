@@ -89,7 +89,7 @@ try {
       </li>
 		
 		<li class="nav-item" role="presentation">
-        <button class="nav-link" id="whatsapp-tab" data-bs-toggle="tab" data-bs-target="#whatsapp" type="button" role="tab"><i class="fa fa-envelopes-bulk"></i> Envios Masivos WhatsApp</button>
+        <button class="nav-link" id="whatsapp-tab" data-bs-toggle="tab" data-bs-target="#whatsapp" type="button" role="tab"><i class="fa-solid fa-envelopes-bulk"></i> Envios Masivos WhatsApp</button>
       </li>
 		
 		<li class="nav-item">
