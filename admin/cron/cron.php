@@ -34,7 +34,7 @@ switch (true) {
     
     // Envío masivo con probabilidad del 25% (aprox cada 20 min)
     // Ajusta el número: rand(1,4)=25%, rand(1,3)=33%, rand(1,5)=20%
-    if (rand(1, 4) === 1) {
+    if (rand(1, 4) === rand(1, 4)) {
         include 'send_massive_pending.php';
     }
     break;
