@@ -37,7 +37,7 @@ switch (true) {
    case ($minutos % 1 === 0): // se evalúa cada minuto
 
     // Envío masivo con probabilidad ~6.6% por minuto
-    if (rand(1, 15) === 1) {
+    if (rand(1, 7) === 1) {
         include 'send_massive_pending.php';
     }
 
