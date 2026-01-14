@@ -2,36 +2,34 @@
 /**
  * whatsapp/send_massive_pending.php
  * 
- * Envía UN SOLO mensaje por ejecución del cron.
- * Límite máximo: 50 mensajes por día.
+ * Envia UN SOLO mensaje por ejecucion del cron.
+ * Limite maximo: 50 mensajes por dia.
  * 
- * Configuración recomendada del cron:
- * - Cada 10 minutos para ~72 intentos/día (pero máximo 50 envíos)
- * - Cada 15 minutos para ~48 intentos/día
- * - Cada 20 minutos para ~36 intentos/día
- * 
- * Ejemplo cron cada 15 minutos:
-*/
+ * Configuracion recomendada del cron:
+ * - Cada 10 minutos para ~72 intentos/dia (pero maximo 50 envios)
+ * - Cada 15 minutos para ~48 intentos/dia
+ * - Cada 20 minutos para ~36 intentos/dia
+ */
 
 header('Content-Type: text/plain; charset=UTF-8');
 
 require_once __DIR__ . '/../../inc/config.php';
 require_once __DIR__ . '/../../whatsapp/save_failed_ws.php';
 
-// ═══════════════════════════════════════════════════════════════════════════
-// CONFIGURACIÓN
-// ═══════════════════════════════════════════════════════════════════════════
-define('LIMITE_DIARIO', 5);          // Máximo de mensajes por día
+// ============================================================================
+// CONFIGURACION
+// ============================================================================
+define('LIMITE_DIARIO', 50);          // Maximo de mensajes por dia
 define('HORA_INICIO', 7);              // Hora inicio (7 AM)
-define('HORA_FIN', 21);                // Hora fin (9 PM)
+define('HORA_FIN', 11);                // Hora fin (9 PM)
 
 $apiKey      = $api_ws;
 $urlEndpoint = 'https://api.360messenger.com/v2/sendMessage';
 $baseUrl     = isset($url) ? rtrim($url, '/') : '';
 
-// ═══════════════════════════════════════════════════════════════════════════
+// ============================================================================
 // CREAR TABLA SI NO EXISTE
-// ═══════════════════════════════════════════════════════════════════════════
+// ============================================================================
 function crearTablaEnvios() {
     $sql = "CREATE TABLE IF NOT EXISTS ws_envios_log (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -54,9 +52,9 @@ function crearTablaEnvios() {
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
+// ============================================================================
 // CONTAR MENSAJES ENVIADOS HOY
-// ═══════════════════════════════════════════════════════════════════════════
+// ============================================================================
 function getMensajesHoy() {
     try {
         $sql = "SELECT COUNT(*) FROM ws_envios_log 
@@ -70,9 +68,9 @@ function getMensajesHoy() {
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// REGISTRAR ENVÍO
-// ═══════════════════════════════════════════════════════════════════════════
+// ============================================================================
+// REGISTRAR ENVIO
+// ============================================================================
 function registrarEnvio($telefono, $nombre, $mensaje, $resultado, $errorDetalle = null) {
     try {
         $sql = "INSERT INTO ws_envios_log (telefono, nombre, mensaje, resultado, error_detalle, fecha, hora) 
@@ -81,7 +79,7 @@ function registrarEnvio($telefono, $nombre, $mensaje, $resultado, $errorDetalle 
         $stmt->execute([
             ':telefono' => $telefono,
             ':nombre' => $nombre,
-            ':mensaje' => mb_substr($mensaje, 0, 500), // Solo guardar primeros 500 chars
+            ':mensaje' => mb_substr($mensaje, 0, 500),
             ':resultado' => $resultado,
             ':error' => $errorDetalle
         ]);
@@ -90,9 +88,9 @@ function registrarEnvio($telefono, $nombre, $mensaje, $resultado, $errorDetalle 
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// LIMPIAR LOGS ANTIGUOS (más de 30 días)
-// ═══════════════════════════════════════════════════════════════════════════
+// ============================================================================
+// LIMPIAR LOGS ANTIGUOS (mas de 30 dias)
+// ============================================================================
 function limpiarLogsAntiguos() {
     try {
         db()->exec("DELETE FROM ws_envios_log WHERE fecha < DATE_SUB(CURDATE(), INTERVAL 30 DAY)");
@@ -101,42 +99,42 @@ function limpiarLogsAntiguos() {
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
+// ============================================================================
 // INICIO DEL SCRIPT
-// ═══════════════════════════════════════════════════════════════════════════
+// ============================================================================
 
-echo "═══════════════════════════════════════════════════════════════\n";
-echo "📱 ENVÍO MASIVO DE WHATSAPP - " . date('Y-m-d H:i:s') . "\n";
-echo "═══════════════════════════════════════════════════════════════\n\n";
+echo "===================================================================\n";
+echo "[WS MASIVO] ENVIO MASIVO DE WHATSAPP - " . date('Y-m-d H:i:s') . "\n";
+echo "===================================================================\n\n";
 
 // Crear tabla si no existe
 crearTablaEnvios();
 
-// Limpiar logs antiguos (1 vez al día aproximadamente)
+// Limpiar logs antiguos (1 vez al dia aproximadamente)
 if (rand(1, 100) <= 5) {
     limpiarLogsAntiguos();
 }
 
-// ───────────── VERIFICAR HORARIO ─────────────
+// ------------- VERIFICAR HORARIO -------------
 $horaActual = (int)date('G');
 if ($horaActual < HORA_INICIO || $horaActual >= HORA_FIN) {
-    echo "⏰ Fuera de horario de envío\n";
-    echo "   Horario permitido: " . HORA_INICIO . ":00 - " . HORA_FIN . ":00\n";
-    echo "   Hora actual: " . date('H:i') . "\n";
+    echo "[HORA] Fuera de horario de envio\n";
+    echo "       Horario permitido: " . HORA_INICIO . ":00 - " . HORA_FIN . ":00\n";
+    echo "       Hora actual: " . date('H:i') . "\n";
     exit;
 }
 
-// ───────────── VERIFICAR LÍMITE DIARIO ─────────────
+// ------------- VERIFICAR LIMITE DIARIO -------------
 $enviadosHoy = getMensajesHoy();
-echo "📊 Mensajes enviados hoy: $enviadosHoy / " . LIMITE_DIARIO . "\n\n";
+echo "[INFO] Mensajes enviados hoy: $enviadosHoy / " . LIMITE_DIARIO . "\n\n";
 
 if ($enviadosHoy >= LIMITE_DIARIO) {
-    echo "⚠️ LÍMITE DIARIO ALCANZADO\n";
-    echo "   Los envíos continuarán mañana.\n";
+    echo "[LIMITE] LIMITE DIARIO ALCANZADO\n";
+    echo "         Los envios continuaran manana.\n";
     exit;
 }
 
-// ───────────── OBTENER UN MENSAJE PENDIENTE ─────────────
+// ------------- OBTENER UN MENSAJE PENDIENTE -------------
 try {
     $sql = "SELECT id, nombre, telefono, mensaje, adjunto 
             FROM envios_masivos_ws 
@@ -148,16 +146,16 @@ try {
     $pendiente = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$pendiente) {
-        echo "✅ No hay mensajes pendientes en la cola.\n";
+        echo "[OK] No hay mensajes pendientes en la cola.\n";
         exit;
     }
 
 } catch (PDOException $e) {
-    echo "❌ ERROR BD: " . $e->getMessage() . "\n";
+    echo "[ERROR] ERROR BD: " . $e->getMessage() . "\n";
     exit;
 }
 
-// ───────────── PREPARAR DATOS ─────────────
+// ------------- PREPARAR DATOS -------------
 $id       = (int)$pendiente['id'];
 $nombre   = $pendiente['nombre'];
 $telefono = preg_replace('/[^0-9]/', '', $pendiente['telefono']);
@@ -174,13 +172,13 @@ if (!empty($adjunto)) {
     }
 }
 
-echo "📤 Procesando mensaje:\n";
-echo "   • ID: $id\n";
-echo "   • Nombre: $nombre\n";
-echo "   • Teléfono: $telefono\n";
-echo "   • Adjunto: " . ($adjuntoUrl ? 'Sí' : 'No') . "\n\n";
+echo "[PROCESO] Procesando mensaje:\n";
+echo "          - ID: $id\n";
+echo "          - Nombre: $nombre\n";
+echo "          - Telefono: $telefono\n";
+echo "          - Adjunto: " . ($adjuntoUrl ? 'Si' : 'No') . "\n\n";
 
-// ───────────── PREPARAR PAYLOAD ─────────────
+// ------------- PREPARAR PAYLOAD -------------
 $payload = [
     'phonenumber' => $telefono,
     'text'        => $mensaje
@@ -190,8 +188,8 @@ if (!empty($adjuntoUrl)) {
     $payload['url'] = $adjuntoUrl;
 }
 
-// ───────────── ENVIAR MENSAJE ─────────────
-echo "📡 Enviando mensaje...\n";
+// ------------- ENVIAR MENSAJE -------------
+echo "[ENVIO] Enviando mensaje...\n";
 
 $ch = curl_init($urlEndpoint);
 curl_setopt_array($ch, [
@@ -214,7 +212,7 @@ $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE) ?: 0;
 $curlError = curl_error($ch) ?: null;
 curl_close($ch);
 
-// ───────────── VALIDAR RESULTADO ─────────────
+// ------------- VALIDAR RESULTADO -------------
 $exito = false;
 $errorDetalle = null;
 
@@ -227,20 +225,20 @@ if ($curlError) {
     if (!empty($decoded['success'])) {
         $exito = true;
     } else {
-        $errorDetalle = "API: " . ($decoded['error'] ?? 'Sin respuesta de éxito');
+        $errorDetalle = "API: " . ($decoded['error'] ?? 'Sin respuesta de exito');
     }
 }
 
-// ───────────── PROCESAR RESULTADO ─────────────
+// ------------- PROCESAR RESULTADO -------------
 $deleteSt = db()->prepare("DELETE FROM envios_masivos_ws WHERE id = :id");
 
 if ($exito) {
-    // ÉXITO: Eliminar de cola y registrar
+    // EXITO: Eliminar de cola y registrar
     $deleteSt->execute([':id' => $id]);
     registrarEnvio($telefono, $nombre, $mensaje, 'enviado');
     
-    echo "\n✅ MENSAJE ENVIADO EXITOSAMENTE\n";
-    echo "   Destinatario: $nombre\n";
+    echo "\n[OK] MENSAJE ENVIADO EXITOSAMENTE\n";
+    echo "     Destinatario: $nombre\n";
     
 } else {
     // FALLO: Guardar en ws_outbox, eliminar de cola y registrar
@@ -248,13 +246,13 @@ if ($exito) {
     $deleteSt->execute([':id' => $id]);
     registrarEnvio($telefono, $nombre, $mensaje, 'fallido', $errorDetalle);
     
-    echo "\n❌ ERROR AL ENVIAR\n";
-    echo "   Destinatario: $nombre\n";
-    echo "   Error: $errorDetalle\n";
-    echo "   (Guardado en ws_outbox para reintento)\n";
+    echo "\n[FAIL] ERROR AL ENVIAR\n";
+    echo "       Destinatario: $nombre\n";
+    echo "       Error: $errorDetalle\n";
+    echo "       (Guardado en ws_outbox para reintento)\n";
 }
 
-// ───────────── RESUMEN FINAL ─────────────
+// ------------- RESUMEN FINAL -------------
 $pendientesRestantes = 0;
 try {
     $stmt = db()->query("SELECT COUNT(*) FROM envios_masivos_ws");
@@ -263,17 +261,17 @@ try {
 
 $enviadosHoyFinal = getMensajesHoy();
 
-echo "\n═══════════════════════════════════════════════════════════════\n";
-echo "📊 RESUMEN:\n";
-echo "   • Enviados hoy: $enviadosHoyFinal / " . LIMITE_DIARIO . "\n";
-echo "   • Pendientes en cola: $pendientesRestantes\n";
+echo "\n===================================================================\n";
+echo "[RESUMEN]\n";
+echo "  - Enviados hoy: $enviadosHoyFinal / " . LIMITE_DIARIO . "\n";
+echo "  - Pendientes en cola: $pendientesRestantes\n";
 
 if ($pendientesRestantes > 0) {
     $disponiblesHoy = LIMITE_DIARIO - $enviadosHoyFinal;
     $diasEstimados = ceil($pendientesRestantes / LIMITE_DIARIO);
     
-    echo "   • Cupo restante hoy: $disponiblesHoy\n";
-    echo "   • Días estimados para completar: ~$diasEstimados\n";
+    echo "  - Cupo restante hoy: $disponiblesHoy\n";
+    echo "  - Dias estimados para completar: ~$diasEstimados\n";
 }
 
-echo "═══════════════════════════════════════════════════════════════\n";
+echo "===================================================================\n";
