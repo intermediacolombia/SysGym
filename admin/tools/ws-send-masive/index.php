@@ -1001,13 +1001,21 @@ function cargarProgresoEnvios() {
     }
     
     // Inicializar carga de progreso y contador
+cargarProgresoEnvios();
+cargarContadorCola();
+
+// Actualizar cada 10 segundos
+setInterval(function() {
     cargarProgresoEnvios();
     cargarContadorCola();
     
-    // Actualizar cada 10 segundos
-    setInterval(cargarProgresoEnvios, 10000);
-    setInterval(cargarContadorCola, 10000);
-    
+    // Solo actualizamos la tabla si el modal está abierto para no sobrecargar el servidor
+    if ($('#modalCola').hasClass('show')) {
+        cargarCola();
+    }
+}, 10000); // Se actualiza todo cada 10 segundos
+	
+	
     // Al hacer clic en el botón flotante
     $('#btnVerCola').on('click', function() {
         cargarProgresoEnvios();
