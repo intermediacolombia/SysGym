@@ -2,135 +2,278 @@
 /**
  * whatsapp/send_massive_pending.php
  * 
- * Envía hasta 10 mensajes masivos pendientes desde envios_masivos_ws.
- * - Si falla: guarda en ws_outbox usando saveFailedWSMessage()
- * - Siempre elimina el registro de envios_masivos_ws (éxito o fallo)
+ * Envía UN SOLO mensaje por ejecución del cron.
+ * Límite máximo: 50 mensajes por día.
  * 
- * Uso: ejecutar manualmente o vía cron cada 5 minutos
- */
+ * Configuración recomendada del cron:
+ * - Cada 10 minutos para ~72 intentos/día (pero máximo 50 envíos)
+ * - Cada 15 minutos para ~48 intentos/día
+ * - Cada 20 minutos para ~36 intentos/día
+ * 
+ * Ejemplo cron cada 15 minutos:
+*/
 
 header('Content-Type: text/plain; charset=UTF-8');
 
 require_once __DIR__ . '/../../inc/config.php';
-require_once __DIR__ . '/../../whatsapp/save_failed_ws.php'; // saveFailedWSMessage($phone, $text, $url)
+require_once __DIR__ . '/../../whatsapp/save_failed_ws.php';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONFIGURACIÓN
+// ═══════════════════════════════════════════════════════════════════════════
+define('LIMITE_DIARIO', 50);          // Máximo de mensajes por día
+define('HORA_INICIO', 7);              // Hora inicio (7 AM)
+define('HORA_FIN', 21);                // Hora fin (9 PM)
 
 $apiKey      = $api_ws;
 $urlEndpoint = 'https://api.360messenger.com/v2/sendMessage';
+$baseUrl     = isset($url) ? rtrim($url, '/') : '';
 
-// Base URL para convertir rutas relativas a URLs públicas
-$baseUrl = isset($url) ? rtrim($url, '/') : '';
+// ═══════════════════════════════════════════════════════════════════════════
+// CREAR TABLA SI NO EXISTE
+// ═══════════════════════════════════════════════════════════════════════════
+function crearTablaEnvios() {
+    $sql = "CREATE TABLE IF NOT EXISTS ws_envios_log (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        telefono VARCHAR(20) NOT NULL,
+        nombre VARCHAR(100) DEFAULT NULL,
+        mensaje TEXT,
+        resultado ENUM('enviado', 'fallido') NOT NULL,
+        error_detalle VARCHAR(255) DEFAULT NULL,
+        fecha DATE NOT NULL,
+        hora TIME NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_fecha (fecha),
+        INDEX idx_resultado (resultado)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+    
+    try {
+        db()->exec($sql);
+    } catch (PDOException $e) {
+        // Tabla ya existe o error silenciado
+    }
+}
 
-/* ───────────── 1) TRAER 10 PENDIENTES ───────────── */
+// ═══════════════════════════════════════════════════════════════════════════
+// CONTAR MENSAJES ENVIADOS HOY
+// ═══════════════════════════════════════════════════════════════════════════
+function getMensajesHoy() {
+    try {
+        $sql = "SELECT COUNT(*) FROM ws_envios_log 
+                WHERE fecha = CURDATE() AND resultado = 'enviado'";
+        $stmt = db()->prepare($sql);
+        $stmt->execute();
+        return (int)$stmt->fetchColumn();
+    } catch (PDOException $e) {
+        crearTablaEnvios();
+        return 0;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// REGISTRAR ENVÍO
+// ═══════════════════════════════════════════════════════════════════════════
+function registrarEnvio($telefono, $nombre, $mensaje, $resultado, $errorDetalle = null) {
+    try {
+        $sql = "INSERT INTO ws_envios_log (telefono, nombre, mensaje, resultado, error_detalle, fecha, hora) 
+                VALUES (:telefono, :nombre, :mensaje, :resultado, :error, CURDATE(), CURTIME())";
+        $stmt = db()->prepare($sql);
+        $stmt->execute([
+            ':telefono' => $telefono,
+            ':nombre' => $nombre,
+            ':mensaje' => mb_substr($mensaje, 0, 500), // Solo guardar primeros 500 chars
+            ':resultado' => $resultado,
+            ':error' => $errorDetalle
+        ]);
+    } catch (PDOException $e) {
+        // Silenciar
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LIMPIAR LOGS ANTIGUOS (más de 30 días)
+// ═══════════════════════════════════════════════════════════════════════════
+function limpiarLogsAntiguos() {
+    try {
+        db()->exec("DELETE FROM ws_envios_log WHERE fecha < DATE_SUB(CURDATE(), INTERVAL 30 DAY)");
+    } catch (PDOException $e) {
+        // Silenciar
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INICIO DEL SCRIPT
+// ═══════════════════════════════════════════════════════════════════════════
+
+echo "═══════════════════════════════════════════════════════════════\n";
+echo "📱 ENVÍO MASIVO DE WHATSAPP - " . date('Y-m-d H:i:s') . "\n";
+echo "═══════════════════════════════════════════════════════════════\n\n";
+
+// Crear tabla si no existe
+crearTablaEnvios();
+
+// Limpiar logs antiguos (1 vez al día aproximadamente)
+if (rand(1, 100) <= 5) {
+    limpiarLogsAntiguos();
+}
+
+// ───────────── VERIFICAR HORARIO ─────────────
+$horaActual = (int)date('G');
+if ($horaActual < HORA_INICIO || $horaActual >= HORA_FIN) {
+    echo "⏰ Fuera de horario de envío\n";
+    echo "   Horario permitido: " . HORA_INICIO . ":00 - " . HORA_FIN . ":00\n";
+    echo "   Hora actual: " . date('H:i') . "\n";
+    exit;
+}
+
+// ───────────── VERIFICAR LÍMITE DIARIO ─────────────
+$enviadosHoy = getMensajesHoy();
+echo "📊 Mensajes enviados hoy: $enviadosHoy / " . LIMITE_DIARIO . "\n\n";
+
+if ($enviadosHoy >= LIMITE_DIARIO) {
+    echo "⚠️ LÍMITE DIARIO ALCANZADO\n";
+    echo "   Los envíos continuarán mañana.\n";
+    exit;
+}
+
+// ───────────── OBTENER UN MENSAJE PENDIENTE ─────────────
 try {
     $sql = "SELECT id, nombre, telefono, mensaje, adjunto 
             FROM envios_masivos_ws 
             ORDER BY id ASC 
-            LIMIT 10";
+            LIMIT 1";
     
     $stmt = db()->prepare($sql);
     $stmt->execute();
-    $pendientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $pendiente = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$pendientes) {
-        echo "No hay mensajes pendientes.\n";
+    if (!$pendiente) {
+        echo "✅ No hay mensajes pendientes en la cola.\n";
         exit;
     }
 
 } catch (PDOException $e) {
-    echo "ERROR BD: " . $e->getMessage() . "\n";
+    echo "❌ ERROR BD: " . $e->getMessage() . "\n";
     exit;
 }
 
-/* ───────────── 2) PREPARAR DELETE ───────────── */
-$deleteSt = db()->prepare("DELETE FROM envios_masivos_ws WHERE id = :id");
+// ───────────── PREPARAR DATOS ─────────────
+$id       = (int)$pendiente['id'];
+$nombre   = $pendiente['nombre'];
+$telefono = preg_replace('/[^0-9]/', '', $pendiente['telefono']);
+$mensaje  = $pendiente['mensaje'];
+$adjunto  = $pendiente['adjunto'] ?? null;
 
-$ok = 0;
-$fail = 0;
-
-/* ───────────── 3) ENVIAR CADA MENSAJE ───────────── */
-foreach ($pendientes as $row) {
-    $id       = (int)$row['id'];
-    $nombre   = $row['nombre'];
-    $telefono = preg_replace('/[^0-9]/', '', $row['telefono']); // limpiar
-    $mensaje  = $row['mensaje'];
-    $adjunto  = $row['adjunto'] ?? null;
-
-    // Construir URL pública del adjunto si existe
-    $adjuntoUrl = null;
-    if (!empty($adjunto)) {
-        if (preg_match('/^https?:\/\//i', $adjunto)) {
-            // Ya es URL completa
-            $adjuntoUrl = $adjunto;
-        } else {
-            // Es ruta relativa, convertir a URL pública
-            $adjuntoUrl = $baseUrl . '/' . ltrim($adjunto, '/');
-        }
-    }
-
-    /* ───────────── 4) PAYLOAD ───────────── */
-    $payload = [
-        'phonenumber' => $telefono,
-        'text'        => $mensaje
-    ];
-
-    // Agregar URL solo si existe (igual que send_valoracion.php)
-    if (!empty($adjuntoUrl)) {
-        $payload['url'] = $adjuntoUrl;
-    }
-
-    /* ───────────── 5) ENVÍO cURL ───────────── */
-    $ch = curl_init($urlEndpoint);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST           => true,
-        CURLOPT_POSTFIELDS     => json_encode($payload, JSON_UNESCAPED_UNICODE),
-        CURLOPT_HTTPHEADER     => [
-            'Authorization: Bearer ' . $apiKey,
-            'Content-Type: application/json',
-            'Accept: application/json'
-        ],
-        CURLOPT_CONNECTTIMEOUT => 10,
-        CURLOPT_TIMEOUT        => 30,
-        CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
-        CURLOPT_SSL_VERIFYPEER => true
-    ]);
-
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE) ?: 0;
-    $error    = curl_error($ch) ?: null;
-    curl_close($ch);
-
-    /* ───────────── 6) VALIDAR ÉXITO ───────────── */
-    $successFlag = false;
-    if (!$error && $httpCode >= 200 && $httpCode < 300) {
-        $decoded = json_decode($response, true);
-        $successFlag = !empty($decoded['success']);
-    }
-
-    /* ───────────── 7) PROCESAR RESULTADO ───────────── */
-    if ($successFlag) {
-        // ÉXITO: eliminar de la tabla
-        $deleteSt->execute([':id' => $id]);
-        $ok++;
-        echo "[OK] id=$id nombre='$nombre' phone=$telefono http=$httpCode\n";
+// Construir URL del adjunto
+$adjuntoUrl = null;
+if (!empty($adjunto)) {
+    if (preg_match('/^https?:\/\//i', $adjunto)) {
+        $adjuntoUrl = $adjunto;
     } else {
-        // FALLO: guardar en ws_outbox Y eliminar de envios_masivos_ws
-        saveFailedWSMessage($payload['phonenumber'], $payload['text'], $adjuntoUrl);
-        $deleteSt->execute([':id' => $id]); // ← LÍNEA CRÍTICA
-        $fail++;
-        
-        $why = $error ? "curl: $error" : "http:$httpCode resp:$response";
-        echo "[FAIL] id=$id nombre='$nombre' phone=$telefono -> $why\n";
+        $adjuntoUrl = $baseUrl . '/' . ltrim($adjunto, '/');
     }
-
-    // Pausa opcional para no saturar la API (150ms entre mensajes)
-    usleep(150000);
 }
 
-/* ───────────── 8) RESUMEN ───────────── */
-echo "\n═══════════════════════════════════════\n";
-echo "Resumen del envío masivo:\n";
-echo "  ✓ Enviados OK: $ok\n";
-echo "  ✗ Fallidos (guardados en ws_outbox): $fail\n";
-echo "  Total procesados: " . count($pendientes) . "\n";
-echo "═══════════════════════════════════════\n";
+echo "📤 Procesando mensaje:\n";
+echo "   • ID: $id\n";
+echo "   • Nombre: $nombre\n";
+echo "   • Teléfono: $telefono\n";
+echo "   • Adjunto: " . ($adjuntoUrl ? 'Sí' : 'No') . "\n\n";
+
+// ───────────── PREPARAR PAYLOAD ─────────────
+$payload = [
+    'phonenumber' => $telefono,
+    'text'        => $mensaje
+];
+
+if (!empty($adjuntoUrl)) {
+    $payload['url'] = $adjuntoUrl;
+}
+
+// ───────────── ENVIAR MENSAJE ─────────────
+echo "📡 Enviando mensaje...\n";
+
+$ch = curl_init($urlEndpoint);
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST           => true,
+    CURLOPT_POSTFIELDS     => json_encode($payload, JSON_UNESCAPED_UNICODE),
+    CURLOPT_HTTPHEADER     => [
+        'Authorization: Bearer ' . $apiKey,
+        'Content-Type: application/json',
+        'Accept: application/json'
+    ],
+    CURLOPT_CONNECTTIMEOUT => 10,
+    CURLOPT_TIMEOUT        => 30,
+    CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
+    CURLOPT_SSL_VERIFYPEER => true
+]);
+
+$response = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE) ?: 0;
+$curlError = curl_error($ch) ?: null;
+curl_close($ch);
+
+// ───────────── VALIDAR RESULTADO ─────────────
+$exito = false;
+$errorDetalle = null;
+
+if ($curlError) {
+    $errorDetalle = "CURL: $curlError";
+} elseif ($httpCode < 200 || $httpCode >= 300) {
+    $errorDetalle = "HTTP: $httpCode";
+} else {
+    $decoded = json_decode($response, true);
+    if (!empty($decoded['success'])) {
+        $exito = true;
+    } else {
+        $errorDetalle = "API: " . ($decoded['error'] ?? 'Sin respuesta de éxito');
+    }
+}
+
+// ───────────── PROCESAR RESULTADO ─────────────
+$deleteSt = db()->prepare("DELETE FROM envios_masivos_ws WHERE id = :id");
+
+if ($exito) {
+    // ÉXITO: Eliminar de cola y registrar
+    $deleteSt->execute([':id' => $id]);
+    registrarEnvio($telefono, $nombre, $mensaje, 'enviado');
+    
+    echo "\n✅ MENSAJE ENVIADO EXITOSAMENTE\n";
+    echo "   Destinatario: $nombre\n";
+    
+} else {
+    // FALLO: Guardar en ws_outbox, eliminar de cola y registrar
+    saveFailedWSMessage($payload['phonenumber'], $payload['text'], $adjuntoUrl);
+    $deleteSt->execute([':id' => $id]);
+    registrarEnvio($telefono, $nombre, $mensaje, 'fallido', $errorDetalle);
+    
+    echo "\n❌ ERROR AL ENVIAR\n";
+    echo "   Destinatario: $nombre\n";
+    echo "   Error: $errorDetalle\n";
+    echo "   (Guardado en ws_outbox para reintento)\n";
+}
+
+// ───────────── RESUMEN FINAL ─────────────
+$pendientesRestantes = 0;
+try {
+    $stmt = db()->query("SELECT COUNT(*) FROM envios_masivos_ws");
+    $pendientesRestantes = (int)$stmt->fetchColumn();
+} catch (PDOException $e) {}
+
+$enviadosHoyFinal = getMensajesHoy();
+
+echo "\n═══════════════════════════════════════════════════════════════\n";
+echo "📊 RESUMEN:\n";
+echo "   • Enviados hoy: $enviadosHoyFinal / " . LIMITE_DIARIO . "\n";
+echo "   • Pendientes en cola: $pendientesRestantes\n";
+
+if ($pendientesRestantes > 0) {
+    $disponiblesHoy = LIMITE_DIARIO - $enviadosHoyFinal;
+    $diasEstimados = ceil($pendientesRestantes / LIMITE_DIARIO);
+    
+    echo "   • Cupo restante hoy: $disponiblesHoy\n";
+    echo "   • Días estimados para completar: ~$diasEstimados\n";
+}
+
+echo "═══════════════════════════════════════════════════════════════\n";
