@@ -202,5 +202,15 @@ define('MP_ACCESS_TOKEN', $settings['mp_access_token'] ?? '');
 define('MP_PUBLIC_KEY',   $settings['mp_public_key']   ?? '');
 define('DAYS_ALLOWED_BEFORE_DUE', (int)($settings['days_allowed_before_due'] ?? 0));
 
+
+
+# ===============================
+#  CONFIGURACIÓN ENVÍOS MASIVOS
+# ===============================
+define('WA_MASS_DAYS',       $settings['wa_mass_days'] ?? '1,2,3,4,5');        // Días permitidos (1=Lun, 7=Dom)
+define('WA_MASS_HOUR_START', (int)($settings['wa_mass_hour_start'] ?? 7));     // Hora inicio (formato 24h)
+define('WA_MASS_HOUR_END',   (int)($settings['wa_mass_hour_end'] ?? 21));      // Hora fin (formato 24h)
+define('WA_MASS_LIMIT',      (int)($settings['wa_mass_limit'] ?? 50));         // Máximo mensajes diarios
+
 ?>
 

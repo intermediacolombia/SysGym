@@ -19,9 +19,10 @@ require_once __DIR__ . '/../../whatsapp/save_failed_ws.php';
 // ============================================================================
 // CONFIGURACION
 // ============================================================================
-define('LIMITE_DIARIO', 50);          // Maximo de mensajes por dia
-define('HORA_INICIO', 7);              // Hora inicio (7 AM)
-define('HORA_FIN', 21);                // Hora fin (9 PM)
+define('LIMITE_DIARIO', WA_MASS_LIMIT);          // Maximo de mensajes por dia
+define('HORA_INICIO', WA_MASS_HOUR_START);       // Hora inicio (7 AM)
+define('HORA_FIN', WA_MASS_HOUR_END);            // Hora fin (9 PM)
+define('DIAS_PERMITIDOS', WA_MASS_DAYS);         // Dias permitidos (1=Lun, 7=Dom)
 
 $apiKey      = $api_ws;
 $urlEndpoint = 'https://api.360messenger.com/v2/sendMessage';
@@ -113,6 +114,22 @@ crearTablaEnvios();
 // Limpiar logs antiguos (1 vez al dia aproximadamente)
 if (rand(1, 100) <= 5) {
     limpiarLogsAntiguos();
+}
+
+// ------------- VERIFICAR DIA DE LA SEMANA -------------
+$diaActual = (int)date('N'); // 1=Lunes, 7=Domingo
+$diasPermitidos = array_map('intval', explode(',', DIAS_PERMITIDOS));
+
+if (!in_array($diaActual, $diasPermitidos)) {
+    $nombresDias = [1=>'Lunes', 2=>'Martes', 3=>'Miércoles', 4=>'Jueves', 5=>'Viernes', 6=>'Sábado', 7=>'Domingo'];
+    $diasPermitidosNombres = array_map(function($d) use ($nombresDias) { 
+        return $nombresDias[$d] ?? $d; 
+    }, $diasPermitidos);
+    
+    echo "[DIA] Dia no permitido para envios\n";
+    echo "      Dias permitidos: " . implode(', ', $diasPermitidosNombres) . "\n";
+    echo "      Dia actual: " . ($nombresDias[$diaActual] ?? $diaActual) . "\n";
+    exit;
 }
 
 // ------------- VERIFICAR HORARIO -------------
