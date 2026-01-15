@@ -96,7 +96,7 @@ $desc = json_encode([
             'fecha' => $fecha,
             'hora' => $hora		
 ], JSON_UNESCAPED_UNICODE);
-log_action('Envio Mensaje Masivo', $desc, 'Caja');
+log_action('Envio Mensaje Masivo', $desc, 'Tools');
 // END LOGS     
 		
         $stmt->execute([
