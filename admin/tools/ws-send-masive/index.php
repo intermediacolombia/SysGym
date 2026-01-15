@@ -1037,7 +1037,7 @@ function cargarProgresoEnvios() {
     }
     
     // Función para cargar mensajes de cola
-    function cargarCola() {
+   /* function cargarCola() {
     // Solo mostramos el spinner si el contenedor está vacío (primera carga)
     if ($('#contenidoCola').html().trim() === '' || $('#contenidoCola').find('.spinner-border').length > 0) {
         $('#contenidoCola').html('<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>');
@@ -1067,6 +1067,39 @@ function cargarProgresoEnvios() {
             // Solo mostramos error si no había contenido previo
             if ($('#contenidoCola').find('.mensaje-cola-item').length === 0) {
                 $('#contenidoCola').html('<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>Error al cargar los mensajes en cola.</div>');
+            }
+        }
+    });
+}*/
+	
+	function cargarCola() {
+    if ($('#contenidoCola').html().trim() === '' || $('#contenidoCola').find('.spinner-border').length > 0) {
+        $('#contenidoCola').html('<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>');
+    }
+    
+    $.ajax({
+        url: 'get_cola_messages.php',
+        method: 'GET',
+        dataType: 'json',
+        success: function(res) {
+            if (res.status === 'success' && res.mensajes.length > 0) {
+                let html = '<div class="alert alert-info small"><i class="fas fa-info-circle me-2"></i>';
+                html += '<strong>' + res.mensajes.length + '</strong> mensajes programados para enviar hoy.</div>';
+                
+                res.mensajes.forEach(function(msg, index) {
+                    html += '<div class="mensaje-cola-item">';
+                    html += '<div class="d-flex justify-content-between align-items-start">';
+                    html += '<div><strong>' + (index + 1) + '. ' + msg.nombre + '</strong><br>';
+                    html += '<small class="text-muted"><i class="fab fa-whatsapp me-1"></i> ' + msg.telefono + '</small></div>';
+                    html += '<span class="badge bg-success">Programado</span></div>';
+                    html += '<div class="mt-2"><p class="mb-0 small text-truncate">' + msg.mensaje + '</p></div></div>';
+                });
+                
+                $('#contenidoCola').html(html);
+                $('#btnCancelarCola').show();
+            } else {
+                $('#contenidoCola').html('<div class="alert alert-success text-center"><i class="fas fa-check-circle fa-2x mb-2"></i><h5>Lista limpia</h5><p class="mb-0">No hay mensajes pendientes para enviar hoy.</p></div>');
+                $('#btnCancelarCola').hide();
             }
         }
     });
