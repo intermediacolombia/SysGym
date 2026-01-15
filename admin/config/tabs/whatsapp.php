@@ -178,6 +178,30 @@
             <label class="form-label"><strong>Máx. Mensajes Diarios</strong></label>
             <input type="number" class="form-control" name="wa_mass_limit" value="<?= htmlspecialchars($settings['wa_mass_limit'] ?? 50) ?>" min="1" max="500">
         </div>
+		
+		<!-- Probabilidad de Envío -->
+<div class="col-md-3">
+    <label class="form-label d-flex align-items-center">
+        <i class="fas fa-dice me-1"></i> Probabilidad
+        <i class="fas fa-question-circle ms-2 text-muted" 
+           data-bs-toggle="tooltip" 
+           data-bs-placement="top" 
+           title="0 es deshabilitado. Es la probabilidad con la que se enviará un mensaje cada minuto. Lo recomendado es 7. Entre más alto el número, la probabilidad es menor. Si el sistema no envía mensajes en mucho tiempo, baje este ajuste.">
+        </i>
+    </label>
+    <select name="wa_mass_prob" id="wa_mass_prob" class="form-select">
+        <?php 
+        $prob_actual = $settings['wa_mass_prob'] ?? 7;
+        for ($i = 0; $i <= 15; $i++): 
+            $selected = ($prob_actual == $i) ? 'selected' : '';
+            $label = ($i == 0) ? "0 (Deshabilitado)" : $i;
+            echo "<option value='$i' $selected>$label</option>";
+        endfor; 
+        ?>
+    </select>
+</div>
+		
+		
     </div>
 </div>
 
