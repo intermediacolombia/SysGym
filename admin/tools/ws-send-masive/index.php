@@ -948,6 +948,16 @@ function cargarProgresoEnvios() {
             } else {
                 $('#progressBar').addClass('bg-success');
             }
+			
+			if (res.in_window === false && res.next_start_human) {
+    $('#progressSubText').html(
+        '<span class="text-warning fw-bold">' +
+        'Envíos pausados. Se reanudan: ' + res.next_start_human +
+        '</span>'
+    );
+} else {
+    $('#progressSubText').text('Enviados hoy: ' + enviados + ' / ' + limite);
+}
         }
     });
 }
