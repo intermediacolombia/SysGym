@@ -94,25 +94,29 @@ try {
 
     // Actualizar cliente
     $stmt = db()->prepare("
-        UPDATE clientes SET 
-        pago_plan = :pago_plan,
-        vencimiento_plan = :vencimiento_plan,
-        estado = 'activo',
-        congelado = 0,
-        updated_at = NOW()
-        WHERE id = :id
-    ");
-    $stmt->execute([
-        ':pago_plan' => $pago_plan,
-        ':vencimiento_plan' => $vencimiento_plan,
-        ':id' => $id
-    ]);
+    UPDATE clientes SET 
+    pago_plan = :pago_plan,
+    vencimiento_plan = :vencimiento_plan,
+    estado = 'activo',
+    congelado = 0,
+    updated_at = NOW()
+    WHERE id = :id
+");
+$stmt->execute([
+    ':pago_plan' => $pago_plan,
+    ':vencimiento_plan' => $vencimiento_plan,
+    ':id' => $id
+]);
 
-    // Generar factura
-    ob_start();
-    include_once('generate_factura.php');
-    ob_end_clean();
+// AÑADIR: Pasar fechaPlazo desde el POST
+$fechaPlazo = isset($_POST['fechaPlazo']) ? trim($_POST['fechaPlazo']) : null;
 
+// Generar factura
+ob_start();
+include_once('generate_factura.php');
+ob_end_clean();
+	
+	
     // Obtener ID factura
     $stmtFactura = db()->query("SELECT MAX(id) AS factura_id FROM facturas");
     $facturaData = $stmtFactura->fetch(PDO::FETCH_ASSOC);
