@@ -121,115 +121,106 @@
     </div>
 
     <div class="row">
-        <!-- Días de Envío -->
-        <div class="col-md-12 mb-3">
-            <label class="form-label d-block"><strong>Días permitidos para envíos masivos</strong></label>
-            <div class="btn-group w-100" role="group" aria-label="Días de la semana">
-                <?php
-                $dias_semana = [
-                    1 => 'Lun', 2 => 'Mar', 3 => 'Mié', 4 => 'Jue', 5 => 'Vie', 6 => 'Sáb', 7 => 'Dom'
-                ];
-                // Asumiendo que guardas los días como una cadena separada por comas, ej: "1,2,3,4,5"
-                $dias_configurados = explode(',', $settings['wa_mass_days'] ?? '1,2,3,4,5');
-                
-                foreach ($dias_semana as $num => $nombre): 
-                    $checked = in_array($num, $dias_configurados) ? 'checked' : '';
-                ?>
-                    <input type="checkbox" class="btn-check" name="wa_mass_days_array[]" id="day_<?= $num ?>" value="<?= $num ?>" <?= $checked ?>>
-                    <label class="btn btn-outline-primary" for="day_<?= $num ?>"><?= $nombre ?></label>
-                <?php endforeach; ?>
-            </div>
-            <!-- Campo oculto para procesar el array como string si tu script de guardado no maneja arrays -->
-            <input type="hidden" name="wa_mass_days" id="wa_mass_days_hidden" value="<?= htmlspecialchars($settings['wa_mass_days'] ?? '1,2,3,4,5') ?>">
+    <!-- Fila Superior: Días de Envío (Ocupa todo el ancho) -->
+    <div class="col-md-12 mb-4">
+        <label class="form-label d-block"><strong><i class="fas fa-calendar-alt me-1"></i> Días permitidos para envíos masivos</strong></label>
+        <div class="btn-group w-100" role="group" aria-label="Días de la semana">
+            <?php
+            $dias_semana = [
+                1 => 'Lun', 2 => 'Mar', 3 => 'Mié', 4 => 'Jue', 5 => 'Vie', 6 => 'Sáb', 7 => 'Dom'
+            ];
+            $dias_configurados = explode(',', $settings['wa_mass_days'] ?? '1,2,3,4,5');
+            
+            foreach ($dias_semana as $num => $nombre): 
+                $checked = in_array($num, $dias_configurados) ? 'checked' : '';
+            ?>
+                <input type="checkbox" class="btn-check" name="wa_mass_days_array[]" id="day_<?= $num ?>" value="<?= $num ?>" <?= $checked ?>>
+                <label class="btn btn-outline-primary" for="day_<?= $num ?>"><?= $nombre ?></label>
+            <?php endforeach; ?>
         </div>
+        <input type="hidden" name="wa_mass_days" id="wa_mass_days_hidden" value="<?= htmlspecialchars($settings['wa_mass_days'] ?? '1,2,3,4,5') ?>">
+    </div>
 
-        <!-- Hora Inicio -->
-        <div class="col-md-4 mb-3">
-            <label class="form-label"><strong>Hora Inicio (00-23)</strong></label>
-            <select class="form-select" name="wa_mass_hour_start">
-                <?php
-                $start_sel = (int)($settings['wa_mass_hour_start'] ?? 7);
-                for ($i = 0; $i <= 23; $i++) {
-                    $label = ($i == 0) ? "12 AM" : (($i < 12) ? "$i AM" : (($i == 12) ? "12 PM" : ($i - 12) . " PM"));
-                    $selected = ($i === $start_sel) ? 'selected' : '';
-                    echo "<option value=\"$i\" $selected>$label ($i:00)</option>";
-                }
-                ?>
-            </select>
-        </div>
+    <!-- Fila Inferior: 4 Columnas de Configuración -->
+    
+    <!-- 1. Hora Inicio -->
+    <div class="col-md-3 mb-3">
+        <label class="form-label"><strong><i class="fas fa-clock me-1"></i> Hora Inicio</strong></label>
+        <select class="form-select" name="wa_mass_hour_start">
+            <?php
+            $start_sel = (int)($settings['wa_mass_hour_start'] ?? 7);
+            for ($i = 0; $i <= 23; $i++) {
+                $label = ($i == 0) ? "12 AM" : (($i < 12) ? "$i AM" : (($i == 12) ? "12 PM" : ($i - 12) . " PM"));
+                $selected = ($i === $start_sel) ? 'selected' : '';
+                echo "<option value=\"$i\" $selected>$label ($i:00)</option>";
+            }
+            ?>
+        </select>
+    </div>
 
-        <!-- Hora Fin -->
-        <div class="col-md-4 mb-3">
-            <label class="form-label"><strong>Hora Fin (00-23)</strong></label>
-            <select class="form-select" name="wa_mass_hour_end">
-                <?php
-                $end_sel = (int)($settings['wa_mass_hour_end'] ?? 21);
-                for ($i = 0; $i <= 23; $i++) {
-                    $label = ($i == 0) ? "12 AM" : (($i < 12) ? "$i AM" : (($i == 12) ? "12 PM" : ($i - 12) . " PM"));
-                    $selected = ($i === $end_sel) ? 'selected' : '';
-                    echo "<option value=\"$i\" $selected>$label ($i:00)</option>";
-                }
-                ?>
-            </select>
-        </div>
+    <!-- 2. Hora Fin -->
+    <div class="col-md-3 mb-3">
+        <label class="form-label"><strong><i class="fas fa-history me-1"></i> Hora Fin</strong></label>
+        <select class="form-select" name="wa_mass_hour_end">
+            <?php
+            $end_sel = (int)($settings['wa_mass_hour_end'] ?? 21);
+            for ($i = 0; $i <= 23; $i++) {
+                $label = ($i == 0) ? "12 AM" : (($i < 12) ? "$i AM" : (($i == 12) ? "12 PM" : ($i - 12) . " PM"));
+                $selected = ($i === $end_sel) ? 'selected' : '';
+                echo "<option value=\"$i\" $selected>$label ($i:00)</option>";
+            }
+            ?>
+        </select>
+    </div>
 
-        <!-- Máximo Mensajes -->
-        <div class="col-md-4 mb-3">
-            <label class="form-label"><strong>Máx. Mensajes Diarios</strong></label>
-            <input type="number" class="form-control" name="wa_mass_limit" value="<?= htmlspecialchars($settings['wa_mass_limit'] ?? 50) ?>" min="1" max="500">
-        </div>
-		
-		<!-- Probabilidad de Envío -->
-<div class="col-md-3">
-    <label class="form-label d-flex align-items-center">
-        <i class="fas fa-dice me-1"></i> Probabilidad
-        <i class="fas fa-question-circle ms-2 text-muted" 
-           data-bs-toggle="tooltip" 
-           data-bs-placement="top" 
-           title="0 es deshabilitado. Es la probabilidad con la que se enviará un mensaje cada minuto. Lo recomendado es 7. Entre más alto el número, la probabilidad es menor. Si el sistema no envía mensajes en mucho tiempo, baje este ajuste.">
-        </i>
-    </label>
-    <select name="wa_mass_prob" id="wa_mass_prob" class="form-select">
-        <?php 
-        $prob_actual = $settings['wa_mass_prob'] ?? 7;
-        for ($i = 0; $i <= 15; $i++): 
-            $selected = ($prob_actual == $i) ? 'selected' : '';
-            $label = ($i == 0) ? "0 (Deshabilitado)" : $i;
-            echo "<option value='$i' $selected>$label</option>";
-        endfor; 
-        ?>
-    </select>
-</div>
-		
-		
+    <!-- 3. Máximo Mensajes -->
+    <div class="col-md-3 mb-3">
+        <label class="form-label"><strong><i class="fas fa-layer-group me-1"></i> Máx. Diarios</strong></label>
+        <input type="number" class="form-control" name="wa_mass_limit" value="<?= htmlspecialchars($settings['wa_mass_limit'] ?? 50) ?>" min="1" max="500">
+    </div>
+
+    <!-- 4. Probabilidad de Envío -->
+    <div class="col-md-3 mb-3">
+        <label class="form-label d-flex align-items-center">
+            <strong><i class="fas fa-dice me-1"></i> Probabilidad</strong>
+            <i class="fas fa-question-circle ms-2 text-muted" 
+               style="cursor:pointer;"
+               data-bs-toggle="tooltip" 
+               data-bs-placement="top" 
+               title="0 es deshabilitado. Es la probabilidad con la que se enviará un mensaje cada minuto. Lo recomendado es 7. Entre más alto el número, la probabilidad es menor. Si el sistema no envía mensajes en mucho tiempo, baje este ajuste.">
+            </i>
+        </label>
+        <select name="wa_mass_prob" id="wa_mass_prob" class="form-select">
+            <?php 
+            $prob_actual = $settings['wa_mass_prob'] ?? 7;
+            for ($i = 0; $i <= 15; $i++): 
+                $selected = ($prob_actual == $i) ? 'selected' : '';
+                $label = ($i == 0) ? "0 (Deshabilitado)" : $i;
+                echo "<option value='$i' $selected>$label</option>";
+            endfor; 
+            ?>
+        </select>
     </div>
 </div>
 
 <script>
-// Script para convertir los checkboxes en una cadena separada por comas antes de enviar
 document.addEventListener('DOMContentLoaded', function() {
-    // Manejar cambios en los checkboxes de días
-    document.querySelectorAll('input[name="wa_mass_days[]"]').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            let selected = Array.from(document.querySelectorAll('input[name="wa_mass_days[]"]:checked')).map(cb => cb.value);
-            // Actualizar el campo oculto
-            if (document.getElementById('wa_mass_days_hidden')) {
-                document.getElementById('wa_mass_days_hidden').value = selected.join(',');
-            }
-        });
-    });
-    
-    // Inicializar tooltips de Bootstrap
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-    
-    // Trigger inicial para establecer el valor correcto al cargar la página
-    let selectedInitial = Array.from(document.querySelectorAll('input[name="wa_mass_days[]"]:checked')).map(cb => cb.value);
-    if (document.getElementById('wa_mass_days_hidden')) {
-        document.getElementById('wa_mass_days_hidden').value = selectedInitial.join(',');
+    // Sincronizar checkboxes con el campo oculto
+    const checkboxes = document.querySelectorAll('.btn-check');
+    const hiddenInput = document.getElementById('wa_mass_days_hidden');
+
+    function updateHiddenDays() {
+        let selected = Array.from(document.querySelectorAll('.btn-check:checked')).map(cb => cb.value);
+        hiddenInput.value = selected.join(',');
     }
+
+    checkboxes.forEach(cb => cb.addEventListener('change', updateHiddenDays));
+
+    // Inicializar Tooltips de Bootstrap
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
 });
 </script>
 
