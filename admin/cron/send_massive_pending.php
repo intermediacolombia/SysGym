@@ -63,7 +63,7 @@ function crearTablaEnvios() {
 function getMensajesHoy($fecha) {
     try {
         $sql = "SELECT COUNT(*) FROM ws_envios_log 
-                WHERE fecha = :fecha AND resultado = 'enviado'";
+                WHERE fecha = :fecha";
         $stmt = db()->prepare($sql);
         $stmt->execute([':fecha' => $fecha]);
         return (int)$stmt->fetchColumn();
