@@ -906,7 +906,7 @@ $(document).ready(function(){
     
     // Función para cargar progreso de envíos
     // Función para cargar progreso de envíos
-function cargarProgresoEnvios() {
+/*function cargarProgresoEnvios() {
     $.ajax({
         url: 'get_cola_progress.php',
         method: 'GET',
@@ -949,15 +949,69 @@ function cargarProgresoEnvios() {
                 $('#progressBar').addClass('bg-success');
             }
 			
-			if (res.in_window === false && res.next_start_human) {
-    $('#progressSubText').html(
-        '<span class="text-warning fw-bold">' +
-        'Envíos pausados. Se reanudan: ' + res.next_start_human +
-        '</span>'
-    );
-} else {
-    $('#progressSubText').text('Enviados hoy: ' + enviados + ' / ' + limite);
-}
+			
+        }
+    });
+}*/
+	
+	// Función para cargar progreso de envíos
+function cargarProgresoEnvios() {
+    $.ajax({
+        url: 'get_cola_progress.php',
+        method: 'GET',
+        dataType: 'json',
+        success: function(res) {
+            if (res.status !== 'success') return;
+
+            const enviados = parseInt(res.enviados_hoy || 0);
+            const limite = parseInt(res.limite_diario || 0);
+            const cola = parseInt(res.cola_pendiente || 0);
+
+            let pct = 0;
+            if (limite > 0) pct = Math.round((enviados / limite) * 100);
+            pct = Math.max(0, Math.min(100, pct));
+
+            const faltan = Math.max(0, limite - enviados);
+
+            // Actualizar badges y textos básicos
+            $('#progressBadge').text(pct + '%');
+            $('#progressBarText').text(pct + '%');
+            $('#progressLeftText').text('Faltan hoy: ' + faltan + ' mensaje(s) para completar el cupo');
+            $('#progressQueueText').text('En cola: ' + cola + ' mensaje(s)');
+
+            // Barra
+            $('#progressBar')
+                .css('width', pct + '%')
+                .attr('aria-valuenow', pct);
+
+            // Colores/estado bonito
+            $('#progressBar')
+                .removeClass('bg-success bg-warning bg-danger');
+
+            // PRIORIDAD 1: Si está fuera de ventana (día u hora), mostrar cuándo se reanuda
+            if (res.in_window === false && res.next_start_human) {
+                $('#progressSubText').html(
+                    '<span class="text-warning fw-bold">' +
+                    '<i class="fas fa-pause-circle me-1"></i> Envíos pausados. Se reanudan: ' + res.next_start_human +
+                    '</span>'
+                );
+                $('#progressBar').addClass('bg-warning');
+            }
+            // PRIORIDAD 2: Si el cupo está completo
+            else if (pct >= 100) {
+                $('#progressBar').addClass('bg-success');
+                $('#progressSubText').html('<span class="text-success fw-bold"><i class="fas fa-check-circle me-1"></i> Cupo diario completado. Los envíos continúan el próximo día permitido.</span>');
+            }
+            // PRIORIDAD 3: Si está cerca de completar (70% o más)
+            else if (pct >= 70) {
+                $('#progressBar').addClass('bg-warning');
+                $('#progressSubText').text('Enviados hoy: ' + enviados + ' / ' + limite);
+            }
+            // PRIORIDAD 4: Normal (menos del 70%)
+            else {
+                $('#progressBar').addClass('bg-success');
+                $('#progressSubText').text('Enviados hoy: ' + enviados + ' / ' + limite);
+            }
         }
     });
 }
