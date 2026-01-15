@@ -28,6 +28,10 @@ $apiKey      = $api_ws;
 $urlEndpoint = 'https://api.360messenger.com/v2/sendMessage';
 $baseUrl     = isset($url) ? rtrim($url, '/') : '';
 
+// Fecha y hora actuales (usa zona horaria de config.php)
+$fechaHoy = date('Y-m-d');
+$horaActualStr = date('H:i:s');
+
 // ============================================================================
 // CREAR TABLA SI NO EXISTE
 // ============================================================================
@@ -56,12 +60,12 @@ function crearTablaEnvios() {
 // ============================================================================
 // CONTAR MENSAJES ENVIADOS HOY
 // ============================================================================
-function getMensajesHoy() {
+function getMensajesHoy($fecha) {
     try {
         $sql = "SELECT COUNT(*) FROM ws_envios_log 
-                WHERE fecha = CURDATE() AND resultado = 'enviado'";
+                WHERE fecha = :fecha AND resultado = 'enviado'";
         $stmt = db()->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([':fecha' => $fecha]);
         return (int)$stmt->fetchColumn();
     } catch (PDOException $e) {
         crearTablaEnvios();
@@ -72,17 +76,19 @@ function getMensajesHoy() {
 // ============================================================================
 // REGISTRAR ENVIO
 // ============================================================================
-function registrarEnvio($telefono, $nombre, $mensaje, $resultado, $errorDetalle = null) {
+function registrarEnvio($telefono, $nombre, $mensaje, $resultado, $fecha, $hora, $errorDetalle = null) {
     try {
         $sql = "INSERT INTO ws_envios_log (telefono, nombre, mensaje, resultado, error_detalle, fecha, hora) 
-                VALUES (:telefono, :nombre, :mensaje, :resultado, :error, CURDATE(), CURTIME())";
+                VALUES (:telefono, :nombre, :mensaje, :resultado, :error, :fecha, :hora)";
         $stmt = db()->prepare($sql);
         $stmt->execute([
             ':telefono' => $telefono,
             ':nombre' => $nombre,
             ':mensaje' => mb_substr($mensaje, 0, 500),
             ':resultado' => $resultado,
-            ':error' => $errorDetalle
+            ':error' => $errorDetalle,
+            ':fecha' => $fecha,
+            ':hora' => $hora
         ]);
     } catch (PDOException $e) {
         // Silenciar
@@ -92,9 +98,12 @@ function registrarEnvio($telefono, $nombre, $mensaje, $resultado, $errorDetalle 
 // ============================================================================
 // LIMPIAR LOGS ANTIGUOS (mas de 30 dias)
 // ============================================================================
-function limpiarLogsAntiguos() {
+function limpiarLogsAntiguos($fecha) {
     try {
-        db()->exec("DELETE FROM ws_envios_log WHERE fecha < DATE_SUB(CURDATE(), INTERVAL 30 DAY)");
+        $fecha30diasAtras = date('Y-m-d', strtotime($fecha . ' -30 days'));
+        $sql = "DELETE FROM ws_envios_log WHERE fecha < :fecha";
+        $stmt = db()->prepare($sql);
+        $stmt->execute([':fecha' => $fecha30diasAtras]);
     } catch (PDOException $e) {
         // Silenciar
     }
@@ -105,7 +114,7 @@ function limpiarLogsAntiguos() {
 // ============================================================================
 
 echo "===================================================================\n";
-echo "[WS MASIVO] ENVIO MASIVO DE WHATSAPP - " . date('Y-m-d H:i:s') . "\n";
+echo "[WS MASIVO] ENVIO MASIVO DE WHATSAPP - " . $fechaHoy . " " . $horaActualStr . "\n";
 echo "===================================================================\n\n";
 
 // Crear tabla si no existe
@@ -113,7 +122,7 @@ crearTablaEnvios();
 
 // Limpiar logs antiguos (1 vez al dia aproximadamente)
 if (rand(1, 100) <= 5) {
-    limpiarLogsAntiguos();
+    limpiarLogsAntiguos($fechaHoy);
 }
 
 // ------------- VERIFICAR DIA DE LA SEMANA -------------
@@ -121,7 +130,7 @@ $diaActual = (int)date('N'); // 1=Lunes, 7=Domingo
 $diasPermitidos = array_map('intval', explode(',', DIAS_PERMITIDOS));
 
 if (!in_array($diaActual, $diasPermitidos)) {
-    $nombresDias = [1=>'Lunes', 2=>'Martes', 3=>'Miércoles', 4=>'Jueves', 5=>'Viernes', 6=>'Sábado', 7=>'Domingo'];
+    $nombresDias = [1=>'Lunes', 2=>'Martes', 3=>'Miercoles', 4=>'Jueves', 5=>'Viernes', 6=>'Sabado', 7=>'Domingo'];
     $diasPermitidosNombres = array_map(function($d) use ($nombresDias) { 
         return $nombresDias[$d] ?? $d; 
     }, $diasPermitidos);
@@ -142,7 +151,7 @@ if ($horaActual < HORA_INICIO || $horaActual >= HORA_FIN) {
 }
 
 // ------------- VERIFICAR LIMITE DIARIO -------------
-$enviadosHoy = getMensajesHoy();
+$enviadosHoy = getMensajesHoy($fechaHoy);
 echo "[INFO] Mensajes enviados hoy: $enviadosHoy / " . LIMITE_DIARIO . "\n\n";
 
 if ($enviadosHoy >= LIMITE_DIARIO) {
@@ -252,7 +261,7 @@ $deleteSt = db()->prepare("DELETE FROM envios_masivos_ws WHERE id = :id");
 if ($exito) {
     // EXITO: Eliminar de cola y registrar
     $deleteSt->execute([':id' => $id]);
-    registrarEnvio($telefono, $nombre, $mensaje, 'enviado');
+    registrarEnvio($telefono, $nombre, $mensaje, 'enviado', $fechaHoy, $horaActualStr);
     
     echo "\n[OK] MENSAJE ENVIADO EXITOSAMENTE\n";
     echo "     Destinatario: $nombre\n";
@@ -261,7 +270,7 @@ if ($exito) {
     // FALLO: Guardar en ws_outbox, eliminar de cola y registrar
     saveFailedWSMessage($payload['phonenumber'], $payload['text'], $adjuntoUrl);
     $deleteSt->execute([':id' => $id]);
-    registrarEnvio($telefono, $nombre, $mensaje, 'fallido', $errorDetalle);
+    registrarEnvio($telefono, $nombre, $mensaje, 'fallido', $fechaHoy, $horaActualStr, $errorDetalle);
     
     echo "\n[FAIL] ERROR AL ENVIAR\n";
     echo "       Destinatario: $nombre\n";
@@ -276,7 +285,7 @@ try {
     $pendientesRestantes = (int)$stmt->fetchColumn();
 } catch (PDOException $e) {}
 
-$enviadosHoyFinal = getMensajesHoy();
+$enviadosHoyFinal = getMensajesHoy($fechaHoy);
 
 echo "\n===================================================================\n";
 echo "[RESUMEN]\n";
