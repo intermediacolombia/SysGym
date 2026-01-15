@@ -8,7 +8,7 @@ try {
     // Fecha de hoy (ya usa la zona horaria de config.php)
     
     // Enviados hoy
-    $stmt = db()->prepare("SELECT COUNT(*) FROM ws_envios_log WHERE fecha = :hoy AND resultado = 'enviado'");
+    $stmt = db()->prepare("SELECT COUNT(*) FROM ws_envios_log WHERE fecha = :hoy");
     $stmt->execute([':hoy' => $hoy]);
     $enviadosHoy = (int)$stmt->fetchColumn();
     
