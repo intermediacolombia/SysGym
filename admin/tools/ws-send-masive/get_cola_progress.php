@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../login/session.php';
 require_once __DIR__ . '/../../../inc/config.php';
 
 header('Content-Type: application/json; charset=UTF-8');
-
+ echo $hoy;
 try {
     // Enviados hoy (según tu log)
     $stmt = db()->prepare("SELECT COUNT(*) FROM ws_envios_log WHERE fecha = $hoy AND resultado = 'enviado'");
