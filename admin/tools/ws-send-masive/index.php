@@ -999,8 +999,8 @@ function cargarProgresoEnvios() {
             }
             // PRIORIDAD 2: Si el cupo está completo
             else if (pct >= 100) {
-                $('#progressBar').addClass('bg-warning');
-                $('#progressSubText').html('<span class="text-success fw-bold"><i class="fas fa-check-circle me-1"></i> Cupo diario completado. Los envíos continúan el próximo día permitido.</span>');
+                $('#progressBar').addClass('bg-danger');
+                $('#progressSubText').html('<span class="text-danger fw-bold"><i class="fas fa-check-circle me-1"></i> Cupo diario completado. Los envíos continúan el próximo día permitido.</span>');
             }
             // PRIORIDAD 3: Si está cerca de completar (70% o más)
             else if (pct >= 70) {
