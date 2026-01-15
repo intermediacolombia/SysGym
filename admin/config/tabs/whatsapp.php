@@ -202,7 +202,7 @@
         </select>
     </div>
 </div>
-
+		</div>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Sincronizar checkboxes con el campo oculto
