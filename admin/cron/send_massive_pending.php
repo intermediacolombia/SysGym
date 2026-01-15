@@ -84,9 +84,10 @@ function registrarEnvio($telefono, $nombre, $mensaje, $resultado, $fecha, $hora,
 		
 		
 		// LOGS
+
 require_once __DIR__ . '/../inc/log_action.php';
 $desc = json_encode([
-			'usuario_id'     => 'System',
+			'usuario_id'     => 0,
 			'telefono'  => $telefono,
 			'nombre' => $nombre,
 			'mensaje' => $mensaje,

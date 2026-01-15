@@ -15,7 +15,7 @@ function log_action($accion, $descripcion = '', $modulo = null) {
 
     // === Datos usuario ===
     $usuario_id     = $_SESSION['user']['id'] ?? null;
-    $usuario_nombre = trim(($_SESSION['user']['nombre'] ?? '') . ' ' . ($_SESSION['user']['apellido'] ?? ''));
+    $usuario_nombre = trim(($_SESSION['user']['nombre'] ?? '') . ' ' . ($_SESSION['user']['apellido'] ?? 'System'));
     $ip             = $_SERVER['REMOTE_ADDR'] ?? 'Desconocida';
     $user_agent     = $_SERVER['HTTP_USER_AGENT'] ?? 'N/A';
 
