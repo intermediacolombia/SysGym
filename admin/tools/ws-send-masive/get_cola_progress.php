@@ -9,7 +9,7 @@ header('Content-Type: application/json; charset=UTF-8');
 
 try {
     // Enviados hoy (según tu log)
-    $stmt = db()->prepare("SELECT COUNT(*) FROM ws_envios_log WHERE fecha = CURDATE() AND resultado = 'enviado'");
+    $stmt = db()->prepare("SELECT COUNT(*) FROM ws_envios_log WHERE fecha = $hoy AND resultado = 'enviado'");
     $stmt->execute();
     $enviadosHoy = (int)$stmt->fetchColumn();
 
