@@ -81,10 +81,26 @@ function registrarEnvio($telefono, $nombre, $mensaje, $resultado, $fecha, $hora,
         $sql = "INSERT INTO ws_envios_log (telefono, nombre, mensaje, resultado, error_detalle, fecha, hora) 
                 VALUES (:telefono, :nombre, :mensaje, :resultado, :error, :fecha, :hora)";
         $stmt = db()->prepare($sql);
-        
+		
+		
+		// LOGS
+require_once __DIR__ . '/../inc/log_action.php';
+$desc = json_encode([
+			'usuario_id'     => 'System',
+			'telefono'  => $telefono,
+			'nombre' => $nombre,
+			'mensaje' => $mensaje,
+            'resultado' => $resultado,
+            'error' => $errorDetalle,
+            'fecha' => $fecha,
+            'hora' => $hora		
+], JSON_UNESCAPED_UNICODE);
+log_action('Envio Mensaje Masivo', $desc, 'Caja');
+// END LOGS     
+		
         $stmt->execute([
-            ':telefono' => $telefono,           
-            ':nombre' => $nombre,
+            ':telefono' => $telefono,			
+			':nombre' => $nombre,
             ':mensaje' => mb_substr($mensaje, 0, 500),
             ':resultado' => $resultado,
             ':error' => $errorDetalle,
@@ -93,26 +109,6 @@ function registrarEnvio($telefono, $nombre, $mensaje, $resultado, $fecha, $hora,
         ]);
     } catch (PDOException $e) {
         // Silenciar
-    }
-}
-
-// Función separada para logging de acciones administrativas
-function logEnvioMasivo($telefono, $nombre, $mensaje, $resultado, $fecha, $hora, $errorDetalle = null) {
-    try {
-        require_once __DIR__ . '/../inc/log_action.php';
-        $desc = json_encode([
-            'usuario_id' => 'System',
-            'telefono' => $telefono,
-            'nombre' => $nombre,
-            'mensaje' => $mensaje,
-            'resultado' => $resultado,
-            'error' => $errorDetalle,
-            'fecha' => $fecha,
-            'hora' => $hora       
-        ], JSON_UNESCAPED_UNICODE);
-        log_action('Envio Mensaje Masivo', $desc, 'Caja');
-    } catch (Exception $e) {
-        // Silenciar errores de logging
     }
 }
 
