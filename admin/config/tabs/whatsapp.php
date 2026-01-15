@@ -206,13 +206,30 @@
 </div>
 
 <script>
-// Script opcional para convertir los checkboxes en una cadena separada por comas antes de enviar, 
-// ya que tu PHP de guardado inserta directamente lo que viene en $_POST
-document.querySelectorAll('.btn-check').forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-        let selected = Array.from(document.querySelectorAll('.btn-check:checked')).map(cb => cb.value);
-        document.getElementById('wa_mass_days_hidden').value = selected.join(',');
+// Script para convertir los checkboxes en una cadena separada por comas antes de enviar
+document.addEventListener('DOMContentLoaded', function() {
+    // Manejar cambios en los checkboxes de días
+    document.querySelectorAll('input[name="wa_mass_days[]"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            let selected = Array.from(document.querySelectorAll('input[name="wa_mass_days[]"]:checked')).map(cb => cb.value);
+            // Actualizar el campo oculto
+            if (document.getElementById('wa_mass_days_hidden')) {
+                document.getElementById('wa_mass_days_hidden').value = selected.join(',');
+            }
+        });
     });
+    
+    // Inicializar tooltips de Bootstrap
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Trigger inicial para establecer el valor correcto al cargar la página
+    let selectedInitial = Array.from(document.querySelectorAll('input[name="wa_mass_days[]"]:checked')).map(cb => cb.value);
+    if (document.getElementById('wa_mass_days_hidden')) {
+        document.getElementById('wa_mass_days_hidden').value = selectedInitial.join(',');
+    }
 });
 </script>
 
