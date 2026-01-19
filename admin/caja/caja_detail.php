@@ -258,8 +258,11 @@ if ($caja['usuario_id'] != $id_user &&
               <?php
               $valor = $v['valor'] ?? 0;
               $coste = $v['coste'] ?? 0;
+			$cantidad = $v['cantidad'] ?? 0;
+				
               $method = $v['payment_method'] ?? '';
-              echo ($method === 'Egreso') ? '$0' : '$' . number_format($valor - $coste, 0, '', '.');
+              echo ($method === 'Egreso') ? '$0' : '$' . number_format($valor - ($coste * $cantidad), 0, '', '.');
+				
               ?>
             </td>
             <?php endif; ?>
