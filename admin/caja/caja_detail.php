@@ -253,7 +253,7 @@ if ($caja['usuario_id'] != $id_user &&
             <td><?= htmlspecialchars($v['cantidad'] ?? '') ?></td>
             <td>$<?= number_format($v['valor'] ?? 0, 0, '', '.') ?></td>
             <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Coste y Ganancias en Caja', $_SESSION["user_permissions"])): ?>
-            <td>$<?= number_format($v['coste'] ?? 0, 0, '', '.') ?></td>
+            <td>$<?= number_format($v['coste'] * $v['cantidad'] ?? 0, 0, '', '.')  ?></td>
             <td>
               <?php
               $valor = $v['valor'] ?? 0;
