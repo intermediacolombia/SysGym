@@ -454,39 +454,69 @@ $headerColor = ($cliente['estado'] === 'activo') ? '#28a745' : '#FD2D23';
                   <option value="inactivo" <?php echo ($cliente['estado'] === 'inactivo') ? 'selected' : ''; ?>>Inactivo</option>
                 </select>
               </div>
-              <div class="mb-3">
-                <label for="plan" class="form-label">Plan</label>
-                <select class="form-control" id="plan" name="plan" required>
-					
-                  <option value="">Seleccione...</option>
-<?php foreach ($planes as $plan): ?>
-  <option value="<?php echo $plan['id']; ?>" 
-          data-precio="<?php echo $plan['precio']; ?>" 
-          data-frecuencia="<?php echo $plan['frecuencia']; ?>"
-          data-dias="<?php echo $plan['dias']; ?>"
-    <?php echo ($cliente['plan'] == $plan['id']) ? 'selected' : ''; ?>>
-    <?php echo htmlspecialchars($plan['nombre']); ?>
-  </option>
-<?php endforeach; ?>
+              
+				
+				<!-- Después del campo "Plan" y antes de "Precio Plan" -->
+<?php
+$hoy = date('Y-m-d');
+$planVigente = (!empty($cliente['vencimiento_plan']) && $cliente['vencimiento_plan'] >= $hoy);
+?>
 
-					
-					
-                </select>
-              </div>
-              <div class="mb-3">
-                <label for="precio_mensual" class="form-label">Precio Plan</label>
-                <input type="text" class="form-control" id="precio_mensual" name="precio_mensual" readonly>
-              </div>
-              <div class="mb-3">
-                <label for="pago_plan" class="form-label">Fecha de Pago</label>
-                <input type="text" class="form-control" id="pago_plan" name="pago_plan" 
-                       value="<?php echo isset($cliente['pago_plan']) ? htmlspecialchars($cliente['pago_plan']) : ''; ?>">
-              </div>
-              <div class="mb-3">
-                <label for="vencimiento_plan" class="form-label">Fecha de Vencimiento</label>
-                <input type="text" class="form-control" id="vencimiento_plan" name="vencimiento_plan" 
-                       value="<?php echo isset($cliente['vencimiento_plan']) ? htmlspecialchars($cliente['vencimiento_plan']) : ''; ?>">
-              </div>
+<div class="mb-3">
+  <label for="plan" class="form-label">Plan</label>
+  <select class="form-control" id="plan" name="plan" required>
+    <option value="">Seleccione...</option>
+    <?php foreach ($planes as $plan): ?>
+      <option value="<?php echo $plan['id']; ?>" 
+              data-precio="<?php echo $plan['precio']; ?>" 
+              data-frecuencia="<?php echo $plan['frecuencia']; ?>"
+              data-dias="<?php echo $plan['dias']; ?>"
+        <?php echo ($cliente['plan'] == $plan['id']) ? 'selected' : ''; ?>>
+        <?php echo htmlspecialchars($plan['nombre']); ?>
+      </option>
+    <?php endforeach; ?>
+  </select>
+  
+  <?php if ($planVigente): ?>
+    <div class="alert alert-warning mt-2" id="planWarning" style="display: none;">
+      <i class="fa fa-exclamation-triangle"></i> 
+      <strong>Advertencia:</strong> El cliente tiene un plan vigente hasta el 
+      <strong><?php echo date('d/m/Y', strtotime($cliente['vencimiento_plan'])); ?></strong>.
+      <br>Si cambia el plan, las fechas se borrarán. Asegúrese de establecer las nuevas fechas correctamente.
+    </div>
+  <?php endif; ?>
+</div>
+
+<div class="mb-3">
+  <label for="precio_mensual" class="form-label">Precio Plan</label>
+  <input type="text" class="form-control" id="precio_mensual" name="precio_mensual" readonly>
+</div>
+
+<?php if ($planVigente): ?>
+  <!-- Mostrar fechas originales cuando hay plan vigente -->
+  <div class="alert alert-info" id="fechasOriginales">
+    <strong><i class="fa fa-info-circle"></i> Fechas actuales del plan:</strong><br>
+    <small>
+      <i class="fa fa-calendar"></i> Fecha de Pago: <strong><?php echo date('d/m/Y', strtotime($cliente['pago_plan'])); ?></strong><br>
+      <i class="fa fa-calendar-times-o"></i> Fecha de Vencimiento: <strong><?php echo date('d/m/Y', strtotime($cliente['vencimiento_plan'])); ?></strong>
+    </small>
+  </div>
+<?php endif; ?>
+
+<div class="mb-3">
+  <label for="pago_plan" class="form-label">Fecha de Pago</label>
+  <input type="text" class="form-control" id="pago_plan" name="pago_plan" 
+         value="<?php echo isset($cliente['pago_plan']) ? htmlspecialchars($cliente['pago_plan']) : ''; ?>">
+</div>
+
+<div class="mb-3">
+  <label for="vencimiento_plan" class="form-label">Fecha de Vencimiento</label>
+  <input type="text" class="form-control" id="vencimiento_plan" name="vencimiento_plan" 
+         value="<?php echo isset($cliente['vencimiento_plan']) ? htmlspecialchars($cliente['vencimiento_plan']) : ''; ?>">
+</div>
+				
+				
+				
               <!-- Información Médica -->
               <div class="section-title"><i class="fa fa-user-md"></i> Información Médica</div>
 				
@@ -739,6 +769,7 @@ $(function () {
   const planOriginal = $("#plan").val();
   const pagoOriginal = $("#pago_plan").val();
   const vencimientoOriginal = $("#vencimiento_plan").val();
+  const planVigente = <?php echo $planVigente ? 'true' : 'false'; ?>;
 
   /* ============ 3. Precio según plan ============ */
   function updatePrecio () {
@@ -748,33 +779,27 @@ $(function () {
 
   /* ============ 4. Calcular vencimiento ============ */
   function getPagoDate () {
-    /* 1) Si Flatpickr ya tiene selectedDates úsalo */
     if (fpPago.selectedDates.length) return fpPago.selectedDates[0];
-
-    /* 2) Si viene del servidor: lee el valor ISO del input */
     const iso = $("#pago_plan").val();
     return iso ? fpPago.parseDate(iso, "Y-m-d") : null;
   }
 
   function updateVencimiento () {
     const pagoDate = getPagoDate();
-    if (!pagoDate) { fpVenci.clear(); return; }   // sin pago → vacío
+    if (!pagoDate) { fpVenci.clear(); return; }
 
     const $opt  = $("#plan option:selected");
-    const meses = parseInt($opt.data("frecuencia")) || 0;  // meses
-    const dias  = parseInt($opt.data("dias"))        || 0; // días
+    const meses = parseInt($opt.data("frecuencia")) || 0;
+    const dias  = parseInt($opt.data("dias"))        || 0;
 
-    /* pago + meses + (dias-1) */
     const due = new Date(pagoDate);
     due.setMonth(due.getMonth() + meses);
     due.setDate (due.getDate()  + dias - 1);
 
-    /* setDate: actualiza valor oculto + visible */
     fpVenci.setDate(due, true);
   }
 
   /* ============ 5. Enlaces de eventos ============ */
-  // Cambio de plan
   $("#plan").on("change", function () {
     updatePrecio();
     
@@ -793,32 +818,74 @@ $(function () {
       } else {
         fpVenci.clear();
       }
+      
+      // Ocultar advertencia
+      $("#planWarning").slideUp();
+      $("#fechasOriginales").slideDown();
+      
     } else {
-      // Si cambia a un plan diferente, limpiar las fechas
-      fpPago.clear();
-      fpVenci.clear();
+      // Si cambia a un plan diferente
+      
+      // Mostrar advertencia si hay plan vigente
+      if (planVigente) {
+        $("#planWarning").slideDown();
+        $("#fechasOriginales").slideUp();
+        
+        // Confirmación antes de borrar las fechas
+        Swal.fire({
+          title: '¿Cambiar de plan?',
+          html: `El cliente tiene un plan vigente hasta <strong>${new Date('<?php echo $cliente['vencimiento_plan']; ?>').toLocaleDateString('es-ES')}</strong>.<br><br>¿Desea establecer nuevas fechas para el nuevo plan?`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Sí, cambiar plan',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Limpiar las fechas
+            fpPago.clear();
+            fpVenci.clear();
+            
+            Swal.fire({
+              title: 'Plan cambiado',
+              text: 'Por favor establezca las nuevas fechas de pago y vencimiento.',
+              icon: 'info',
+              timer: 3000
+            });
+          } else {
+            // Volver al plan original
+            $("#plan").val(planOriginal).trigger('change');
+          }
+        });
+      } else {
+        // Si no hay plan vigente, simplemente limpiar
+        fpPago.clear();
+        fpVenci.clear();
+      }
     }
   });
 
-  // Cambio de fecha de pago vía calendario
+  // Cambio de fecha de pago
   fpPago.config.onChange.push(function() {
-    // Solo recalcular si NO estamos en el plan original
     if ($("#plan").val() !== planOriginal) {
       updateVencimiento();
     }
   });
 
-  // Cambio de fecha de pago si el usuario escribe manualmente
   $("#pago_plan").on("input change", function() {
-    // Solo recalcular si NO estamos en el plan original
     if ($("#plan").val() !== planOriginal) {
       updateVencimiento();
     }
   });
 
-  /* ============ 6. Inicialización al cargar ============ */
+  /* ============ 6. Inicialización ============ */
   updatePrecio();
-  // No recalcular nada al inicio, mantener los valores originales
+  
+  // Mostrar info de fechas originales si existe
+  if (planVigente) {
+    $("#fechasOriginales").show();
+  }
 });
 </script>
 	
