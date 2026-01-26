@@ -747,8 +747,7 @@ $planVigente = (!empty($cliente['vencimiento_plan']) && $cliente['vencimiento_pl
 
   </script>
 	
-	
-	<script>
+<script>
 $(function () {
 
   /* ============ 1. Instancias Flatpickr ============ */
@@ -778,9 +777,6 @@ $(function () {
   const planOriginal = $("#plan").val();
   const pagoOriginal = $("#pago_plan").val();
   const vencimientoOriginal = $("#vencimiento_plan").val();
-  const planVigente = <?php echo $planVigente ? 'true' : 'false'; ?>;
-  
-  let cambiandoPlan = false; // Flag para evitar loops
 
   /* ============ 3. Precio según plan ============ */
   function updatePrecio () {
@@ -790,33 +786,34 @@ $(function () {
 
   /* ============ 4. Calcular vencimiento ============ */
   function getPagoDate () {
+    /* 1) Si Flatpickr ya tiene selectedDates úsalo */
     if (fpPago.selectedDates.length) return fpPago.selectedDates[0];
+
+    /* 2) Si viene del servidor: lee el valor ISO del input */
     const iso = $("#pago_plan").val();
     return iso ? fpPago.parseDate(iso, "Y-m-d") : null;
   }
 
   function updateVencimiento () {
     const pagoDate = getPagoDate();
-    if (!pagoDate) { 
-      fpVenci.clear(); 
-      return; 
-    }
+    if (!pagoDate) { fpVenci.clear(); return; }   // sin pago → vacío
 
     const $opt  = $("#plan option:selected");
-    const meses = parseInt($opt.data("frecuencia")) || 0;
-    const dias  = parseInt($opt.data("dias"))        || 0;
+    const meses = parseInt($opt.data("frecuencia")) || 0;  // meses
+    const dias  = parseInt($opt.data("dias"))        || 0; // días
 
+    /* pago + meses + (dias-1) */
     const due = new Date(pagoDate);
     due.setMonth(due.getMonth() + meses);
     due.setDate (due.getDate()  + dias - 1);
 
+    /* setDate: actualiza valor oculto + visible */
     fpVenci.setDate(due, true);
   }
 
   /* ============ 5. Enlaces de eventos ============ */
+  // Cambio de plan
   $("#plan").on("change", function () {
-    if (cambiandoPlan) return; // Evitar loops
-    
     updatePrecio();
     
     const planActual = $(this).val();
@@ -834,79 +831,34 @@ $(function () {
       } else {
         fpVenci.clear();
       }
-      
-      // Ocultar advertencia
-      $("#planWarning").slideUp();
-      
     } else {
-      // Si cambia a un plan diferente
-      
-      // Mostrar advertencia si hay plan vigente
-      if (planVigente) {
-        $("#planWarning").slideDown();
-        
-        // Confirmación antes de borrar las fechas
-        Swal.fire({
-          title: '¿Cambiar de plan?',
-          html: `El cliente tiene un plan vigente hasta <strong>${new Date('<?php echo $cliente['vencimiento_plan']; ?>').toLocaleDateString('es-ES')}</strong>.<br><br>¿Desea establecer nuevas fechas para el nuevo plan?`,
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Sí, cambiar plan',
-          cancelButtonText: 'Cancelar'
-        }).then((result) => {
-          if (result.isConfirmed) {
-            // Limpiar las fechas FORZADAMENTE
-            fpPago.clear();
-            fpVenci.clear();
-            
-            // Limpiar también los valores del input
-            $("#pago_plan").val('');
-            $("#vencimiento_plan").val('');
-            
-            Swal.fire({
-              title: 'Plan cambiado',
-              text: 'Ahora puede establecer las nuevas fechas de pago y vencimiento.',
-              icon: 'info',
-              confirmButtonText: 'Entendido'
-            });
-          } else {
-            // Volver al plan original
-            cambiandoPlan = true;
-            $("#plan").val(planOriginal);
-            updatePrecio();
-            $("#planWarning").slideUp();
-            cambiandoPlan = false;
-          }
-        });
-      } else {
-        // Si no hay plan vigente, simplemente limpiar
-        fpPago.clear();
-        fpVenci.clear();
-        $("#pago_plan").val('');
-        $("#vencimiento_plan").val('');
-      }
+      // Si cambia a un plan diferente, limpiar las fechas
+      fpPago.clear();
+      fpVenci.clear();
     }
   });
 
   // Cambio de fecha de pago vía calendario
   fpPago.config.onChange.push(function() {
-    // Siempre recalcular cuando cambia la fecha de pago
-    updateVencimiento();
+    // Solo recalcular si NO estamos en el plan original
+    if ($("#plan").val() !== planOriginal) {
+      updateVencimiento();
+    }
   });
 
   // Cambio de fecha de pago si el usuario escribe manualmente
   $("#pago_plan").on("input change", function() {
-    // Siempre recalcular cuando cambia la fecha de pago
-    updateVencimiento();
+    // Solo recalcular si NO estamos en el plan original
+    if ($("#plan").val() !== planOriginal) {
+      updateVencimiento();
+    }
   });
 
-  /* ============ 6. Inicialización ============ */
+  /* ============ 6. Inicialización al cargar ============ */
   updatePrecio();
+  // No recalcular nada al inicio, mantener los valores originales
 });
 </script>
-	
 	
 	<script>
   function toTitleCase(str) {
