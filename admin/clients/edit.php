@@ -457,8 +457,8 @@ $headerColor = ($cliente['estado'] === 'activo') ? '#28a745' : '#FD2D23';
               
 				
 				<!-- Después del campo "Plan" y antes de "Precio Plan" -->
+<!-- Después del campo "Plan" y antes de "Precio Plan" -->
 <?php
-$hoy = date('Y-m-d');
 $planVigente = (!empty($cliente['vencimiento_plan']) && $cliente['vencimiento_plan'] >= $hoy);
 ?>
 
@@ -491,17 +491,6 @@ $planVigente = (!empty($cliente['vencimiento_plan']) && $cliente['vencimiento_pl
   <label for="precio_mensual" class="form-label">Precio Plan</label>
   <input type="text" class="form-control" id="precio_mensual" name="precio_mensual" readonly>
 </div>
-
-<?php if ($planVigente): ?>
-  <!-- Mostrar fechas originales cuando hay plan vigente -->
-  <div class="alert alert-info" id="fechasOriginales">
-    <strong><i class="fa fa-info-circle"></i> Fechas actuales del plan:</strong><br>
-    <small>
-      <i class="fa fa-calendar"></i> Fecha de Pago: <strong><?php echo date('d/m/Y', strtotime($cliente['pago_plan'])); ?></strong><br>
-      <i class="fa fa-calendar-times-o"></i> Fecha de Vencimiento: <strong><?php echo date('d/m/Y', strtotime($cliente['vencimiento_plan'])); ?></strong>
-    </small>
-  </div>
-<?php endif; ?>
 
 <div class="mb-3">
   <label for="pago_plan" class="form-label">Fecha de Pago</label>
@@ -821,7 +810,6 @@ $(function () {
       
       // Ocultar advertencia
       $("#planWarning").slideUp();
-      $("#fechasOriginales").slideDown();
       
     } else {
       // Si cambia a un plan diferente
@@ -829,7 +817,6 @@ $(function () {
       // Mostrar advertencia si hay plan vigente
       if (planVigente) {
         $("#planWarning").slideDown();
-        $("#fechasOriginales").slideUp();
         
         // Confirmación antes de borrar las fechas
         Swal.fire({
@@ -881,11 +868,6 @@ $(function () {
 
   /* ============ 6. Inicialización ============ */
   updatePrecio();
-  
-  // Mostrar info de fechas originales si existe
-  if (planVigente) {
-    $("#fechasOriginales").show();
-  }
 });
 </script>
 	
