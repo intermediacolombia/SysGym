@@ -735,13 +735,18 @@ $(function () {
     locale     : "es"
   });
 
-  /* ============ 2. Precio según plan ============ */
+  /* ============ 2. Guardar valores originales ============ */
+  const planOriginal = $("#plan").val();
+  const pagoOriginal = $("#pago_plan").val();
+  const vencimientoOriginal = $("#vencimiento_plan").val();
+
+  /* ============ 3. Precio según plan ============ */
   function updatePrecio () {
     const precio = $("#plan option:selected").data("precio");
     $("#precio_mensual").val(precio !== undefined ? precio : "");
   }
 
-  /* ============ 3. Calcular vencimiento ============ */
+  /* ============ 4. Calcular vencimiento ============ */
   function getPagoDate () {
     /* 1) Si Flatpickr ya tiene selectedDates úsalo */
     if (fpPago.selectedDates.length) return fpPago.selectedDates[0];
@@ -768,29 +773,52 @@ $(function () {
     fpVenci.setDate(due, true);
   }
 
-  /* ============ 4. Enlaces de eventos ============ */
-  // Cambio de plan → precio + vencimiento
+  /* ============ 5. Enlaces de eventos ============ */
+  // Cambio de plan
   $("#plan").on("change", function () {
     updatePrecio();
-    updateVencimiento();
+    
+    const planActual = $(this).val();
+    
+    // Si vuelve al plan original, restaurar fechas originales
+    if (planActual === planOriginal) {
+      if (pagoOriginal) {
+        fpPago.setDate(pagoOriginal, true);
+      } else {
+        fpPago.clear();
+      }
+      
+      if (vencimientoOriginal) {
+        fpVenci.setDate(vencimientoOriginal, true);
+      } else {
+        fpVenci.clear();
+      }
+    } else {
+      // Si cambia a un plan diferente, limpiar las fechas
+      fpPago.clear();
+      fpVenci.clear();
+    }
   });
 
   // Cambio de fecha de pago vía calendario
-  fpPago.config.onChange.push(updateVencimiento);
+  fpPago.config.onChange.push(function() {
+    // Solo recalcular si NO estamos en el plan original
+    if ($("#plan").val() !== planOriginal) {
+      updateVencimiento();
+    }
+  });
 
   // Cambio de fecha de pago si el usuario escribe manualmente
-  $("#pago_plan").on("input change", updateVencimiento);
+  $("#pago_plan").on("input change", function() {
+    // Solo recalcular si NO estamos en el plan original
+    if ($("#plan").val() !== planOriginal) {
+      updateVencimiento();
+    }
+  });
 
-  /* ============ 5. Inicialización al cargar ============ */
-  /* ============ 5. Inicialización al cargar ============ */
-updatePrecio();
-
-// Solo recalcula si NO existe vencimiento ya definido
-const tieneVencimiento = $("#vencimiento_plan").val().trim() !== "";
-if (!tieneVencimiento) {
-  updateVencimiento();
-}
-
+  /* ============ 6. Inicialización al cargar ============ */
+  updatePrecio();
+  // No recalcular nada al inicio, mantener los valores originales
 });
 </script>
 	
