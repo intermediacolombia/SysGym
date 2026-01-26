@@ -480,11 +480,31 @@ $planVigente = (!empty($cliente['vencimiento_plan']) && $cliente['vencimiento_pl
   <?php if ($planVigente): ?>
     <div class="alert alert-warning mt-2" id="planWarning" style="display: none;">
       <i class="fa fa-exclamation-triangle"></i> 
-      <strong>Advertencia:</strong> El cliente tiene un plan vigente hasta el 
-      <strong><?php echo date('d/m/Y', strtotime($cliente['vencimiento_plan'])); ?></strong>.
-      <br>Si cambia el plan, las fechas se borrarán. Asegúrese de establecer las nuevas fechas correctamente.
+      <strong>Advertencia:</strong> El cliente tiene un plan vigente.<br>
+      <small>
+        <i class="fa fa-calendar"></i> <strong>Fecha de Pago:</strong> <?php echo date('d/m/Y', strtotime($cliente['pago_plan'])); ?><br>
+        <i class="fa fa-calendar-times-o"></i> <strong>Fecha de Vencimiento:</strong> <?php echo date('d/m/Y', strtotime($cliente['vencimiento_plan'])); ?>
+      </small>
+      <br><br>Si cambia el plan, las fechas se borrarán. Asegúrese de establecer las nuevas fechas correctamente.
     </div>
   <?php endif; ?>
+</div>
+
+<div class="mb-3">
+  <label for="precio_mensual" class="form-label">Precio Plan</label>
+  <input type="text" class="form-control" id="precio_mensual" name="precio_mensual" readonly>
+</div>
+
+<div class="mb-3">
+  <label for="pago_plan" class="form-label">Fecha de Pago</label>
+  <input type="text" class="form-control" id="pago_plan" name="pago_plan" 
+         value="<?php echo isset($cliente['pago_plan']) ? htmlspecialchars($cliente['pago_plan']) : ''; ?>">
+</div>
+
+<div class="mb-3">
+  <label for="vencimiento_plan" class="form-label">Fecha de Vencimiento</label>
+  <input type="text" class="form-control" id="vencimiento_plan" name="vencimiento_plan" 
+         value="<?php echo isset($cliente['vencimiento_plan']) ? htmlspecialchars($cliente['vencimiento_plan']) : ''; ?>">
 </div>
 
 <div class="mb-3">
