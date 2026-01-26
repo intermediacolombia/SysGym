@@ -505,7 +505,7 @@ $planVigente = (!empty($cliente['vencimiento_plan']) && $cliente['vencimiento_pl
       <i class="fa fa-calendar"></i> <strong>Fecha de Pago:</strong> <?php echo date('d/m/Y', strtotime($cliente['pago_plan'])); ?><br>
       <i class="fa fa-calendar-times-o"></i> <strong>Fecha de Vencimiento:</strong> <?php echo date('d/m/Y', strtotime($cliente['vencimiento_plan'])); ?>
     </small>
-    <br><br>Las fechas han sido limpiadas. Por favor establezca las nuevas fechas para este plan.
+    <br><br>Las fechas han sido limpiadas. Por favor establezca las nuevas fechas para este plan, si desea conservarlas de lo contrario puede guardar (el sistema ajustara las nuevas fechas a partir de hoy <strong><?php echo $hoy;?></strong> al marcar el pago).
   </div>
 <?php endif; ?>
 				
