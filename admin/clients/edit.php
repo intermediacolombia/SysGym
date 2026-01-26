@@ -857,16 +857,19 @@ $(function () {
           cancelButtonText: 'Cancelar'
         }).then((result) => {
           if (result.isConfirmed) {
-            // Limpiar las fechas
+            // Limpiar las fechas FORZADAMENTE
             fpPago.clear();
             fpVenci.clear();
             
+            // Limpiar también los valores del input
+            $("#pago_plan").val('');
+            $("#vencimiento_plan").val('');
+            
             Swal.fire({
               title: 'Plan cambiado',
-              text: 'Por favor establezca las nuevas fechas de pago y vencimiento.',
+              text: 'Ahora puede establecer las nuevas fechas de pago y vencimiento.',
               icon: 'info',
-              timer: 3000,
-              showConfirmButton: false
+              confirmButtonText: 'Entendido'
             });
           } else {
             // Volver al plan original
@@ -881,6 +884,8 @@ $(function () {
         // Si no hay plan vigente, simplemente limpiar
         fpPago.clear();
         fpVenci.clear();
+        $("#pago_plan").val('');
+        $("#vencimiento_plan").val('');
       }
     }
   });
