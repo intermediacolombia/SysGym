@@ -779,6 +779,8 @@ $(function () {
   const pagoOriginal = $("#pago_plan").val();
   const vencimientoOriginal = $("#vencimiento_plan").val();
   const planVigente = <?php echo $planVigente ? 'true' : 'false'; ?>;
+  
+  let cambiandoPlan = false; // Flag para evitar loops
 
   /* ============ 3. Precio según plan ============ */
   function updatePrecio () {
@@ -795,7 +797,10 @@ $(function () {
 
   function updateVencimiento () {
     const pagoDate = getPagoDate();
-    if (!pagoDate) { fpVenci.clear(); return; }
+    if (!pagoDate) { 
+      fpVenci.clear(); 
+      return; 
+    }
 
     const $opt  = $("#plan option:selected");
     const meses = parseInt($opt.data("frecuencia")) || 0;
@@ -810,6 +815,8 @@ $(function () {
 
   /* ============ 5. Enlaces de eventos ============ */
   $("#plan").on("change", function () {
+    if (cambiandoPlan) return; // Evitar loops
+    
     updatePrecio();
     
     const planActual = $(this).val();
@@ -858,11 +865,16 @@ $(function () {
               title: 'Plan cambiado',
               text: 'Por favor establezca las nuevas fechas de pago y vencimiento.',
               icon: 'info',
-              timer: 3000
+              timer: 3000,
+              showConfirmButton: false
             });
           } else {
             // Volver al plan original
-            $("#plan").val(planOriginal).trigger('change');
+            cambiandoPlan = true;
+            $("#plan").val(planOriginal);
+            updatePrecio();
+            $("#planWarning").slideUp();
+            cambiandoPlan = false;
           }
         });
       } else {
@@ -873,17 +885,16 @@ $(function () {
     }
   });
 
-  // Cambio de fecha de pago
+  // Cambio de fecha de pago vía calendario
   fpPago.config.onChange.push(function() {
-    if ($("#plan").val() !== planOriginal) {
-      updateVencimiento();
-    }
+    // Siempre recalcular cuando cambia la fecha de pago
+    updateVencimiento();
   });
 
+  // Cambio de fecha de pago si el usuario escribe manualmente
   $("#pago_plan").on("input change", function() {
-    if ($("#plan").val() !== planOriginal) {
-      updateVencimiento();
-    }
+    // Siempre recalcular cuando cambia la fecha de pago
+    updateVencimiento();
   });
 
   /* ============ 6. Inicialización ============ */
