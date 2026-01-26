@@ -491,6 +491,24 @@ $headerColor = ($cliente['estado'] === 'activo') ? '#28a745' : '#FD2D23';
                        value="<?php echo isset($cliente['vencimiento_plan']) ? htmlspecialchars($cliente['vencimiento_plan']) : ''; ?>">
               </div>
 				
+				<!-- Después del </select> del plan -->
+<?php
+$hoy = date('Y-m-d');
+$planVigente = (!empty($cliente['vencimiento_plan']) && $cliente['vencimiento_plan'] >= $hoy);
+?>
+
+<?php if ($planVigente): ?>
+  <div class="alert alert-warning mt-2" id="planWarning" style="display: none;">
+    <i class="fa fa-exclamation-triangle"></i> 
+    <strong>Advertencia:</strong> El cliente tiene un plan vigente.<br>
+    <small>
+      <i class="fa fa-calendar"></i> <strong>Fecha de Pago:</strong> <?php echo date('d/m/Y', strtotime($cliente['pago_plan'])); ?><br>
+      <i class="fa fa-calendar-times-o"></i> <strong>Fecha de Vencimiento:</strong> <?php echo date('d/m/Y', strtotime($cliente['vencimiento_plan'])); ?>
+    </small>
+    <br><br>Las fechas han sido limpiadas. Por favor establezca las nuevas fechas para este plan.
+  </div>
+<?php endif; ?>
+				
 				
 				
               <!-- Información Médica -->
@@ -713,8 +731,125 @@ $headerColor = ($cliente['estado'] === 'activo') ? '#28a745' : '#FD2D23';
 });
 
   </script>
-	
+
 <script>
+$(function () {
+
+  /* ============ 1. Instancias Flatpickr ============ */
+  const fpNacimiento = flatpickr("#fecha_nacimiento", {
+    dateFormat : "Y-m-d",
+    altInput   : true,
+    altFormat  : "d \\de F \\de Y",
+    locale     : "es",
+    maxDate    : "today"
+  });
+
+  const fpPago = flatpickr("#pago_plan", {
+    dateFormat : "Y-m-d",
+    altInput   : true,
+    altFormat  : "d \\de F \\de Y",
+    locale     : "es"
+  });
+
+  const fpVenci = flatpickr("#vencimiento_plan", {
+    dateFormat : "Y-m-d",
+    altInput   : true,
+    altFormat  : "d \\de F \\de Y",
+    locale     : "es"
+  });
+
+  /* ============ 2. Guardar valores originales ============ */
+  const planOriginal = $("#plan").val();
+  const pagoOriginal = $("#pago_plan").val();
+  const vencimientoOriginal = $("#vencimiento_plan").val();
+  const planVigente = <?php echo $planVigente ? 'true' : 'false'; ?>;
+
+  /* ============ 3. Precio según plan ============ */
+  function updatePrecio () {
+    const precio = $("#plan option:selected").data("precio");
+    $("#precio_mensual").val(precio !== undefined ? precio : "");
+  }
+
+  /* ============ 4. Calcular vencimiento ============ */
+  function getPagoDate () {
+    if (fpPago.selectedDates.length) return fpPago.selectedDates[0];
+    const iso = $("#pago_plan").val();
+    return iso ? fpPago.parseDate(iso, "Y-m-d") : null;
+  }
+
+  function updateVencimiento () {
+    const pagoDate = getPagoDate();
+    if (!pagoDate) { 
+      fpVenci.clear(); 
+      return; 
+    }
+
+    const $opt  = $("#plan option:selected");
+    const meses = parseInt($opt.data("frecuencia")) || 0;
+    const dias  = parseInt($opt.data("dias"))        || 0;
+
+    const due = new Date(pagoDate);
+    due.setMonth(due.getMonth() + meses);
+    due.setDate (due.getDate()  + dias - 1);
+
+    fpVenci.setDate(due, true);
+  }
+
+  /* ============ 5. Enlaces de eventos ============ */
+  $("#plan").on("change", function () {
+    updatePrecio();
+    
+    const planActual = $(this).val();
+    
+    // Si vuelve al plan original, restaurar fechas originales
+    if (planActual === planOriginal) {
+      if (pagoOriginal) {
+        fpPago.setDate(pagoOriginal, true);
+      } else {
+        fpPago.clear();
+      }
+      
+      if (vencimientoOriginal) {
+        fpVenci.setDate(vencimientoOriginal, true);
+      } else {
+        fpVenci.clear();
+      }
+      
+      // Ocultar advertencia
+      $("#planWarning").slideUp();
+      
+    } else {
+      // Si cambia a un plan diferente, limpiar las fechas
+      fpPago.clear();
+      fpVenci.clear();
+      $("#pago_plan").val('');
+      $("#vencimiento_plan").val('');
+      
+      // Mostrar advertencia si hay plan vigente
+      if (planVigente) {
+        $("#planWarning").slideDown();
+      }
+    }
+  });
+
+  // Cambio de fecha de pago vía calendario
+  fpPago.config.onChange.push(function() {
+    // Siempre recalcular cuando cambia la fecha de pago
+    updateVencimiento();
+  });
+
+  // Cambio de fecha de pago si el usuario escribe manualmente
+  $("#pago_plan").on("input change", function() {
+    // Siempre recalcular cuando cambia la fecha de pago
+    updateVencimiento();
+  });
+
+  /* ============ 6. Inicialización al cargar ============ */
+  updatePrecio();
+});
+</script>
+	
+<!--script>
 $(function () {
 
   /* ============ 1. Instancias Flatpickr ============ */
@@ -825,7 +960,7 @@ $(function () {
   updatePrecio();
   // No recalcular nada al inicio, mantener los valores originales
 });
-</script>
+</script-->
 	
 	<script>
   function toTitleCase(str) {
