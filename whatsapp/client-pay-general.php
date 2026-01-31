@@ -53,7 +53,7 @@ $telefonoPlano = preg_replace('/\D+/', '', ($clientInfo['dialCode'] ?? '') . ($c
 $data = [
     'phonenumber' => $telefonoPlano,
     'text'        => $mensaje,
-    'url'         => $pdfSourceUrl
+    'url'         => $pdfUrl
 ];
 
 /* ───────────── 4) ENVÍO VIA CURL ───────────── */
