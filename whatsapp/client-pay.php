@@ -76,7 +76,7 @@ if (empty($phoneNumber) || strlen($phoneNumber) < 10) {
 $data = [
     'phonenumber' => $phoneNumber,
     'text'        => $mensaje,
-    'url'         => $pdfSourceUrl
+    'url'         => $pdfUrl
 ];
 
 /* ───────────── 5) ENVÍO VIA CURL ───────────── */
@@ -84,16 +84,16 @@ $ch = curl_init();
 curl_setopt_array($ch, [
     CURLOPT_URL => $urlEndpoint,
     CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_POST => true,
-    CURLOPT_POSTFIELDS => json_encode($data, JSON_UNESCAPED_UNICODE),
-    CURLOPT_HTTPHEADER => [
-        'Authorization: Bearer ' . $apiKey,
-        'Content-Type: application/json',
-        'Accept: application/json'
-    ],
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
     CURLOPT_TIMEOUT => 30,
-    CURLOPT_CONNECTTIMEOUT => 10,
-    CURLOPT_SSL_VERIFYPEER => true
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'POST',
+    CURLOPT_POSTFIELDS => $data, // Array directo, NO json_encode
+    CURLOPT_HTTPHEADER => [
+        'Authorization: Bearer ' . $apiKey
+    ]
 ]);
 
 $response = curl_exec($ch);
