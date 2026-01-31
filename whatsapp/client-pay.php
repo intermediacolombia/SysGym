@@ -76,7 +76,7 @@ if (empty($phoneNumber) || strlen($phoneNumber) < 10) {
 $data = [
     'phonenumber' => $phoneNumber,
     'text'        => $mensaje,
-    'url'         => $pdfUrl
+    'url'         => $pdfSourceUrl
 ];
 
 /* ───────────── 5) ENVÍO VIA CURL ───────────── */
