@@ -20,7 +20,7 @@ curl_setopt_array($curl, array(
   CURLOPT_POSTFIELDS => array(
     'phonenumber' => '573147165269',
     'text' => 'Factura_con_pruabaaaa',
-    'url' => 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Example'
+    'url' => 'https://sysgym.intermediacolombia.com/pdf/?type=invoice&id=2616'
   ),
   CURLOPT_HTTPHEADER => array(
     'Authorization: Bearer ' . $apiKey  // ← Formato Bearer
@@ -32,3 +32,4 @@ curl_close($curl);
 
 echo $response;
 ?>
+
