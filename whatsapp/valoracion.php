@@ -65,7 +65,7 @@ $payload = [
 ];
 
 /* ───────────── 4) ENVÍO cURL ───────────── */
-$ch = curl_init('https://api.360messenger.com/v2/sendMessage');
+$ch = curl_init(WA_API_URL);
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_POST           => true,

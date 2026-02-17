@@ -3,7 +3,7 @@ require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/save_failed_ws.php'; // función para guardar fallidos
 
 $apiKey = $api_ws;
-$urlEndpoint = 'https://api.360messenger.com/v2/sendMessage';
+$urlEndpoint = WA_API_URL;
 
 /* ───────────── 1) MENSAJE DE FACTURA ───────────── */
 $mensaje = $wa_client_pay;

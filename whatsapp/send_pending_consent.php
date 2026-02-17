@@ -3,7 +3,7 @@ require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/save_failed_ws.php'; // para registrar fallos
 
 $apiKey = $api_ws;
-$urlEndpoint = 'https://api.360messenger.com/v2/sendMessage';
+$urlEndpoint = WA_API_URL;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['cliente_id'])) {
     echo json_encode(['status' => 'error', 'message' => 'Solicitud inválida.']);

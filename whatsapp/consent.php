@@ -4,7 +4,7 @@ require_once __DIR__ . '/save_failed_ws.php'; // función para guardar fallidos
 
 $apiKey = $api_ws;
 //$urlEndpoint = 'https://api.360messenger.com/v2/sendMessage';
-$urlEndpoint = 'http://vpn.intermediacolombia.com/api/send';
+$urlEndpoint = WA_API_URL;
 
 /* ───────────── 1) MENSAJE DE CONSENTIMIENTO ───────────── */
 $mensaje = $wa_consent;

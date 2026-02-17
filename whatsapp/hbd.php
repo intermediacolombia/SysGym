@@ -4,7 +4,7 @@ require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/save_failed_ws.php'; // ← función saveFailedWSMessage(phone, text, url)
 
 $apiKey = $api_ws; // Definido en config.php
-$urlEndpoint = 'https://api.360messenger.com/v2/sendMessage';
+$urlEndpoint = WA_API_URL;
 
 // Template de mensaje de cumpleaños
 $mensajeTemplate = $wa_hbd;

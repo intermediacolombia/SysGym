@@ -14,7 +14,7 @@ require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/save_failed_ws.php'; // ← agrega la función para guardar fallidos
 
 $apiKey          = $api_ws;
-$urlEndpoint     = 'https://api.360messenger.com/v2/sendMessage';
+$urlEndpoint     = WA_API_URL;
 $messageTemplate = $wa_creditReminder; // "Hola {nombres} {apellidos}, debes $ {total_credito}. Detalle: {detalle_creditos}"
 
 if (isset($creditReminders) && is_array($creditReminders)) {

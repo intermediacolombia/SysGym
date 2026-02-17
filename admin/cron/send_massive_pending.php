@@ -25,7 +25,7 @@ define('HORA_FIN', WA_MASS_HOUR_END);            // Hora fin (9 PM)
 define('DIAS_PERMITIDOS', WA_MASS_DAYS);         // Dias permitidos (1=Lun, 7=Dom)
 
 $apiKey      = $api_ws;
-$urlEndpoint = 'https://api.360messenger.com/v2/sendMessage';
+$urlEndpoint = WA_API_URL;
 $baseUrl     = isset($url) ? rtrim($url, '/') : '';
 
 // Fecha y hora actuales (usa zona horaria de config.php)

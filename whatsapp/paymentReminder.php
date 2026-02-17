@@ -3,7 +3,7 @@ require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/save_failed_ws.php'; // ← guardar fallidos
 
 $apiKey      = $api_ws;
-$urlEndpoint = 'https://api.360messenger.com/v2/sendMessage';
+$urlEndpoint = WA_API_URL;
 
 // Template de recordatorio de pago
 $messageTemplate = $wa_paymentReminder;

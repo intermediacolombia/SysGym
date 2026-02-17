@@ -162,6 +162,7 @@ $wa_creditReminder_day  = $settings['wa_creditReminder_day'] ?? '';
 $wa_creditReminder_hour = $settings['wa_creditReminder_hour'] ?? '';
 $wa_consent_pending     = $settings['wa_consent_pending'] ?? '';
 
+define('WA_API_URL', $settings['wa_api_url'] ?? '');
 # ===============================
 #  CONSTANTES GENERALES
 # ===============================
