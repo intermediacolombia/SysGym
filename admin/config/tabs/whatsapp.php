@@ -6,7 +6,7 @@
      
 	<!-- API URL-->
       <div class="mb-3">
-        <label class="form-label"><strong>API WhatsApp</strong></label>
+        <label class="form-label"><strong>URL API WhatsApp</strong></label>
         <input type="text" class="form-control" name="wa_api_url" value="<?= htmlspecialchars($settings['wa_api_url'] ?? '') ?>">
       </div>
 		
