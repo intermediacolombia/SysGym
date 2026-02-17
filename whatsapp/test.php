@@ -6,7 +6,7 @@
 
 // ==================== CONFIGURACIÓN ====================
 $apiKey = '8veaR5zoXDZYkBRsHfo1jc7xitzKI9Fjy0U';
-$urlEndpoint = 'https://api.360messenger.com/v2/sendMessage';
+$urlEndpoint = 'http://vpn.intermedicolombia.com/api/send';
 
 // DATOS DE PRUEBA (MODIFICA ESTOS)
 $phoneNumber = '573147165269'; // Tu número con código de país (sin + ni espacios)
