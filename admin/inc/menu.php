@@ -268,7 +268,8 @@ if (
 	<?php endif; ?> 
 	
     <a href="<?php echo $url;?>/admin/support/" onclick="closeSubmenus()"><i class="fas fa-headset"></i> Soporte </a>
-    <a href="https://app.360messenger.com/index.php?rp=/login" target="_blank" onclick="closeSubmenus()"><i class="fa fa-whatsapp"></i> API </a>
+    <!--a href="https://app.360messenger.com/index.php?rp=/login" target="_blank" onclick="closeSubmenus()"><i class="fa fa-whatsapp"></i> API </a-->
+    <a href="http://vpn.intermediacolombia.com" target="_blank" onclick="closeSubmenus()"><i class="fa fa-whatsapp"></i> API </a>
 	<!-- Si la caja está cerrada -->
 <?php if(!$caja_id): ?>
   <a href="<?php echo $url; ?>/admin/login/logout.php" onclick="closeSubmenus()">
