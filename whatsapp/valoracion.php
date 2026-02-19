@@ -65,7 +65,7 @@ $payload = [
 ];
 
 /* ───────────── 4) ENVÍO cURL ───────────── */
-$ch = curl_init(WA_API_URL);
+$ch = curl_init(WA_API_URL . '/send');
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_POST           => true,
