@@ -3,7 +3,7 @@ require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/save_failed_ws.php'; // para registrar fallos
 
 $apiKey = $api_ws;
-$urlEndpoint = rtrim(WA_API_URL, '/') . '/send';
+$urlEndpoint = WA_API_URL.'/send';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['cliente_id'])) {
     echo json_encode(['status' => 'error', 'message' => 'Solicitud inválida.']);

@@ -3,7 +3,7 @@ require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/save_failed_ws.php'; // función para guardar fallidos
 
 $apiKey = $api_ws;
-$urlEndpoint = rtrim(WA_API_URL, '/') . '/send';
+$urlEndpoint = WA_API_URL.'/send';
 
 /* ───────────── 1) MENSAJE DE NÓMINA ───────────── */
 $mensaje = "Hola {nombres} {apellidos},\n\nTu nómina ha sido procesada con éxito.\n\nDetalles:\n- Fecha de inicio: {fecha_pago}\n- Fecha de fin: {fecha_vencimiento}\n- Total días laborados: {total_dias}\n- Valor pagado: ${valor_pagado}\n\nGracias por tu dedicación.";

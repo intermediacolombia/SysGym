@@ -15,7 +15,7 @@ function sendWSAlert($telefono, $mensaje) {
     global $api_ws; // tu API Key
 
    
-    $urlEndpoint = rtrim(WA_API_URL, '/') . '/send';
+    $urlEndpoint = WA_API_URL.'/send';
 
     $data = array(
         'phonenumber' => $telefono,

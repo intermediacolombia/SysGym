@@ -3,7 +3,7 @@ require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/save_failed_ws.php'; // función para guardar fallidos
 
 $apiKey = $api_ws;
-$urlEndpoint = rtrim(WA_API_URL, '/') . '/send';
+$urlEndpoint = WA_API_URL.'/send';
 
 /* ───────────── 1) MENSAJE DE FACTURA ───────────── */
 $mensaje = $wa_client_pay;
