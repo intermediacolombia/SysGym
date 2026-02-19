@@ -9,8 +9,10 @@
 header('Content-Type: text/plain; charset=UTF-8');
 
 require_once __DIR__ . '/../../inc/config.php'; // $host,$dbname,$dbuser,$dbpass,$api_ws
+
 $apiKey      = $api_ws;
-$urlEndpoint = WA_API_URL;
+
+$urlEndpoint = rtrim(WA_API_URL, '/') . '/send';
 
 $limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 10;
 
