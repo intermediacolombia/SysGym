@@ -1286,16 +1286,22 @@ $('#valoraciones-table tbody').on('click', 'tr', function(){
     columns: [
       { data: 'phonenumber' },
       { 
-        data: 'text',
-        render: function(data) { return data.replace(/\n/g, "<br>"); }
+        data: 'message',
+        render: function(data) { return data ? data.replace(/\n/g, "<br>") : ''; }
       },
       { data: 'status' },
-      { data: 'statusInfo' },
-      { data: 'delivery' },
-      { data: 'createdAt' },
-      { data: 'executedAt' },
       { 
-        data: 'url',
+        data: 'error_message',
+        render: function(data) { return data ? data : '✅ OK'; }
+      },
+      { 
+        data: 'response_time',
+        render: function(data) { return data ? data + 'ms' : '-'; }
+      },
+      { data: 'created_at' },
+      { data: 'created_at' },
+      { 
+        data: 'file_url',
         render: function(data) { return data ? '<a href="'+data+'" target="_blank">Ver PDF</a>' : 'Sin URL'; }
       }
     ],
