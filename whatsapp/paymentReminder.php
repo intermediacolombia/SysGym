@@ -3,7 +3,7 @@ require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/save_failed_ws.php'; // ← guardar fallidos
 
 $apiKey      = $api_ws;
-$urlEndpoint = WA_API_URL;
+$urlEndpoint = rtrim(WA_API_URL, '/') . '/send';
 
 // Template de recordatorio de pago
 $messageTemplate = $wa_paymentReminder;

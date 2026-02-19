@@ -4,7 +4,7 @@ require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/save_failed_ws.php'; // ← función saveFailedWSMessage(phone, text, url)
 
 $apiKey = $api_ws; // Definido en config.php
-$urlEndpoint = WA_API_URL;
+$urlEndpoint = rtrim(WA_API_URL, '/') . '/send';
 
 // Template de mensaje de cumpleaños
 $mensajeTemplate = $wa_hbd;

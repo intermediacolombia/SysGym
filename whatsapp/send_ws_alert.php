@@ -14,7 +14,8 @@ require_once __DIR__ . '/save_failed_ws.php';
 function sendWSAlert($telefono, $mensaje) {
     global $api_ws; // tu API Key
 
-    $urlEndpoint = WA_API_URL;
+   
+    $urlEndpoint = rtrim(WA_API_URL, '/') . '/send';
 
     $data = array(
         'phonenumber' => $telefono,
