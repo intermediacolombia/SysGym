@@ -11,7 +11,7 @@ require_once __DIR__ . '/../inc/config.php';
 
 // ── Configuración del webhook ────────────────────────────────────
 define('API_KEY',   $settings['wa_api_key']  ?? 'TU_API_KEY_AQUI');
-define('API_URL',   WA_API_URL);
+define('API_URL', rtrim(WA_API_URL, '/') . '/send');
 define('LOG_FILE',  __DIR__ . '/webhook-ws.log');
 
 // ── Horarios del gimnasio (edita aquí) ───────────────────────────
