@@ -265,6 +265,18 @@ if (preg_match('/\b(te atiendo|en que puedo ayudarte|cuentame|dime|hola soy|te a
     http_response_code(200); exit('OK');
 }
 
+// ── B2. Palabra "asesor" → conectar directo ───────────────────
+if (preg_match('/^\s*(asesor|hablar con asesor|quiero un asesor|necesito ayuda)\s*$/i', $mensajeLower)) {
+    $respuesta =
+        "🧑‍💼 *¡Conectando con un asesor!*\n\n" .
+        "En breve alguien de nuestro equipo en *" . NAME_GYM . "* te atenderá personalmente.\n\n" .
+        "📞 También puedes llamarnos al: *" . TEL_GYM . "*\n\n" .
+        "_Por favor espera, no es necesario escribir más._ 😊\n\n" .
+        "Escribe *Menú* si deseas volver al menú principal.";
+    guardarEstado($sesKey, 'asesor', ['solicitado' => time()]);
+    wlog("[$clientId] ASESOR SOLICITADO por palabra clave: $nombre ($telefono)");
+}
+
 // ── C. Reset: 0, cancelar, menú, hola, etc. ──────────────────
 if (esReset($mensaje, $mensajeLower)) {
     wlog("[$clientId] Reset por: \"$mensaje\"");
