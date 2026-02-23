@@ -7,7 +7,7 @@
  */
 
 // ── Cargar configuración del sistema (BD, settings, constantes) ──
-require_once __DIR__ . 'inc/config.php';
+require_once __DIR__ . '/inc/config.php';
 
 // ── Configuración del webhook ────────────────────────────────────
 define('API_KEY',   $settings['wa_api_key']  ?? 'TU_API_KEY_AQUI');
