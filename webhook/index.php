@@ -295,19 +295,21 @@ if (preg_match('/^\s*0\s*$/', $mensaje) || preg_match('/\b(hola|hi|buenas|buenos
             guardarEstado($sesKey, 'menu_principal');
             break;
         case '2':
-            $respuesta = HORARIOS_GYM . "\n\nEscribe *0* para volver al menú.";
+            $respuesta = HORARIOS_GYM . "\n\nEscribe *Menú* para volver al menú.";
             guardarEstado($sesKey, 'menu_principal');
             break;
         case '3':
-            $respuesta = "🔍 *Consultar mi Plan*\n\nPor favor envíame tu *número de documento*.\n\n⚠️ Sin espacios, sin puntos, sin comas.\n_Ejemplo: 1094914578_\n\nEscribe *0* para cancelar.";
+            $respuesta = "🔍 *Consultar mi Plan*\n\nPor favor envíame tu *número de documento*.\n\n⚠️ Sin espacios, sin puntos, sin comas.\n_Ejemplo: 1094914578_\n\nEscribe *Cancelar* para cancelar.";
             guardarEstado($sesKey, 'espera_doc_plan');
             break;
         case '4':
-            $respuesta = "💳 *Realizar Pago*\n\nPor favor envíame tu *número de documento*.\n\n⚠️ Sin espacios, sin puntos, sin comas.\n_Ejemplo: 1094914578_\n\nEscribe *0* para cancelar.";
+            $respuesta = "💳 *Realizar Pago*\n\nPor favor envíame tu *número de documento*.\n\n⚠️ Sin espacios, sin puntos, sin comas.\n_Ejemplo: 1094914578_\n\nEscribe *Cancelar* para cancelar.";
             guardarEstado($sesKey, 'espera_doc_pago');
             break;
         case '5':
-            $respuesta = "🧑‍💼 *Conectando con un asesor...*\n\nEn un momento alguien del equipo de *" . NAME_GYM . "* te atenderá.\n\n📞 También puedes llamarnos al: " . TEL_GYM . "\n\n_Por favor espera, no es necesario escribir más._";
+            $respuesta = "🧑‍💼 *Conectando con un asesor...*\n\nEn un momento alguien del equipo de *" . NAME_GYM . "* te atenderá.\n\n📞 También puedes llamarnos al: " . TEL_GYM . "\n\n_Por favor espera, no es necesario escribir más._
+			\n\nEscribe *Menú* para volver al menú Principal.";
+			
             guardarEstado($sesKey, 'asesor', ['solicitado' => time()]);
             wlog("[$clientId] ASESOR SOLICITADO: $nombre ($telefono)");
             break;
@@ -323,7 +325,7 @@ if (preg_match('/^\s*0\s*$/', $mensaje) || preg_match('/\b(hola|hi|buenas|buenos
         wlog("[$clientId] CONSULTA PLAN doc=$mensaje");
         guardarEstado($sesKey, 'menu_principal');
     } else {
-        $respuesta = "⚠️ Documento inválido.\n\nEnvía *solo números*, sin espacios ni caracteres especiales.\n_Ejemplo: 1094914578_\n\nEscribe *0* para cancelar.";
+        $respuesta = "⚠️ Documento inválido.\n\nEnvía *solo números*, sin espacios ni caracteres especiales.\n_Ejemplo: 1094914578_\n\nEscribe *Cancelar* para cancelar.";
     }
 
 // ── F. Espera de documento — pago ────────────────────────────
@@ -333,7 +335,7 @@ if (preg_match('/^\s*0\s*$/', $mensaje) || preg_match('/\b(hola|hi|buenas|buenos
         wlog("[$clientId] SOLICITUD PAGO doc=$mensaje");
         guardarEstado($sesKey, 'menu_principal');
     } else {
-        $respuesta = "⚠️ Documento inválido.\n\nEnvía *solo números*, sin espacios ni caracteres especiales.\n_Ejemplo: 1094914578_\n\nEscribe *0* para cancelar.";
+        $respuesta = "⚠️ Documento inválido.\n\nEnvía *solo números*, sin espacios ni caracteres especiales.\n_Ejemplo: 1094914578_\n\nEscribe *Cancelar* para cancelar.";
     }
 
 // ── G. Sin estado (primera vez o expirado) ────────────────────
