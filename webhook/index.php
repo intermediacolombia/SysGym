@@ -115,8 +115,8 @@ function guardarEstado($key, $nuevoEstado, array $data = []) {
 }
 
 function resetMenu($key, $nombre) {
-    $arr         = jsonLeer();
-    $arr[$key]   = ['estado' => 'menu_principal', 'data' => [], 'timestamp' => time()];
+    $arr       = jsonLeer();
+    $arr[$key] = ['estado' => 'menu_principal', 'data' => [], 'timestamp' => time()];
     jsonEscribir($arr);
     wlog("RESET menu_principal: $key");
     return menuPrincipal($nombre);
@@ -126,7 +126,9 @@ function resetMenu($key, $nombre) {
 //  MENÚ PRINCIPAL
 // ════════════════════════════════════════════════════════════════
 function menuPrincipal($nombre = '') {
-    $saludo = $nombre ? "¡Hola *{$nombre}*! 👋 Bienvenido a *" . NAME_GYM . "*\n\n" : "👋 ¡Bienvenido a *" . NAME_GYM . "*!\n\n";
+    $saludo = $nombre
+        ? "¡Hola *{$nombre}*! 👋 Bienvenido a *" . NAME_GYM . "*\n\n"
+        : "👋 ¡Bienvenido a *" . NAME_GYM . "*!\n\n";
     return $saludo .
         "Estamos aquí para ayudarte a lograr tus metas. ¿En qué te podemos ayudar hoy?\n\n" .
         "1️⃣  Ver Planes\n" .
@@ -153,7 +155,6 @@ function planesDisponibles() {
 
         $txt = "💪 *NUESTROS PLANES — " . NAME_GYM . "*\n\n";
         foreach ($rows as $p) {
-            // Filtro extra por si acaso viene como string
             if ((float)$p['precio'] <= 0) continue;
             $precio = '$' . number_format((float)$p['precio'], 0, ',', '.');
             $txt .= "▸ *{$p['nombre']}*\n  💰 {$precio}\n\n";
@@ -166,6 +167,65 @@ function planesDisponibles() {
     } catch (Exception $ex) {
         wlog("ERROR planesDisponibles: " . $ex->getMessage());
         return "⚠️ No fue posible cargar los planes en este momento. Intenta más tarde.";
+    }
+}
+
+function consultarPlanCliente($doc) {
+    try {
+        $st = db()->prepare(
+            "SELECT c.nombres, c.apellidos, c.vencimiento_plan, c.congelado,
+                    p.nombre AS plan_nombre, p.precio AS plan_precio
+               FROM clientes c LEFT JOIN planes p ON p.id = c.plan
+              WHERE c.identificacion = :doc AND c.borrado = 0 LIMIT 1"
+        );
+        $st->execute([':doc' => $doc]);
+        $c = $st->fetch();
+
+        if (!$c) {
+            return
+                "❌ No encontramos ningún cliente con el documento *{$doc}*.\n\n" .
+                "Verifica que sea correcto e inténtalo de nuevo, o escribe *Menú* para volver.\n\n" .
+                "Si aún no eres miembro, ¡es el momento perfecto para unirte! 💪";
+        }
+
+        $nombre = trim($c['nombres'] . ' ' . $c['apellidos']);
+        $hoy    = new DateTime(date('Y-m-d'));
+        $venc   = new DateTime($c['vencimiento_plan']);
+        $diff   = (int)$hoy->diff($venc)->format('%r%a');
+        $vTxt   = $venc->format('d/m/Y');
+
+        if ($c['congelado']) {
+            $est     = "🧊 *MEMBRESÍA CONGELADA*";
+            $consejo = "Contáctanos para reactivar tu plan y retomar tu entrenamiento. 💪";
+        } elseif ($diff < 0) {
+            $est     = "🔴 *VENCIDA*";
+            $consejo = "¡No pierdas tu ritmo! Renueva tu plan y sigue entrenando. 🏃";
+        } elseif ($diff === 0) {
+            $est     = "🟡 *Vence HOY*";
+            $consejo = "Renueva hoy para no perder ni un día de entrenamiento. ⚡";
+        } elseif ($diff <= 5) {
+            $est     = "🟡 *Vence pronto*";
+            $consejo = "¡Renueva pronto y mantén tu racha! 🔥";
+        } else {
+            $est     = "🟢 *ACTIVA*";
+            $consejo = "¡Sigue así, vas muy bien! 💪";
+        }
+
+        $pNombre = $c['plan_nombre'] ?? 'Sin plan asignado';
+        $pPrecio = $c['plan_precio'] ? '$' . number_format($c['plan_precio'], 0, ',', '.') : '—';
+
+        return
+            "👤 *{$nombre}*\n\n" .
+            "📋 Plan: *{$pNombre}*\n" .
+            "💰 Valor: {$pPrecio}\n" .
+            "📅 Vencimiento: {$vTxt}\n" .
+            "Estado: {$est}\n\n" .
+            "_{$consejo}_\n\n" .
+            "Escribe *Menú* para volver al menú principal.";
+
+    } catch (Exception $ex) {
+        wlog("ERROR consultarPlanCliente: " . $ex->getMessage());
+        return "⚠️ Ocurrió un error al consultar. Por favor intenta más tarde.";
     }
 }
 
@@ -189,7 +249,7 @@ function gestionarPago($doc) {
             return
                 "🧊 Tu membresía está *congelada*.\n\n" .
                 "Contáctanos para reactivarla y volver a entrenar. ¡Te esperamos!\n\n" .
-                "Escribe *5* para hablar con un asesor.";
+                "Escribe *Asesor* para hablar con un asesor.";
         }
 
         $hoy    = new DateTime(date('Y-m-d'));
@@ -253,24 +313,24 @@ wlog("[$clientId] Estado: " . ($estado ?? 'NINGUNO'));
 $respuesta = null;
 
 // ── A. Bot silenciado (asesor activo) ─────────────────────────
+// EXCEPCIÓN: si escribe "menú" estando con asesor, se le permite salir
 if ($estado === 'asesor') {
     if (esReset($mensaje, $mensajeLower)) {
-        // Menú, cancelar, hola → salir del asesor
+        wlog("[$clientId] Salida de asesor por reset: \"$mensaje\"");
         $respuesta = resetMenu($sesKey, $nombre);
     } else {
-        // Cualquier otro mensaje → silencio
+        wlog("[$clientId] Silenciado — asesor activo");
         http_response_code(200); exit('OK');
     }
 
 // ── B. Detección de agente humano respondiendo ────────────────
-if (preg_match('/\b(te atiendo|en que puedo ayudarte|cuentame|dime|hola soy|te ayudo|un momento|ya te atiendo)\b/i', $mensajeLower)) {
+} elseif (preg_match('/\b(te atiendo|en que puedo ayudarte|cuentame|dime|hola soy|te ayudo|un momento|ya te atiendo)\b/i', $mensajeLower)) {
     guardarEstado($sesKey, 'asesor', ['agente' => true]);
     wlog("[$clientId] Humano detectado");
     http_response_code(200); exit('OK');
-}
 
-// ── C. Flujo principal ────────────────────────────────────────
-if (preg_match('/^\s*asesor\s*$/i', $mensajeLower)) {
+// ── C. Palabra "asesor" → conectar directo ────────────────────
+} elseif (preg_match('/^\s*asesor\s*$/i', $mensajeLower)) {
     $respuesta =
         "🧑‍💼 *¡Conectando con un asesor!*\n\n" .
         "En breve alguien de nuestro equipo en *" . NAME_GYM . "* te atenderá personalmente.\n\n" .
@@ -280,10 +340,12 @@ if (preg_match('/^\s*asesor\s*$/i', $mensajeLower)) {
     guardarEstado($sesKey, 'asesor', ['solicitado' => time()]);
     wlog("[$clientId] ASESOR por palabra clave: $nombre ($telefono)");
 
+// ── D. Reset: menú, cancelar, hola, 0... ─────────────────────
 } elseif (esReset($mensaje, $mensajeLower)) {
     wlog("[$clientId] Reset por: \"$mensaje\"");
     $respuesta = resetMenu($sesKey, $nombre);
 
+// ── E. Menú principal ─────────────────────────────────────────
 } elseif ($estado === 'menu_principal') {
     switch ($mensaje) {
         case '1':
@@ -326,7 +388,8 @@ if (preg_match('/^\s*asesor\s*$/i', $mensajeLower)) {
             $respuesta = "⚠️ No reconocemos esa opción.\n\n" . menuPrincipal($nombre);
             guardarEstado($sesKey, 'menu_principal');
     }
-// ── E. Esperando documento — consultar plan ───────────────────
+
+// ── F. Esperando documento — consultar plan ───────────────────
 } elseif ($estado === 'espera_doc_plan') {
     if (preg_match('/^\d{5,15}$/', $mensaje)) {
         $respuesta = consultarPlanCliente($mensaje);
@@ -338,11 +401,10 @@ if (preg_match('/^\s*asesor\s*$/i', $mensajeLower)) {
             "Por favor envía *solo números*, sin espacios ni caracteres especiales.\n" .
             "_Ejemplo: 1094914578_\n\n" .
             "Inténtalo de nuevo o escribe *Cancelar* para volver al menú.";
-        // Mantenemos el estado espera_doc_plan para que pueda reintentar
         guardarEstado($sesKey, 'espera_doc_plan');
     }
 
-// ── F. Esperando documento — pago ────────────────────────────
+// ── G. Esperando documento — pago ────────────────────────────
 } elseif ($estado === 'espera_doc_pago') {
     if (preg_match('/^\d{5,15}$/', $mensaje)) {
         $respuesta = gestionarPago($mensaje);
@@ -354,11 +416,10 @@ if (preg_match('/^\s*asesor\s*$/i', $mensajeLower)) {
             "Por favor envía *solo números*, sin espacios ni caracteres especiales.\n" .
             "_Ejemplo: 1094914578_\n\n" .
             "Inténtalo de nuevo o escribe *Cancelar* para volver al menú.";
-        // Mantenemos el estado espera_doc_pago para que pueda reintentar
         guardarEstado($sesKey, 'espera_doc_pago');
     }
 
-// ── G. Sin estado (primera vez o sesión expirada) ─────────────
+// ── H. Sin estado (primera vez o sesión expirada) ─────────────
 } else {
     wlog("[$clientId] Sin estado — menú inicial");
     $respuesta = resetMenu($sesKey, $nombre);
