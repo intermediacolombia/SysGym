@@ -10,7 +10,7 @@
 require_once __DIR__ . '/../inc/config.php';
 
 // ── Configuración del webhook ────────────────────────────────────
-define('API_KEY', $settings['wa_api_key'] ?? '');
+define('API_KEY', $api_ws); // viene de config.php → $settings['wa_api']
 define('API_URL', rtrim(WA_API_URL, '/') . '/send');
 define('LOG_FILE',  __DIR__ . '/webhook-ws.log');
 
@@ -51,18 +51,26 @@ function wsSend($telefono, $mensaje) {
         CURLOPT_POST           => true,
         CURLOPT_HTTPHEADER     => [
             'Authorization: Bearer ' . API_KEY,
-            'Content-Type: application/json; charset=utf-8',
+            'Content-Type: application/json',
+            'Accept: application/json',
         ],
         CURLOPT_POSTFIELDS => json_encode([
-            'phone'   => $telefono,
-            'message' => $mensaje,
+            'phonenumber' => $telefono,
+            'text'        => $mensaje,
         ], JSON_UNESCAPED_UNICODE),
     ]);
     $response = curl_exec($ch);
     $code     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
-    wlog("Enviado a $telefono [HTTP $code]: " . mb_substr($mensaje, 0, 80));
-    return $code === 200;
+
+    $success = false;
+    if ($code >= 200 && $code < 300) {
+        $decoded = json_decode($response, true);
+        $success = !empty($decoded['success']);
+    }
+
+    wlog("Enviado a $telefono [HTTP $code] success=" . ($success ? 'true' : 'false') . ": " . mb_substr($mensaje, 0, 80));
+    return $success;
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -337,6 +345,8 @@ $data = json_decode($rawInput, true);
 if (!$data) {
     http_response_code(400);
     exit('Invalid JSON');
+	
+	
 }
 
 $telefono  = isset($data['from'])      ? trim($data['from'])      : '';
@@ -495,7 +505,7 @@ if ($mensaje === '0' || $mensajeLower === '0') {
 // ── Enviar respuesta ──────────────────────────────────────────
 if ($respuesta) {
     if (!wsSend($telefono, $respuesta)) {
-        wlog("[$clientId] ERROR al enviar mensaje a $telefono");
+        wlog("[$clientId] ERROR al enviar mensaje a $telefono api:" .API_KEY ."URL". API_URL);
     }
 }
 
