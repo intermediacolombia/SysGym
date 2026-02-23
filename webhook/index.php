@@ -7,15 +7,15 @@
 
 require_once __DIR__ . '/../inc/config.php';
 
-define('API_KEY',      $api_ws);
-define('API_URL',      rtrim(WA_API_URL, '/') . '/send');
-define('LOG_FILE',     __DIR__ . '/webhook-ws.log');
-define('ESTADOS_FILE', __DIR__ . '/estados_ws.json');
+defined('API_KEY') || define('API_KEY', $api_ws);
+defined('API_URL') || define('API_URL', rtrim(WA_API_URL, '/') . '/send');
+defined('LOG_FILE') || define('LOG_FILE', __DIR__ . '/webhook-ws.log');
+defined('ESTADOS_FILE') || define('ESTADOS_FILE', __DIR__ . '/estados_ws.json');
 
-define('MENU_TIMEOUT_SECS',   5 * 60);
-define('ASESOR_TIMEOUT_SECS', 2 * 60 * 60);
+defined('MENU_TIMEOUT_SECS') || define('MENU_TIMEOUT_SECS', 5 * 60);
+defined('ASESOR_TIMEOUT_SECS') || define('ASESOR_TIMEOUT_SECS', 2 * 60 * 60);
 
-define('HORARIOS_GYM',
+defined('HORARIOS_GYM') || define('HORARIOS_GYM',
     "🕐 *Horarios de atención:*\n\n" .
     "Lunes a Viernes:  5:00 am – 10:00 pm\n" .
     "Sábados:          6:00 am –  8:00 pm\n" .
