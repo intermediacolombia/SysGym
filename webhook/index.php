@@ -447,7 +447,7 @@ if ($estado === 'asesor') {
                 "🔍 *Consultar mi Plan*\n\n" .
                 "Por favor envíame tu *número de documento* de identidad.\n\n" .
                 "⚠️ Solo números, sin espacios, sin puntos, sin comas.\n" .
-                "_Ejemplo: 1094914578_\n\n" .
+                "_Ejemplo: 123456789_\n\n" .
                 "Escribe *Cancelar* si deseas volver al menú.";
             guardarEstado($sesKey, 'espera_doc_plan');
             break;
@@ -456,7 +456,7 @@ if ($estado === 'asesor') {
                 "💳 *Realizar Pago*\n\n" .
                 "Por favor envíame tu *número de documento* de identidad.\n\n" .
                 "⚠️ Solo números, sin espacios, sin puntos, sin comas.\n" .
-                "_Ejemplo: 1094914578_\n\n" .
+                "_Ejemplo: 123456789_\n\n" .
                 "Escribe *Cancelar* si deseas volver al menú.";
             guardarEstado($sesKey, 'espera_doc_pago');
             break;
@@ -492,7 +492,7 @@ if ($estado === 'asesor') {
         $respuesta =
             "⚠️ El documento ingresado no es válido.\n\n" .
             "Por favor envía *solo números*, sin espacios ni caracteres especiales.\n" .
-            "_Ejemplo: 1094914578_\n\n" .
+            "_Ejemplo: 123456789_\n\n" .
             "Inténtalo de nuevo o escribe *Cancelar* para volver al menú.";
         guardarEstado($sesKey, 'espera_doc_plan');
     }
@@ -507,7 +507,7 @@ if ($estado === 'asesor') {
         $respuesta =
             "⚠️ El documento ingresado no es válido.\n\n" .
             "Por favor envía *solo números*, sin espacios ni caracteres especiales.\n" .
-            "_Ejemplo: 1094914578_\n\n" .
+            "_Ejemplo: 123456789_\n\n" .
             "Inténtalo de nuevo o escribe *Cancelar* para volver al menú.";
         guardarEstado($sesKey, 'espera_doc_pago');
     }
