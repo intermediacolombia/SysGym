@@ -66,7 +66,7 @@ function gimnasioAbierto() {
         return ($horaDecimal >= 7 && $horaDecimal < 14);
     } else {
         // Lunes–Viernes: 05:00–22:00
-        return ($horaDecimal >= 5 && $horaDecimal < 14);
+        return ($horaDecimal >= 5 && $horaDecimal < 22);
     }
 }
 
