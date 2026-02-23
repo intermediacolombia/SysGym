@@ -32,9 +32,19 @@ function wlog($msg) {
     file_put_contents(LOG_FILE, '[' . date('Y-m-d H:i:s') . '] ' . $msg . "\n", FILE_APPEND);
 }
 
-function esReset($mensaje, $mensajeLower) {
-    return preg_match('/^\s*(0|cancelar|menu|menú|inicio|volver)\s*$/i', $mensaje)
-        || preg_match('/\b(hola|hi|buenas|buenos dias|buenas tardes|buenas noches|start)\b/i', $mensajeLower);
+/** Solo palabras de navegación — NO saludos */
+function esReset($mensaje) {
+    return (bool)preg_match('/^\s*(0|cancelar|menu|menú|inicio|volver)\s*$/i', $mensaje);
+}
+
+/** Saludos — para estados normales, NO para estado asesor */
+function esSaludo($mensajeLower) {
+    return (bool)preg_match('/\b(hola|hi|buenas|buenos dias|buenas tardes|buenas noches|start)\b/i', $mensajeLower);
+}
+
+/** Solo "menú" o "menu" sacan al usuario del estado asesor */
+function esSalidaAsesor($mensaje) {
+    return (bool)preg_match('/^\s*(menu|menú)\s*$/i', $mensaje);
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -188,11 +198,11 @@ function consultarPlanCliente($doc) {
                 "Si aún no eres miembro, ¡es el momento perfecto para unirte! 💪";
         }
 
-        $nombre = trim($c['nombres'] . ' ' . $c['apellidos']);
-        $hoy    = new DateTime(date('Y-m-d'));
-        $venc   = new DateTime($c['vencimiento_plan']);
-        $diff   = (int)$hoy->diff($venc)->format('%r%a');
-        $vTxt   = $venc->format('d/m/Y');
+        $nombre  = trim($c['nombres'] . ' ' . $c['apellidos']);
+        $hoy     = new DateTime(date('Y-m-d'));
+        $venc    = new DateTime($c['vencimiento_plan']);
+        $diff    = (int)$hoy->diff($venc)->format('%r%a');
+        $vTxt    = $venc->format('d/m/Y');
 
         if ($c['congelado']) {
             $est     = "🧊 *MEMBRESÍA CONGELADA*";
@@ -312,14 +322,14 @@ wlog("[$clientId] Estado: " . ($estado ?? 'NINGUNO'));
 
 $respuesta = null;
 
-// ── A. Bot silenciado (asesor activo) ─────────────────────────
-// EXCEPCIÓN: si escribe "menú" estando con asesor, se le permite salir
+// ── A. Estado ASESOR activo ───────────────────────────────────
+// Solo "menú" libera al usuario — saludos y todo lo demás se silencia
 if ($estado === 'asesor') {
-    if (esReset($mensaje, $mensajeLower)) {
-        wlog("[$clientId] Salida de asesor por reset: \"$mensaje\"");
+    if (esSalidaAsesor($mensaje)) {
+        wlog("[$clientId] Salida de asesor por MENÚ");
         $respuesta = resetMenu($sesKey, $nombre);
     } else {
-        wlog("[$clientId] Silenciado — asesor activo");
+        wlog("[$clientId] Silenciado — asesor activo (msg: \"$mensaje\")");
         http_response_code(200); exit('OK');
     }
 
@@ -340,8 +350,8 @@ if ($estado === 'asesor') {
     guardarEstado($sesKey, 'asesor', ['solicitado' => time()]);
     wlog("[$clientId] ASESOR por palabra clave: $nombre ($telefono)");
 
-// ── D. Reset: menú, cancelar, hola, 0... ─────────────────────
-} elseif (esReset($mensaje, $mensajeLower)) {
+// ── D. Reset por navegación o saludo ─────────────────────────
+} elseif (esReset($mensaje) || esSaludo($mensajeLower)) {
     wlog("[$clientId] Reset por: \"$mensaje\"");
     $respuesta = resetMenu($sesKey, $nombre);
 
