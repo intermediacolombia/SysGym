@@ -254,9 +254,13 @@ $respuesta = null;
 
 // ── A. Bot silenciado (asesor activo) ─────────────────────────
 if ($estado === 'asesor') {
-    wlog("[$clientId] Silenciado — asesor activo");
-    http_response_code(200); exit('OK');
-}
+    if (esReset($mensaje, $mensajeLower)) {
+        // Menú, cancelar, hola → salir del asesor
+        $respuesta = resetMenu($sesKey, $nombre);
+    } else {
+        // Cualquier otro mensaje → silencio
+        http_response_code(200); exit('OK');
+    }
 
 // ── B. Detección de agente humano respondiendo ────────────────
 if (preg_match('/\b(te atiendo|en que puedo ayudarte|cuentame|dime|hola soy|te ayudo|un momento|ya te atiendo)\b/i', $mensajeLower)) {
