@@ -265,8 +265,8 @@ if (preg_match('/\b(te atiendo|en que puedo ayudarte|cuentame|dime|hola soy|te a
     http_response_code(200); exit('OK');
 }
 
-// ── B2. Palabra "asesor" → conectar directo ───────────────────
-if (preg_match('/^\s*(asesor|hablar con asesor|quiero un asesor|necesito ayuda)\s*$/i', $mensajeLower)) {
+// ── C. Flujo principal ────────────────────────────────────────
+if (preg_match('/^\s*asesor\s*$/i', $mensajeLower)) {
     $respuesta =
         "🧑‍💼 *¡Conectando con un asesor!*\n\n" .
         "En breve alguien de nuestro equipo en *" . NAME_GYM . "* te atenderá personalmente.\n\n" .
@@ -274,15 +274,12 @@ if (preg_match('/^\s*(asesor|hablar con asesor|quiero un asesor|necesito ayuda)\
         "_Por favor espera, no es necesario escribir más._ 😊\n\n" .
         "Escribe *Menú* si deseas volver al menú principal.";
     guardarEstado($sesKey, 'asesor', ['solicitado' => time()]);
-    wlog("[$clientId] ASESOR SOLICITADO por palabra clave: $nombre ($telefono)");
-}
+    wlog("[$clientId] ASESOR por palabra clave: $nombre ($telefono)");
 
-// ── C. Reset: 0, cancelar, menú, hola, etc. ──────────────────
-if (esReset($mensaje, $mensajeLower)) {
+} elseif (esReset($mensaje, $mensajeLower)) {
     wlog("[$clientId] Reset por: \"$mensaje\"");
     $respuesta = resetMenu($sesKey, $nombre);
 
-// ── D. Menú principal ─────────────────────────────────────────
 } elseif ($estado === 'menu_principal') {
     switch ($mensaje) {
         case '1':
@@ -322,12 +319,9 @@ if (esReset($mensaje, $mensajeLower)) {
             wlog("[$clientId] ASESOR SOLICITADO: $nombre ($telefono)");
             break;
         default:
-            $respuesta =
-                "⚠️ No reconocemos esa opción.\n\n" .
-                menuPrincipal($nombre);
+            $respuesta = "⚠️ No reconocemos esa opción.\n\n" . menuPrincipal($nombre);
             guardarEstado($sesKey, 'menu_principal');
     }
-
 // ── E. Esperando documento — consultar plan ───────────────────
 } elseif ($estado === 'espera_doc_plan') {
     if (preg_match('/^\d{5,15}$/', $mensaje)) {
