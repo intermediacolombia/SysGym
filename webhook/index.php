@@ -14,12 +14,15 @@ defined('MENU_TIMEOUT_SECS')  || define('MENU_TIMEOUT_SECS',  5 * 60);
 defined('ASESOR_TIMEOUT_SECS')|| define('ASESOR_TIMEOUT_SECS',2 * 60 * 60);
 
 defined('HORARIOS_GYM') || define('HORARIOS_GYM',
-    "🕐 *Horarios de atención:*\n\n" .
-    "Lunes a Viernes:  5:00 am – 10:00 pm\n" .
-    "Sábados:          6:00 am –  8:00 pm\n" .
-    "Domingos:         8:00 am –  2:00 pm\n\n" .
-    "📍 " . NAME_GYM . "\n\n" .
-    "¡Te esperamos para ayudarte a alcanzar tus metas! 💪"
+    "🏋️ *" . NAME_GYM . "* — Horarios de atención\n\n" .
+    "📅 *Lunes a Viernes*\n" .
+    "   ⏰ 5:00 AM – 10:00 PM\n\n" .
+    "📅 *Sábados*\n" .
+    "   ⏰ 7:00 AM – 2:00 PM\n\n" .
+    "🚫 *Domingos:* Cerramos para recargar energías junto a ti. ¡Descansa que mañana volvemos con todo! 💤\n\n" .
+    "💡 *¿Sin tiempo entre semana?* ¡De lunes a viernes tenemos 17 horas seguidas para que no tengas excusas! 😄\n\n" .
+    "📍 ¡Te esperamos con las puertas abiertas y toda la energía! 💪🔥\n\n" .
+    "Escribe *Menú* para volver al menú principal."
 );
 
 // ════════════════════════════════════════════════════════════════
@@ -164,62 +167,32 @@ function planesDisponibles() {
     }
 }
 
-function consultarPlanCliente($doc) {
+function planesDisponibles() {
     try {
-        $st = db()->prepare(
-            "SELECT c.nombres, c.apellidos, c.vencimiento_plan, c.congelado,
-                    p.nombre AS plan_nombre, p.precio AS plan_precio
-               FROM clientes c LEFT JOIN planes p ON p.id = c.plan
-              WHERE c.identificacion = :doc AND c.borrado = 0 LIMIT 1"
-        );
-        $st->execute([':doc' => $doc]);
-        $c = $st->fetch();
+        $rows = db()->query(
+            "SELECT nombre, precio FROM planes
+              WHERE estado='activo' AND borrado=0
+              HAVING precio > 0
+              ORDER BY precio ASC"
+        )->fetchAll();
 
-        if (!$c) {
-            return
-                "❌ No encontramos ningún cliente con el documento *{$doc}*.\n\n" .
-                "Verifica que sea correcto e inténtalo de nuevo, o escribe *Menú* para volver.\n\n" .
-                "Si aún no eres miembro, ¡es el momento perfecto para unirte! 💪";
+        if (empty($rows)) return "⚠️ No hay planes disponibles en este momento. Escríbenos *Menú* para volver.";
+
+        $txt = "💪 *NUESTROS PLANES — " . NAME_GYM . "*\n\n";
+        foreach ($rows as $p) {
+            // Filtro extra por si acaso viene como string
+            if ((float)$p['precio'] <= 0) continue;
+            $precio = '$' . number_format((float)$p['precio'], 0, ',', '.');
+            $txt .= "▸ *{$p['nombre']}*\n  💰 {$precio}\n\n";
         }
 
-        $nombre = trim($c['nombres'] . ' ' . $c['apellidos']);
-        $hoy    = new DateTime(date('Y-m-d'));
-        $venc   = new DateTime($c['vencimiento_plan']);
-        $diff   = (int)$hoy->diff($venc)->format('%r%a');
-        $vTxt   = $venc->format('d/m/Y');
-
-        if ($c['congelado']) {
-            $est     = "🧊 *MEMBRESÍA CONGELADA*";
-            $consejo = "Contáctanos para reactivar tu plan y retomar tu entrenamiento. 💪";
-        } elseif ($diff < 0) {
-            $est     = "🔴 *VENCIDA*";
-            $consejo = "¡No pierdas tu ritmo! Renueva tu plan y sigue entrenando. 🏃";
-        } elseif ($diff === 0) {
-            $est     = "🟡 *Vence HOY*";
-            $consejo = "Renueva hoy para no perder ni un día de entrenamiento. ⚡";
-        } elseif ($diff <= 5) {
-            $est     = "🟡 *Vence pronto*";
-            $consejo = "¡Renueva pronto y mantén tu racha! 🔥";
-        } else {
-            $est     = "🟢 *ACTIVA*";
-            $consejo = "¡Sigue así, vas muy bien! 💪";
-        }
-
-        $pNombre = $c['plan_nombre'] ?? 'Sin plan asignado';
-        $pPrecio = $c['plan_precio'] ? '$' . number_format($c['plan_precio'], 0, ',', '.') : '—';
-
-        return
-            "👤 *{$nombre}*\n\n" .
-            "📋 Plan: *{$pNombre}*\n" .
-            "💰 Valor: {$pPrecio}\n" .
-            "📅 Vencimiento: {$vTxt}\n" .
-            "Estado: {$est}\n\n" .
-            "_{$consejo}_\n\n" .
-            "Escribe *Menú* para volver al menú principal.";
+        $txt .= "¡El mejor momento para empezar es hoy! 🏆\n\n";
+        $txt .= "Escribe *Asesor* para hablar con alguien de nuestro equipo\no *Menú* para volver al menú principal.";
+        return $txt;
 
     } catch (Exception $ex) {
-        wlog("ERROR consultarPlanCliente: " . $ex->getMessage());
-        return "⚠️ Ocurrió un error al consultar. Por favor intenta más tarde.";
+        wlog("ERROR planesDisponibles: " . $ex->getMessage());
+        return "⚠️ No fue posible cargar los planes en este momento. Intenta más tarde.";
     }
 }
 
