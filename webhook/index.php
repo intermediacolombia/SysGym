@@ -32,19 +32,90 @@ function wlog($msg) {
     file_put_contents(LOG_FILE, '[' . date('Y-m-d H:i:s') . '] ' . $msg . "\n", FILE_APPEND);
 }
 
-/** Solo palabras de navegación — NO saludos */
 function esReset($mensaje) {
     return (bool)preg_match('/^\s*(0|cancelar|menu|menú|inicio|volver)\s*$/i', $mensaje);
 }
 
-/** Saludos — para estados normales, NO para estado asesor */
 function esSaludo($mensajeLower) {
     return (bool)preg_match('/\b(hola|hi|buenas|buenos dias|buenas tardes|buenas noches|start)\b/i', $mensajeLower);
 }
 
-/** Solo "menú" o "menu" sacan al usuario del estado asesor */
 function esSalidaAsesor($mensaje) {
     return (bool)preg_match('/^\s*(menu|menú)\s*$/i', $mensaje);
+}
+
+/**
+ * Verifica si el gimnasio está abierto AHORA (zona horaria Bogotá).
+ * Lunes–Viernes: 05:00–22:00
+ * Sábados:       07:00–14:00
+ * Domingos:      cerrado
+ * Retorna true si hay asesores disponibles.
+ */
+function gimnasioAbierto() {
+    $ahora   = new DateTime('now', new DateTimeZone('America/Bogota'));
+    $diaSemana = (int)$ahora->format('N'); // 1=Lun … 7=Dom
+    $hora      = (int)$ahora->format('G'); // hora sin ceros, 0-23
+    $minutos   = (int)$ahora->format('i');
+    $horaDecimal = $hora + ($minutos / 60);
+
+    if ($diaSemana === 7) {
+        // Domingo — cerrado todo el día
+        return false;
+    } elseif ($diaSemana === 6) {
+        // Sábado: 07:00–14:00
+        return ($horaDecimal >= 7 && $horaDecimal < 14);
+    } else {
+        // Lunes–Viernes: 05:00–22:00
+        return ($horaDecimal >= 5 && $horaDecimal < 14);
+    }
+}
+
+/**
+ * Retorna el mensaje de ausencia indicando cuándo vuelven.
+ */
+function mensajeAusencia() {
+    $ahora     = new DateTime('now', new DateTimeZone('America/Bogota'));
+    $diaSemana = (int)$ahora->format('N');
+
+    if ($diaSemana === 7) {
+        $cuando = "el *lunes desde las 5:00 AM*";
+    } elseif ($diaSemana === 6) {
+        // Sábado: si es antes de las 7am o ya pasó la 2pm
+        $hora = (int)$ahora->format('G');
+        if ($hora < 7) {
+            $cuando = "hoy *desde las 7:00 AM*";
+        } else {
+            $cuando = "el *lunes desde las 5:00 AM*";
+        }
+    } else {
+        // Lunes–Viernes fuera de horario
+        $hora = (int)$ahora->format('G');
+        if ($hora < 5) {
+            $cuando = "hoy *desde las 5:00 AM*";
+        } else {
+            // Después de las 10pm — mañana
+            $manana    = clone $ahora;
+            $manana->modify('+1 day');
+            $diaMañana = (int)$manana->format('N');
+            if ($diaMañana === 6) {
+                $cuando = "mañana *sábado desde las 7:00 AM*";
+            } elseif ($diaMañana === 7) {
+                $cuando = "el *lunes desde las 5:00 AM*";
+            } else {
+                $cuando = "mañana *desde las 5:00 AM*";
+            }
+        }
+    }
+
+    return
+        "🌙 *¡Ups! Fuera de horario.*\n\n" .
+        "En este momento nuestros asesores no están disponibles. 😴\n\n" .
+        "Estaremos de vuelta {$cuando} con toda la energía para atenderte. 💪\n\n" .
+        "📋 Mientras tanto puedes:\n" .
+        "   • Consultar tu plan → escribe *3*\n" .
+        "   • Realizar tu pago → escribe *4*\n" .
+        "   • Ver nuestros horarios → escribe *2*\n\n" .
+        "Escribe *Menú* para volver al menú principal.";
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -323,13 +394,12 @@ wlog("[$clientId] Estado: " . ($estado ?? 'NINGUNO'));
 $respuesta = null;
 
 // ── A. Estado ASESOR activo ───────────────────────────────────
-// Solo "menú" libera al usuario — saludos y todo lo demás se silencia
 if ($estado === 'asesor') {
     if (esSalidaAsesor($mensaje)) {
         wlog("[$clientId] Salida de asesor por MENÚ");
         $respuesta = resetMenu($sesKey, $nombre);
     } else {
-        wlog("[$clientId] Silenciado — asesor activo (msg: \"$mensaje\")");
+        wlog("[$clientId] Silenciado — asesor activo");
         http_response_code(200); exit('OK');
     }
 
@@ -339,16 +409,22 @@ if ($estado === 'asesor') {
     wlog("[$clientId] Humano detectado");
     http_response_code(200); exit('OK');
 
-// ── C. Palabra "asesor" → conectar directo ────────────────────
+// ── C. Palabra "asesor" → verificar horario primero ──────────
 } elseif (preg_match('/^\s*asesor\s*$/i', $mensajeLower)) {
-    $respuesta =
-        "🧑‍💼 *¡Conectando con un asesor!*\n\n" .
-        "En breve alguien de nuestro equipo en *" . NAME_GYM . "* te atenderá personalmente.\n\n" .
-        "📞 También puedes llamarnos al: *" . TEL_GYM . "*\n\n" .
-        "_Por favor espera, no es necesario escribir más._ 😊\n\n" .
-        "Escribe *Menú* si deseas volver al menú principal.";
-    guardarEstado($sesKey, 'asesor', ['solicitado' => time()]);
-    wlog("[$clientId] ASESOR por palabra clave: $nombre ($telefono)");
+    if (gimnasioAbierto()) {
+        $respuesta =
+            "🧑‍💼 *¡Conectando con un asesor!*\n\n" .
+            "En breve alguien de nuestro equipo en *" . NAME_GYM . "* te atenderá personalmente.\n\n" .
+            "📞 También puedes llamarnos al: *" . TEL_GYM . "*\n\n" .
+            "_Por favor espera, no es necesario escribir más._ 😊\n\n" .
+            "Escribe *Menú* si deseas volver al menú principal.";
+        guardarEstado($sesKey, 'asesor', ['solicitado' => time()]);
+        wlog("[$clientId] ASESOR por palabra clave: $nombre ($telefono)");
+    } else {
+        $respuesta = mensajeAusencia();
+        guardarEstado($sesKey, 'menu_principal');
+        wlog("[$clientId] Asesor fuera de horario: $nombre ($telefono)");
+    }
 
 // ── D. Reset por navegación o saludo ─────────────────────────
 } elseif (esReset($mensaje) || esSaludo($mensajeLower)) {
@@ -385,14 +461,21 @@ if ($estado === 'asesor') {
             guardarEstado($sesKey, 'espera_doc_pago');
             break;
         case '5':
-            $respuesta =
-                "🧑‍💼 *¡Conectando con un asesor!*\n\n" .
-                "En breve alguien de nuestro equipo en *" . NAME_GYM . "* te atenderá personalmente.\n\n" .
-                "📞 También puedes llamarnos al: *" . TEL_GYM . "*\n\n" .
-                "_Por favor espera, no es necesario escribir más._ 😊\n\n" .
-                "Escribe *Menú* si deseas volver al menú principal.";
-            guardarEstado($sesKey, 'asesor', ['solicitado' => time()]);
-            wlog("[$clientId] ASESOR SOLICITADO: $nombre ($telefono)");
+            // Opción 5 del menú — también verifica horario
+            if (gimnasioAbierto()) {
+                $respuesta =
+                    "🧑‍💼 *¡Conectando con un asesor!*\n\n" .
+                    "En breve alguien de nuestro equipo en *" . NAME_GYM . "* te atenderá personalmente.\n\n" .
+                    "📞 También puedes llamarnos al: *" . TEL_GYM . "*\n\n" .
+                    "_Por favor espera, no es necesario escribir más._ 😊\n\n" .
+                    "Escribe *Menú* si deseas volver al menú principal.";
+                guardarEstado($sesKey, 'asesor', ['solicitado' => time()]);
+                wlog("[$clientId] ASESOR SOLICITADO: $nombre ($telefono)");
+            } else {
+                $respuesta = mensajeAusencia();
+                guardarEstado($sesKey, 'menu_principal');
+                wlog("[$clientId] Asesor fuera de horario (opción 5): $nombre ($telefono)");
+            }
             break;
         default:
             $respuesta = "⚠️ No reconocemos esa opción.\n\n" . menuPrincipal($nombre);
@@ -429,7 +512,7 @@ if ($estado === 'asesor') {
         guardarEstado($sesKey, 'espera_doc_pago');
     }
 
-// ── H. Sin estado (primera vez o sesión expirada) ─────────────
+// ── H. Sin estado ─────────────────────────────────────────────
 } else {
     wlog("[$clientId] Sin estado — menú inicial");
     $respuesta = resetMenu($sesKey, $nombre);
