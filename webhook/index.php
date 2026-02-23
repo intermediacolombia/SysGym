@@ -23,10 +23,9 @@ define('HORARIOS_GYM',
     "📍 " . NAME_GYM
 );
 
-// ── Tiempo en minutos antes de reenviar menú (sin asesor) ────────
-define('MENU_TIMEOUT_SECS',   5 * 60);   // 5 minutos
-// Tiempo activo para sesión en "espera de asesor"
-define('ASESOR_TIMEOUT_SECS', 2 * 60 * 60); // 2 horas
+// ── Tiempos de sesión ────────────────────────────────────────────
+define('MENU_TIMEOUT_SECS',   5 * 60);       // 5 minutos sin actividad
+define('ASESOR_TIMEOUT_SECS', 2 * 60 * 60);  // 2 horas con asesor
 
 // ── Archivo de estados de conversación ──────────────────────────
 define('ESTADOS_FILE', __DIR__ . '/estados_ws.json');
@@ -41,9 +40,6 @@ function wlog($msg) {
     file_put_contents(LOG_FILE, "[$ts] $msg\n", FILE_APPEND);
 }
 
-/**
- * Enviar mensaje por WhatsApp
- */
 function wsSend($telefono, $mensaje) {
     $ch = curl_init(API_URL);
     curl_setopt_array($ch, [
@@ -73,8 +69,9 @@ function wsSend($telefono, $mensaje) {
     return $success;
 }
 
+
 // ════════════════════════════════════════════════════════════════
-//  GESTIÓN DE ESTADOS
+//  GESTIÓN DE ESTADOS — operaciones directas sobre el JSON
 // ════════════════════════════════════════════════════════════════
 
 function estadosCargar() {
@@ -87,15 +84,7 @@ function estadosGuardar(array $estados) {
     file_put_contents(ESTADOS_FILE, json_encode($estados, JSON_PRETTY_PRINT));
 }
 
-function estadoObtener($key) {
-    $estados = estadosCargar();
-    return $estados[$key] ?? null;
-}
-
-/**
- * Guardar estado de usuario.
- * $estado = null  → borra la sesión
- */
+/** Escribe o borra el estado de un usuario. $estado=null → elimina */
 function estadoGuardar($key, $estado, array $data = []) {
     $estados = estadosCargar();
     if ($estado === null) {
@@ -111,40 +100,65 @@ function estadoGuardar($key, $estado, array $data = []) {
 }
 
 /**
- * Retorna el estado activo del usuario o null si expiró.
- * Respeta tiempos diferentes según el tipo de estado.
+ * Devuelve el estado activo o null si no existe / expiró.
+ * Estado 'asesor'           → expira en ASESOR_TIMEOUT_SECS
+ * Estados 'espera_doc_*'   → expiran en MENU_TIMEOUT_SECS * 2
+ * Resto                    → expiran en MENU_TIMEOUT_SECS
  */
 function estadoActivo($key) {
-    $e = estadoObtener($key);
-    if (!$e) return null;
+    $estados = estadosCargar();
+    if (!isset($estados[$key])) return null;
 
+    $e       = $estados[$key];
     $elapsed = time() - ($e['timestamp'] ?? 0);
 
     if ($e['estado'] === 'asesor') {
-        // Silencio hasta ASESOR_TIMEOUT_SECS
         if ($elapsed > ASESOR_TIMEOUT_SECS) {
-            estadoGuardar($key, null);
+            unset($estados[$key]);
+            estadosGuardar($estados);
             return null;
         }
         return $e;
     }
 
-    // Para estados "esperando documento"
     if (in_array($e['estado'], ['espera_doc_plan', 'espera_doc_pago'])) {
         if ($elapsed > MENU_TIMEOUT_SECS * 2) {
-            estadoGuardar($key, null);
+            unset($estados[$key]);
+            estadosGuardar($estados);
             return null;
         }
         return $e;
     }
 
-    // Estados de menú: expiran en MENU_TIMEOUT_SECS
+    // menu_principal y cualquier otro
     if ($elapsed > MENU_TIMEOUT_SECS) {
-        estadoGuardar($key, null);
+        unset($estados[$key]);
+        estadosGuardar($estados);
         return null;
     }
 
     return $e;
+}
+
+/**
+ * Resetear sesión completamente: borra el JSON y devuelve el menú.
+ * Luego guarda estado menu_principal fresco.
+ */
+function resetearSesion($key, $nombre) {
+    // Borrar directamente del JSON
+    $estados = estadosCargar();
+    unset($estados[$key]);
+    estadosGuardar($estados);
+
+    // Guardar estado nuevo limpio
+    $estados[$key] = [
+        'estado'    => 'menu_principal',
+        'data'      => [],
+        'timestamp' => time(),
+    ];
+    estadosGuardar($estados);
+
+    return menuPrincipal($nombre);
 }
 
 
@@ -152,15 +166,12 @@ function estadoActivo($key) {
 //  CONSULTAS A BD
 // ════════════════════════════════════════════════════════════════
 
-/**
- * Devuelve los planes activos formateados para WhatsApp.
- */
 function planesDisponibles() {
     try {
         $stmt = db()->query(
-            "SELECT nombre, precio, frecuencia, dias 
-               FROM planes 
-              WHERE estado = 'activo' AND borrado = 0 
+            "SELECT nombre, precio, frecuencia
+               FROM planes
+              WHERE estado = 'activo' AND borrado = 0
               ORDER BY precio ASC"
         );
         $planes = $stmt->fetchAll();
@@ -172,21 +183,15 @@ function planesDisponibles() {
         $txt = "💪 *PLANES DISPONIBLES — " . NAME_GYM . "*\n\n";
         foreach ($planes as $p) {
             $precio = '$' . number_format($p['precio'], 0, ',', '.');
-
-            // Describir periodicidad
-            if ($p['frecuencia'] == 1) {
-                $periodo = "Mensual";
-            } elseif ($p['frecuencia'] == 12) {
-                $periodo = "Anual";
-            } else {
-                $periodo = $p['frecuencia'] . " mes(es)";
-            }
+            if ($p['frecuencia'] == 1)       $periodo = "Mensual";
+            elseif ($p['frecuencia'] == 12)  $periodo = "Anual";
+            else                             $periodo = $p['frecuencia'] . " mes(es)";
 
             $txt .= "▸ *{$p['nombre']}*\n";
             $txt .= "  💰 {$precio}  |  📅 {$periodo}\n\n";
         }
 
-        $txt .= "Para más información escríbenos o visita:\n🌐 https://www.intermediahost.co";
+        $txt .= "Escribe *0* para volver al menú.";
         return $txt;
     } catch (Exception $e) {
         wlog("ERROR planesDisponibles: " . $e->getMessage());
@@ -194,10 +199,6 @@ function planesDisponibles() {
     }
 }
 
-/**
- * Consultar plan del cliente por número de documento.
- * Retorna texto formateado.
- */
 function consultarPlanCliente($documento) {
     try {
         $stmt = db()->prepare(
@@ -205,8 +206,7 @@ function consultarPlanCliente($documento) {
                     p.nombre AS plan_nombre, p.precio AS plan_precio
                FROM clientes c
           LEFT JOIN planes p ON p.id = c.plan
-              WHERE c.identificacion = :doc
-                AND c.borrado = 0
+              WHERE c.identificacion = :doc AND c.borrado = 0
               LIMIT 1"
         );
         $stmt->execute([':doc' => $documento]);
@@ -216,28 +216,20 @@ function consultarPlanCliente($documento) {
             return "❌ No encontré ningún cliente con el documento *{$documento}*.\n\nVerifica que sea correcto y vuelve a intentarlo.";
         }
 
-        $nombre     = trim($c['nombres'] . ' ' . $c['apellidos']);
-        $hoy        = new DateTime(date('Y-m-d'));
-        $vencim     = new DateTime($c['vencimiento_plan']);
-        $diff       = (int)$hoy->diff($vencim)->format('%r%a'); // negativo = vencido
-        $vencimTxt  = $vencim->format('d/m/Y');
+        $nombre    = trim($c['nombres'] . ' ' . $c['apellidos']);
+        $hoy       = new DateTime(date('Y-m-d'));
+        $vencim    = new DateTime($c['vencimiento_plan']);
+        $diff      = (int)$hoy->diff($vencim)->format('%r%a');
+        $vencimTxt = $vencim->format('d/m/Y');
 
-        if ($c['congelado']) {
-            $estadoTxt = "🧊 *CONGELADO*";
-        } elseif ($diff < 0) {
-            $estadoTxt = "🔴 *VENCIDO* hace " . abs($diff) . " día(s)";
-        } elseif ($diff === 0) {
-            $estadoTxt = "🟡 *Vence HOY*";
-        } elseif ($diff <= 5) {
-            $estadoTxt = "🟡 *Vence pronto* — quedan {$diff} día(s)";
-        } else {
-            $estadoTxt = "🟢 *ACTIVO* — quedan {$diff} día(s)";
-        }
+        if ($c['congelado'])       $estadoTxt = "🧊 *CONGELADO*";
+        elseif ($diff < 0)         $estadoTxt = "🔴 *VENCIDO* hace " . abs($diff) . " día(s)";
+        elseif ($diff === 0)       $estadoTxt = "🟡 *Vence HOY*";
+        elseif ($diff <= 5)        $estadoTxt = "🟡 *Vence pronto* — quedan {$diff} día(s)";
+        else                       $estadoTxt = "🟢 *ACTIVO* — quedan {$diff} día(s)";
 
         $planNombre = $c['plan_nombre'] ?? 'Sin plan asignado';
-        $planPrecio = $c['plan_precio']
-            ? '$' . number_format($c['plan_precio'], 0, ',', '.')
-            : '—';
+        $planPrecio = $c['plan_precio'] ? '$' . number_format($c['plan_precio'], 0, ',', '.') : '—';
 
         return
             "👤 *{$nombre}*\n\n" .
@@ -253,11 +245,6 @@ function consultarPlanCliente($documento) {
     }
 }
 
-/**
- * Verificar si el cliente puede pagar hoy según DAYS_ALLOWED_BEFORE_DUE.
- * Si puede → retorna el link de pago.
- * Si no   → retorna mensaje explicativo.
- */
 function gestionarPago($documento) {
     try {
         $stmt = db()->prepare(
@@ -286,9 +273,7 @@ function gestionarPago($documento) {
         $vencimTxt      = $vencim->format('d/m/Y');
 
         // Puede pagar si: ya venció ($diff < 0) O faltan <= $diasPermitidos días
-        $puedeP = ($diff <= $diasPermitidos);
-
-        if ($puedeP) {
+        if ($diff <= $diasPermitidos) {
             $linkPago = "https://sysgym.intermediacolombia.com/pay/?doc={$documento}";
             return
                 "✅ *{$nombre}*, aquí tienes tu enlace de pago:\n\n" .
@@ -297,11 +282,10 @@ function gestionarPago($documento) {
                 "_El pago es seguro y en línea._\n\n" .
                 "Escribe *0* para volver al menú.";
         } else {
-            $diasRestantes = $diff; // positivo = días que faltan
-            $disponibleEn  = $diasRestantes - $diasPermitidos;
+            $disponibleEn = $diff - $diasPermitidos;
             return
                 "⏳ *{$nombre}*, aún no está disponible el pago.\n\n" .
-                "📅 Tu plan vence el *{$vencimTxt}* (faltan *{$diasRestantes}* días).\n\n" .
+                "📅 Tu plan vence el *{$vencimTxt}* (faltan *{$diff}* días).\n\n" .
                 "El pago se habilita *{$diasPermitidos} día(s) antes* del vencimiento.\n" .
                 "Podrás pagar en aproximadamente *{$disponibleEn} día(s)*.\n\n" .
                 "Escribe *0* para volver al menú.";
@@ -334,7 +318,7 @@ function menuPrincipal($nombre = '') {
 
 
 // ════════════════════════════════════════════════════════════════
-//  ENTRY POINT — PROCESAMIENTO DEL WEBHOOK
+//  ENTRY POINT
 // ════════════════════════════════════════════════════════════════
 
 $rawInput = file_get_contents('php://input');
@@ -345,82 +329,69 @@ $data = json_decode($rawInput, true);
 if (!$data) {
     http_response_code(400);
     exit('Invalid JSON');
-	
-	
 }
 
-$telefono  = isset($data['from'])      ? trim($data['from'])      : '';
-$mensaje   = isset($data['message'])   ? trim($data['message'])   : '';
-$nombre    = isset($data['pushName'])  ? $data['pushName']        : '';
-$clientId  = isset($data['client_id']) ? $data['client_id']       : 'default';
+$telefono  = isset($data['from'])      ? trim($data['from'])  : '';
+$mensaje   = isset($data['message'])   ? trim($data['message']) : '';
+$nombre    = isset($data['pushName'])  ? $data['pushName']    : '';
+$clientId  = isset($data['client_id']) ? $data['client_id']   : 'default';
 
 if (empty($telefono) || empty($mensaje)) {
     http_response_code(200);
     exit('OK');
 }
 
-// Clave única por teléfono + instancia
-$sesKey = $telefono . '_' . $clientId;
+$sesKey       = $telefono . '_' . $clientId;
+$mensajeLower = strtolower($mensaje);
 
 wlog("[$clientId] De: $telefono ($nombre) → \"$mensaje\"");
 
-// ── Obtener estado activo ──────────────────────────────────────
-$sesData   = estadoActivo($sesKey);
-$estado    = $sesData ? $sesData['estado'] : null;
-$sesExtra  = $sesData ? ($sesData['data'] ?? []) : [];
+// ── Obtener estado actual ─────────────────────────────────────
+$sesData = estadoActivo($sesKey);
+$estado  = $sesData ? $sesData['estado'] : null;
 
-$mensajeLower = strtolower(trim($mensaje));
-$respuesta    = null;
+wlog("[$clientId] Estado actual: " . ($estado ?? 'ninguno'));
 
-// ── Si está en cola de asesor: silencio del bot ────────────────
+$respuesta = null;
+
+// ── 1. Bot silenciado por asesor ──────────────────────────────
 if ($estado === 'asesor') {
     wlog("[$clientId] En espera de asesor — bot silenciado");
     http_response_code(200);
     exit('OK');
 }
 
-// ── Detección de agente humano respondiendo ───────────────────
-// Si un humano escribe desde el panel (sin estado cliente) lo detectamos
-if (preg_match('/\b(te atiendo|en que puedo ayudarte|cuentame|dime|hola soy|te ayudo|un momento|ya te atiendo)\b/i', $mensajeLower) && !$estado) {
-    estadoGuardar($sesKey, 'asesor', ['agente' => true, 'timestamp' => time()]);
+// ── 2. Detección de agente humano respondiendo ────────────────
+if (preg_match('/\b(te atiendo|en que puedo ayudarte|cuentame|dime|hola soy|te ayudo|un momento|ya te atiendo)\b/i', $mensajeLower)) {
+    estadoGuardar($sesKey, 'asesor', ['agente' => true]);
     wlog("[$clientId] Humano detectado — sesión marcada como asesor");
     http_response_code(200);
     exit('OK');
 }
 
-// ── Comando "0": reiniciar al menú principal ──────────────────
-if ($mensaje === '0' || $mensajeLower === '0') {
-    estadoGuardar($sesKey, null);
-    $respuesta = menuPrincipal($nombre);
-    estadoGuardar($sesKey, 'menu_principal');
+// ── 3. Comando 0 o palabras de bienvenida → RESET SIEMPRE ─────
+$esReset  = ($mensaje === '0');
+$esSaludo = (bool)preg_match('/\b(hola|hi|buenas|buenos dias|buenas tardes|buenas noches|menu|inicio|start)\b/i', $mensajeLower);
 
-// ── Palabras clave de bienvenida ──────────────────────────────
-} elseif (preg_match('/\b(hola|hi|buenas|buenos dias|buenas tardes|buenas noches|menu|inicio|start)\b/i', $mensajeLower)) {
-    estadoGuardar($sesKey, null);
-    $respuesta = menuPrincipal($nombre);
-    estadoGuardar($sesKey, 'menu_principal');
+if ($esReset || $esSaludo) {
+    wlog("[$clientId] Reset de sesión por: \"$mensaje\"");
+    $respuesta = resetearSesion($sesKey, $nombre);
 
-// ════════════════════════════════════════════════════════════════
-//  MENÚ PRINCIPAL
-// ════════════════════════════════════════════════════════════════
+// ── 4. Opciones del menú principal ───────────────────────────
 } elseif ($estado === 'menu_principal') {
 
     switch ($mensaje) {
 
-        // ── 1. Ver Planes ──────────────────────────────────────
         case '1':
             $respuesta = planesDisponibles();
-            // Volver a mostrar menú tras MENU_TIMEOUT_SECS si no responde
             estadoGuardar($sesKey, 'menu_principal');
             break;
 
-        // ── 2. Horarios ────────────────────────────────────────
         case '2':
             $respuesta = HORARIOS_GYM . "\n\nEscribe *0* para volver al menú.";
             estadoGuardar($sesKey, 'menu_principal');
             break;
 
-        // ── 3. Consultar mi Plan ───────────────────────────────
         case '3':
             $respuesta =
                 "🔍 *Consultar mi Plan*\n\n" .
@@ -431,7 +402,6 @@ if ($mensaje === '0' || $mensajeLower === '0') {
             estadoGuardar($sesKey, 'espera_doc_plan');
             break;
 
-        // ── 4. Realizar Pago ───────────────────────────────────
         case '4':
             $respuesta =
                 "💳 *Realizar Pago*\n\n" .
@@ -442,7 +412,6 @@ if ($mensaje === '0' || $mensajeLower === '0') {
             estadoGuardar($sesKey, 'espera_doc_pago');
             break;
 
-        // ── 5. Hablar con Asesor ───────────────────────────────
         case '5':
             $respuesta =
                 "🧑‍💼 *Conectando con un asesor...*\n\n" .
@@ -459,16 +428,13 @@ if ($mensaje === '0' || $mensajeLower === '0') {
             break;
     }
 
-// ════════════════════════════════════════════════════════════════
-//  ESPERANDO DOCUMENTO — CONSULTAR PLAN
-// ════════════════════════════════════════════════════════════════
+// ── 5. Esperando documento para consultar plan ────────────────
 } elseif ($estado === 'espera_doc_plan') {
 
-    // Validar que sea numérico y razonable
     if (preg_match('/^\d{5,15}$/', $mensaje)) {
         $respuesta = consultarPlanCliente($mensaje);
         wlog("[$clientId] CONSULTA PLAN: $nombre ($telefono) doc=$mensaje");
-        estadoGuardar($sesKey, 'menu_principal'); // permite seguir navegando
+        estadoGuardar($sesKey, 'menu_principal');
     } else {
         $respuesta =
             "⚠️ Documento inválido.\n\n" .
@@ -477,9 +443,7 @@ if ($mensaje === '0' || $mensajeLower === '0') {
             "Escribe *0* para cancelar.";
     }
 
-// ════════════════════════════════════════════════════════════════
-//  ESPERANDO DOCUMENTO — REALIZAR PAGO
-// ════════════════════════════════════════════════════════════════
+// ── 6. Esperando documento para pago ─────────────────────────
 } elseif ($estado === 'espera_doc_pago') {
 
     if (preg_match('/^\d{5,15}$/', $mensaje)) {
@@ -494,18 +458,16 @@ if ($mensaje === '0' || $mensajeLower === '0') {
             "Escribe *0* para cancelar.";
     }
 
-// ════════════════════════════════════════════════════════════════
-//  SIN ESTADO — Bienvenida inicial
-// ════════════════════════════════════════════════════════════════
+// ── 7. Sin estado (primera vez o expirado) ────────────────────
 } else {
-    $respuesta = menuPrincipal($nombre);
-    estadoGuardar($sesKey, 'menu_principal');
+    wlog("[$clientId] Sin estado válido — mostrando menú inicial");
+    $respuesta = resetearSesion($sesKey, $nombre);
 }
 
 // ── Enviar respuesta ──────────────────────────────────────────
 if ($respuesta) {
     if (!wsSend($telefono, $respuesta)) {
-        wlog("[$clientId] ERROR al enviar mensaje a $telefono api:" .API_KEY ."URL". API_URL);
+        wlog("[$clientId] ERROR al enviar a $telefono | API_KEY=" . API_KEY . " | URL=" . API_URL);
     }
 }
 
