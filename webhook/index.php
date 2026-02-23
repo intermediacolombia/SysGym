@@ -283,7 +283,7 @@ if (preg_match('/\b(te atiendo|en que puedo ayudarte|cuentame|dime|hola soy|te a
 }
 
 // ── C. 0 o saludo → RESET SIEMPRE (sin importar estado) ──────
-if ($mensaje === '0' || preg_match('/\b(hola|hi|buenas|buenos dias|buenas tardes|buenas noches|menu|inicio|start)\b/i', $mensajeLower)) {
+if (preg_match('/^\s*0\s*$/', $mensaje) || preg_match('/\b(hola|hi|buenas|buenos dias|buenas tardes|buenas noches|menu|inicio|start)\b/i', $mensajeLower)) {
     wlog("[$clientId] Trigger reset: \"$mensaje\"");
     $respuesta = resetMenu($sesKey, $nombre);
 
