@@ -143,33 +143,6 @@ function menuPrincipal($nombre = '') {
 function planesDisponibles() {
     try {
         $rows = db()->query(
-            "SELECT nombre, precio, frecuencia FROM planes
-              WHERE estado='activo' AND borrado=0 AND precio > 0
-              ORDER BY precio ASC"
-        )->fetchAll();
-
-        if (empty($rows)) return "⚠️ No hay planes disponibles en este momento. Escríbenos *Menú* para volver.";
-
-        $txt = "💪 *NUESTROS PLANES — " . NAME_GYM . "*\n\n";
-        foreach ($rows as $p) {
-            $precio  = '$' . number_format($p['precio'], 0, ',', '.');
-            $periodo = $p['frecuencia'] == 1 ? 'Mensual' : ($p['frecuencia'] == 12 ? 'Anual' : $p['frecuencia'] . ' mes(es)');
-            $txt .= "▸ *{$p['nombre']}*\n  💰 {$precio}  |  📅 {$periodo}\n\n";
-        }
-
-        $txt .= "¿Listo para dar el primer paso? 🏆\n";
-        $txt .= "Escribe *5* para hablar con un asesor o *Menú* para volver.";
-        return $txt;
-
-    } catch (Exception $ex) {
-        wlog("ERROR planesDisponibles: " . $ex->getMessage());
-        return "⚠️ No fue posible cargar los planes en este momento. Intenta más tarde.";
-    }
-}
-
-function planesDisponibles() {
-    try {
-        $rows = db()->query(
             "SELECT nombre, precio FROM planes
               WHERE estado='activo' AND borrado=0
               HAVING precio > 0
