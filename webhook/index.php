@@ -375,14 +375,18 @@ wlog("RECIBIDO: $rawInput");
 $data = json_decode($rawInput, true);
 if (!$data) { http_response_code(400); exit('Invalid JSON'); }
 
-$telefono  = trim($data['from'] ?? $data['jid'] ?? '');
+$from      = trim($data['from'] ?? '');
+$jid       = trim($data['jid']  ?? '');
+$telefono  = $jid ?: $from; // para enviar
+$sesKey    = ($from ?: $jid) . '_' . $clientId; // para estado
+
 $mensaje   = trim($data['message']   ?? '');
 $nombre    = $data['pushName']        ?? '';
 $clientId  = $data['client_id']       ?? 'default';
 
 if (empty($telefono) || empty($mensaje)) { http_response_code(200); exit('OK'); }
 
-$sesKey       = $telefono . '_' . $clientId;
+//$sesKey       = $telefono . '_' . $clientId;
 $mensajeLower = mb_strtolower($mensaje);
 
 wlog("[$clientId] $telefono ($nombre) → \"$mensaje\"");
