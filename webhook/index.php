@@ -134,9 +134,9 @@ function wsSend($telefono, $mensaje) {
     }
 
     $payload = [
-        'jid'     => $telefono,
-        'message' => $mensaje
-    ];
+    'phonenumber' => $telefono,
+    'text'        => $mensaje
+];
 
     $ch = curl_init(API_URL);
 
