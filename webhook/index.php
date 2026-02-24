@@ -375,7 +375,7 @@ wlog("RECIBIDO: $rawInput");
 $data = json_decode($rawInput, true);
 if (!$data) { http_response_code(400); exit('Invalid JSON'); }
 
-$telefono  = trim($data['jid'] ?? $data['from'] ?? '');
+$telefono  = trim($data['from'] ?? $data['jid'] ?? '');
 $mensaje   = trim($data['message']   ?? '');
 $nombre    = $data['pushName']        ?? '';
 $clientId  = $data['client_id']       ?? 'default';
