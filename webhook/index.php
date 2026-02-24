@@ -386,14 +386,17 @@ $sesKey    = ($from ?: $jid) . '_' . $clientId;
 
 if (empty($telefono)) { http_response_code(200); exit('OK'); }
 
+
 // Multimedia sin texto
 if (empty($mensaje)) {
-    // Si hay estado activo (asesor u otro), ignorar silenciosamente
     $sesDataTemp = obtenerEstado($sesKey);
-    if ($sesDataTemp) {
+    $estadoTemp  = $sesDataTemp['estado'] ?? null;
+    
+    // Si está en asesor, ignorar silenciosamente
+    if ($estadoTemp === 'asesor') {
         http_response_code(200); exit('OK');
     }
-    // Sin estado — es primer contacto, disparar menú
+    // En cualquier otro caso, disparar menú
     guardarEstado($sesKey, 'menu_principal');
     $respuesta = menuPrincipal($nombre);
     wsSend($telefono, $respuesta);
