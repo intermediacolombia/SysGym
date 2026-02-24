@@ -122,30 +122,20 @@ function mensajeAusencia() {
 //  ENVÍO WS
 // ════════════════════════════════════════════════════════════════
 function wsSend($telefono, $mensaje) {
-
-    // Si ya viene con @, dejarlo como está
-// Si no trae dominio, agregar @s.whatsapp.net para números normales
-if (!str_contains($telefono, '@')) {
-    $telefono .= '@s.whatsapp.net';
-}
-
-    $payload = [
-    'phonenumber' => $telefono,
-    'text'        => $mensaje
-];
-
     $ch = curl_init(API_URL);
-
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST           => true,
         CURLOPT_HTTPHEADER     => [
             'Authorization: Bearer ' . API_KEY,
-            'Content-Type: application/json'
+            'Content-Type: application/json',
+            'Accept: application/json',
         ],
-        CURLOPT_POSTFIELDS     => json_encode($payload, JSON_UNESCAPED_UNICODE),
+        CURLOPT_POSTFIELDS => json_encode([
+            'phonenumber' => $telefono,
+            'text'        => $mensaje,
+        ], JSON_UNESCAPED_UNICODE),
     ]);
-
     $response = curl_exec($ch);
     $code     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
@@ -155,9 +145,7 @@ if (!str_contains($telefono, '@')) {
         $decoded = json_decode($response, true);
         $success = !empty($decoded['success']);
     }
-
-    wlog("wsSend → $telefono HTTP=$code success=" . ($success ? 'SI' : 'NO'));
-
+    wlog("wsSend $telefono HTTP=$code success=" . ($success ? 'SI' : 'NO') . " msg=" . mb_substr($mensaje, 0, 60));
     return $success;
 }
 
