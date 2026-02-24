@@ -122,20 +122,34 @@ function mensajeAusencia() {
 //  ENVÍO WS
 // ════════════════════════════════════════════════════════════════
 function wsSend($telefono, $mensaje) {
+
+    // 🔹 Normalizar a formato @lid
+    if (str_ends_with($telefono, '@s.whatsapp.net')) {
+        $telefono = str_replace('@s.whatsapp.net', '@lid', $telefono);
+    }
+
+    // Si no trae dominio, forzarlo
+    if (!str_contains($telefono, '@')) {
+        $telefono .= '@lid';
+    }
+
+    $payload = [
+        'jid'     => $telefono,
+        'message' => $mensaje
+    ];
+
     $ch = curl_init(API_URL);
+
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST           => true,
         CURLOPT_HTTPHEADER     => [
             'Authorization: Bearer ' . API_KEY,
-            'Content-Type: application/json',
-            'Accept: application/json',
+            'Content-Type: application/json'
         ],
-        CURLOPT_POSTFIELDS => json_encode([
-            'phonenumber' => $telefono,
-            'text'        => $mensaje,
-        ], JSON_UNESCAPED_UNICODE),
+        CURLOPT_POSTFIELDS     => json_encode($payload, JSON_UNESCAPED_UNICODE),
     ]);
+
     $response = curl_exec($ch);
     $code     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
@@ -145,7 +159,9 @@ function wsSend($telefono, $mensaje) {
         $decoded = json_decode($response, true);
         $success = !empty($decoded['success']);
     }
-    wlog("wsSend $telefono HTTP=$code success=" . ($success ? 'SI' : 'NO') . " msg=" . mb_substr($mensaje, 0, 60));
+
+    wlog("wsSend → $telefono HTTP=$code success=" . ($success ? 'SI' : 'NO'));
+
     return $success;
 }
 
@@ -371,11 +387,12 @@ function gestionarPago($doc) {
 // ════════════════════════════════════════════════════════════════
 $rawInput = file_get_contents('php://input');
 wlog("RECIBIDO: $rawInput");
+wlog("Telefono detectado: " . $telefono);
 
 $data = json_decode($rawInput, true);
 if (!$data) { http_response_code(400); exit('Invalid JSON'); }
 
-$telefono  = trim($data['from']      ?? '');
+$telefono  = trim($data['from'] ?? $data['jid'] ?? '');
 $mensaje   = trim($data['message']   ?? '');
 $nombre    = $data['pushName']        ?? '';
 $clientId  = $data['client_id']       ?? 'default';
