@@ -123,15 +123,11 @@ function mensajeAusencia() {
 // ════════════════════════════════════════════════════════════════
 function wsSend($telefono, $mensaje) {
 
-    // 🔹 Normalizar a formato @lid
-    if (str_ends_with($telefono, '@s.whatsapp.net')) {
-        $telefono = str_replace('@s.whatsapp.net', '@lid', $telefono);
-    }
-
-    // Si no trae dominio, forzarlo
-    if (!str_contains($telefono, '@')) {
-        $telefono .= '@lid';
-    }
+    // Si ya viene con @, dejarlo como está
+// Si no trae dominio, agregar @s.whatsapp.net para números normales
+if (!str_contains($telefono, '@')) {
+    $telefono .= '@s.whatsapp.net';
+}
 
     $payload = [
     'phonenumber' => $telefono,
@@ -387,12 +383,11 @@ function gestionarPago($doc) {
 // ════════════════════════════════════════════════════════════════
 $rawInput = file_get_contents('php://input');
 wlog("RECIBIDO: $rawInput");
-wlog("Telefono detectado: " . $telefono);
 
 $data = json_decode($rawInput, true);
 if (!$data) { http_response_code(400); exit('Invalid JSON'); }
 
-$telefono  = trim($data['from'] ?? $data['jid'] ?? '');
+$telefono  = trim($data['jid'] ?? $data['from'] ?? '');
 $mensaje   = trim($data['message']   ?? '');
 $nombre    = $data['pushName']        ?? '';
 $clientId  = $data['client_id']       ?? 'default';
