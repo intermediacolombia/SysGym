@@ -377,16 +377,23 @@ if (!$data) { http_response_code(400); exit('Invalid JSON'); }
 
 $from      = trim($data['from'] ?? '');
 $jid       = trim($data['jid']  ?? '');
-$telefono  = $jid ?: $from; // para enviar
-$sesKey    = ($from ?: $jid) . '_' . $clientId; // para estado
-
 $mensaje   = trim($data['message']   ?? '');
 $nombre    = $data['pushName']        ?? '';
 $clientId  = $data['client_id']       ?? 'default';
 
-if (empty($telefono) || empty($mensaje)) { http_response_code(200); exit('OK'); }
+$telefono  = $jid ?: $from;
+$sesKey    = ($from ?: $jid) . '_' . $clientId;
 
-//$sesKey       = $telefono . '_' . $clientId;
+if (empty($telefono)) { http_response_code(200); exit('OK'); }
+
+// Multimedia sin texto — disparar menú igual
+if (empty($mensaje)) {
+    guardarEstado($sesKey, 'menu_principal');
+    $respuesta = menuPrincipal($nombre);
+    wsSend($telefono, $respuesta);
+    http_response_code(200); exit('OK');
+}
+
 $mensajeLower = mb_strtolower($mensaje);
 
 wlog("[$clientId] $telefono ($nombre) → \"$mensaje\"");
