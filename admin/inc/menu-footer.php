@@ -1,4 +1,4 @@
-
+</div>
 
 <!-- Modal Cumpleaños -->
 <div class="modal fade" 
