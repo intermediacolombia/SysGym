@@ -569,7 +569,7 @@
     modal.show();
 
     // ── Fetch última asistencia del cliente
-    fetch(`../gets/get_asistencias_cliente.php?cliente_id=${CLIENTE_ID}`)
+    fetch(`get_asistencias.php?cliente_id=${CLIENTE_ID}`)
       .then(r => r.json())
       .then(res => {
         const asistencias = res.data || [];
@@ -645,7 +645,7 @@
           infoBox.className = 'freeze-info-box bloqueado';
           infoBox.innerHTML = `
             <i class="fa fa-ban me-1"></i>
-            No se puede congelar: quedan <strong>${diasHastaVenc} día(s)</strong>
+            No se puede congelar: quedan <strong>${diasHastaVenc} día(s)</strong>get
             para el vencimiento y se requieren al menos <strong>${DAYS_FROZEN} días</strong>.
           `;
           return;
