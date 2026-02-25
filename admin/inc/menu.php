@@ -331,7 +331,7 @@
   </div>
 
   <?php require __DIR__ . '/caja_bar.php'; ?>
-</div>
+
 
 <!-- Loader global (igual que antes) -->
 <div id="page-loader" class="loader-container">
@@ -342,7 +342,7 @@
 </div>
 
 <!-- div fantasma: cierra el </div> heredado de menu-footer.php sin afectar el layout -->
-<div class="container">
+
 
 <script>
 // ── Sidebar open/close ───────────────────────────────────────
