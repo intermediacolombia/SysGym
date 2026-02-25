@@ -128,7 +128,7 @@ try {
     <div class="tab-content" id="configTabsContent">
 
      <?php require_once __DIR__ . '/tabs/system.php';?>	
-     <?php require_once __DIR__ . '/tabs/planes.php';?>
+     <?php require_once __DIR__ . '/tabs/plans.php';?>
      <?php require_once __DIR__ . '/tabs/whatsapp.php';?>
      <?php require_once __DIR__ . '/tabs/getaway.php';?>
 	<?php require_once __DIR__ . '/tabs/consent.php'; ?>
