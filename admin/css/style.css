@@ -53,9 +53,10 @@ body {
 .container {
     padding: 20px;
     background: white;
-    border-radius:0px 0px 5px 5px;
-	
-    max-width: 100%!important;
+    border-radius: 0px 0px 5px 5px;
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .col-sm-12 {
