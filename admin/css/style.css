@@ -261,8 +261,9 @@ input:checked + .slider:before { transform: translateX(18px); }
   border-color: var(--system-color-primary) !important;
 }
 .btn-primary:hover {
-  background: var(--system-color-secondary) !important;
-  border-color: var(--system-color-secondary) !important;
+  background: var(--system-color-primary) !important;
+  border-color: var(--system-color-primary) !important;
+  filter: brightness(1.1);
   
 }
 .btn-outline-primary {
