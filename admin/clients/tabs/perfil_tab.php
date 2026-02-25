@@ -614,7 +614,7 @@
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Procesando...';
 
-    fetch('../post/freeze_plan.php', {
+    fetch('freeze_plan.php', {
       method: 'POST',
       body: buildFormData({ id: CLIENTE_ID, fecha_inicio: fechaInicio })
     })
@@ -644,7 +644,7 @@
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Procesando...';
 
-    fetch('../post/unfreeze_plan.php', {
+    fetch('unfreeze_plan.php', {
       method: 'POST',
       body: buildFormData({ id: CLIENTE_ID })
     })
