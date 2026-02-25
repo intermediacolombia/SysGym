@@ -1,14 +1,14 @@
 <div class="tab-pane fade" id="planes" role="tabpanel" aria-labelledby="planes-tab">
   <div class="card border-0 shadow-sm mt-3">
     <div class="card-body">
-      <h5 class="mb-3"><i class="fas fa-dumbbell"></i>Configuración de Planes</h5>
-      <p class="text-muted">Define los bparamentros de configuracion en el sistema para operaciones con los planes.</p>
+      <h5 class="mb-3"><i class="fas fa-dumbbell"></i> Configuración de Planes</h5>
+      <p class="text-muted">Define los paramentros de configuracion en el sistema para operaciones con los planes.</p>
       
     
 		
 		     
       <!-- === AJUSTES FINANCIEROS === -->
-      <h6 class="fw-bold text-secondary"><i class="fas fa-percentage me-2"></i> Ajustes Financieros</h6>
+      <h6 class="fw-bold text-secondary"><i class="fas fa-heartbeat"></i> Ajustes de comportamiento de planes en el sistema</h6>
       <div class="row g-4 mt-2">
         
         
