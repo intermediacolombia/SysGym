@@ -1,295 +1,322 @@
 @charset "utf-8";
-/* CSS Document */
+
+/* =============================================================
+   STYLE.CSS — Estilos globales SysGym
+   Fuente: Plus Jakarta Sans (consistente con el sidebar)
+============================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+/* ── Base ───────────────────────────────────────────────────── */
 body {
-    font-family: Arial, sans-serif;
-    /*background: #c9d8e6!important;*/
-	background: url("/admin/images/background.png") no-repeat fixed !important;
-	background-size: cover !important;
-    height: 100vh;
-    margin: 0;
-    padding-left: 240px; /* En lugar de margin-left en .container */
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+  background: url("/admin/images/background.png") no-repeat fixed !important;
+  background-size: cover !important;
+  min-height: 100vh;
+  margin: 0;
+  padding-left: 272px;
+  font-size: 14px;
+  color: #3a4155;
 }
 
-
-
+/* ── Portada ────────────────────────────────────────────────── */
 .portada {
   position: relative;
-  padding: 25px;
-	max-width: 100%;
-  border-radius: 5px 5px 0px 0px; /* Bordes redondeados */
- /* box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.75);
--webkit-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.75);
--moz-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.75);
-  /*background: #1a1a2e;  Fondo oscuro elegante */
-	background: url("/admin/images/portada2.png") no-repeat;
-	background-size: cover;
-	background-position: center;
-  color: #ffffff; /* Texto blanco */
-  border: none; /* Eliminamos el borde rojo */
-  transition: all 0.3s ease; /* Transición suave para efectos hover */
+  padding: 28px 32px;
+  max-width: 100%;
+  border-radius: 12px 12px 0 0;
+  background: url("/admin/images/portada2.png") no-repeat center center;
+  background-size: cover;
+  color: #ffffff;
+  border: none;
+  transition: all 0.3s ease;
+  overflow: hidden;
 }
 
-/* Efecto hover para dar interactividad */
-.portada:hover {
- /* box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.75);
--webkit-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.75);
--moz-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.75);
-  transform: translateY(-2px);*/
+.portada::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(255,255,255,0.12) 0%, transparent 100%);
+  pointer-events: none;
 }
 
-/* Estilo para el título */
 .portada h1 {
-  color: #000; /* Color destacado para el título */
-  margin-bottom: 20px;
-  font-weight: 600;
-  border-bottom: 2px solid var(--system-color-primary);
-  padding-bottom: 10px;
+  color: #1a2235;
+  margin-bottom: 0;
+  font-weight: 700;
+  font-size: 1.6rem;
+  letter-spacing: -0.02em;
+  border-bottom: 3px solid var(--system-color-primary);
+  padding-bottom: 8px;
   display: inline-block;
 }
 
-
-
-
+/* ── Container principal ────────────────────────────────────── */
 .container {
-    padding: 20px;
-    background: white;
-    transition: background-color 0.3s ease, color 0.3s ease; /* agregar */
-    border-radius: 0px 0px 5px 5px;
-    max-width: 100% !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    
-}
-
-.col-sm-12 {
-    font-size: 14px;
-}
-
-
-/* Estilos para la tabla */
-    #formularios tbody tr,
-    #formularios tbody tr td {
-      cursor: pointer !important;
-      transition: background-color 0.1s ease;
-    }
-    #formularios thead th {
-      background-color: #214A82;
-      color: white;
-    }
-    #formularios tbody tr:hover {
-      background-color: #4972AA !important;
-    }
-    #formularios tbody tr:hover td {
-      color: white !important;
-    }
-    /* La columna de checkboxes no dispara redirección */
-    .no-click {
-      cursor: default !important;
-    }
-    /* Contenedor de botones de acción: espacio fijo */
-    #actionButtons {
-      min-height: 60px;
-    }
-    #actionButtons.inactive {
-      visibility: hidden;
-    }
-    #actionButtons.active {
-      visibility: visible;
-    }
-
-/* Estilo para las filas y celdas */
-tbody tr,
-tbody tr td {
-  cursor: pointer !important;
+  padding: 24px 28px;
+  background: #ffffff;
+  border-radius: 0 0 12px 12px;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Estilo para el encabezado */
+.col-sm-12 { font-size: 14px; }
+
+/* ── Tablas generales ───────────────────────────────────────── */
 thead th {
-  background-color: var(--system-color-primary)!important;
-  color: white!important;
+  background-color: var(--system-color-primary) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  font-size: 0.82rem !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  padding: 12px 14px !important;
+  border: none !important;
+  white-space: nowrap;
 }
 
-/* Cambio de color de fondo y texto cuando se pasa el ratón sobre la fila */
+thead th:first-child { border-radius: 8px 0 0 0 !important; }
+thead th:last-child  { border-radius: 0 8px 0 0 !important; }
+
+tbody tr,
+tbody tr td {
+  cursor: pointer !important;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  font-size: 0.875rem;
+  vertical-align: middle !important;
+}
+
 tbody tr:hover {
-  background-color: #4972AA!important;
+  background-color: color-mix(in srgb, var(--system-color-primary) 12%, #fff) !important;
 }
 
 tbody tr:hover td {
-  color: white !important; /* Cambiar el color del texto a blanco */
-	background:#B3B3B3;
-	
+  color: var(--system-color-primary) !important;
+  background: transparent !important;
 }
 
-/* La columna de acción no dispara redirección */
-.no-click {
-  cursor: default !important;
+.no-click { cursor: default !important; }
+table tbody tr { cursor: pointer; }
+
+/* Tabla #formularios */
+#formularios thead th {
+  background-color: var(--system-color-primary) !important;
+  color: white !important;
+}
+#formularios tbody tr,
+#formularios tbody tr td {
+  cursor: pointer !important;
+  transition: background-color 0.1s ease;
+}
+#formularios tbody tr:hover {
+  background-color: color-mix(in srgb, var(--system-color-primary) 15%, #fff) !important;
+}
+#formularios tbody tr:hover td { color: var(--system-color-primary) !important; }
+
+/* Bordes redondeados tabla DataTable */
+table.table-bordered.dataTable thead tr:first-child th,
+table.table-bordered.dataTable thead tr:first-child td {
+  border-radius: 8px !important;
 }
 
-/* Establecer el cursor de pointer en todas las filas */
-table tbody tr {
+/* ── Botones de acción ──────────────────────────────────────── */
+#actionButtons { min-height: 60px; }
+#actionButtons.inactive { visibility: hidden; }
+#actionButtons.active   { visibility: visible; }
+
+/* ── Switch personalizado ───────────────────────────────────── */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute;
   cursor: pointer;
+  inset: 0;
+  background-color: #d1d5db;
+  transition: 0.3s;
+  border-radius: 22px;
 }
-
-
-/* La columna de acción no dispara redirección */
-.no-click {
-  cursor: default !important;
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px; width: 16px;
+  left: 3px; bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
+input:checked + .slider { background-color: var(--system-color-primary); }
+input:checked + .slider:before { transform: translateX(18px); }
 
-/* Aseguramos que todas las filas tengan el cursor de pointer */
-table tbody tr {
-  cursor: pointer;
-}
-
-    /* Contenedor del switch reducido */
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 40px;  /* ancho más pequeño */
-      height: 20px; /* alto más pequeño */
-    }
-
-    /* Oculta el checkbox real */
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    /* El slider */
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: 0.4s;
-    }
-
-    /* El círculo del slider */
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 16px;  /* tamaño reducido */
-      width: 16px;   /* tamaño reducido */
-      left: 2px;
-      bottom: 2px;
-      background-color: white;
-      transition: 0.4s;
-    }
-
-    /* Cambios cuando el checkbox está marcado */
-    input:checked + .slider {
-      background-color: #2196F3;
-    }
-    input:checked + .slider:before {
-      transform: translateX(20px);
-    }
-
-    /* Bordes redondeados para un efecto "pill" */
-    .slider.round {
-      border-radius: 20px;
-    }
-    .slider.round:before {
-      border-radius: 50%;
-    }
-  table.table-bordered.dataTable thead tr:first-child th, table.table-bordered.dataTable thead tr:first-child td {
-   
-    border-radius: 5px!important;
-}
-
-/* CSS para animar la apertura y cierre del modal */
+/* ── Modales ────────────────────────────────────────────────── */
 .modal.fade .modal-dialog {
-  transform: translate(0, -25%)!important;
-  opacity: 0!important;
-  transition: transform 0.3s ease-out, opacity 0.3s ease-out!important;
+  transform: translate(0, -20px) !important;
+  opacity: 0 !important;
+  transition: transform 0.25s ease-out, opacity 0.25s ease-out !important;
 }
-
 .modal.fade.show .modal-dialog {
-  transform: translate(0, 0)!important;
-  opacity: 1!important;
+  transform: translate(0, 0) !important;
+  opacity: 1 !important;
 }
 
-.card-header.bg-danger.text-white {
-    background: var(--system-color-primary)!important;
+.modal-content {
+  border: none !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15) !important;
+  overflow: hidden;
 }
 
-
-
-.menu span.fw-semibold.text-white {
-    color: #000!important;
+.modal-header {
+  background: var(--system-color-primary);
+  color: #fff;
+  border-bottom: none !important;
+  padding: 1.1rem 1.5rem;
 }
 
-#modalDetalle .bg-primary {
-    
-    background-color: var(--system-color-primary)!important;
+.modal-header .modal-title { font-weight: 700; font-size: 1rem; }
+.modal-header .btn-close { filter: invert(1) brightness(2); }
+
+.modal-body {
+  padding: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.modal-footer {
+  border-top: 1px solid #f0f2f7 !important;
+  padding: 0.85rem 1.5rem;
+  gap: 0.5rem;
+}
+
+.card-header.bg-danger.text-white { background: var(--system-color-primary) !important; }
+#modalDetalle .bg-primary         { background-color: var(--system-color-primary) !important; }
+
+/* ── Cards ──────────────────────────────────────────────────── */
+.card {
+  border: none !important;
+  border-radius: 14px !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.10) !important;
 }
 
 .card-soft:hover {
-  transform: translateY(-2px);
-  transition: transform 0.2s ease;
+  transform: translateY(-3px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.10) !important;
 }
 
-
+/* ── Foto de perfil ─────────────────────────────────────────── */
 .foto-perfil-rounded {
-    width: 100px !important;
-    height: 100px !important;
-    min-width: 100px !important;
-    min-height: 100px !important;
-    max-width: 100px !important;
-    max-height: 100px !important;
-
-    border-radius: 50% !important;
-    object-fit: cover !important;
-
-    border: 4px solid var(--system-color-primary);
-    background: #fff;
-    padding: 2px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-    
-    display: block;           /* Evita deformaciones */
+  width: 120px !important;
+  height: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  border: 4px solid var(--system-color-primary);
+  background: #fff;
+  padding: 3px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  display: block;
 }
 
-
+/* ── Profile card ───────────────────────────────────────────── */
 .profile-card {
-    max-width: 600px;
-    margin: 40px auto;
-    padding: 30px;
-    background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.07);
-}
-
-.foto-perfil-rounded {
-    width: 120px !important;
-    height: 120px !important;
-    border-radius: 50% !important;
-    object-fit: cover !important;
-    border: 4px solid var(--system-color-primary);
-    padding: 3px;
-    background: #fff;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  max-width: 620px;
+  margin: 32px auto;
+  padding: 32px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
 }
 
 .info-row {
-    padding: 10px 0;
-    border-bottom: 1px solid #eaeaea;
-    font-size: 15px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f2f7;
+  font-size: 0.9rem;
 }
+.info-row:last-child { border-bottom: none; }
 
-.info-row:last-child {
-    border-bottom: none;
+/* ── Botones ────────────────────────────────────────────────── */
+.btn {
+  border-radius: 10px !important;
+  font-weight: 500 !important;
+  font-size: 0.85rem !important;
+  padding: 0.45rem 1.1rem !important;
+  transition: all 0.2s ease !important;
 }
-
-.btn-outline-primary {
-    border-radius: 8px;
-}
-
 .btn-primary {
-    border-radius: 8px;
+  background: var(--system-color-primary) !important;
+  border-color: var(--system-color-primary) !important;
+}
+.btn-primary:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+.btn-outline-primary {
+  border-color: var(--system-color-primary) !important;
+  color: var(--system-color-primary) !important;
+}
+.btn-outline-primary:hover {
+  background: var(--system-color-primary) !important;
+  color: #fff !important;
+}
+
+/* ── Formularios ────────────────────────────────────────────── */
+.form-control, .form-select {
+  border-radius: 10px !important;
+  border: 1.5px solid #e5e7ef !important;
+  font-size: 0.875rem !important;
+  padding: 0.5rem 0.85rem !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--system-color-primary) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--system-color-primary) 15%, transparent) !important;
+}
+label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #5a6478;
+  margin-bottom: 4px;
+}
+
+/* ── Badges ─────────────────────────────────────────────────── */
+.badge {
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  padding: 0.35em 0.7em !important;
+  border-radius: 6px !important;
+}
+
+/* ── Alerts ─────────────────────────────────────────────────── */
+.alert {
+  border-radius: 12px !important;
+  border: none !important;
+  font-size: 0.875rem;
+  padding: 0.85rem 1.1rem;
+}
+
+/* ── Menu viejo (neutralizar) ───────────────────────────────── */
+.menu span.fw-semibold.text-white { color: #000 !important; }
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 991px) {
+  body { padding-left: 0 !important; }
+  .container { padding: 16px; }
+  .portada { padding: 20px; border-radius: 0; }
+  .portada h1 { font-size: 1.3rem; }
 }
 
 
