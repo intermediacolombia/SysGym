@@ -8,6 +8,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
+/* ── Empujar contenido para no quedar bajo el sidebar ───────── */
+@media (min-width: 992px) {
+  .container,
+  .container-fluid,
+  .container-lg,
+  .container-xl,
+  .portada {
+    margin-left: calc(var(--sidebar-w) + 1rem) !important;
+    max-width: calc(100% - var(--sidebar-w) - 2rem) !important;
+  }
+}
+
 /* ── Reset base ─────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 
