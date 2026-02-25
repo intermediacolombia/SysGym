@@ -42,7 +42,7 @@ $egresos        = (float)$datos['egresos'];
 
 $totalIngresos = $efectivo + $transferencias;
 
-// RESTA SÍ O SÍ
+// RESTA Sï¿½ O Sï¿½
 $totalCaja = $totalIngresos - $egresos;
 
 
@@ -62,13 +62,13 @@ $totalCaja = $totalIngresos - $egresos;
 .topbar-wrapper {
   position: relative;
   z-index: 50;
-  margin-left: 250px; /* ?? ancho del menú lateral */
+  margin-left: 250px; /* ?? ancho del menï¿½ lateral */
 }
 
 .topbar {
   position: fixed;
   top: 0;
-  left: 240px; /* ?? alinea con el contenido */
+  left: 271px; /* ?? alinea con el contenido */
   right: 0;
   height: 50px;
   background: var(--system-color-primary);
