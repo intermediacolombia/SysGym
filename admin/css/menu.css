@@ -24,42 +24,20 @@
 }
 
 body.dark-mode {
-  --sidebar-bg: #192229;
-  --sidebar-border: #2A3B47;
-  --nav-hover-bg: #212E36;
-  --nav-text: #C8CDD0;
-  --nav-icon: #A0A7AC;
-  --submenu-bg: #192229;
-  --submenu-text: #A0A7AC;
-  --section-label: #5a6a72;
-  --divider: #2A3B47;
+  --sidebar-bg: #141b2d;
+  --sidebar-border: #1e2a42;
+  --nav-hover-bg: #1a2540;
+  --nav-text: #8a95ae;
+  --nav-icon: #5a6a8a;
+  --submenu-bg: #111827;
+  --submenu-text: #7080a0;
+  --section-label: #3a4a6a;
+  --divider: #1e2a42;
 }
 
-/* ── Body push: desplaza todo el contenido fuera del sidebar ── */
-@media (min-width: 992px) {
-  body {
-    padding-left: var(--sidebar-w) !important;
-  }
-
-  /* Forzar que los containers usen el ancho restante */
-  .container,
-  .container-fluid,
-  .container-lg,
-  .container-xl,
-  .container-xxl {
-    max-width: 100% !important;
-    width: 100% !important;
-  }
-
-  /* El sidebar y overlay no deben heredar el padding */
-  .sg-sidebar {
-    margin-left: calc(-1 * var(--sidebar-w));
-  }
-  .modal,
-  .modal-backdrop {
-    margin-left: calc(-1 * var(--sidebar-w));
-    width: 100vw !important;
-  }
+/* ── Body push ──────────────────────────────────────────────── */
+body {
+  padding-left: var(--sidebar-w) !important;
 }
 
 @media (max-width: 991px) {
@@ -344,4 +322,5 @@ body.dark-mode {
 
 /* ── Neutralizar estilos del menú viejo que puedan interferir ── */
 .menu { display: none !important; }
+
         
