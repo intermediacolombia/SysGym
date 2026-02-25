@@ -821,7 +821,7 @@ $(document).ready(function(){
     (Código comentado; descomentar para activarlo)
   -----------------------------*/
   
-  $("#btnUnFreezePlan").on("click", function(){
+ /* $("#btnUnFreezePlan").on("click", function(){
     Swal.fire({
       title: "¿Estás seguro?",
       text: "Se descongelará el plan del cliente.",
@@ -851,7 +851,7 @@ $(document).ready(function(){
         });
       }
     });
-  });
+  });*/
 	
 	
 	// Abrir modal al hacer clic en Transferir Plan

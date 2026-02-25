@@ -710,30 +710,40 @@
 
   // ── Descongelar ──────────────────────────────────────────────
   document.getElementById('btnUnFreezePlan')?.addEventListener('click', () => {
-    if (!confirm('¿Confirmas que deseas descongelar el plan?')) return;
+    Swal.fire({
+      title: '¿Descongelar plan?',
+      text: 'Se descongelará el plan del cliente y se recalculará el vencimiento.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, descongelar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#31D2F0',
+    }).then(result => {
+      if (!result.isConfirmed) return;
 
-    const btn = document.getElementById('btnUnFreezePlan');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Procesando...';
+      const btn = document.getElementById('btnUnFreezePlan');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Procesando...';
 
-    fetch('unfreeze_plan.php', {
-      method: 'POST',
-      body: buildFormData({ id: CLIENTE_ID })
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.status === 'success') {
-        location.reload();
-      } else {
-        alert(data.message || 'No se pudo descongelar el plan.');
+      fetch('unfreeze_plan.php', {
+        method: 'POST',
+        body: buildFormData({ id: CLIENTE_ID })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'success') {
+          Swal.fire('Éxito', data.message, 'success').then(() => location.reload());
+        } else {
+          Swal.fire('Error', data.message || 'No se pudo descongelar el plan.', 'error');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa fa-thermometer-4 me-1"></i> Descongelar Plan';
+        }
+      })
+      .catch(() => {
+        Swal.fire('Error', 'Error de conexión.', 'error');
         btn.disabled = false;
         btn.innerHTML = '<i class="fa fa-thermometer-4 me-1"></i> Descongelar Plan';
-      }
-    })
-    .catch(() => {
-      alert('Error de conexión.');
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fa fa-thermometer-4 me-1"></i> Descongelar Plan';
+      });
     });
   });
 
