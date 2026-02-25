@@ -783,7 +783,7 @@ $(document).ready(function(){
     (Código comentado; descomentar para activarlo)
   -----------------------------*/
   
-  $("#btnFreezePlan").on("click", function(){
+  /*$("#btnFreezePlan").on("click", function(){
     Swal.fire({
       title: "¿Estás seguro?",
       text: "Se congelará el plan del cliente.",
@@ -813,7 +813,7 @@ $(document).ready(function(){
         });
       }
     });
-  });
+  });*/
   
 	
 /*-----------------------------
@@ -846,7 +846,7 @@ $(document).ready(function(){
             }
           },
           error: function(){
-            Swal.fire("Error", "No se pudo descongelar el plancito.", "error");
+            Swal.fire("Error", "No se pudo descongelar el plan.", "error");
           }
         });
       }
