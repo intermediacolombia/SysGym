@@ -24,15 +24,18 @@
 }
 
 body.dark-mode {
-  --sidebar-bg: #141b2d;
-  --sidebar-border: #1e2a42;
-  --nav-hover-bg: #1a2540;
-  --nav-text: #8a95ae;
-  --nav-icon: #5a6a8a;
-  --submenu-bg: #111827;
-  --submenu-text: #7080a0;
-  --section-label: #3a4a6a;
-  --divider: #1e2a42;
+  --sidebar-bg: var(--system-color-secondary-dark);
+  --sidebar-border: var(--system-color-secondary-dark);
+  --nav-hover-bg: var(--system-color-primary-dark);
+  --nav-text: #C8CDD0;
+  --nav-text-active: #ffffff;
+  --nav-icon: #A0A7AC;
+  --submenu-bg: var(--system-color-secondary-dark);
+  --submenu-text: #A0A7AC;
+  --submenu-active: var(--system-color-primary-dark);
+  --section-label: #A0A7AC;
+  --divider: rgba(255,255,255,0.08);
+  --nav-active-bg: linear-gradient(135deg, var(--system-color-primary-dark) 0%, var(--system-color-secondary-dark) 100%);
 }
 
 /* ── Body push ──────────────────────────────────────────────── */
@@ -322,5 +325,4 @@ body {
 
 /* ── Neutralizar estilos del menú viejo que puedan interferir ── */
 .menu { display: none !important; }
-
         
