@@ -256,7 +256,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   padding: 0.45rem 1.1rem !important;
   transition: all 0.2s ease !important;
 }
-.btn-primary {
+/*.btn-primary {
   background: var(--system-color-primary) !important;
   border-color: var(--system-color-primary) !important;
 }
@@ -275,7 +275,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 .btn-primary:focus,
 .btn-primary:focus-visible {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--system-color-secondary) 40%, transparent) !important;
-}
+}*/
 
 .btn-outline-primary {
   border-color: var(--system-color-primary) !important;
