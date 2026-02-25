@@ -267,11 +267,14 @@ input:checked + .slider:before { transform: translateX(18px); }
   
 }
 
+.btn-primary {
+  --bs-btn-focus-shadow-rgb: var(--system-color-secondary) !important;
+  background: var(--system-color-primary) !important;
+  border-color: var(--system-color-primary) !important;
+}
 .btn-primary:focus,
-.btn-primary:active,
 .btn-primary:focus-visible {
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--system-color-secondary) 35%, transparent) !important;
-  outline: none !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--system-color-secondary) 40%, transparent) !important;
 }
 
 .btn-outline-primary {
