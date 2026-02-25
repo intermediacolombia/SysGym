@@ -24,8 +24,8 @@
   <!-- Logo + user -->
   <div class="sg-logo-area">
     <div class="sg-logo-row">
-      <img src="<?= $url ?>/<?= SITE_LOGO ?>" alt="Logo" class="sg-logo-img">
-      <span class="sg-gym-name"><?= htmlspecialchars(NAME_GYM) ?></span>
+      <img src="<?= $url ?>/<?= SITE_LOGO ?>" alt="Logo" class="sg-logo-img"><br>
+      <span class="sg-gym-name">SysGym</span>
     </div>
     <?php
       $foto = (!empty($foto_perfil) && file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $foto_perfil))

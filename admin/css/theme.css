@@ -10,140 +10,345 @@ body.dark-mode .container {
   background-color: #212E36 !important;
   color: #EFF3F5 !important;
   transition: background-color 0.3s ease, color 0.3s ease;
+}/* =============================================================
+   SISTEMA DE TEMA CLARO/OSCURO
+   Paleta unificada con el sidebar (tonos petróleo/navy)
+   
+   PALETA DARK:
+   --dk-body:      #0f1623  (fondo body, más oscuro)
+   --dk-surface:   #141b2d  (sidebar, containers principales)
+   --dk-surface2:  #1a2540  (hover, cards secundarias)
+   --dk-surface3:  #111827  (submenús, inputs)
+   --dk-border:    #1e2a42  (bordes y divisores)
+   --dk-text:      #eff3f5  (texto principal)
+   --dk-text2:     #8a95ae  (texto secundario)
+   --dk-text3:     #5a6a8a  (texto terciario, iconos)
+============================================================= */
+
+body.theme-ready {
+  opacity: 1;
 }
 
-body.dark-mode .sg-logo-area {
-  border-bottom-color: var(--divider) !important;
-}
-
-body.dark-mode .sg-gym-name {
-  color: #c8cdd0 !important;
-}
-
-body.dark-mode .sg-user-card {
-  background: var(--nav-hover-bg) !important;
-  border-color: var(--divider) !important;
-}
-
-body.dark-mode .sg-user-avatar {
-  border-color: var(--divider) !important;
-}
-
-body.dark-mode .sg-user-name {
+/* ── Body ───────────────────────────────────────────────────── */
+body.dark-mode {
+  background-color: #0f1623 !important;
   color: #eff3f5 !important;
 }
 
-body.dark-mode .sg-user-role {
-  color: var(--section-label) !important;
+/* ── Containers principales ─────────────────────────────────── */
+body.dark-mode .container,
+body.dark-mode .card,
+body.dark-mode .modal-content {
+  background-color: #141b2d !important;
+  color: #eff3f5 !important;
 }
 
-body.dark-mode .sg-section-label {
-  color: var(--section-label) !important;
+/* ── Cards secundarias ──────────────────────────────────────── */
+body.dark-mode .card-body,
+body.dark-mode .list-group-item,
+body.dark-mode .profile-card {
+  background-color: #1a2540 !important;
+  color: #eff3f5 !important;
+  border-color: #1e2a42 !important;
 }
 
-body.dark-mode .sg-item {
-  color: var(--nav-text) !important;
+body.dark-mode li.list-group-item {
+  background: #1a2540 !important;
+  color: #eff3f5 !important;
 }
 
-body.dark-mode .sg-item:hover {
-  background: var(--nav-hover-bg) !important;
-  color: var(--submenu-active) !important;
+/* ── Formularios ────────────────────────────────────────────── */
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+  background-color: #111827 !important;
+  color: #eff3f5 !important;
+  border-color: #1e2a42 !important;
 }
 
-body.dark-mode .sg-icon {
-  color: var(--nav-icon) !important;
+body.dark-mode .form-control-plaintext {
+  color: #eff3f5 !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
 }
 
-body.dark-mode .sg-item:hover .sg-icon {
-  color: var(--submenu-active) !important;
+body.dark-mode label strong {
+  color: #eff3f5 !important;
 }
 
-body.dark-mode .sg-chevron {
-  color: var(--nav-icon) !important;
+/* ── Alertas ────────────────────────────────────────────────── */
+body.dark-mode .alert-info {
+  background-color: rgba(26, 37, 64, 0.8) !important;
+  border-color: #1e2a42 !important;
+  color: #eff3f5 !important;
 }
 
-body.dark-mode .sg-submenu {
-  background: var(--submenu-bg) !important;
-  border-color: var(--divider) !important;
+/* ── Portada ────────────────────────────────────────────────── */
+body.dark-mode .portada {
+  position: relative;
+  overflow: hidden;
+}
+body.dark-mode .portada::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 22, 35, 0.6);
+  backdrop-filter: brightness(75%) saturate(80%);
+  z-index: 0;
+}
+body.dark-mode .portada > * {
+  position: relative;
+  z-index: 1;
+}
+body.dark-mode .portada h1 {
+  color: #fff !important;
+  border-bottom-color: var(--system-color-primary-dark, #52A5E0) !important;
 }
 
-body.dark-mode .sg-subitem {
-  color: var(--submenu-text) !important;
+/* ── Textos varios ──────────────────────────────────────────── */
+body.dark-mode .text-primary { color: #8a95ae !important; }
+body.dark-mode .text-muted   { color: #5a6a8a !important; }
+
+/* ── Topbar ─────────────────────────────────────────────────── */
+body.dark-mode .topbar {
+  position: fixed;
+  top: 0; left: var(--sidebar-w, 272px); right: 0;
+  height: 50px;
+  background: #141b2d;
+  color: #eff3f5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  z-index: 1050;
+  border-bottom: 1px solid #1e2a42;
 }
 
-body.dark-mode .sg-subitem:hover {
-  color: var(--submenu-active) !important;
-  background: var(--nav-hover-bg) !important;
+/* ── Modales ────────────────────────────────────────────────── */
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+  background-color: #1a2540 !important;
+  border-color: #1e2a42 !important;
+}
+body.dark-mode .modal-body {
+  background-color: #141b2d !important;
+  color: #eff3f5 !important;
+}
+body.dark-mode .card-header.bg-danger.text-white {
+  background: var(--system-color-primary-dark, #52A5E0) !important;
+}
+body.dark-mode #modalDetalle .bg-primary {
+  background-color: var(--system-color-primary-dark, #52A5E0) !important;
+}
+body.dark-mode #modalDetalle td {
+  background-color: #141b2d !important;
+  color: #eff3f5 !important;
+  border-color: #1e2a42 !important;
 }
 
-body.dark-mode .sg-divider {
-  background: var(--divider) !important;
+/* ── Tabs ───────────────────────────────────────────────────── */
+body.dark-mode .nav-tabs {
+  background: #1a2540 !important;
+  border-bottom: 2px solid #1e2a42 !important;
+  border-radius: .5rem .5rem 0 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,.4);
+}
+body.dark-mode .nav-link {
+  color: #8a95ae !important;
+}
+body.dark-mode .nav-tabs .nav-link {
+  color: #8a95ae !important;
+  border: none;
+  font-weight: 500;
+}
+body.dark-mode .nav-tabs .nav-link:hover {
+  background-color: #111827 !important;
+  color: var(--system-color-primary-dark, #52A5E0) !important;
+  border-bottom: 3px solid var(--system-color-primary-dark, #52A5E0) !important;
+}
+body.dark-mode .nav-tabs .nav-link.active {
+  background-color: #111827 !important;
+  color: #eff3f5 !important;
+  border-bottom: 3px solid var(--system-color-primary-dark, #52A5E0) !important;
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.05);
+}
+body.dark-mode .nav-tabs .nav-link.active i,
+body.dark-mode .nav-tabs .nav-link.active .material-icons,
+body.dark-mode .nav-tabs .nav-link:hover i,
+body.dark-mode .nav-tabs .nav-link:hover .material-icons {
+  color: var(--system-color-primary-dark, #52A5E0) !important;
+}
+body.dark-mode .tab-content {
+  background: #141b2d !important;
+  border-radius: 0 0 .5rem .5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  padding: 25px;
 }
 
-body.dark-mode .sg-footer {
-  border-top-color: var(--divider) !important;
+/* ── DataTables ─────────────────────────────────────────────── */
+body.dark-mode table.dataTable {
+  background-color: #141b2d !important;
+  color: #eff3f5 !important;
+  border-color: #1e2a42 !important;
+}
+body.dark-mode table.dataTable thead th,
+body.dark-mode thead th {
+  background-color: var(--system-color-primary-dark, #52A5E0) !important;
+  color: #eff3f5 !important;
+  border-color: #1e2a42 !important;
+}
+body.dark-mode table.dataTable tbody tr:nth-child(odd) {
+  background-color: #141b2d !important;
+}
+body.dark-mode table.dataTable tbody tr:nth-child(even) {
+  background-color: #1a2540 !important;
+}
+body.dark-mode table.dataTable tbody tr:hover {
+  background-color: #1e2a42 !important;
+  color: #eff3f5 !important;
+}
+body.dark-mode table.dataTable td {
+  background-color: transparent !important;
+  color: #eff3f5 !important;
+  border-color: #1e2a42 !important;
+}
+body.dark-mode table.dataTable tbody tr.selected,
+body.dark-mode table.dataTable tbody tr.selected td {
+  background-color: var(--system-color-primary-dark, #52A5E0) !important;
+  color: #eff3f5 !important;
+}
+body.dark-mode table.dataTable.no-footer {
+  border-bottom: 1px solid #1e2a42 !important;
+}
+/* DataTables controles */
+body.dark-mode .dataTables_wrapper .dataTables_filter input,
+body.dark-mode .dataTables_wrapper .dataTables_length select {
+  background-color: #111827 !important;
+  color: #eff3f5 !important;
+  border: 1px solid #1e2a42 !important;
+}
+body.dark-mode .dataTables_wrapper .dataTables_info,
+body.dark-mode .dataTables_wrapper .dataTables_paginate,
+body.dark-mode .dataTables_wrapper .dataTables_length,
+body.dark-mode .dataTables_wrapper .dataTables_filter {
+  color: #8a95ae !important;
+}
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button {
+  color: #8a95ae !important;
+  background: #1a2540 !important;
+  border: none !important;
+}
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: var(--system-color-primary-dark, #52A5E0) !important;
+  color: #eff3f5 !important;
+  border-radius: 4px !important;
+}
+body.dark-mode .page-link {
+  color: #eff3f5 !important;
+  background-color: #1a2540 !important;
+  border-color: #1e2a42 !important;
+}
+body.dark-mode .active > .page-link,
+body.dark-mode .page-link.active {
+  background-color: var(--system-color-primary-dark, #52A5E0) !important;
+  border-color: var(--system-color-primary-dark, #52A5E0) !important;
 }
 
-body.dark-mode .sg-theme-row {
-  background: var(--nav-hover-bg) !important;
-  border-color: var(--divider) !important;
+/* ── Mensajes de carga ──────────────────────────────────────── */
+body.dark-mode .mensaje-carga { color: #eff3f5 !important; }
+
+/* ── Profile card ───────────────────────────────────────────── */
+body.dark-mode .profile-card {
+  background: #1a2540 !important;
+  color: #eff3f5 !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4) !important;
 }
 
-body.dark-mode .sg-theme-icons {
-  color: var(--nav-text) !important;
+/* ── Theme toggle switch (en el sidebar) ────────────────────── */
+#themeToggleContainer {
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  padding: 12px 15px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  margin-top: 15px;
+}
+#themeToggleContainer .theme-label {
+  display: flex; align-items: center; gap: 8px;
+  color: #000; font-size: 14px; font-weight: 500; margin-bottom: 8px;
+}
+#themeToggleContainer .form-check-input {
+  cursor: pointer; width: 48px; height: 24px;
+  background-color: #fff; border: 2px solid #1e2a42;
+  transition: all 0.3s ease;
+}
+#themeToggleContainer .theme-options {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+#themeToggleContainer .option {
+  display: flex; align-items: center; gap: 6px;
+  color: #8a95ae; font-size: 13px; flex: 1;
+}
+#themeToggleContainer .option i { font-size: 16px; }
+#themeToggleContainer .option.light { color: #FDB813; }
+#themeToggleContainer .option.dark  { color: #5a6a8a; }
+#themeToggleContainer .form-check-input:checked {
+  background-color: var(--system-color-primary-dark, #52A5E0);
+  border-color: var(--system-color-primary-dark, #52A5E0);
+}
+#themeToggleContainer .form-check-input:focus {
+  box-shadow: 0 0 0 0.25rem rgba(26, 37, 64, 0.4);
+}
+#themeToggleContainer:hover { background: rgba(255,255,255,0.05); }
+
+body.dark-mode #themeToggleContainer {
+  background: rgba(26, 37, 64, 0.5);
+  border-top-color: #1e2a42;
+}
+body.dark-mode #themeToggleContainer .theme-label { color: #eff3f5; }
+body.dark-mode #themeToggleContainer .form-check-input {
+  background-color: #111827; border-color: #1e2a42;
+}
+body.dark-mode #themeToggleContainer .form-check-input:checked {
+  background-color: var(--system-color-primary-dark, #52A5E0) !important;
+  border-color: var(--system-color-primary-dark, #52A5E0) !important;
 }
 
-body.dark-mode .sg-theme-icons i {
-  color: var(--nav-icon) !important;
-}
+/* ── Tarjetas soft (dashboard) ──────────────────────────────── */
+body.dark-mode .card-soft          { color: #eff3f5 !important; }
+body.dark-mode .card-soft h3       { color: #eff3f5 !important; }
+body.dark-mode .card-soft p        { color: #8a95ae !important; }
+body.dark-mode .card-soft.shadow-sm { box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important; }
+body.dark-mode .card-soft:hover    { transform: translateY(-2px); transition: transform 0.2s ease; }
 
-/* ====== TARJETAS DE ESTADÍSTICAS - MODO OSCURO ====== */
+body.dark-mode .bg-soft-blue   { background-color: rgba(26, 37, 64, 0.8)  !important; border: 1px solid #1e2a42; }
+body.dark-mode .bg-soft-green  { background-color: rgba(20, 40, 35, 0.8)  !important; border: 1px solid #1e3530; }
+body.dark-mode .bg-soft-yellow { background-color: rgba(35, 30, 15, 0.8)  !important; border: 1px solid #2a2510; }
+body.dark-mode .bg-soft-purple { background-color: rgba(25, 18, 45, 0.8)  !important; border: 1px solid #1e1535; }
+body.dark-mode .bg-soft-red    { background-color: rgba(40, 15, 20, 0.8)  !important; border: 1px solid #301020; }
 
-body.dark-mode .card-soft {
-  color: #EFF3F5 !important;
+/* ── Sidebar dark (sg-sidebar) ──────────────────────────────── */
+/* El sidebar ya maneja sus colores via CSS variables en menu.css.
+   Solo se añaden overrides necesarios por conflictos de especificidad */
+body.dark-mode .sg-sidebar {
+  background: #141b2d !important;
+  border-right-color: #1e2a42 !important;
 }
-
-body.dark-mode .card-soft h3 {
-  color: #EFF3F5 !important;
-}
-
-body.dark-mode .card-soft p {
-  color: #C8CDD0 !important;
-}
-
-body.dark-mode .bg-soft-blue {
-  background-color: rgba(82, 165, 224, 0.2) !important;
-  border: 1px solid rgba(82, 165, 224, 0.3);
-}
-
-body.dark-mode .bg-soft-green {
-  background-color: rgba(40, 167, 69, 0.2) !important;
-  border: 1px solid rgba(40, 167, 69, 0.3);
-}
-
-body.dark-mode .bg-soft-yellow {
-  background-color: rgba(253, 184, 19, 0.2) !important;
-  border: 1px solid rgba(253, 184, 19, 0.3);
-}
-
-body.dark-mode .bg-soft-purple {
-  background-color: rgba(111, 66, 193, 0.2) !important;
-  border: 1px solid rgba(111, 66, 193, 0.3);
-}
-
-body.dark-mode .bg-soft-red {
-  background-color: rgba(220, 53, 69, 0.2) !important;
-  border: 1px solid rgba(220, 53, 69, 0.3);
-}
-
-body.dark-mode .card-soft.shadow-sm {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
-}
-
-body.dark-mode .card-soft:hover {
-  transform: translateY(-2px);
-  transition: transform 0.2s ease;
-}
+body.dark-mode .sg-user-card   { background: #1a2540 !important; border-color: #1e2a42 !important; }
+body.dark-mode .sg-submenu     { background: #111827 !important; border-color: #1e2a42 !important; }
+body.dark-mode .sg-theme-row   { background: #1a2540 !important; border-color: #1e2a42 !important; }
+body.dark-mode .sg-divider     { background: #1e2a42 !important; }
+body.dark-mode .sg-gym-name,
+body.dark-mode .sg-user-name   { color: #eff3f5 !important; }
+body.dark-mode .sg-user-role,
+body.dark-mode .sg-section-label { color: #3a4a6a !important; }
+body.dark-mode .sg-item        { color: #8a95ae !important; }
+body.dark-mode .sg-item:hover  { background: #1a2540 !important; color: var(--system-color-primary) !important; }
+body.dark-mode .sg-icon,
+body.dark-mode .sg-chevron     { color: #5a6a8a !important; }
+body.dark-mode .sg-subitem     { color: #7080a0 !important; }
+body.dark-mode .sg-subitem:hover { color: var(--system-color-primary) !important; background: #1a2540 !important; }
 
 
 
