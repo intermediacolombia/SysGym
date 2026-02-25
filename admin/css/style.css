@@ -319,6 +319,31 @@ label {
   .portada h1 { font-size: 1.3rem; }
 }
 
+/* ── Input groups (precios) ─────────────────────────────────── */
+.input-group .input-group-text {
+  border-radius: 10px 0 0 10px !important;
+  border: 1.5px solid #e5e7ef !important;
+  border-right: none !important;
+  background: #f8faff !important;
+  color: #9aa3b5 !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+  padding: 0.5rem 0.75rem !important;
+}
+
+.input-group .form-control {
+  border-radius: 0 10px 10px 0 !important;
+  border-left: none !important;
+}
+
+.input-group .form-control:focus {
+  border-left: none !important;
+}
+
+.input-group:focus-within .input-group-text {
+  border-color: var(--system-color-primary) !important;
+}
+
 
 
 
