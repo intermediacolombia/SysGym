@@ -1,4 +1,4 @@
-</div>
+
 
 <!-- Modal CumpleaÃ±os -->
 <div class="modal fade" 
@@ -134,16 +134,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Leer estado guardado
     const savedTheme = localStorage.getItem('theme-mode') || 'light';
 
-    // Aplicar tema guardado (ya debería estar, pero lo reafirmamos)
+    // Aplicar tema guardado (ya deberï¿½a estar, pero lo reafirmamos)
     if (savedTheme === 'dark') {
       body.classList.add('dark-mode');
       if (toggle) toggle.checked = true;
     }
 
-    // Mostrar body con transición lista
+    // Mostrar body con transiciï¿½n lista
     setTimeout(() => body.classList.add('theme-ready'), 50);
 
-    // Función para actualizar íconos
+    // Funciï¿½n para actualizar ï¿½conos
     function updateIcons(isDark) {
       if (!icon || !labelIcon) return;
       if (isDark) {
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Ocultar loader cuando TODO cargue (incluyendo imágenes)
+  // Ocultar loader cuando TODO cargue (incluyendo imï¿½genes)
   window.addEventListener('load', () => {
     const loader = document.getElementById('page-loader');
     if (loader) {

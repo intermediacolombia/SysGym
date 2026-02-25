@@ -342,7 +342,7 @@
 </div>
 
 <!-- div fantasma: cierra el </div> heredado de menu-footer.php sin afectar el layout -->
-<div>
+
 
 <script>
 // ── Sidebar open/close ───────────────────────────────────────
