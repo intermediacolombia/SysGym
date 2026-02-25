@@ -23,10 +23,10 @@
 
   <!-- Logo + user -->
   <div class="sg-logo-area">
-    <div class="sg-logo-row">
-      <img src="<?= $url ?>/<?= SITE_LOGO ?>" alt="Logo" class="sg-logo-img"><br>
-      <span class="sg-gym-name">SysGym</span>
-    </div>
+    <div class="sg-logo-row" style="flex-direction:column; align-items:center; gap:0.4rem; margin-bottom:1rem;">
+  <img src="<?= $url ?>/<?= SITE_LOGO ?>" alt="Logo" class="sg-logo-img" style="height:52px;">
+  <span class="sg-gym-name" style="max-width:100%; text-align:center; font-size:0.85rem;">SysGym V.2.0.1</span>
+  </div>
     <?php
       $foto = (!empty($foto_perfil) && file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $foto_perfil))
               ? $foto_perfil : 'assets/img/default-user.png';
@@ -276,16 +276,27 @@
   <div class="sg-footer">
 
     <!-- Dark mode toggle -->
-    <div id="themeToggleContainer" class="sg-theme-row">
-      <div class="sg-theme-icons">
-        <i class="fas fa-sun"></i>
-        <span style="flex:1; font-size:0.78rem;">Tema</span>
-        <div class="form-check form-switch m-0" style="transform:scale(0.85)">
-          <input class="form-check-input" type="checkbox" role="switch" id="themeToggle">
-        </div>
-        <i class="fas fa-moon"></i>
-      </div>
-    </div>
+    <div id="themeToggleContainer" class="sg-theme-row" style="justify-content:space-between; align-items:center; padding: 0.5rem 0.75rem;">
+  <div style="display:flex; align-items:center; gap:0.5rem;">
+    <i class="fas fa-sun" id="themeLabelIcon" style="font-size:0.8rem; color:#f59e0b;"></i>
+    <span style="font-size:0.78rem; font-weight:500; color:var(--nav-text);">Tema</span>
+  </div>
+  <label style="position:relative; display:inline-block; width:36px; height:20px; margin:0; cursor:pointer;">
+    <input type="checkbox" id="themeToggle" style="opacity:0; width:0; height:0; position:absolute;">
+    <span id="themeIcon" style="
+      position:absolute; inset:0; border-radius:20px;
+      background:#ccc; transition:0.3s;
+      display:flex; align-items:center;
+    ">
+      <span style="
+        position:absolute; left:3px;
+        width:14px; height:14px; border-radius:50%;
+        background:#fff; transition:0.3s;
+        box-shadow:0 1px 3px rgba(0,0,0,0.3);
+      "></span>
+    </span>
+    </label>
+  </div>
 
     <!-- Salir -->
     <?php if(!$caja_id): ?>
