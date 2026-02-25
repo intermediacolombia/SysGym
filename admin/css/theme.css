@@ -6,6 +6,12 @@ body.dark-mode .sg-sidebar {
   box-shadow: 4px 0 24px rgba(0,0,0,0.3) !important;
 }
 
+body.dark-mode .container {
+  background-color: #212E36 !important;
+  color: #EFF3F5 !important;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 body.dark-mode .sg-logo-area {
   border-bottom-color: var(--divider) !important;
 }

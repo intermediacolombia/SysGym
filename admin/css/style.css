@@ -53,6 +53,7 @@ body {
 .container {
     padding: 20px;
     background: white;
+    transition: background-color 0.3s ease, color 0.3s ease; /* agregar */
     border-radius: 0px 0px 5px 5px;
     max-width: 100% !important;
     width: 100% !important;
