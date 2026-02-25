@@ -738,4 +738,8 @@
   });
 
 })();
+
+console.log('asistencias:', res.data);
+console.log('PAGO_PLAN:', PAGO_PLAN, 'VENCIMIENTO:', VENCIMIENTO);
+console.log('ultimaEnRango:', asistencias.find(a => a.fecha >= PAGO_PLAN && a.fecha <= VENCIMIENTO));
 </script>
