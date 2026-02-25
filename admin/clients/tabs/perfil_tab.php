@@ -377,3 +377,293 @@
     </div>
   </div>
 </div>
+
+
+<!-- ============================================================
+     MODAL CONGELAR PLAN
+     Incluir en la vista del cliente, donde estaba el data-bs-target del btnFreezePlan
+     El botón #btnFreezePlan y #btnUnFreezePlan ya existen en tu HTML — solo agrega este bloque.
+     ============================================================ -->
+
+<style>
+  #freezeModal .modal-content {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    overflow: hidden;
+  }
+  #freezeModal .modal-header {
+    background: linear-gradient(135deg, #31D2F0 0%, #0ea5e9 100%);
+    border: none;
+    padding: 1.5rem 1.75rem;
+  }
+  #freezeModal .modal-title {
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.15rem;
+  }
+  #freezeModal .modal-header .btn-close {
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+  }
+  #freezeModal .modal-body { padding: 1.75rem; }
+
+  .freeze-info-box {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.875rem;
+    color: #0369a1;
+    line-height: 1.6;
+  }
+  .freeze-info-box strong { color: #075985; }
+  .freeze-info-box.bloqueado {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #dc2626;
+  }
+
+  .freeze-date-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: #1e293b;
+  }
+  .freeze-date-input {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    color: #1e293b;
+    background: #f8fafc;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .freeze-date-input:focus { border-color: #31D2F0; background: #fff; }
+
+  .freeze-days-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.8rem;
+    background: rgba(49,210,240,0.12);
+    color: #0284c7;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-top: 0.6rem;
+  }
+
+  #btnConfirmFreeze {
+    background: linear-gradient(135deg, #31D2F0, #0ea5e9);
+    border: none;
+    border-radius: 12px;
+    padding: 0.7rem 1.5rem;
+    font-weight: 600;
+    color: #fff;
+    transition: opacity 0.2s;
+  }
+  #btnConfirmFreeze:hover  { opacity: 0.85; }
+  #btnConfirmFreeze:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
+
+<!-- MODAL -->
+<div class="modal fade" id="freezeModal" tabindex="-1" aria-labelledby="freezeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="freezeModalLabel">
+          <i class="fa fa-snowflake-o me-2"></i>Congelar Plan
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Info / alerta (se llena por JS) -->
+        <div id="freezeInfoBox" class="freeze-info-box"></div>
+
+        <!-- Selector de fecha -->
+        <div id="freezeFechaWrap">
+          <div class="freeze-date-label">
+            <i class="fa fa-calendar me-1"></i>
+            ¿Desde qué fecha deseas congelar?
+          </div>
+          <input type="date" id="freezeFechaInicio" class="freeze-date-input">
+          <div id="freezeDaysBadge" class="freeze-days-badge" style="display:none;">
+            <i class="fa fa-info-circle"></i>
+            <span id="freezeDaysText"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn" id="btnConfirmFreeze">
+          <i class="fa fa-snowflake-o me-1"></i> Congelar Plan
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     SCRIPTS  — Congelar + Descongelar
+     ============================================================ -->
+<script>
+(function () {
+
+  // ── Datos del cliente desde PHP ─────────────────────────────
+  const DAYS_FROZEN = <?= (int)(DAYS_ALLOWED_FROZEN) ?>;
+  const HOY         = '<?= $hoy ?>';
+  const PAGO_PLAN   = '<?= $cliente['pago_plan'] ?? $hoy ?>';
+  const VENCIMIENTO = '<?= $cliente['vencimiento_plan'] ?? $hoy ?>';
+  const CLIENTE_ID  = <?= (int)$cliente['id'] ?>;
+
+  // ── Helpers ──────────────────────────────────────────────────
+  function addDays(dateStr, n) {
+    const d = new Date(dateStr + 'T00:00:00');
+    d.setDate(d.getDate() + n);
+    return d.toISOString().slice(0, 10);
+  }
+  function diffDays(from, to) {
+    return Math.round((new Date(to + 'T00:00:00') - new Date(from + 'T00:00:00')) / 86400000);
+  }
+  function buildFormData(obj) {
+    const fd = new FormData();
+    Object.entries(obj).forEach(([k, v]) => fd.append(k, v));
+    return fd;
+  }
+
+  // ── Abrir modal congelar ─────────────────────────────────────
+  document.getElementById('btnFreezePlan')?.addEventListener('click', () => {
+    const infoBox    = document.getElementById('freezeInfoBox');
+    const fechaWrap  = document.getElementById('freezeFechaWrap');
+    const fechaInput = document.getElementById('freezeFechaInicio');
+    const badge      = document.getElementById('freezeDaysBadge');
+    const btnConfirm = document.getElementById('btnConfirmFreeze');
+
+    badge.style.display = 'none';
+    btnConfirm.disabled = false;
+    infoBox.classList.remove('bloqueado');
+
+    const diasHastaVenc = diffDays(HOY, VENCIMIENTO);
+
+    // ── Bloqueo: quedan menos de DAYS_FROZEN días para vencer
+    if (DAYS_FROZEN > 0 && diasHastaVenc < DAYS_FROZEN) {
+      infoBox.classList.add('bloqueado');
+      infoBox.innerHTML = `
+        <i class="fa fa-ban me-1"></i>
+        No se puede congelar el plan porque quedan <strong>${diasHastaVenc} día(s)</strong>
+        para el vencimiento y se requieren al menos <strong>${DAYS_FROZEN} días</strong> restantes.
+      `;
+      fechaWrap.style.display = 'none';
+      btnConfirm.disabled = true;
+
+    } else {
+      // ── Configurar calendario
+      const minFecha = PAGO_PLAN;
+      const maxFecha = DAYS_FROZEN > 0 ? addDays(PAGO_PLAN, DAYS_FROZEN) : VENCIMIENTO;
+      const defFecha = (HOY >= minFecha && HOY <= maxFecha) ? HOY : minFecha;
+
+      fechaInput.min   = minFecha;
+      fechaInput.max   = maxFecha;
+      fechaInput.value = defFecha;
+      fechaWrap.style.display = 'block';
+
+      // Info contextual
+      infoBox.innerHTML = DAYS_FROZEN > 0
+        ? `Elige la fecha de inicio del congelamiento.
+           <br><strong>Rango permitido:</strong> ${minFecha} → ${maxFecha} (${DAYS_FROZEN} días desde el pago).
+           <br><br><i class="fa fa-info-circle me-1"></i>
+           Si el congelamiento dura <strong>menos de ${DAYS_FROZEN} días</strong>,
+           el vencimiento <strong>no se correrá</strong> al descongelar.`
+        : `Elige la fecha de inicio del congelamiento.<br>
+           <strong>Rango permitido:</strong> ${minFecha} → ${maxFecha}`;
+
+      actualizarBadge();
+    }
+
+    new bootstrap.Modal(document.getElementById('freezeModal')).show();
+  });
+
+  // ── Badge dinámico ───────────────────────────────────────────
+  document.getElementById('freezeFechaInicio')?.addEventListener('change', actualizarBadge);
+
+  function actualizarBadge() {
+    const val    = document.getElementById('freezeFechaInicio').value;
+    const badge  = document.getElementById('freezeDaysBadge');
+    const texto  = document.getElementById('freezeDaysText');
+    if (!val) { badge.style.display = 'none'; return; }
+    const dias = diffDays(PAGO_PLAN, val);
+    texto.textContent = `Congelamiento desde ${val} · ${dias} día(s) desde el pago`;
+    badge.style.display = 'inline-flex';
+  }
+
+  // ── Confirmar congelar (usa $_POST) ──────────────────────────
+  document.getElementById('btnConfirmFreeze')?.addEventListener('click', () => {
+    const fechaInicio = document.getElementById('freezeFechaInicio').value;
+    if (!fechaInicio) { alert('Por favor selecciona una fecha de inicio.'); return; }
+
+    const btn = document.getElementById('btnConfirmFreeze');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Procesando...';
+
+    fetch('../post/freeze_plan.php', {
+      method: 'POST',
+      body: buildFormData({ id: CLIENTE_ID, fecha_inicio: fechaInicio })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === 'success') {
+        bootstrap.Modal.getInstance(document.getElementById('freezeModal'))?.hide();
+        location.reload();
+      } else {
+        alert(data.message || 'No se pudo congelar el plan.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa fa-snowflake-o me-1"></i> Congelar Plan';
+      }
+    })
+    .catch(() => {
+      alert('Error de conexión.');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa fa-snowflake-o me-1"></i> Congelar Plan';
+    });
+  });
+
+  // ── Descongelar (usa $_POST, lógica original) ────────────────
+  document.getElementById('btnUnFreezePlan')?.addEventListener('click', () => {
+    if (!confirm('¿Confirmas que deseas descongelar el plan?')) return;
+
+    const btn = document.getElementById('btnUnFreezePlan');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Procesando...';
+
+    fetch('../post/unfreeze_plan.php', {
+      method: 'POST',
+      body: buildFormData({ id: CLIENTE_ID })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === 'success') {
+        location.reload();
+      } else {
+        alert(data.message || 'No se pudo descongelar el plan.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa fa-thermometer-4 me-1"></i> Descongelar Plan';
+      }
+    })
+    .catch(() => {
+      alert('Error de conexión.');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa fa-thermometer-4 me-1"></i> Descongelar Plan';
+    });
+  });
+
+})();
+</script>

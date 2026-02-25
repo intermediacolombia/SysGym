@@ -202,7 +202,7 @@ define('ADDITIONAL_PERCENTAGE_PAYMENT', (float)($settings['additional_percentage
 define('MP_ACCESS_TOKEN', $settings['mp_access_token'] ?? '');
 define('MP_PUBLIC_KEY',   $settings['mp_public_key']   ?? '');
 define('DAYS_ALLOWED_BEFORE_DUE', (int)($settings['days_allowed_before_due'] ?? 0));
-
+define('DAYS_ALLOWED_FROZEN', (int)($settings['days_allowed_frozen'] ?? 0));
 
 
 # ===============================

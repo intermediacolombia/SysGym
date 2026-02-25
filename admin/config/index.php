@@ -84,6 +84,11 @@ try {
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="sistema-tab" data-bs-toggle="tab" data-bs-target="#sistema" type="button" role="tab"><i class="fas fa-cog"></i> Sistema </button>
       </li>
+
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="planes-tab" data-bs-toggle="tab" data-bs-target="#planes" type="button" role="tab"><i class="fas fa-dumbbell"></i> Planes </button>
+      </li>
+
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="whatsapp-tab" data-bs-toggle="tab" data-bs-target="#whatsapp" type="button" role="tab"><i class="fa fa-whatsapp"></i> WhatsApp</button>
       </li>
