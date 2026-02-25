@@ -261,8 +261,10 @@ input:checked + .slider:before { transform: translateX(18px); }
   border-color: var(--system-color-primary) !important;
 }
 .btn-primary:hover {
-  filter: brightness(1.1);
+  background: var(--system-color-secondary) !important;
+  border-color: var(--system-color-secondary) !important;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+  transform: translateY(-1px);
 }
 .btn-outline-primary {
   border-color: var(--system-color-primary) !important;
@@ -320,6 +322,9 @@ label {
 }
 
 /* ── Input groups (precios) ─────────────────────────────────── */
+.input-group {
+  flex-wrap: nowrap !important;
+}
 .input-group .input-group-text {
   border-radius: 10px 0 0 10px !important;
   border: 1.5px solid #e5e7ef !important;
@@ -329,17 +334,18 @@ label {
   font-weight: 600 !important;
   font-size: 0.85rem !important;
   padding: 0.5rem 0.75rem !important;
+  line-height: 1 !important;
+  height: auto !important;
+  align-self: stretch !important;
 }
-
-.input-group .form-control {
+.input-group > .form-control {
   border-radius: 0 10px 10px 0 !important;
   border-left: none !important;
+  min-height: unset !important;
 }
-
-.input-group .form-control:focus {
+.input-group > .form-control:focus {
   border-left: none !important;
 }
-
 .input-group:focus-within .input-group-text {
   border-color: var(--system-color-primary) !important;
 }
