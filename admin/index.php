@@ -498,6 +498,13 @@ require_once __DIR__ . '/../inc/config.php';
         <h1>Hola, <?= htmlspecialchars($nombre . " " . $apellido); ?> 👋</h1>
         <p>Bienvenido a tu panel de gestión del gimnasio</p>
       </div>
+      
+<div style="margin-left: auto;">
+  <button onclick="abrirModalAsistencia()" class="btn-registrar-asistencia">
+    <i class="fas fa-fingerprint"></i>
+    <span>Registrar Asistencia</span>
+  </button>
+</div>
     </div>
     <!--div class="hero-stats">
       <div class="hero-badge">
@@ -782,7 +789,488 @@ setInterval(actualizarHora, 60000);
 document.addEventListener("theme-changed", actualizarHora);
 </script>
 
+<!-- ===================== MODAL REGISTRAR ASISTENCIA ===================== -->
+<style>
+  .btn-registrar-asistencia {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.75rem 1.4rem;
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(102,126,234,0.35);
+    transition: all 0.25s ease;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .btn-registrar-asistencia:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(102,126,234,0.45);
+  }
+  .btn-registrar-asistencia i {
+    font-size: 1.1rem;
+  }
 
+  /* Overlay */
+  #modal-asistencia-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(6px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+  }
+  #modal-asistencia-overlay.activo {
+    display: flex;
+  }
+
+  /* Modal Box */
+  .modal-asis-box {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.2);
+    animation: modalEntrada 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+    position: relative;
+  }
+  @keyframes modalEntrada {
+    from { opacity: 0; transform: scale(0.88) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-asis-close {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .modal-asis-close:hover {
+    background: var(--border-color);
+    color: var(--text-primary);
+  }
+
+  .modal-asis-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+  .modal-asis-sub {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+  }
+
+  .modal-asis-search-wrap {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .modal-asis-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-light);
+    color: var(--text-primary);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .modal-asis-input:focus {
+    border-color: #3b82f6;
+  }
+  .modal-asis-search-btn {
+    padding: 0.75rem 1.1rem;
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .modal-asis-search-btn:hover { opacity: 0.85; }
+
+  /* Result card */
+  .asis-result-card {
+    border: 1.5px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+    background: var(--bg-light);
+    display: none;
+  }
+  .asis-result-card.visible { display: block; }
+
+  .asis-client-header {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 1rem;
+  }
+  .asis-client-avatar {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    background: var(--primary-gradient);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .asis-client-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-primary);
+  }
+  .asis-client-doc {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  .asis-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+  .asis-status-badge.activo    { background: rgba(16,185,129,0.12); color: #059669; }
+  .asis-status-badge.vencido   { background: rgba(220,38,38,0.1);   color: #dc2626; }
+  .asis-status-badge.inactivo  { background: rgba(100,116,139,0.12);color: #64748b; }
+  .asis-status-badge.congelado { background: rgba(59,130,246,0.12); color: #2563eb; }
+
+  /* Alertas dentro del modal */
+  .asis-alert {
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+  }
+  .asis-alert.warn  { background: rgba(245,158,11,0.12); color: #b45309; border: 1px solid rgba(245,158,11,0.25); }
+  .asis-alert.error { background: rgba(220,38,38,0.08);  color: #dc2626; border: 1px solid rgba(220,38,38,0.2); }
+  .asis-alert.ok    { background: rgba(16,185,129,0.1);  color: #059669; border: 1px solid rgba(16,185,129,0.2); }
+  .asis-alert i { margin-top: 0.1rem; flex-shrink: 0; }
+
+  .asis-action-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  .asis-btn-confirm {
+    flex: 1;
+    padding: 0.75rem;
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .asis-btn-confirm:hover { opacity: 0.85; }
+  .asis-btn-confirm:disabled { opacity: 0.4; cursor: not-allowed; }
+  .asis-btn-cancel {
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: 1.5px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .asis-btn-cancel:hover { background: var(--border-color); }
+
+  .asis-spinner {
+    width: 20px; height: 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .asis-not-found {
+    text-align: center;
+    padding: 1.5rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    display: none;
+  }
+  .asis-not-found i { font-size: 2rem; margin-bottom: 0.5rem; display: block; opacity: 0.4; }
+</style>
+
+<!-- MODAL HTML -->
+<div id="modal-asistencia-overlay">
+  <div class="modal-asis-box">
+    <button class="modal-asis-close" onclick="cerrarModalAsistencia()"><i class="fas fa-times"></i></button>
+    
+    <div class="modal-asis-title"><i class="fas fa-fingerprint" style="margin-right:0.5rem;"></i>Registrar Asistencia</div>
+    <div class="modal-asis-sub">Busca al cliente por su número de documento</div>
+
+    <div class="modal-asis-search-wrap">
+      <input 
+        type="text" 
+        id="asis-doc-input" 
+        class="modal-asis-input" 
+        placeholder="Número de documento..." 
+        inputmode="numeric"
+        onkeydown="if(event.key==='Enter') buscarClienteAsistencia()"
+      >
+      <button class="modal-asis-search-btn" onclick="buscarClienteAsistencia()">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+
+    <!-- Not found -->
+    <div class="asis-not-found" id="asis-not-found">
+      <i class="fas fa-user-slash"></i>
+      No se encontró ningún cliente con ese documento.
+    </div>
+
+    <!-- Result card -->
+    <div class="asis-result-card" id="asis-result-card">
+      <div class="asis-client-header">
+        <div class="asis-client-avatar"><i class="fas fa-user"></i></div>
+        <div>
+          <div class="asis-client-name" id="asis-nombre"></div>
+          <div class="asis-client-doc" id="asis-doc-display"></div>
+        </div>
+      </div>
+
+      <div id="asis-status-badge-wrap"></div>
+      <div id="asis-alert-wrap"></div>
+      <div id="asis-action-wrap"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Estado ───────────────────────────────────────────────
+let _asisClienteId = null;
+let _asisYaRegistro = false;
+let _asisPermiteRegistro = true;
+
+// ─── Abrir / Cerrar ───────────────────────────────────────
+function abrirModalAsistencia() {
+  document.getElementById('modal-asistencia-overlay').classList.add('activo');
+  document.getElementById('asis-doc-input').value = '';
+  resetResultadoAsis();
+  setTimeout(() => document.getElementById('asis-doc-input').focus(), 100);
+}
+
+function cerrarModalAsistencia() {
+  document.getElementById('modal-asistencia-overlay').classList.remove('activo');
+}
+
+// Cerrar al clic fuera
+document.getElementById('modal-asistencia-overlay').addEventListener('click', function(e){
+  if (e.target === this) cerrarModalAsistencia();
+});
+
+// ─── Reset ─────────────────────────────────────────────────
+function resetResultadoAsis() {
+  document.getElementById('asis-result-card').classList.remove('visible');
+  document.getElementById('asis-not-found').style.display = 'none';
+  _asisClienteId = null;
+  _asisYaRegistro = false;
+  _asisPermiteRegistro = true;
+}
+
+// ─── Buscar cliente ────────────────────────────────────────
+function buscarClienteAsistencia() {
+  const doc = document.getElementById('asis-doc-input').value.trim();
+  if (!doc) return;
+
+  resetResultadoAsis();
+
+  const btn = document.querySelector('.modal-asis-search-btn');
+  btn.innerHTML = '<i class="asis-spinner"></i>';
+  btn.disabled = true;
+
+  fetch(`gets_home/get_cliente_asis.php?documento=${encodeURIComponent(doc)}`)
+    .then(r => r.json())
+    .then(data => {
+      btn.innerHTML = '<i class="fas fa-search"></i>';
+      btn.disabled = false;
+
+      if (!data || !data.id) {
+        document.getElementById('asis-not-found').style.display = 'block';
+        return;
+      }
+
+      _asisClienteId = data.id;
+      renderResultadoAsis(data);
+    })
+    .catch(() => {
+      btn.innerHTML = '<i class="fas fa-search"></i>';
+      btn.disabled = false;
+      document.getElementById('asis-not-found').style.display = 'block';
+    });
+}
+
+// ─── Render resultado ──────────────────────────────────────
+function renderResultadoAsis(data) {
+  document.getElementById('asis-nombre').textContent = data.nombre_completo;
+  document.getElementById('asis-doc-display').textContent = '📄 ' + data.documento;
+
+  // Usar estado_real que ya combina congelado + vencimiento + estado base
+  const estado = (data.estado_real || data.estado || '').toLowerCase();
+
+  const estadoLabels = {
+    activo:    'Activo',
+    inactivo:  'Inactivo',
+    vencido:   'Plan Vencido',
+    congelado: 'Plan Congelado',
+  };
+  const estadoLabel = estadoLabels[estado] || data.estado_real || 'Desconocido';
+
+  let estadoClass = 'activo';
+  if (estado === 'vencido')   estadoClass = 'vencido';
+  if (estado === 'inactivo')  estadoClass = 'inactivo';
+  if (estado === 'congelado') estadoClass = 'congelado';
+
+  document.getElementById('asis-status-badge-wrap').innerHTML = `
+    <span class="asis-status-badge ${estadoClass}">
+      <i class="fas fa-circle" style="font-size:0.5rem;"></i>
+      ${estadoLabel}
+    </span>
+  `;
+
+  const bloqueado = ['vencido', 'inactivo', 'congelado'].includes(estado);
+  _asisPermiteRegistro = !bloqueado;
+  _asisYaRegistro = data.ya_asistio > 0;
+
+  let alertHTML = '';
+  let accionHTML = '';
+
+  if (bloqueado) {
+    const razones = {
+      vencido:   'su plan está <strong>vencido</strong>',
+      inactivo:  'el cliente se encuentra <strong>inactivo</strong>',
+      congelado: 'el plan está <strong>congelado</strong>',
+    };
+    alertHTML = `
+      <div class="asis-alert error">
+        <i class="fas fa-ban"></i>
+        <span>No se puede registrar asistencia porque ${razones[estado] || 'el cliente tiene un estado bloqueante'}.</span>
+      </div>`;
+    accionHTML = `<div class="asis-action-row">
+      <button class="asis-btn-cancel" onclick="cerrarModalAsistencia()">Cerrar</button>
+    </div>`;
+
+  } else if (_asisYaRegistro) {
+    alertHTML = `
+      <div class="asis-alert warn">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>Este cliente <strong>ya registró asistencia hoy</strong>. ¿Deseas registrar una entrada adicional?</span>
+      </div>`;
+    accionHTML = `<div class="asis-action-row">
+      <button class="asis-btn-cancel" onclick="cerrarModalAsistencia()">Cancelar</button>
+      <button class="asis-btn-confirm" onclick="confirmarAsistencia()">
+        <i class="fas fa-check"></i> Registrar de todas formas
+      </button>
+    </div>`;
+
+  } else {
+    alertHTML = `
+      <div class="asis-alert ok">
+        <i class="fas fa-check-circle"></i>
+        <span>Cliente activo y listo para registrar asistencia.</span>
+      </div>`;
+    accionHTML = `<div class="asis-action-row">
+      <button class="asis-btn-cancel" onclick="cerrarModalAsistencia()">Cancelar</button>
+      <button class="asis-btn-confirm" onclick="confirmarAsistencia()">
+        <i class="fas fa-fingerprint"></i> Confirmar Asistencia
+      </button>
+    </div>`;
+  }
+
+  document.getElementById('asis-alert-wrap').innerHTML = alertHTML;
+  document.getElementById('asis-action-wrap').innerHTML = accionHTML;
+  document.getElementById('asis-result-card').classList.add('visible');
+}
+
+// ─── Confirmar registro ────────────────────────────────────
+function confirmarAsistencia() {
+  if (!_asisClienteId) return;
+
+  const btn = document.querySelector('.asis-btn-confirm');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="asis-spinner"></span> Registrando...'; }
+
+  fetch('gets_home/post_registrar_asistencia.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ cliente_id: _asisClienteId })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      document.getElementById('asis-alert-wrap').innerHTML = `
+        <div class="asis-alert ok">
+          <i class="fas fa-check-circle"></i>
+          <span><strong>¡Asistencia registrada!</strong> ${data.hora || ''}</span>
+        </div>`;
+      document.getElementById('asis-action-wrap').innerHTML = `
+        <div class="asis-action-row">
+          <button class="asis-btn-confirm" onclick="cerrarModalAsistencia()" style="background:linear-gradient(135deg,#10b981,#059669);">
+            <i class="fas fa-check"></i> Listo
+          </button>
+        </div>`;
+
+      // Refrescar contador
+      if (typeof actualizarContadorAsistencias === 'function') actualizarContadorAsistencias();
+      if (typeof actualizarKPIs === 'function') actualizarKPIs();
+
+    } else {
+      document.getElementById('asis-alert-wrap').innerHTML = `
+        <div class="asis-alert error">
+          <i class="fas fa-times-circle"></i>
+          <span>${data.message || 'Error al registrar la asistencia.'}</span>
+        </div>`;
+      if (btn) { btn.disabled = false; btn.innerHTML = 'Reintentar'; }
+    }
+  })
+  .catch(() => {
+    document.getElementById('asis-alert-wrap').innerHTML = `
+      <div class="asis-alert error">
+        <i class="fas fa-wifi"></i>
+        <span>Error de conexión. Intenta nuevamente.</span>
+      </div>`;
+    if (btn) { btn.disabled = false; btn.innerHTML = 'Reintentar'; }
+  });
+}
+</script>
 	
 </body>
 </html>
