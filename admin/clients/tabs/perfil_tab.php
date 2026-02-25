@@ -550,11 +550,6 @@
     Object.entries(obj).forEach(([k, v]) => fd.append(k, v));
     return fd;
   }
-  function mesActual(dateStr) {
-    // Retorna true si dateStr es del mismo año-mes que HOY
-    return dateStr && dateStr.slice(0, 7) === HOY.slice(0, 7);
-  }
-
   // ── Abrir modal: carga última asistencia y calcula rango ─────
   document.getElementById('btnFreezePlan')?.addEventListener('click', () => {
     const infoBox    = document.getElementById('freezeInfoBox');
@@ -579,15 +574,13 @@
       .then(res => {
         const asistencias = res.data || [];
 
-        // Última asistencia del mes actual (la primera del array, orden DESC)
-        const ultimaDelMes = asistencias.find(a => mesActual(a.fecha));
+        // Última asistencia dentro del rango del plan actual (pago_plan → vencimiento)
+        const ultimaEnRango = asistencias.find(a => a.fecha >= PAGO_PLAN && a.fecha <= VENCIMIENTO);
 
         // ── Calcular fecha MÍNIMA
-        let minFecha = maxDate(HOY, PAGO_PLAN);
-        if (ultimaDelMes) {
-          const siguienteDia = addDays(ultimaDelMes.fecha, 1);
-          minFecha = maxDate(minFecha, siguienteDia);
-        }
+        const minFecha = ultimaEnRango
+          ? maxDate(HOY, PAGO_PLAN, addDays(ultimaEnRango.fecha, 1))
+          : maxDate(HOY, PAGO_PLAN);
 
         // ── Calcular fecha MÁXIMA: vencimiento - DAYS_FROZEN días
         // Si DAYS_FROZEN = 0 → máximo es el día antes del vencimiento
@@ -614,7 +607,7 @@
           infoBox.innerHTML = `
             <i class="fa fa-ban me-1"></i>
             No hay un rango de fechas válido para congelar el plan en este momento.
-            ${ultimaDelMes ? `<br>La última asistencia fue el <strong>${ultimaDelMes.fecha}</strong>.` : ''}
+            ${ultimaEnRango ? `<br>La última asistencia fue el <strong>${ultimaEnRango.fecha}</strong>.` : ''}
           `;
           btnConfirm.disabled = true;
           return;
@@ -631,8 +624,8 @@
         infoBox.className = 'freeze-info-box';
 
         let infoHTML = `<strong>Rango permitido:</strong> ${minFecha} → ${maxFecha}`;
-        if (ultimaDelMes) {
-          infoHTML += `<br><i class="fa fa-check-circle me-1 text-success"></i>Última asistencia este mes: <strong>${ultimaDelMes.fecha}</strong> — mínimo desde el día siguiente.`;
+        if (ultimaEnRango) {
+          infoHTML += `<br><i class="fa fa-check-circle me-1 text-success"></i>Última asistencia en el período: <strong>${ultimaEnRango.fecha}</strong> — mínimo desde el día siguiente.`;
         }
         if (DAYS_FROZEN > 0) {
           infoHTML += `
