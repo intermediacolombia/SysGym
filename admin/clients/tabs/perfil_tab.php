@@ -380,9 +380,8 @@
 
 
 <!-- ============================================================
-     MODAL CONGELAR PLAN
-     Incluir en la vista del cliente, donde estaba el data-bs-target del btnFreezePlan
-     El botón #btnFreezePlan y #btnUnFreezePlan ya existen en tu HTML — solo agrega este bloque.
+     MODAL CONGELAR PLAN — nueva lógica de rango de fechas
+     Incluir en la vista del cliente (detail.php o donde estén los botones)
      ============================================================ -->
 
 <style>
@@ -424,6 +423,11 @@
     border-color: #fecaca;
     color: #dc2626;
   }
+  .freeze-info-box.loading {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    color: #64748b;
+  }
 
   .freeze-date-label {
     font-weight: 600;
@@ -443,6 +447,7 @@
     transition: border-color 0.2s;
   }
   .freeze-date-input:focus { border-color: #31D2F0; background: #fff; }
+  .freeze-date-input:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .freeze-days-badge {
     display: inline-flex;
@@ -483,11 +488,11 @@
       </div>
 
       <div class="modal-body">
-        <!-- Info / alerta (se llena por JS) -->
-        <div id="freezeInfoBox" class="freeze-info-box"></div>
+        <div id="freezeInfoBox" class="freeze-info-box loading">
+          <i class="fa fa-spinner fa-spin me-1"></i> Cargando información...
+        </div>
 
-        <!-- Selector de fecha -->
-        <div id="freezeFechaWrap">
+        <div id="freezeFechaWrap" style="display:none;">
           <div class="freeze-date-label">
             <i class="fa fa-calendar me-1"></i>
             ¿Desde qué fecha deseas congelar?
@@ -502,7 +507,7 @@
 
       <div class="modal-footer border-0 pt-0">
         <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn" id="btnConfirmFreeze">
+        <button type="button" class="btn" id="btnConfirmFreeze" disabled>
           <i class="fa fa-snowflake-o me-1"></i> Congelar Plan
         </button>
       </div>
@@ -513,12 +518,12 @@
 
 
 <!-- ============================================================
-     SCRIPTS  — Congelar + Descongelar
+     SCRIPT
      ============================================================ -->
 <script>
 (function () {
 
-  // ── Datos del cliente desde PHP ─────────────────────────────
+  // ── Datos PHP → JS ───────────────────────────────────────────
   const DAYS_FROZEN = <?= (int)(DAYS_ALLOWED_FROZEN) ?>;
   const HOY         = '<?= $hoy ?>';
   const PAGO_PLAN   = '<?= $cliente['pago_plan'] ?? $hoy ?>';
@@ -531,16 +536,26 @@
     d.setDate(d.getDate() + n);
     return d.toISOString().slice(0, 10);
   }
+  function subDays(dateStr, n) {
+    return addDays(dateStr, -n);
+  }
   function diffDays(from, to) {
     return Math.round((new Date(to + 'T00:00:00') - new Date(from + 'T00:00:00')) / 86400000);
+  }
+  function maxDate(...dates) {
+    return dates.filter(Boolean).sort().reverse()[0];
   }
   function buildFormData(obj) {
     const fd = new FormData();
     Object.entries(obj).forEach(([k, v]) => fd.append(k, v));
     return fd;
   }
+  function mesActual(dateStr) {
+    // Retorna true si dateStr es del mismo año-mes que HOY
+    return dateStr && dateStr.slice(0, 7) === HOY.slice(0, 7);
+  }
 
-  // ── Abrir modal congelar ─────────────────────────────────────
+  // ── Abrir modal: carga última asistencia y calcula rango ─────
   document.getElementById('btnFreezePlan')?.addEventListener('click', () => {
     const infoBox    = document.getElementById('freezeInfoBox');
     const fechaWrap  = document.getElementById('freezeFechaWrap');
@@ -548,64 +563,128 @@
     const badge      = document.getElementById('freezeDaysBadge');
     const btnConfirm = document.getElementById('btnConfirmFreeze');
 
-    badge.style.display = 'none';
-    btnConfirm.disabled = false;
-    infoBox.classList.remove('bloqueado');
+    // Reset
+    infoBox.className  = 'freeze-info-box loading';
+    infoBox.innerHTML  = '<i class="fa fa-spinner fa-spin me-1"></i> Cargando información...';
+    fechaWrap.style.display = 'none';
+    badge.style.display     = 'none';
+    btnConfirm.disabled     = true;
 
-    const diasHastaVenc = diffDays(HOY, VENCIMIENTO);
+    const modal = new bootstrap.Modal(document.getElementById('freezeModal'));
+    modal.show();
 
-    // ── Bloqueo: quedan menos de DAYS_FROZEN días para vencer
-    if (DAYS_FROZEN > 0 && diasHastaVenc < DAYS_FROZEN) {
-      infoBox.classList.add('bloqueado');
-      infoBox.innerHTML = `
-        <i class="fa fa-ban me-1"></i>
-        No se puede congelar el plan porque quedan <strong>${diasHastaVenc} día(s)</strong>
-        para el vencimiento y se requieren al menos <strong>${DAYS_FROZEN} días</strong> restantes.
-      `;
-      fechaWrap.style.display = 'none';
-      btnConfirm.disabled = true;
+    // ── Fetch última asistencia del cliente
+    fetch(`../gets/get_asistencias_cliente.php?cliente_id=${CLIENTE_ID}`)
+      .then(r => r.json())
+      .then(res => {
+        const asistencias = res.data || [];
 
-    } else {
-      // ── Configurar calendario
-      const minFecha = PAGO_PLAN;
-      const maxFecha = DAYS_FROZEN > 0 ? addDays(PAGO_PLAN, DAYS_FROZEN) : VENCIMIENTO;
-      const defFecha = (HOY >= minFecha && HOY <= maxFecha) ? HOY : minFecha;
+        // Última asistencia del mes actual (la primera del array, orden DESC)
+        const ultimaDelMes = asistencias.find(a => mesActual(a.fecha));
 
-      fechaInput.min   = minFecha;
-      fechaInput.max   = maxFecha;
-      fechaInput.value = defFecha;
-      fechaWrap.style.display = 'block';
+        // ── Calcular fecha MÍNIMA
+        let minFecha = maxDate(HOY, PAGO_PLAN);
+        if (ultimaDelMes) {
+          const siguienteDia = addDays(ultimaDelMes.fecha, 1);
+          minFecha = maxDate(minFecha, siguienteDia);
+        }
 
-      // Info contextual
-      infoBox.innerHTML = DAYS_FROZEN > 0
-        ? `Elige la fecha de inicio del congelamiento.
-           <br><strong>Rango permitido:</strong> ${minFecha} → ${maxFecha} (${DAYS_FROZEN} días desde el pago).
-           <br><br><i class="fa fa-info-circle me-1"></i>
-           Si el congelamiento dura <strong>menos de ${DAYS_FROZEN} días</strong>,
-           el vencimiento <strong>no se correrá</strong> al descongelar.`
-        : `Elige la fecha de inicio del congelamiento.<br>
-           <strong>Rango permitido:</strong> ${minFecha} → ${maxFecha}`;
+        // ── Calcular fecha MÁXIMA: vencimiento - DAYS_FROZEN días
+        // Si DAYS_FROZEN = 0 → máximo es el día antes del vencimiento
+        const maxFecha = DAYS_FROZEN > 0
+          ? subDays(VENCIMIENTO, DAYS_FROZEN)
+          : subDays(VENCIMIENTO, 1);
 
-      actualizarBadge();
-    }
+        // ── Verificar que el rango sea válido
+        const diasHastaVenc = diffDays(HOY, VENCIMIENTO);
 
-    new bootstrap.Modal(document.getElementById('freezeModal')).show();
+        if (DAYS_FROZEN > 0 && diasHastaVenc < DAYS_FROZEN) {
+          infoBox.className = 'freeze-info-box bloqueado';
+          infoBox.innerHTML = `
+            <i class="fa fa-ban me-1"></i>
+            No se puede congelar: quedan <strong>${diasHastaVenc} día(s)</strong>
+            para el vencimiento y se requieren al menos <strong>${DAYS_FROZEN} días</strong> restantes.
+          `;
+          btnConfirm.disabled = true;
+          return;
+        }
+
+        if (minFecha > maxFecha) {
+          infoBox.className = 'freeze-info-box bloqueado';
+          infoBox.innerHTML = `
+            <i class="fa fa-ban me-1"></i>
+            No hay un rango de fechas válido para congelar el plan en este momento.
+            ${ultimaDelMes ? `<br>La última asistencia fue el <strong>${ultimaDelMes.fecha}</strong>.` : ''}
+          `;
+          btnConfirm.disabled = true;
+          return;
+        }
+
+        // ── Rango válido: configurar input
+        const defFecha = (HOY >= minFecha && HOY <= maxFecha) ? HOY : minFecha;
+
+        fechaInput.min   = minFecha;
+        fechaInput.max   = maxFecha;
+        fechaInput.value = defFecha;
+        fechaWrap.style.display = 'block';
+        btnConfirm.disabled = false;
+        infoBox.className = 'freeze-info-box';
+
+        let infoHTML = `<strong>Rango permitido:</strong> ${minFecha} → ${maxFecha}`;
+        if (ultimaDelMes) {
+          infoHTML += `<br><i class="fa fa-check-circle me-1 text-success"></i>Última asistencia este mes: <strong>${ultimaDelMes.fecha}</strong> — mínimo desde el día siguiente.`;
+        }
+        if (DAYS_FROZEN > 0) {
+          infoHTML += `
+            <br><br><i class="fa fa-info-circle me-1"></i>
+            Si el congelamiento dura <strong>menos de ${DAYS_FROZEN} días</strong>,
+            el vencimiento <strong>no se correrá</strong> al descongelar.`;
+        }
+        infoBox.innerHTML = infoHTML;
+
+        actualizarBadge();
+      })
+      .catch(() => {
+        // Si falla el fetch de asistencias, continuar con lógica básica
+        const diasHastaVenc = diffDays(HOY, VENCIMIENTO);
+
+        if (DAYS_FROZEN > 0 && diasHastaVenc < DAYS_FROZEN) {
+          infoBox.className = 'freeze-info-box bloqueado';
+          infoBox.innerHTML = `
+            <i class="fa fa-ban me-1"></i>
+            No se puede congelar: quedan <strong>${diasHastaVenc} día(s)</strong>
+            para el vencimiento y se requieren al menos <strong>${DAYS_FROZEN} días</strong>.
+          `;
+          return;
+        }
+
+        const minFecha = maxDate(HOY, PAGO_PLAN);
+        const maxFecha = DAYS_FROZEN > 0 ? subDays(VENCIMIENTO, DAYS_FROZEN) : subDays(VENCIMIENTO, 1);
+        fechaInput.min   = minFecha;
+        fechaInput.max   = maxFecha;
+        fechaInput.value = minFecha;
+        fechaWrap.style.display = 'block';
+        btnConfirm.disabled = false;
+        infoBox.className = 'freeze-info-box';
+        infoBox.innerHTML = `<strong>Rango permitido:</strong> ${minFecha} → ${maxFecha}`;
+        actualizarBadge();
+      });
   });
 
-  // ── Badge dinámico ───────────────────────────────────────────
+  // ── Badge dinámico al cambiar fecha ─────────────────────────
   document.getElementById('freezeFechaInicio')?.addEventListener('change', actualizarBadge);
 
   function actualizarBadge() {
-    const val    = document.getElementById('freezeFechaInicio').value;
-    const badge  = document.getElementById('freezeDaysBadge');
-    const texto  = document.getElementById('freezeDaysText');
+    const val   = document.getElementById('freezeFechaInicio').value;
+    const badge = document.getElementById('freezeDaysBadge');
+    const texto = document.getElementById('freezeDaysText');
     if (!val) { badge.style.display = 'none'; return; }
-    const dias = diffDays(PAGO_PLAN, val);
-    texto.textContent = `Congelamiento desde ${val} · ${dias} día(s) desde el pago`;
+    const diasHastaVenc = diffDays(val, VENCIMIENTO);
+    texto.textContent = `Congelamiento desde ${val} · ${diasHastaVenc} día(s) hasta el vencimiento`;
     badge.style.display = 'inline-flex';
   }
 
-  // ── Confirmar congelar (usa $_POST) ──────────────────────────
+  // ── Confirmar congelar ───────────────────────────────────────
   document.getElementById('btnConfirmFreeze')?.addEventListener('click', () => {
     const fechaInicio = document.getElementById('freezeFechaInicio').value;
     if (!fechaInicio) { alert('Por favor selecciona una fecha de inicio.'); return; }
@@ -636,7 +715,7 @@
     });
   });
 
-  // ── Descongelar (usa $_POST, lógica original) ────────────────
+  // ── Descongelar ──────────────────────────────────────────────
   document.getElementById('btnUnFreezePlan')?.addEventListener('click', () => {
     if (!confirm('¿Confirmas que deseas descongelar el plan?')) return;
 

@@ -12,14 +12,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id          = trim($_POST['id']);
     $fechaInicio = trim($_POST['fecha_inicio'] ?? $hoy);
 
-    // Validar formato de fecha
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaInicio)) {
         echo json_encode(['status' => 'error', 'message' => 'Formato de fecha inválido.']);
         exit;
     }
 
     try {
-        // Obtener datos actuales del cliente
         $stmt = db()->prepare("
             SELECT id, estado, congelado, pago_plan, vencimiento_plan
             FROM clientes
@@ -33,12 +31,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(['status' => 'error', 'message' => 'Cliente no encontrado.']);
             exit;
         }
-
         if ($cliente['congelado'] == 1) {
             echo json_encode(['status' => 'error', 'message' => 'El plan ya está congelado.']);
             exit;
         }
-
         if ($cliente['estado'] !== 'activo') {
             echo json_encode(['status' => 'error', 'message' => 'El cliente no está activo.']);
             exit;
@@ -48,28 +44,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $vencimiento = $cliente['vencimiento_plan'];
         $daysAllowed = (int)(DAYS_ALLOWED_FROZEN);
 
-        // ── La fecha elegida no puede ser antes del pago del plan
-        if ($fechaInicio < $pagoPlan) {
+        // ── Fecha mínima: max(hoy, pago_plan)
+        // (la validación de última asistencia se hace en el frontend;
+        //  el servidor confía en que la fecha enviada ya respeta ese mínimo)
+        $minFecha = max($hoy, $pagoPlan);
+        if ($fechaInicio < $minFecha) {
             echo json_encode([
                 'status'  => 'error',
-                'message' => "La fecha de congelamiento no puede ser anterior a la fecha de pago del plan ($pagoPlan)."
+                'message' => "La fecha de congelamiento no puede ser anterior a $minFecha."
             ]);
             exit;
         }
 
-        // ── La fecha elegida no puede ser igual o posterior al vencimiento
-        if ($fechaInicio >= $vencimiento) {
+        // ── Fecha máxima: vencimiento - DAYS_FROZEN días (o día anterior al vencimiento si DAYS_FROZEN = 0)
+        $diasRestar  = $daysAllowed > 0 ? $daysAllowed : 1;
+        $maxFecha    = date('Y-m-d', strtotime($vencimiento . " -$diasRestar days"));
+
+        if ($fechaInicio > $maxFecha) {
             echo json_encode([
                 'status'  => 'error',
-                'message' => 'La fecha de congelamiento no puede ser igual o posterior al vencimiento del plan.'
+                'message' => "La fecha de congelamiento no puede ser posterior a $maxFecha ($diasRestar días antes del vencimiento)."
             ]);
             exit;
         }
 
-        // ── Regla DAYS_ALLOWED_FROZEN
+        // ── Regla DAYS_ALLOWED_FROZEN: días restantes desde HOY hasta vencimiento
         if ($daysAllowed > 0) {
-
-            // Quedan menos de DAYS_ALLOWED_FROZEN días para el vencimiento → bloquear
             $diasRestantes = (int)((strtotime($vencimiento) - strtotime($hoy)) / 86400);
             if ($diasRestantes < $daysAllowed) {
                 echo json_encode([
@@ -78,19 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
                 exit;
             }
-
-            // La fecha elegida no puede superar pago_plan + DAYS_ALLOWED_FROZEN
-            $maxFecha = date('Y-m-d', strtotime($pagoPlan . " +$daysAllowed days"));
-            if ($fechaInicio > $maxFecha) {
-                echo json_encode([
-                    'status'  => 'error',
-                    'message' => "La fecha de inicio no puede ser posterior a $maxFecha ($daysAllowed días desde el pago del plan)."
-                ]);
-                exit;
-            }
         }
 
-        // ── Congelar con la fecha elegida
+        // ── Congelar
         $stmt = db()->prepare("
             UPDATE clientes
             SET congelado       = 1,
