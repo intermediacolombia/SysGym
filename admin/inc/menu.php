@@ -648,7 +648,28 @@ body.dark-mode {
   <div class="mensaje-carga mensaje3">Seguimos trabajando en la solicitud... no recargues la página...</div>
 </div>
 
+<!-- div fantasma: cierra el </div> heredado de menu-footer.php sin afectar el layout -->
+<div style="display:none">
+
 <script>
+// ── Aplicar margin-left al body para que el contenido no quede bajo el sidebar ──
+(function applyBodyMargin() {
+  const style = document.createElement('style');
+  style.textContent = `
+    @media (min-width: 992px) {
+      body > .container,
+      body > .container-fluid,
+      body > .container-lg,
+      body > .container-xl,
+      .portada,
+      .main-content-push {
+        margin-left: var(--sidebar-w, 272px) !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
 // ── Sidebar open/close ───────────────────────────────────────
 function sgOpenSidebar() {
   document.getElementById('sgSidebar').classList.add('mobile-open');
@@ -659,17 +680,19 @@ function sgCloseSidebar() {
   document.getElementById('sgOverlay').classList.remove('show');
 }
 
-// ── Submenu toggle ───────────────────────────────────────────
+// ── Submenu toggle: solo abre uno a la vez, cierra si ya estaba abierto ──
 function sgToggle(btn) {
   const submenu = btn.nextElementSibling;
-  const isOpen  = submenu.classList.contains('open');
+  if (!submenu || !submenu.classList.contains('sg-submenu')) return;
+  const isOpen = submenu.classList.contains('open');
 
-  // Cerrar todos los abiertos
+  // Cerrar todos
   document.querySelectorAll('.sg-submenu.open').forEach(m => {
     m.classList.remove('open');
     m.previousElementSibling?.classList.remove('open');
   });
 
+  // Si no estaba abierto, abrir este
   if (!isOpen) {
     submenu.classList.add('open');
     btn.classList.add('open');
@@ -678,19 +701,35 @@ function sgToggle(btn) {
 
 // ── Marcar item activo según URL actual ──────────────────────
 (function markActive() {
-  const path = window.location.pathname;
+  const path = window.location.pathname.replace(/\/$/, '') || '/';
+
+  let bestMatch = null;
+  let bestLen = 0;
+
   document.querySelectorAll('.sg-item[href], .sg-subitem[href]').forEach(el => {
     const href = el.getAttribute('href') || '';
-    if (href && href !== '#' && path.startsWith(new URL(href, location.origin).pathname)) {
-      el.classList.add('active');
-      // Si es subitem, abrir su padre
-      const submenu = el.closest('.sg-submenu');
-      if (submenu) {
-        submenu.classList.add('open');
-        submenu.previousElementSibling?.classList.add('open');
+    if (!href || href === '#') return;
+    try {
+      const elPath = new URL(href, location.origin).pathname.replace(/\/$/, '') || '/';
+      // Evitar que "/" (inicio) coincida con todo
+      if (elPath === '/' && path !== '/') return;
+      if (path === elPath || path.startsWith(elPath + '/')) {
+        if (elPath.length > bestLen) {
+          bestLen = elPath.length;
+          bestMatch = el;
+        }
       }
-    }
+    } catch(e) {}
   });
+
+  if (bestMatch) {
+    bestMatch.classList.add('active');
+    const submenu = bestMatch.closest('.sg-submenu');
+    if (submenu) {
+      submenu.classList.add('open');
+      submenu.previousElementSibling?.classList.add('open');
+    }
+  }
 })();
 </script>
 		
