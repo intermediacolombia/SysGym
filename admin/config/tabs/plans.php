@@ -1,4 +1,4 @@
-<div class="tab-pane fade" id="pasarela" role="tabpanel" aria-labelledby="pasarela-tab">
+<div class="tab-pane fade" id="planes" role="tabpanel" aria-labelledby="planes-tab">
   <div class="card border-0 shadow-sm mt-3">
     <div class="card-body">
       <h5 class="mb-3"><i class="fas fa-dumbbell"></i>Configuración de Planes</h5>
