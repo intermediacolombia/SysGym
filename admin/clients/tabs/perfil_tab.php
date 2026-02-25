@@ -579,8 +579,8 @@
 
         // ── Calcular fecha MÍNIMA
         const minFecha = ultimaEnRango
-          ? maxDate(HOY, PAGO_PLAN, addDays(ultimaEnRango.fecha, 1))
-          : maxDate(HOY, PAGO_PLAN);
+        ? maxDate(HOY, PAGO_PLAN, addDays(ultimaEnRango.fecha, 1))
+        : PAGO_PLAN;
 
         // ── Calcular fecha MÁXIMA: vencimiento - DAYS_FROZEN días
         // Si DAYS_FROZEN = 0 → máximo es el día antes del vencimiento
