@@ -263,8 +263,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 .btn-primary:hover {
   background: var(--system-color-secondary) !important;
   border-color: var(--system-color-secondary) !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-  transform: translateY(-1px);
+  
 }
 .btn-outline-primary {
   border-color: var(--system-color-primary) !important;
