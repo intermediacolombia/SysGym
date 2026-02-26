@@ -376,11 +376,11 @@ label {
   background: #f8faff !important;
   padding: 0 10px !important;
 }
-.iti--separate-dial-code input.form-control {
-  border-radius: 0 10px 10px 0 !important;
-  padding-left: 0.75rem !important;
+.iti--separate-dial-code input.form-control,
+.iti input.form-control {
+  border-radius: 10px !important;
+  padding-left: 90px !important;
 }
 .iti--separate-dial-code:focus-within .iti__selected-flag {
   border-color: var(--system-color-primary) !important;
 }
-
