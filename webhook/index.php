@@ -384,6 +384,30 @@ $clientId  = $data['client_id']       ?? 'default';
 $telefono  = $jid ?: $from;
 $sesKey    = ($from ?: $jid) . '_' . $clientId;
 
+
+// ── Excluidos del menú automático (equipo interno) ───────────
+$excluidos = [];
+if (defined('EXCLUDE_WS_MENU') && !empty(EXCLUDE_WS_MENU)) {
+    $excluidos = array_map('trim', explode(',', EXCLUDE_WS_MENU));
+}
+
+if (!empty($excluidos)) {
+    // Todas las variantes posibles del identificador
+    $variantes = array_filter([
+        $from,                              // número real: 573001234567
+        $jid,                               // JID completo: 573001234567@s.whatsapp.net o 280083507970168@lid
+        explode('@', $jid)[0],              // JID sin dominio: 573001234567 o 280083507970168
+        $nombre,                            // pushName: Juan, María, etc.
+    ]);
+
+    foreach ($variantes as $variante) {
+        if (in_array($variante, $excluidos)) {
+            wlog("[$clientId] Excluido del menú: $variante");
+            http_response_code(200); exit('OK');
+        }
+    }
+}
+
 if (empty($telefono)) { http_response_code(200); exit('OK'); }
 
 

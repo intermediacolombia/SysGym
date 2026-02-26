@@ -98,7 +98,27 @@
         Por ejemplo: <code>Hola {nombres}, tu pago vence el {fecha_vencimiento}.</code>
       </div>
 		
-		
+		<!-- EXCLUIDOS DEL MENÚ AUTOMÁTICO -->
+<div class="mt-4">
+    <h5><i class="fas fa-user-slash me-2"></i>Excluidos del Menú Automático</h5>
+    <hr>
+    <div class="mb-3">
+        <label class="form-label"><strong>Usuarios excluidos del bot</strong></label>
+        <input type="text" class="form-control" name="exclude_ws_menu" 
+               value="<?= htmlspecialchars($settings['exclude_ws_menu'] ?? '') ?>"
+               placeholder="Ej: 573001234567, Juan Pérez, María">
+        <div class="form-text text-muted">
+            <i class="fas fa-info-circle me-1"></i>
+            Separa con comas. Puedes usar el número de teléfono <strong>o el nombre tal cual aparece en WhatsApp</strong>,
+            <strong>sin tildes ni el símbolo ~</strong>. Por ejemplo, si en WhatsApp aparece <em>~ Juan</em>, 
+            escribe solo <em>Juan</em>.<br><br>
+            <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+            <strong>Recomendación:</strong> Usa siempre el <strong>número de teléfono como nombre de usuario en Whatsapp</strong> para identificar a los usuarios excluidos. 
+            Nombres como <em>Juan</em> o <em>María</em> son muy comunes y podrían coincidir con clientes reales, 
+            activando o bloqueando el menú de personas equivocadas.
+        </div>
+    </div>
+</div>
 		
 		
 		<!-- CONFIGURACIÓN ENVÍOS MASIVOS -->
