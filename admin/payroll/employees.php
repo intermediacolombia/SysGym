@@ -13,28 +13,7 @@ include('../login/restriction.php');
   <?php include('../inc/header.php'); ?>
   <!-- Aquí asumes que en header.php ya cargas los estilos de Bootstrap, DataTables, FontAwesome, etc. -->
 
-  <style>
-    /* Estilos de la tabla */
-    #tablaEmpleados tbody tr,
-    #tablaEmpleados tbody tr td {
-      cursor: pointer !important;
-      transition: background-color 0.1s ease;
-    }
-    #tablaEmpleados thead th {
-      background-color: #214A82;
-      color: white;
-    }
-    #tablaEmpleados tbody tr:hover {
-      background-color: #4972AA !important;
-    }
-    #tablaEmpleados tbody tr:hover td {
-      color: white !important;
-    }
-    /* La columna de acción no dispara la redirección al modal de edición */
-    .no-click {
-      cursor: default !important;
-    }
-  </style>
+  
 
 </head>
 <body>

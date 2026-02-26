@@ -12,24 +12,7 @@ include('../login/restriction.php');
   <meta charset="UTF-8">
   <title>Listado de Nóminas Pagadas</title>
   <?php include('../inc/header.php'); ?>
-  <!-- Estilos personalizados -->
-  <style>
-    /* Estilo de la tabla */
-    #tablaNominas tbody tr {
-      cursor: pointer !important;
-      transition: background-color 0.1s ease;
-    }
-    #tablaNominas thead th {
-      background-color: #214A82;
-      color: white;
-    }
-    #tablaNominas tbody tr:hover {
-      background-color: #4972AA !important;
-    }
-    #tablaNominas tbody tr:hover td {
-      color: white !important;
-    }
-  </style>
+  
 </head>
 <body>
 	<div class="container" style="padding: 0px; background:rgba(0,0,0,0.00)">
