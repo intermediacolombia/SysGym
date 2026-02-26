@@ -25,28 +25,7 @@ try {
   
  
   
-  <style>
-    /* Estilos de la tabla según lo solicitado */
-    #formularios tbody tr,
-    #formularios tbody tr td {
-      cursor: pointer !important;
-      transition: background-color 0.1s ease;
-    }
-    #formularios thead th {
-      background-color: #214A82;
-      color: white;
-    }
-    #formularios tbody tr:hover {
-      background-color: #4972AA !important;
-    }
-    #formularios tbody tr:hover td {
-      color: white !important;
-    }
-    /* La columna de acción no dispara redirección */
-    .no-click {
-      cursor: default !important;
-    }
-  </style>
+ 
 </head>
 <body>
 <div class="container" style="padding: 0px; background:rgba(0,0,0,0.00)">
