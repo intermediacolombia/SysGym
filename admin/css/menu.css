@@ -363,7 +363,7 @@ body {
 
 .sg-item.active-parent .sg-icon,
 .sg-item.active-parent .sg-chevron {
-  color: var(--submenu-active) !important;
+  color: var(--nav-text-active) !important;
 }
 .sg-item.active-parent .sg-chevron {
   transform: rotate(180deg);
