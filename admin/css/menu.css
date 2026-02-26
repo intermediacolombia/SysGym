@@ -341,5 +341,35 @@ body {
 /* ── Neutralizar estilos del menú viejo que puedan interferir ── */
 .menu { display: none !important; }
 
+/* ── Subitem activo ─────────────────────────────────────────── */
+.sg-subitem.active {
+  color: var(--submenu-active) !important;
+  background: var(--nav-hover-bg) !important;
+  font-weight: 600 !important;
+}
+.sg-subitem.active::before {
+  opacity: 1 !important;
+  background: var(--submenu-active) !important;
+}
 
+/* Padre activo cuando un hijo está activo */
+.sg-item.active-parent {
+  background: var(--nav-active-bg);
+  color: var(--nav-text-active) !important;
+  box-shadow: none !important;
+}
+.sg-item.active-parent .sg-icon {
+  color: var(--submenu-active) !important;
+}
+
+/* ── Active parent (padre de subitem activo) ────────────────── */
+.sg-item.active-parent {
+  color: var(--submenu-active) !important;
+  background: var(--nav-hover-bg) !important;
+  box-shadow: none !important;
+}
+.sg-item.active-parent .sg-icon,
+.sg-item.active-parent .sg-chevron {
+  color: var(--submenu-active) !important;
+}
         
