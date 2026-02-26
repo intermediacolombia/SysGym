@@ -285,6 +285,38 @@
   <i class="fas fa-bars"></i>
 </button>
 
+<!-- Modal caja abierta (igual que antes) -->
+<div class="container">
+  <div class="modal fade" id="modalCajaAbierta" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Caja Abierta</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Tienes una caja abierta. Debes cerrarla antes de salir.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <a href="<?= $url ?>/admin/caja" class="btn btn-danger">Ir a Cerrar Caja</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <?php require __DIR__ . '/caja_bar.php'; ?>
+
+  <!-- Loader global (igual que antes) -->
+<div id="page-loader" class="loader-container">
+  <div class="loader-circle"></div>
+  <div class="mensaje-carga mensaje1">Estamos procesando la solicitud, por favor espera...</div>
+  <div class="mensaje-carga mensaje2">Esto está tardando un poco... por favor sé paciente...</div>
+  <div class="mensaje-carga mensaje3">Seguimos trabajando en la solicitud... no recargues la página...</div>
+</div>
+
+<!-- div fantasma: cierra el </div> heredado de menu-footer.php sin afectar el layout -->
+
 <script>
 function sgOpenSidebar() {
   document.getElementById('sgSidebar').classList.add('mobile-open');
