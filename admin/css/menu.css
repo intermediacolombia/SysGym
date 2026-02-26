@@ -355,10 +355,12 @@ body {
 /* ── Padre activo cuando un hijo está activo ────────────────── */
 .sg-item.active-parent,
 .sg-item.active-parent.active {
-  background: var(--nav-hover-bg) !important;
-  color: var(--submenu-active) !important;
-  box-shadow: none !important;
+  background: var(--nav-active-bg);
+  color: var(--nav-text-active) !important;
+  box-shadow: var(--nav-active-shadow);
 }
+
+
 .sg-item.active-parent .sg-icon,
 .sg-item.active-parent .sg-chevron {
   color: var(--submenu-active) !important;
