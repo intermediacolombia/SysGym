@@ -300,15 +300,20 @@ function sgToggle(btn) {
   if (!submenu || !submenu.classList.contains('sg-submenu')) return;
   const isOpen = submenu.classList.contains('open');
 
-  // Cerrar todos excepto los que tienen hijo activo
+  // Cerrar todos excepto el actual y los que tienen hijo activo
   document.querySelectorAll('.sg-submenu.open').forEach(m => {
+    if (m === submenu) return; // no tocar el actual todavía
     if (m.querySelector('.sg-subitem.active')) return;
     m.classList.remove('open');
     const prev = m.previousElementSibling;
     if (prev) prev.classList.remove('open');
   });
 
-  if (!isOpen) {
+  // Alternar el actual
+  if (isOpen) {
+    submenu.classList.remove('open');
+    btn.classList.remove('open');
+  } else {
     submenu.classList.add('open');
     btn.classList.add('open');
   }
