@@ -213,7 +213,7 @@ define('WA_MASS_HOUR_START', (int)($settings['wa_mass_hour_start'] ?? 7));     /
 define('WA_MASS_HOUR_END',   (int)($settings['wa_mass_hour_end'] ?? 21));      // Hora fin (formato 24h)
 define('WA_MASS_LIMIT',      (int)($settings['wa_mass_limit'] ?? 50));         // Máximo mensajes diarios
 define('WA_MASS_PROB',       (int)($settings['wa_mass_prob'] ?? 0));            // Máximo mensajes diarios
-define('EXCLUDE_WS_MENU',    (int)($settings['exclude_ws_menu'] ?? ''));        // Excluidos de menu de ws
+define('EXCLUDE_WS_MENU',           $settings['exclude_ws_menu'] ?? '');        // Excluidos de menu de ws
 
 ?>
 
