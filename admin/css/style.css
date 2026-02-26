@@ -362,5 +362,25 @@ label {
 }
 
 
-
+/* ── intlTelInput ───────────────────────────────────────────── */
+.iti {
+  width: 100% !important;
+}
+.iti__flag-container {
+  border-radius: 10px 0 0 10px !important;
+}
+.iti--separate-dial-code .iti__selected-flag {
+  border-radius: 10px 0 0 10px !important;
+  border: 1.5px solid #e5e7ef !important;
+  border-right: none !important;
+  background: #f8faff !important;
+  padding: 0 10px !important;
+}
+.iti--separate-dial-code input.form-control {
+  border-radius: 0 10px 10px 0 !important;
+  padding-left: 0.75rem !important;
+}
+.iti--separate-dial-code:focus-within .iti__selected-flag {
+  border-color: var(--system-color-primary) !important;
+}
 
