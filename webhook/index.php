@@ -410,7 +410,7 @@ if (!empty($excluidos)) {
 
 if (empty($telefono)) { http_response_code(200); exit('OK'); }
 
-
+echo '<pre>' . print_r($excluidos, true) . '</pre>';
 // Multimedia sin texto
 if (empty($mensaje)) {
     $sesDataTemp = obtenerEstado($sesKey);
