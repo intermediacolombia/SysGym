@@ -357,4 +357,15 @@ body {
 .sg-item.active-parent .sg-icon {
   color: var(--submenu-active) !important;
 }
+
+/* ── Active parent (padre de subitem activo) ────────────────── */
+.sg-item.active-parent {
+  color: var(--submenu-active) !important;
+  background: var(--nav-hover-bg) !important;
+  box-shadow: none !important;
+}
+.sg-item.active-parent .sg-icon,
+.sg-item.active-parent .sg-chevron {
+  color: var(--submenu-active) !important;
+}
         

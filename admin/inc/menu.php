@@ -424,11 +424,12 @@ function sgToggle(btn) {
   if (!submenu || !submenu.classList.contains('sg-submenu')) return;
   const isOpen = submenu.classList.contains('open');
 
-  // Cerrar todos (excepto los que tienen un hijo activo)
+  // Cerrar todos excepto los que tienen hijo activo
   document.querySelectorAll('.sg-submenu.open').forEach(m => {
-    if (m.querySelector('.sg-subitem.active')) return; // no cerrar si tiene activo
+    if (m.querySelector('.sg-subitem.active')) return;
     m.classList.remove('open');
-    m.previousElementSibling?.classList.remove('open');
+    const prev = m.previousElementSibling;
+    if (prev) prev.classList.remove('open');
   });
 
   // Si no estaba abierto, abrir este
@@ -468,20 +469,28 @@ function sgToggle(btn) {
     // Marcar el subitem activo
     bestMatch.classList.add('active');
 
-    // Abrir el submenu padre
+    // Abrir el submenu padre y marcar el botón padre como active-parent
     const submenu = bestMatch.closest('.sg-submenu');
     if (submenu) {
       submenu.classList.add('open');
-
-      // Marcar el botón padre como active-parent (no active, para no pintarlo con gradiente)
       const parentBtn = submenu.previousElementSibling;
       if (parentBtn && parentBtn.classList.contains('sg-item')) {
         parentBtn.classList.add('open', 'active-parent');
       }
     }
+
   } else {
-    // Es un item directo sin submenu
+    // Item directo sin submenu
     bestMatch.classList.add('active');
+
+    // Cerrar cualquier submenu que no tenga hijo activo
+    document.querySelectorAll('.sg-submenu').forEach(m => {
+      if (!m.querySelector('.sg-subitem.active')) {
+        m.classList.remove('open');
+        const prev = m.previousElementSibling;
+        if (prev) prev.classList.remove('open');
+      }
+    });
   }
 })();
 </script>
