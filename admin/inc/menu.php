@@ -343,7 +343,7 @@
 <!-- div fantasma: cierra el </div> heredado de menu-footer.php sin afectar el layout -->
 
 
-<script>
+<!--script>
 // ── Sidebar open/close ───────────────────────────────────────
 function sgOpenSidebar() {
   document.getElementById('sgSidebar').classList.add('mobile-open');
@@ -403,6 +403,85 @@ function sgToggle(btn) {
       submenu.classList.add('open');
       submenu.previousElementSibling?.classList.add('open');
     }
+  }
+})();
+</script-->
+
+<script>
+// ── Sidebar open/close ───────────────────────────────────────
+function sgOpenSidebar() {
+  document.getElementById('sgSidebar').classList.add('mobile-open');
+  document.getElementById('sgOverlay').classList.add('show');
+}
+function sgCloseSidebar() {
+  document.getElementById('sgSidebar').classList.remove('mobile-open');
+  document.getElementById('sgOverlay').classList.remove('show');
+}
+
+// ── Submenu toggle: solo abre uno a la vez, cierra si ya estaba abierto ──
+function sgToggle(btn) {
+  const submenu = btn.nextElementSibling;
+  if (!submenu || !submenu.classList.contains('sg-submenu')) return;
+  const isOpen = submenu.classList.contains('open');
+
+  // Cerrar todos (excepto los que tienen un hijo activo)
+  document.querySelectorAll('.sg-submenu.open').forEach(m => {
+    if (m.querySelector('.sg-subitem.active')) return; // no cerrar si tiene activo
+    m.classList.remove('open');
+    m.previousElementSibling?.classList.remove('open');
+  });
+
+  // Si no estaba abierto, abrir este
+  if (!isOpen) {
+    submenu.classList.add('open');
+    btn.classList.add('open');
+  }
+}
+
+// ── Marcar item activo según URL actual ──────────────────────
+(function markActive() {
+  const path = window.location.pathname.replace(/\/$/, '') || '/';
+
+  let bestMatch = null;
+  let bestLen   = 0;
+
+  document.querySelectorAll('.sg-item[href], .sg-subitem[href]').forEach(el => {
+    const href = el.getAttribute('href') || '';
+    if (!href || href === '#') return;
+    try {
+      const elPath = new URL(href, location.origin).pathname.replace(/\/$/, '') || '/';
+      if (elPath === '/' && path !== '/') return;
+      if (path === elPath || path.startsWith(elPath + '/')) {
+        if (elPath.length > bestLen) {
+          bestLen   = elPath.length;
+          bestMatch = el;
+        }
+      }
+    } catch(e) {}
+  });
+
+  if (!bestMatch) return;
+
+  const inSubmenu = bestMatch.classList.contains('sg-subitem');
+
+  if (inSubmenu) {
+    // Marcar el subitem activo
+    bestMatch.classList.add('active');
+
+    // Abrir el submenu padre
+    const submenu = bestMatch.closest('.sg-submenu');
+    if (submenu) {
+      submenu.classList.add('open');
+
+      // Marcar el botón padre como active-parent (no active, para no pintarlo con gradiente)
+      const parentBtn = submenu.previousElementSibling;
+      if (parentBtn && parentBtn.classList.contains('sg-item')) {
+        parentBtn.classList.add('open', 'active-parent');
+      }
+    }
+  } else {
+    // Es un item directo sin submenu
+    bestMatch.classList.add('active');
   }
 })();
 </script>
