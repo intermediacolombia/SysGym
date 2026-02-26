@@ -365,7 +365,7 @@ body {
 .sg-item.active-parent .sg-chevron {
   color: var(--nav-text-active) !important;
 }
-.sg-item.active-parent .sg-chevron {
+.sg-item.active-parent.open .sg-chevron {
   transform: rotate(180deg);
 }
         
