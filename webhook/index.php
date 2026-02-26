@@ -401,24 +401,12 @@ if (!empty($excluidos)) {
         $nombre,                            // pushName: Juan, María, etc.
     ]);
 
-    /*foreach ($variantes as $variante) {
+    foreach ($variantes as $variante) {
         if (in_array($variante, $excluidos)) {
             wlog("[$clientId] Excluido del menú: $variante");
             http_response_code(200); exit('OK');
         }
-    }*/
-
-        wlog("DEBUG nombre=[" . $nombre . "] bytes=" . bin2hex($nombre));
-wlog("DEBUG excluidos=" . implode('|', $excluidos));
-
-foreach ($variantes as $variante) {
-    foreach ($excluidos as $excluido) {
-        if (mb_strtolower(trim($variante)) === mb_strtolower(trim($excluido))) {
-            wlog("[$clientId] Excluido del menú: $variante");
-            http_response_code(200); exit('OK');
-        }
     }
-}
 }
 
 if (empty($telefono)) { http_response_code(200); exit('OK'); }
