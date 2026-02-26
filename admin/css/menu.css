@@ -205,25 +205,29 @@ body {
 }
 .sg-item.open .sg-chevron { transform: rotate(180deg); }
 
-/* ── Submenu ────────────────────────────────────────────────── */
+
+/* ── Animación suave del submenu ────────────────────────────── */
 .sg-submenu {
   display: grid;
   grid-template-rows: 0fr;
-  flex-direction: column;
-  background: var(--submenu-bg);
-  border-radius: 10px;
+  opacity: 0;
+  transition: grid-template-rows 0.28s cubic-bezier(0.4,0,0.2,1),
+              opacity 0.2s ease,
+              padding 0.28s ease;
+  padding: 0;
   margin: 2px 0 4px 0;
   border: 1px solid var(--divider);
+  border-radius: 10px;
   overflow: hidden;
-  transition: grid-template-rows 0.28s cubic-bezier(0.4,0,0.2,1),
-              padding 0.28s ease,
-              opacity 0.2s ease;
-  opacity: 0;
-  padding: 0;
+  background: var(--submenu-bg);
 }
-.sg-submenu > * { overflow: hidden; }
+
+.sg-submenu > * {
+  overflow: hidden;
+  min-height: 0;
+}
+
 .sg-submenu.open {
-  display: grid;
   grid-template-rows: 1fr;
   opacity: 1;
   padding: 4px 0;
@@ -337,35 +341,5 @@ body {
 /* ── Neutralizar estilos del menú viejo que puedan interferir ── */
 .menu { display: none !important; }
 
-/* ── Subitem activo ─────────────────────────────────────────── */
-.sg-subitem.active {
-  color: var(--submenu-active) !important;
-  background: var(--nav-hover-bg) !important;
-  font-weight: 600 !important;
-}
-.sg-subitem.active::before {
-  opacity: 1 !important;
-  background: var(--submenu-active) !important;
-}
 
-/* Padre activo cuando un hijo está activo */
-.sg-item.active-parent {
-  background: var(--nav-hover-bg) !important;
-  color: var(--submenu-active) !important;
-  box-shadow: none !important;
-}
-.sg-item.active-parent .sg-icon {
-  color: var(--submenu-active) !important;
-}
-
-/* ── Active parent (padre de subitem activo) ────────────────── */
-.sg-item.active-parent {
-  color: var(--submenu-active) !important;
-  background: var(--nav-hover-bg) !important;
-  box-shadow: none !important;
-}
-.sg-item.active-parent .sg-icon,
-.sg-item.active-parent .sg-chevron {
-  color: var(--submenu-active) !important;
-}
         
