@@ -44,66 +44,37 @@ function esSalidaAsesor($mensaje) {
     return (bool)preg_match('/^\s*(menu|menú)\s*$/i', $mensaje);
 }
 
-/**
- * Verifica si el gimnasio está abierto AHORA (zona horaria Bogotá).
- * Lunes–Viernes: 05:00–22:00
- * Sábados:       07:00–14:00
- * Domingos:      cerrado
- * Retorna true si hay asesores disponibles.
- */
 function gimnasioAbierto() {
-    $ahora   = new DateTime('now', new DateTimeZone('America/Bogota'));
-    $diaSemana = (int)$ahora->format('N'); // 1=Lun … 7=Dom
-    $hora      = (int)$ahora->format('G'); // hora sin ceros, 0-23
-    $minutos   = (int)$ahora->format('i');
+    $ahora       = new DateTime('now', new DateTimeZone('America/Bogota'));
+    $diaSemana   = (int)$ahora->format('N');
+    $hora        = (int)$ahora->format('G');
+    $minutos     = (int)$ahora->format('i');
     $horaDecimal = $hora + ($minutos / 60);
 
-    if ($diaSemana === 7) {
-        // Domingo — cerrado todo el día
-        return false;
-    } elseif ($diaSemana === 6) {
-        // Sábado: 07:00–14:00
-        return ($horaDecimal >= 7 && $horaDecimal < 14);
-    } else {
-        // Lunes–Viernes: 05:00–22:00
-        return ($horaDecimal >= 5 && $horaDecimal < 22);
-    }
+    if ($diaSemana === 7)     return false;
+    elseif ($diaSemana === 6) return ($horaDecimal >= 7 && $horaDecimal < 14);
+    else                      return ($horaDecimal >= 5 && $horaDecimal < 22);
 }
 
-/**
- * Retorna el mensaje de ausencia indicando cuándo vuelven.
- */
 function mensajeAusencia() {
     $ahora     = new DateTime('now', new DateTimeZone('America/Bogota'));
     $diaSemana = (int)$ahora->format('N');
+    $hora      = (int)$ahora->format('G');
 
     if ($diaSemana === 7) {
         $cuando = "el *lunes desde las 5:00 AM*";
     } elseif ($diaSemana === 6) {
-        // Sábado: si es antes de las 7am o ya pasó la 2pm
-        $hora = (int)$ahora->format('G');
-        if ($hora < 7) {
-            $cuando = "hoy *desde las 7:00 AM*";
-        } else {
-            $cuando = "el *lunes desde las 5:00 AM*";
-        }
+        $cuando = $hora < 7 ? "hoy *desde las 7:00 AM*" : "el *lunes desde las 5:00 AM*";
     } else {
-        // Lunes–Viernes fuera de horario
-        $hora = (int)$ahora->format('G');
         if ($hora < 5) {
             $cuando = "hoy *desde las 5:00 AM*";
         } else {
-            // Después de las 10pm — mañana
             $manana    = clone $ahora;
             $manana->modify('+1 day');
             $diaMañana = (int)$manana->format('N');
-            if ($diaMañana === 6) {
-                $cuando = "mañana *sábado desde las 7:00 AM*";
-            } elseif ($diaMañana === 7) {
-                $cuando = "el *lunes desde las 5:00 AM*";
-            } else {
-                $cuando = "mañana *desde las 5:00 AM*";
-            }
+            if ($diaMañana === 6)     $cuando = "mañana *sábado desde las 7:00 AM*";
+            elseif ($diaMañana === 7) $cuando = "el *lunes desde las 5:00 AM*";
+            else                      $cuando = "mañana *desde las 5:00 AM*";
         }
     }
 
@@ -119,9 +90,12 @@ function mensajeAusencia() {
 }
 
 // ════════════════════════════════════════════════════════════════
-//  ENVÍO WS
+//  ENVÍO WS — soporta texto solo o texto + PDF
 // ════════════════════════════════════════════════════════════════
-function wsSend($telefono, $mensaje) {
+function wsSend($telefono, $mensaje, $pdfUrl = null) {
+    $payload = ['phonenumber' => $telefono, 'text' => $mensaje];
+    if ($pdfUrl) $payload['url'] = $pdfUrl;
+
     $ch = curl_init(API_URL);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
@@ -131,10 +105,7 @@ function wsSend($telefono, $mensaje) {
             'Content-Type: application/json',
             'Accept: application/json',
         ],
-        CURLOPT_POSTFIELDS => json_encode([
-            'phonenumber' => $telefono,
-            'text'        => $mensaje,
-        ], JSON_UNESCAPED_UNICODE),
+        CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE),
     ]);
     $response = curl_exec($ch);
     $code     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -145,7 +116,7 @@ function wsSend($telefono, $mensaje) {
         $decoded = json_decode($response, true);
         $success = !empty($decoded['success']);
     }
-    wlog("wsSend $telefono HTTP=$code success=" . ($success ? 'SI' : 'NO') . " msg=" . mb_substr($mensaje, 0, 60));
+    wlog("wsSend $telefono HTTP=$code success=" . ($success ? 'SI' : 'NO') . ($pdfUrl ? ' [PDF]' : '') . " msg=" . mb_substr($mensaje, 0, 60));
     return $success;
 }
 
@@ -170,7 +141,7 @@ function obtenerEstado($key) {
     $elapsed = time() - intval($e['timestamp']);
     $limite  = $e['estado'] === 'asesor'
         ? ASESOR_TIMEOUT_SECS
-        : (in_array($e['estado'], ['espera_doc_plan','espera_doc_pago'])
+        : (in_array($e['estado'], ['espera_doc_plan','espera_doc_pago','espera_doc_cert'])
             ? MENU_TIMEOUT_SECS * 2
             : MENU_TIMEOUT_SECS);
 
@@ -216,7 +187,8 @@ function menuPrincipal($nombre = '') {
         "2️⃣  Horarios\n" .
         "3️⃣  Consultar mi Plan\n" .
         "4️⃣  Realizar Pago\n" .
-        "5️⃣  Hablar con un Asesor\n\n" .
+        "5️⃣  Certificado de Inscripción\n" .
+        "6️⃣  Hablar con un Asesor\n\n" .
         "_Escribe el número de la opción que deseas._";
 }
 
@@ -367,26 +339,105 @@ function gestionarPago($doc) {
 }
 
 // ════════════════════════════════════════════════════════════════
+//  CERTIFICADO DE INSCRIPCIÓN — busca por cédula, genera y envía PDF
+// ════════════════════════════════════════════════════════════════
+function generarCertificado($doc, $telefono) {
+    try {
+        $st = db()->prepare(
+            "SELECT id, nombres, apellidos FROM clientes
+              WHERE identificacion = :doc AND borrado = 0 LIMIT 1"
+        );
+        $st->execute([':doc' => $doc]);
+        $c = $st->fetch();
+
+        if (!$c) {
+            return [
+                "❌ No encontramos ningún cliente con el documento *{$doc}*.\n\n" .
+                "Verifica que sea correcto e inténtalo de nuevo, o escribe *Menú* para volver.\n\n" .
+                "Si aún no eres miembro, ¡es el momento perfecto para unirte! 💪",
+                null
+            ];
+        }
+
+        $clienteId = $c['id'];
+        $nombre    = trim($c['nombres'] . ' ' . $c['apellidos']);
+        $baseUrl   = rtrim(defined('APP_URL') ? APP_URL : 'https://sysgym.intermediacolombia.com', '/');
+
+        // Descargar PDF desde el generador
+        $pdfSrcUrl = $baseUrl . '/pdf/?type=cert&id=' . $clienteId;
+        $tempDir   = __DIR__ . '/../pdf/archivos_temp/';
+        if (!is_dir($tempDir)) mkdir($tempDir, 0777, true);
+
+        $pdfFilename = 'cert_' . $clienteId . '_' . time() . '.pdf';
+        $pdfFilePath = $tempDir . $pdfFilename;
+        $pdfUrl      = $baseUrl . '/pdf/archivos_temp/' . $pdfFilename;
+
+        $pdfContent = file_get_contents($pdfSrcUrl);
+        if ($pdfContent === false || strlen($pdfContent) < 100) {
+            wlog("ERROR cert: no se pudo descargar PDF para id=$clienteId");
+            return [
+                "⚠️ No fue posible generar tu certificado en este momento.\n\n" .
+                "Por favor intenta más tarde o escribe *Menú* para volver.",
+                null
+            ];
+        }
+
+        file_put_contents($pdfFilePath, $pdfContent);
+        wlog("CERT generado: cliente=$clienteId doc=$doc archivo=$pdfFilename");
+
+        return [
+            "🏅 *¡Tu Certificado de Inscripción está listo!*\n\n" .
+            "👤 *{$nombre}*\n\n" .
+            "Tu certificado ha sido generado exitosamente. 🎉\n\n" .
+            "_Guárdalo o compártelo cuando lo necesites._\n\n" .
+            "💪 ¡Sigue entrenando con todo!\n\n" .
+            "Escribe *Menú* para volver al menú principal.",
+            $pdfUrl
+        ];
+
+    } catch (Exception $ex) {
+        wlog("ERROR generarCertificado: " . $ex->getMessage());
+        return [
+            "⚠️ Ocurrió un error al generar el certificado. Por favor intenta más tarde.",
+            null
+        ];
+    }
+}
+
+// ════════════════════════════════════════════════════════════════
 //  ENTRADA DEL WEBHOOK
 // ════════════════════════════════════════════════════════════════
 $rawInput = file_get_contents('php://input');
 wlog("RECIBIDO: $rawInput");
 
 $data = json_decode($rawInput, true);
-if (!$data) { http_response_code(400); exit('Invalid JSONS'); }
+if (!$data) { http_response_code(400); exit('Invalid JSON'); }
 
-
-$from      = trim($data['from'] ?? '');
-$jid       = trim($data['jid']  ?? '');
+$from      = trim($data['from']      ?? '');
+$jid       = trim($data['jid']       ?? '');
 $mensaje   = trim($data['message']   ?? '');
 $nombre    = $data['pushName']        ?? '';
 $clientId  = $data['client_id']       ?? 'default';
+$messageId = $data['messageId']       ?? '';
 
 $telefono  = $jid ?: $from;
 $sesKey    = ($from ?: $jid) . '_' . $clientId;
 
+// ── Anti-duplicados por messageId ─────────────────────────────
+if (!empty($messageId)) {
+    $dupFile   = __DIR__ . '/processed_ids.json';
+    $processed = file_exists($dupFile) ? (json_decode(file_get_contents($dupFile), true) ?: []) : [];
+    $now       = time();
+    $processed = array_filter($processed, fn($ts) => ($now - $ts) < 300);
+    if (isset($processed[$messageId])) {
+        wlog("Duplicado ignorado: $messageId");
+        http_response_code(200); exit('OK');
+    }
+    $processed[$messageId] = $now;
+    file_put_contents($dupFile, json_encode($processed));
+}
 
-// ── Excluidos del menú automático (equipo interno) ───────────
+// ── Excluidos del menú automático ────────────────────────────
 $excluidos = [];
 if (defined('EXCLUDE_WS_MENU') && !empty(EXCLUDE_WS_MENU)) {
     $excluidos = array_map('trim', explode(',', EXCLUDE_WS_MENU));
@@ -394,20 +445,10 @@ if (defined('EXCLUDE_WS_MENU') && !empty(EXCLUDE_WS_MENU)) {
 
 if (!empty($excluidos)) {
     $jidLimpio = explode('@', $jid)[0];
-    
-    // Case 1: número real (from)
-    if (in_array($from, $excluidos)) {
-        wlog("[$clientId] Excluido por from: $from");
+    if (in_array($from, $excluidos) || in_array($jidLimpio, $excluidos)) {
+        wlog("[$clientId] Excluido: $from");
         http_response_code(200); exit('OK');
     }
-    
-    // Case 2: JID sin dominio
-    if (in_array($jidLimpio, $excluidos)) {
-        wlog("[$clientId] Excluido por jid: $jidLimpio");
-        http_response_code(200); exit('OK');
-    }
-    
-    // Case 3: pushName (case insensitive)
     foreach ($excluidos as $excluido) {
         if (mb_strtolower(trim($nombre)) === mb_strtolower($excluido)) {
             wlog("[$clientId] Excluido por nombre: $nombre");
@@ -418,20 +459,15 @@ if (!empty($excluidos)) {
 
 if (empty($telefono)) { http_response_code(200); exit('OK'); }
 
-
-// Multimedia sin texto
+// ── Multimedia sin texto ──────────────────────────────────────
 if (empty($mensaje)) {
     $sesDataTemp = obtenerEstado($sesKey);
     $estadoTemp  = $sesDataTemp['estado'] ?? null;
-    
-    // Si está en asesor, ignorar silenciosamente
     if ($estadoTemp === 'asesor') {
         http_response_code(200); exit('OK');
     }
-    // En cualquier otro caso, disparar menú
     guardarEstado($sesKey, 'menu_principal');
-    $respuesta = menuPrincipal($nombre);
-    wsSend($telefono, $respuesta);
+    wsSend($telefono, menuPrincipal($nombre));
     http_response_code(200); exit('OK');
 }
 
@@ -444,6 +480,7 @@ $estado  = $sesData['estado'] ?? null;
 wlog("[$clientId] Estado: " . ($estado ?? 'NINGUNO'));
 
 $respuesta = null;
+$pdfUrl    = null;
 
 // ── A. Estado ASESOR activo ───────────────────────────────────
 if ($estado === 'asesor') {
@@ -461,7 +498,7 @@ if ($estado === 'asesor') {
     wlog("[$clientId] Humano detectado");
     http_response_code(200); exit('OK');
 
-// ── C. Palabra "asesor" → verificar horario primero ──────────
+// ── C. Palabra "asesor" → verificar horario ──────────────────
 } elseif (preg_match('/^\s*asesor\s*$/i', $mensajeLower)) {
     if (gimnasioAbierto()) {
         $respuesta =
@@ -475,7 +512,7 @@ if ($estado === 'asesor') {
     } else {
         $respuesta = mensajeAusencia();
         guardarEstado($sesKey, 'menu_principal');
-        wlog("[$clientId] Asesor fuera de horario: $nombre ($telefono)");
+        wlog("[$clientId] Asesor fuera de horario: $nombre");
     }
 
 // ── D. Reset por navegación o saludo ─────────────────────────
@@ -513,7 +550,15 @@ if ($estado === 'asesor') {
             guardarEstado($sesKey, 'espera_doc_pago');
             break;
         case '5':
-            // Opción 5 del menú — también verifica horario
+            $respuesta =
+                "🏅 *Certificado de Inscripción*\n\n" .
+                "Por favor envíame tu *número de documento* de identidad.\n\n" .
+                "⚠️ Solo números, sin espacios, sin puntos, sin comas.\n" .
+                "_Ejemplo: 123456789_\n\n" .
+                "Escribe *Cancelar* si deseas volver al menú.";
+            guardarEstado($sesKey, 'espera_doc_cert');
+            break;
+        case '6':
             if (gimnasioAbierto()) {
                 $respuesta =
                     "🧑‍💼 *¡Conectando con un asesor!*\n\n" .
@@ -526,7 +571,7 @@ if ($estado === 'asesor') {
             } else {
                 $respuesta = mensajeAusencia();
                 guardarEstado($sesKey, 'menu_principal');
-                wlog("[$clientId] Asesor fuera de horario (opción 5): $nombre ($telefono)");
+                wlog("[$clientId] Asesor fuera de horario (opción 6): $nombre");
             }
             break;
         default:
@@ -564,7 +609,23 @@ if ($estado === 'asesor') {
         guardarEstado($sesKey, 'espera_doc_pago');
     }
 
-// ── H. Sin estado ─────────────────────────────────────────────
+// ── H. Esperando documento — certificado ─────────────────────
+} elseif ($estado === 'espera_doc_cert') {
+    if (preg_match('/^\d{5,15}$/', $mensaje)) {
+        wlog("[$clientId] SOLICITUD CERT doc=$mensaje");
+        wsSend($telefono, "⏳ Generando tu certificado, un momento por favor...");
+        [$respuesta, $pdfUrl] = generarCertificado($mensaje, $telefono);
+        guardarEstado($sesKey, 'menu_principal');
+    } else {
+        $respuesta =
+            "⚠️ El documento ingresado no es válido.\n\n" .
+            "Por favor envía *solo números*, sin espacios ni caracteres especiales.\n" .
+            "_Ejemplo: 123456789_\n\n" .
+            "Inténtalo de nuevo o escribe *Cancelar* para volver al menú.";
+        guardarEstado($sesKey, 'espera_doc_cert');
+    }
+
+// ── I. Sin estado ─────────────────────────────────────────────
 } else {
     wlog("[$clientId] Sin estado — menú inicial");
     $respuesta = resetMenu($sesKey, $nombre);
@@ -572,7 +633,7 @@ if ($estado === 'asesor') {
 
 // ── Enviar ────────────────────────────────────────────────────
 if ($respuesta) {
-    if (!wsSend($telefono, $respuesta)) {
+    if (!wsSend($telefono, $respuesta, $pdfUrl)) {
         wlog("[$clientId] ERROR enviando a $telefono");
     }
 }
