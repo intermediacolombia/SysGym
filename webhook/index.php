@@ -632,14 +632,14 @@ if ($estado === 'asesor') {
         [$textoCert, $pdfUrl] = generarCertificado($mensaje, $telefono);
         guardarEstado($sesKey, 'menu_principal');
         if ($pdfUrl) {
-            // Mismo formato exacto que send_valoracion.php que ya funciona
+            // 1) Enviar el PDF adjunto solo (sin texto) usando $from — número real
             $chPdf = curl_init(API_URL);
             curl_setopt_array($chPdf, [
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_POST           => true,
                 CURLOPT_POSTFIELDS     => json_encode([
-                    'phonenumber' => $telefono,
-                    'text'        => $textoCert,
+                    'phonenumber' => $from,
+                    'text'        => '📎 Certificado de Inscripción',
                     'url'         => $pdfUrl,
                 ]),
                 CURLOPT_HTTPHEADER     => [
@@ -656,11 +656,9 @@ if ($estado === 'asesor') {
                 $dec = json_decode($respPdf, true);
                 $okPdf = !empty($dec['success']);
             }
-            wlog("[$clientId] CERT send HTTP=$codePdf success=" . ($okPdf?'SI':'NO') . " url=$pdfUrl resp=" . mb_substr($respPdf, 0, 120));
-            if (!$okPdf) {
-                wlog("[$clientId] CERT fallback: enviando link en texto");
-                wsSend($telefono, $textoCert . "\n\n📎 *Descarga tu certificado aquí:*\n" . $pdfUrl);
-            }
+            wlog("[$clientId] CERT send HTTP=$codePdf success=" . ($okPdf?'SI':'NO') . " from=$from url=$pdfUrl");
+            // 2) Enviar el texto del certificado por separado
+            wsSend($from, $textoCert);
         } else {
             wsSend($telefono, $textoCert);
         }
