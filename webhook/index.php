@@ -707,7 +707,7 @@ if ($estado === 'asesor') {
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_POST           => true,
                 CURLOPT_POSTFIELDS     => json_encode([
-                    'phonenumber' => $from,
+                    'phonenumber' => $telefono,
                     'text'        => '📎 Certificado de Inscripción',
                     'url'         => $pdfUrl,
                 ]),
@@ -725,9 +725,9 @@ if ($estado === 'asesor') {
                 $dec = json_decode($respPdf, true);
                 $okPdf = !empty($dec['success']);
             }
-            wlog("[$clientId] CERT send HTTP=$codePdf success=" . ($okPdf?'SI':'NO') . " from=$from url=$pdfUrl");
+            wlog("[$clientId] CERT send HTTP=$codePdf success=" . ($okPdf?'SI':'NO') . " telefono=$telefono url=$pdfUrl");
             // 2) Enviar el texto del certificado por separado
-            wsSend($from, $textoCert);
+            wsSend($telefono, $textoCert);
         } else {
             wsSend($telefono, $textoCert);
         }
