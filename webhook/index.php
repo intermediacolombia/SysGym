@@ -500,16 +500,26 @@ if (!empty($excluidos)) {
 
 if (empty($telefono)) { http_response_code(200); exit('OK'); }
 
-// ── Multimedia sin texto ──────────────────────────────────────
+// ── Multimedia / mensaje vacío ───────────────────────────────
 if (empty($mensaje)) {
+    $messageType = $data['messageType'] ?? 'text';
     $sesDataTemp = obtenerEstado($sesKey);
     $estadoTemp  = $sesDataTemp['estado'] ?? null;
-    // Si ya hay sesión activa, ignorar el evento vacío (doble disparo de la API)
-    if ($estadoTemp !== null) {
-        wlog("[$clientId] Evento vacío ignorado — sesión activa: $estadoTemp");
+
+    // Doble evento: type=text con message vacío → ignorar siempre
+    if ($messageType === 'text') {
+        wlog("[$clientId] Doble evento text vacío ignorado");
         http_response_code(200); exit('OK');
     }
-    // Sin sesión = primera vez, mostrar menú
+
+    // Multimedia real (image, audio, video, sticker, document, etc.)
+    // Si está en asesor, ignorar silenciosamente
+    if ($estadoTemp === 'asesor') {
+        wlog("[$clientId] Multimedia ignorado — asesor activo");
+        http_response_code(200); exit('OK');
+    }
+    // Mostrar menú
+    wlog("[$clientId] Multimedia recibido ($messageType) — mostrando menú");
     guardarEstado($sesKey, 'menu_principal');
     wsSend($telefono, menuPrincipal($nombre));
     http_response_code(200); exit('OK');
