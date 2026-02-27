@@ -344,7 +344,7 @@ function gestionarPago($doc) {
 function generarCertificado($doc, $telefono) {
     try {
         $st = db()->prepare(
-            "SELECT id, nombres, apellidos FROM clientes
+            "SELECT id, nombres, apellidos, congelado, vencimiento_plan FROM clientes
               WHERE identificacion = :doc AND borrado = 0 LIMIT 1"
         );
         $st->execute([':doc' => $doc]);
@@ -355,6 +355,28 @@ function generarCertificado($doc, $telefono) {
                 "❌ No encontramos ningún cliente con el documento *{$doc}*.\n\n" .
                 "Verifica que sea correcto e inténtalo de nuevo, o escribe *Menú* para volver.\n\n" .
                 "Si aún no eres miembro, ¡es el momento perfecto para unirte! 💪",
+                null
+            ];
+        }
+
+        if ($c['congelado']) {
+            return [
+                "🧊 Tu membresía está *congelada*.\n\n" .
+                "No es posible generar el certificado mientras tu plan esté congelado.\n\n" .
+                "Contáctanos para reactivar tu membresía. 💪\n\n" .
+                "Escribe *Menú* para volver al menú principal.",
+                null
+            ];
+        }
+
+        $hoy  = new DateTime(date('Y-m-d'));
+        $venc = new DateTime($c['vencimiento_plan']);
+        if ($hoy > $venc) {
+            return [
+                "🔴 Tu membresía está *vencida*.\n\n" .
+                "No es posible generar el certificado con un plan vencido.\n\n" .
+                "Renueva tu plan y vuelve a intentarlo. 🏃\n\n" .
+                "Escribe *4* para realizar tu pago o *Menú* para volver.",
                 null
             ];
         }
