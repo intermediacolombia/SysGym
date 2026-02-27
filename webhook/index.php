@@ -361,7 +361,7 @@ function generarCertificado($doc, $telefono) {
 
         $clienteId = $c['id'];
         $nombre    = trim($c['nombres'] . ' ' . $c['apellidos']);
-        $baseUrl   = rtrim(defined('APP_URL') ? APP_URL : 'https://sysgym.intermediacolombia.com', '/');
+        $baseUrl   = rtrim(defined('URLBASE') ? URLBASE : 'https://sysgym.intermediacolombia.com', '/');
 
         // Descargar PDF desde el generador
         $pdfSrcUrl = $baseUrl . '/pdf/?type=cert&id=' . $clienteId;
@@ -372,9 +372,24 @@ function generarCertificado($doc, $telefono) {
         $pdfFilePath = $tempDir . $pdfFilename;
         $pdfUrl      = $baseUrl . '/pdf/archivos_temp/' . $pdfFilename;
 
-        $pdfContent = file_get_contents($pdfSrcUrl);
-        if ($pdfContent === false || strlen($pdfContent) < 100) {
-            wlog("ERROR cert: no se pudo descargar PDF para id=$clienteId");
+        // Descargar PDF via cURL (más robusto que file_get_contents en loopback)
+        $ch2 = curl_init($pdfSrcUrl);
+        curl_setopt_array($ch2, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_TIMEOUT        => 30,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+        ]);
+        $pdfContent = curl_exec($ch2);
+        $pdfCode    = curl_getinfo($ch2, CURLINFO_HTTP_CODE);
+        $pdfError   = curl_error($ch2);
+        curl_close($ch2);
+
+        wlog("CERT download: url=$pdfSrcUrl HTTP=$pdfCode err=$pdfError bytes=" . strlen($pdfContent ?: ''));
+
+        if ($pdfContent === false || $pdfCode !== 200 || strlen($pdfContent) < 100) {
+            wlog("ERROR cert: no se pudo descargar PDF para id=$clienteId (HTTP=$pdfCode err=$pdfError)");
             return [
                 "⚠️ No fue posible generar tu certificado en este momento.\n\n" .
                 "Por favor intenta más tarde o escribe *Menú* para volver.",
@@ -614,8 +629,16 @@ if ($estado === 'asesor') {
     if (preg_match('/^\d{5,15}$/', $mensaje)) {
         wlog("[$clientId] SOLICITUD CERT doc=$mensaje");
         wsSend($telefono, "⏳ Generando tu certificado, un momento por favor...");
-        [$respuesta, $pdfUrl] = generarCertificado($mensaje, $telefono);
+        [$textoCert, $pdfUrl] = generarCertificado($mensaje, $telefono);
         guardarEstado($sesKey, 'menu_principal');
+        // Enviar PDF solo (sin texto) y luego el texto por separado
+        if ($pdfUrl) {
+            wsSend($telefono, ' ', $pdfUrl); // algunos APIs requieren text no vacío
+            wsSend($telefono, $textoCert);
+        } else {
+            wsSend($telefono, $textoCert);
+        }
+        http_response_code(200); exit('OK');
     } else {
         $respuesta =
             "⚠️ El documento ingresado no es válido.\n\n" .
