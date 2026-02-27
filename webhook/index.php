@@ -632,30 +632,32 @@ if ($estado === 'asesor') {
         [$textoCert, $pdfUrl] = generarCertificado($mensaje, $telefono);
         guardarEstado($sesKey, 'menu_principal');
         if ($pdfUrl) {
-            // La API requiere: phone, message, url, filename
+            // Mismo formato exacto que send_valoracion.php que ya funciona
             $chPdf = curl_init(API_URL);
-            $payloadPdf = json_encode([
-                'phone'    => $telefono,
-                'message'  => $textoCert,
-                'url'      => $pdfUrl,
-                'filename' => 'Certificado-Inscripcion.pdf',
-            ], JSON_UNESCAPED_UNICODE);
             curl_setopt_array($chPdf, [
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_POST           => true,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                CURLOPT_POSTFIELDS     => json_encode([
+                    'phonenumber' => $telefono,
+                    'text'        => $textoCert,
+                    'url'         => $pdfUrl,
+                ]),
                 CURLOPT_HTTPHEADER     => [
                     'Authorization: Bearer ' . API_KEY,
                     'Content-Type: application/json',
+                    'Accept: application/json',
                 ],
-                CURLOPT_POSTFIELDS => $payloadPdf,
             ]);
-            $respPdf  = curl_exec($chPdf);
-            $codePdf  = curl_getinfo($chPdf, CURLINFO_HTTP_CODE);
+            $respPdf = curl_exec($chPdf);
+            $codePdf = curl_getinfo($chPdf, CURLINFO_HTTP_CODE);
             curl_close($chPdf);
-            wlog("[$clientId] CERT send HTTP=$codePdf url=$pdfUrl resp=" . mb_substr($respPdf, 0, 120));
-            if ($codePdf >= 400) {
+            $okPdf = false;
+            if ($codePdf >= 200 && $codePdf < 300) {
+                $dec = json_decode($respPdf, true);
+                $okPdf = !empty($dec['success']);
+            }
+            wlog("[$clientId] CERT send HTTP=$codePdf success=" . ($okPdf?'SI':'NO') . " url=$pdfUrl resp=" . mb_substr($respPdf, 0, 120));
+            if (!$okPdf) {
                 wlog("[$clientId] CERT fallback: enviando link en texto");
                 wsSend($telefono, $textoCert . "\n\n📎 *Descarga tu certificado aquí:*\n" . $pdfUrl);
             }
