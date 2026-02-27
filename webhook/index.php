@@ -457,8 +457,12 @@ $nombre    = $data['pushName']        ?? '';
 $clientId  = $data['client_id']       ?? 'default';
 $messageId = $data['messageId']       ?? '';
 
-$telefono  = $jid ?: $from;
-$sesKey    = ($from ?: $jid) . '_' . $clientId;
+// Si jid contiene '@' (@whatsapp, @lid) → usarlo para enviar mensajes
+// Si jid NO contiene '@' o viene vacío → usar from (número real)
+$telefono = (strpos($jid, '@') !== false) ? $jid : $from;
+
+// La sesión SIEMPRE se basa en from (número real) para evitar sesiones duplicadas
+$sesKey = $from . '_' . $clientId;
 
 // ── Anti-duplicados por messageId ─────────────────────────────
 if (!empty($messageId)) {
