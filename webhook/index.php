@@ -503,23 +503,23 @@ if (empty($telefono)) { http_response_code(200); exit('OK'); }
 // ── Multimedia / mensaje vacío ───────────────────────────────
 if (empty($mensaje)) {
     $messageType = $data['messageType'] ?? 'text';
-    $sesDataTemp = obtenerEstado($sesKey);
-    $estadoTemp  = $sesDataTemp['estado'] ?? null;
 
-    // Doble evento: type=text con message vacío → ignorar siempre
+    // Doble evento vacío que manda la API: messageType=text sin texto → ignorar
     if ($messageType === 'text') {
         wlog("[$clientId] Doble evento text vacío ignorado");
         http_response_code(200); exit('OK');
     }
 
-    // Multimedia real (image, audio, video, sticker, document, etc.)
-    // Si está en asesor, ignorar silenciosamente
+    // Multimedia real (audio, image, video, sticker, document...)
+    $sesDataTemp = obtenerEstado($sesKey);
+    $estadoTemp  = $sesDataTemp['estado'] ?? null;
+
     if ($estadoTemp === 'asesor') {
         wlog("[$clientId] Multimedia ignorado — asesor activo");
         http_response_code(200); exit('OK');
     }
-    // Mostrar menú
-    wlog("[$clientId] Multimedia recibido ($messageType) — mostrando menú");
+
+    wlog("[$clientId] Multimedia ($messageType) — mostrando menú");
     guardarEstado($sesKey, 'menu_principal');
     wsSend($telefono, menuPrincipal($nombre));
     http_response_code(200); exit('OK');
