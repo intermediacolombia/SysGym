@@ -424,11 +424,27 @@ wlog("RECIBIDO: $rawInput");
 $data = json_decode($rawInput, true);
 if (!$data) { http_response_code(400); exit('Invalid JSON'); }
 
-$from      = trim($data['from'] ?? '');
-$jid       = trim($data['jid']  ?? '');
+$from      = trim($data['from']      ?? '');
+$jid       = trim($data['jid']       ?? '');
 $mensaje   = trim($data['message']   ?? '');
 $nombre    = $data['pushName']        ?? '';
 $clientId  = $data['client_id']       ?? 'default';
+$messageId = $data['messageId']       ?? '';
+
+// ── Anti-duplicados: ignorar si ya procesamos este messageId ──
+if (!empty($messageId)) {
+    $dupFile = __DIR__ . '/processed_ids.json';
+    $processed = file_exists($dupFile) ? (json_decode(file_get_contents($dupFile), true) ?: []) : [];
+    // Limpiar IDs viejos (más de 5 minutos)
+    $now = time();
+    $processed = array_filter($processed, fn($ts) => ($now - $ts) < 300);
+    if (isset($processed[$messageId])) {
+        wlog("Duplicado ignorado: $messageId");
+        http_response_code(200); exit('OK');
+    }
+    $processed[$messageId] = $now;
+    file_put_contents($dupFile, json_encode($processed));
+}
 
 $telefono  = $jid ?: $from;
 $sesKey    = ($from ?: $jid) . '_' . $clientId;
