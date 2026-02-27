@@ -500,11 +500,11 @@ if (!empty($excluidos)) {
 
 if (empty($telefono)) { http_response_code(200); exit('OK'); }
 
-// ── Multimedia / mensaje vacío ───────────────────────────────
+// ── Mensaje vacío (multimedia, doble evento, sticker, audio, etc.) ──
 if (empty($mensaje)) {
     $messageType = $data['messageType'] ?? 'text';
 
-    // Doble evento vacío que manda la API: messageType=text sin texto → ignorar
+    // Doble evento: type=text con message vacío → ignorar siempre
     if ($messageType === 'text') {
         wlog("[$clientId] Doble evento text vacío ignorado");
         http_response_code(200); exit('OK');
@@ -514,14 +514,44 @@ if (empty($mensaje)) {
     $sesDataTemp = obtenerEstado($sesKey);
     $estadoTemp  = $sesDataTemp['estado'] ?? null;
 
+    // Con asesor activo: ignorar, el humano lo atiende
     if ($estadoTemp === 'asesor') {
-        wlog("[$clientId] Multimedia ignorado — asesor activo");
+        wlog("[$clientId] Multimedia con asesor activo — ignorado");
         http_response_code(200); exit('OK');
     }
 
-    wlog("[$clientId] Multimedia ($messageType) — mostrando menú");
-    guardarEstado($sesKey, 'menu_principal');
-    wsSend($telefono, menuPrincipal($nombre));
+    // Sin asesor: avisar que solo se aceptan opciones del menú
+    $avisoTipo = [
+        'image'    => '🖼️ imagen',
+        'audio'    => '🎵 audio',
+        'video'    => '🎬 video',
+        'sticker'  => '😄 sticker',
+        'document' => '📄 documento',
+    ];
+    $tipoTexto = $avisoTipo[$messageType] ?? '📎 archivo multimedia';
+    wlog("[$clientId] Multimedia ($messageType) — recordando opciones");
+    wsSend($telefono,
+        "Recibí tu {$tipoTexto}, pero por este canal solo puedo responder mensajes de texto. 😊
+
+" .
+        "Por favor elige una opción escribiendo el número:
+
+" .
+        "1️⃣  Ver Planes
+" .
+        "2️⃣  Horarios
+" .
+        "3️⃣  Consultar mi Plan
+" .
+        "4️⃣  Realizar Pago
+" .
+        "5️⃣  Certificado de Inscripción
+" .
+        "6️⃣  Hablar con un Asesor
+
+" .
+        "_Escribe el número de la opción que deseas._"
+    );
     http_response_code(200); exit('OK');
 }
 
