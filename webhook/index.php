@@ -504,9 +504,12 @@ if (empty($telefono)) { http_response_code(200); exit('OK'); }
 if (empty($mensaje)) {
     $sesDataTemp = obtenerEstado($sesKey);
     $estadoTemp  = $sesDataTemp['estado'] ?? null;
-    if ($estadoTemp === 'asesor') {
+    // Si ya hay sesión activa, ignorar el evento vacío (doble disparo de la API)
+    if ($estadoTemp !== null) {
+        wlog("[$clientId] Evento vacío ignorado — sesión activa: $estadoTemp");
         http_response_code(200); exit('OK');
     }
+    // Sin sesión = primera vez, mostrar menú
     guardarEstado($sesKey, 'menu_principal');
     wsSend($telefono, menuPrincipal($nombre));
     http_response_code(200); exit('OK');
