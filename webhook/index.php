@@ -457,9 +457,9 @@ $nombre    = $data['pushName']        ?? '';
 $clientId  = $data['client_id']       ?? 'default';
 $messageId = $data['messageId']       ?? '';
 
-// Si jid contiene '@' (@whatsapp, @lid) → usarlo para enviar mensajes
-// Si jid NO contiene '@' o viene vacío → usar from (número real)
-$telefono = (strpos($jid, '@') !== false) ? $jid : $from;
+// Solo usar jid si es @s.whatsapp.net — los @lid no los acepta la API
+// En cualquier otro caso usar from (número real)
+$telefono = (strpos($jid, '@s.whatsapp.net') !== false) ? $jid : $from;
 
 // La sesión SIEMPRE se basa en from (número real) para evitar sesiones duplicadas
 $sesKey = $from . '_' . $clientId;
