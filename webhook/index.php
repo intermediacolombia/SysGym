@@ -577,7 +577,7 @@ if ($estado === 'asesor') {
     }
 
 // ── B. Detección de agente humano respondiendo ────────────────
-} elseif (preg_match('/\b(te atiendo|en que puedo ayudarte|cuentame|dime|hola soy|te ayudo|un momento|ya te atiendo)\b/i', $mensajeLower)) {
+} elseif (preg_match('/\b(te atiendo|en que puedo ayudarte|buenos|buenas|hola|cuentame|dime|hola soy|te ayudo|un momento|ya te atiendo)\b/i', $mensajeLower)) {
     guardarEstado($sesKey, 'asesor', ['agente' => true]);
     wlog("[$clientId] Humano detectado");
     http_response_code(200); exit('OK');
