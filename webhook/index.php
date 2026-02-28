@@ -313,7 +313,7 @@ function gestionarPago($doc) {
         $dias   = DAYS_ALLOWED_BEFORE_DUE;
 
         if ($diff <= $dias) {
-            $link = "https://sysgym.intermediacolombia.com/pay/?doc={$doc}";
+            $link = URLBASE."/pay/?doc={$doc}";
             return
                 "✅ ¡Hola *{$nombre}*! Tu pago ya está disponible.\n\n" .
                 "🔗 *Enlace de pago:*\n{$link}\n\n" .
@@ -383,7 +383,7 @@ function generarCertificado($doc, $telefono) {
 
         $clienteId = $c['id'];
         $nombre    = trim($c['nombres'] . ' ' . $c['apellidos']);
-        $baseUrl   = rtrim(defined('URLBASE') ? URLBASE : 'https://sysgym.intermediacolombia.com', '/');
+        $baseUrl   = rtrim(defined('URLBASE') ? URLBASE : '/', '/');
 
         // Descargar PDF desde el generador
         $pdfSrcUrl = $baseUrl . '/pdf/?type=cert&id=' . $clienteId;
