@@ -16,13 +16,11 @@ if (!$valId || !$cliId) {
 
 /* ───────────── 1) DATOS DEL CLIENTE ───────────── */
 try {
-    
-
     $sql = "SELECT nombres, apellidos, dialCode, telefono
             FROM clientes WHERE id = :id";
-    $cli = db()->prepare($sql);
-    $cli->execute([':id'=>$cliId]);
-    $cli = $cli->fetch(PDO::FETCH_ASSOC);
+    $stmt = db()->prepare($sql);
+    $stmt->execute([':id'=>$cliId]);
+    $cli = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$cli || empty($cli['telefono'])) {
         echo json_encode(['status'=>'error','msg'=>'Cliente no encontrado o sin teléfono']); exit;
@@ -35,33 +33,34 @@ try {
 $tempDir = __DIR__ . '/../pdf/archivos_temp/';
 if (!is_dir($tempDir)) mkdir($tempDir, 0777, true);
 
-$pdfFilename = "valoracion_{$valId}.pdf";
-$pdfFilePath = $tempDir . $pdfFilename;
-$pdfUrl      = $url . '/pdf/archivos_temp/' . $pdfFilename;
+$pdfFilename  = "valoracion_{$valId}.pdf";
+$pdfFilePath  = $tempDir . $pdfFilename;
+$pdfUrl       = $url . '/pdf/archivos_temp/' . $pdfFilename;
 $pdfSourceUrl = $url . '/pdf/?type=valoracion&id=' . $valId;
 
-// Usar cURL en lugar de file_get_contents
+// Descargar PDF con cURL (más robusto que file_get_contents)
 $chPdf = curl_init($pdfSourceUrl);
 curl_setopt_array($chPdf, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_FOLLOWLOCATION => true,
     CURLOPT_TIMEOUT        => 30,
-    CURLOPT_SSL_VERIFYPEER => false, // solo si tienes problemas SSL en local
+    CURLOPT_SSL_VERIFYPEER => false,
 ]);
-$pdfContent = curl_exec($chPdf);
+$pdfContent  = curl_exec($chPdf);
 $pdfHttpCode = curl_getinfo($chPdf, CURLINFO_HTTP_CODE);
-$pdfError    = curl_error($chPdf);
+$pdfCurlErr  = curl_error($chPdf);
 curl_close($chPdf);
 
 if ($pdfContent === false || $pdfHttpCode !== 200) {
-    echo json_encode(['status'=>'error','msg'=>"No se pudo generar el PDF. HTTP: $pdfHttpCode Error: $pdfError"]);
-    exit;
+    echo json_encode([
+        'status' => 'error',
+        'msg'    => "No se pudo generar el PDF. HTTP: $pdfHttpCode Error: $pdfCurlErr"
+    ]); exit;
 }
 
 $bytesWritten = file_put_contents($pdfFilePath, $pdfContent);
-if (!$bytesWritten) {
-    echo json_encode(['status'=>'error','msg'=>'No se pudo guardar el PDF en disco']);
-    exit;
+if (!$bytesWritten || filesize($pdfFilePath) < 100) {
+    echo json_encode(['status'=>'error','msg'=>'PDF generado está vacío o corrupto']); exit;
 }
 
 /* ───────────── 3) MENSAJE Y PAYLOAD ───────────── */
@@ -82,7 +81,7 @@ $ch = curl_init(WA_API_URL . '/send');
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_POST           => true,
-    CURLOPT_POSTFIELDS     => json_encode($payload),
+    CURLOPT_POSTFIELDS     => json_encode($payload, JSON_UNESCAPED_UNICODE), // ← fix tildes
     CURLOPT_HTTPHEADER     => [
         'Authorization: Bearer ' . $api_ws,
         'Content-Type: application/json',
@@ -95,10 +94,16 @@ $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $error    = curl_error($ch);
 curl_close($ch);
 
+// DEBUG temporal — quitar cuando funcione
+error_log("WA Valoracion - HTTP: $httpCode");
+error_log("WA Valoracion - Response: $response");
+error_log("WA Valoracion - Curl Error: $error");
+error_log("WA Valoracion - Payload: " . json_encode($payload, JSON_UNESCAPED_UNICODE));
+
 /* ───────────── 5) VALIDACIÓN Y GUARDADO ───────────── */
 $successFlag = false;
 if (!$error && $httpCode >= 200 && $httpCode < 300) {
-    $decoded = json_decode($response, true);
+    $decoded     = json_decode($response, true);
     $successFlag = !empty($decoded['success']);
 }
 
@@ -119,12 +124,10 @@ if ($successFlag) {
 /* ───────────── 6) ELIMINAR PDF TEMPORAL ───────────── */
 /*if ($successFlag) {
     if (file_exists($pdfFilePath)) {
-        // Esperar un momento para garantizar que 360 Messenger haya accedido
         sleep(3);
         unlink($pdfFilePath);
     }
 }*/
-
 ?>
 
 
