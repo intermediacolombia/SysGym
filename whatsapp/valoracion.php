@@ -35,33 +35,19 @@ if (!is_dir($tempDir)) mkdir($tempDir, 0777, true);
 
 $pdfFilename  = "valoracion_{$valId}.pdf";
 $pdfFilePath  = $tempDir . $pdfFilename;
-$pdfUrl       = $url . '/pdf/archivos_temp/' . $pdfFilename;
-$pdfSourceUrl = $url . '/pdf/?type=valoracion&id=' . $valId;
+$pdfUrl       = rtrim($url, '/') . '/pdf/archivos_temp/' . $pdfFilename;
+$pdfSourceUrl = rtrim($url, '/') . '/pdf/?type=valoracion&id=' . $valId;
 
-// Descargar PDF con cURL (más robusto que file_get_contents)
-$chPdf = curl_init($pdfSourceUrl);
-curl_setopt_array($chPdf, [
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_FOLLOWLOCATION => true,
-    CURLOPT_TIMEOUT        => 30,
-    CURLOPT_SSL_VERIFYPEER => false,
-]);
-$pdfContent  = curl_exec($chPdf);
-$pdfHttpCode = curl_getinfo($chPdf, CURLINFO_HTTP_CODE);
-$pdfCurlErr  = curl_error($chPdf);
-curl_close($chPdf);
-
-if ($pdfContent === false || $pdfHttpCode !== 200) {
-    echo json_encode([
-        'status' => 'error',
-        'msg'    => "No se pudo generar el PDF. HTTP: $pdfHttpCode Error: $pdfCurlErr"
-    ]); exit;
+$pdfContent = file_get_contents($pdfSourceUrl);
+if ($pdfContent === false || strlen($pdfContent) < 1000) {
+    file_put_contents(
+        __DIR__ . '/pdf_error_log.txt',
+        "[" . date('Y-m-d H:i:s') . "] Error generando PDF valoracion: $pdfSourceUrl\n",
+        FILE_APPEND
+    );
+    echo json_encode(['status'=>'error','msg'=>'No se pudo generar el PDF de la valoración']); exit;
 }
-
-$bytesWritten = file_put_contents($pdfFilePath, $pdfContent);
-if (!$bytesWritten || filesize($pdfFilePath) < 100) {
-    echo json_encode(['status'=>'error','msg'=>'PDF generado está vacío o corrupto']); exit;
-}
+file_put_contents($pdfFilePath, $pdfContent);
 
 /* ───────────── 3) MENSAJE Y PAYLOAD ───────────── */
 $mensaje = str_replace(
@@ -70,18 +56,21 @@ $mensaje = str_replace(
     $wa_valoracion
 );
 
+// ← fix principal: limpiar el teléfono igual que los scripts que funcionan
+$telefonoPlano = preg_replace('/\D+/', '', ($cli['dialCode'] ?? '') . ($cli['telefono'] ?? ''));
+
 $payload = [
-    'phonenumber' => $cli['dialCode'] . $cli['telefono'],
+    'phonenumber' => $telefonoPlano,
     'text'        => $mensaje,
     'url'         => $pdfUrl
 ];
 
 /* ───────────── 4) ENVÍO cURL ───────────── */
-$ch = curl_init(WA_API_URL . '/send');
+$ch = curl_init(rtrim(WA_API_URL, '/') . '/send');
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_POST           => true,
-    CURLOPT_POSTFIELDS     => json_encode($payload, JSON_UNESCAPED_UNICODE), // ← fix tildes
+    CURLOPT_POSTFIELDS     => json_encode($payload, JSON_UNESCAPED_UNICODE),
     CURLOPT_HTTPHEADER     => [
         'Authorization: Bearer ' . $api_ws,
         'Content-Type: application/json',
@@ -93,12 +82,6 @@ $response = curl_exec($ch);
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $error    = curl_error($ch);
 curl_close($ch);
-
-// DEBUG temporal — quitar cuando funcione
-error_log("WA Valoracion - HTTP: $httpCode");
-error_log("WA Valoracion - Response: $response");
-error_log("WA Valoracion - Curl Error: $error");
-error_log("WA Valoracion - Payload: " . json_encode($payload, JSON_UNESCAPED_UNICODE));
 
 /* ───────────── 5) VALIDACIÓN Y GUARDADO ───────────── */
 $successFlag = false;
