@@ -32,24 +32,37 @@ try {
 }
 
 /* ───────────── 2) GENERAR PDF TEMPORAL ───────────── */
-// Carpeta temporal donde guardar el PDF
 $tempDir = __DIR__ . '/../pdf/archivos_temp/';
 if (!is_dir($tempDir)) mkdir($tempDir, 0777, true);
 
-// Nombre del archivo temporal
 $pdfFilename = "valoracion_{$valId}.pdf";
 $pdfFilePath = $tempDir . $pdfFilename;
 $pdfUrl      = $url . '/pdf/archivos_temp/' . $pdfFilename;
-
-// Generar el PDF desde la URL del generador existente
 $pdfSourceUrl = $url . '/pdf/?type=valoracion&id=' . $valId;
 
-// Descargar el PDF generado y guardarlo temporalmente
-$pdfContent = file_get_contents($pdfSourceUrl);
-if ($pdfContent === false) {
-    echo json_encode(['status'=>'error','msg'=>'No se pudo generar el PDF.']); exit;
+// Usar cURL en lugar de file_get_contents
+$chPdf = curl_init($pdfSourceUrl);
+curl_setopt_array($chPdf, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_TIMEOUT        => 30,
+    CURLOPT_SSL_VERIFYPEER => false, // solo si tienes problemas SSL en local
+]);
+$pdfContent = curl_exec($chPdf);
+$pdfHttpCode = curl_getinfo($chPdf, CURLINFO_HTTP_CODE);
+$pdfError    = curl_error($chPdf);
+curl_close($chPdf);
+
+if ($pdfContent === false || $pdfHttpCode !== 200) {
+    echo json_encode(['status'=>'error','msg'=>"No se pudo generar el PDF. HTTP: $pdfHttpCode Error: $pdfError"]);
+    exit;
 }
-file_put_contents($pdfFilePath, $pdfContent);
+
+$bytesWritten = file_put_contents($pdfFilePath, $pdfContent);
+if (!$bytesWritten) {
+    echo json_encode(['status'=>'error','msg'=>'No se pudo guardar el PDF en disco']);
+    exit;
+}
 
 /* ───────────── 3) MENSAJE Y PAYLOAD ───────────── */
 $mensaje = str_replace(
