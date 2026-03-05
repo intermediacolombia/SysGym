@@ -2,14 +2,11 @@
           && in_array('Ver Asistencias', $_SESSION["user_permissions"])): ?>
 
 <style>
-/* ── Variables locales (heredan del sistema) ── */
 #att-wrap {
   font-family: 'Plus Jakarta Sans', Arial, sans-serif;
   margin-top: 24px;
   color: #3a4155;
 }
-
-/* Selector mes */
 .att-month-selector {
   display: flex;
   align-items: center;
@@ -40,8 +37,6 @@
   border-color: var(--system-color-primary);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--system-color-primary) 15%, transparent);
 }
-
-/* Métricas */
 .att-metrics {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -81,8 +76,6 @@
 .att-card-value.c-red    { color: #dc2626; }
 .att-card-value.c-purple { color: var(--system-color-primary); }
 .att-card-value.c-blue   { color: #2563eb; }
-
-/* Barra progreso */
 .att-progress-wrap {
   background: #fff;
   border: 1.5px solid #e5e7ef;
@@ -116,7 +109,6 @@
 .ab-bueno     { background: #dbeafe; color: #2563eb; border: 1px solid #bfdbfe; }
 .ab-regular   { background: #fef9c3; color: #ca8a04; border: 1px solid #fde68a; }
 .ab-malo      { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
-
 .att-bar-track {
   height: 8px;
   background: #f0f2f7;
@@ -136,8 +128,6 @@
   font-size: .68rem;
   color: #c0c7d4;
 }
-
-/* Heatmap */
 .att-week-grid {
   background: #fff;
   border: 1.5px solid #e5e7ef;
@@ -187,10 +177,8 @@
 .att-day-dot.lv1 { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
 .att-day-dot.lv2 { background: #fef9c3; color: #ca8a04; border-color: #fde68a; }
 .att-day-dot.lv3 { background: #dcfce7; color: #16a34a; border-color: #bbf7d0; }
-.att-day-dot.lv4 { background: #16a34a; color: #fff;    border-color: #15803d; box-shadow: 0 2px 8px rgba(22,163,74,.3); }
+.att-day-dot.lv4 { background: #16a34a; color: #fff; border-color: #15803d; box-shadow: 0 2px 8px rgba(22,163,74,.3); }
 .att-day-count { font-size: .62rem; color: #9aa3b5; }
-
-/* Tabla — neutralizar estilos globales del sistema */
 #asistencias-table.dataTable {
   border-collapse: separate !important;
   border-spacing: 0 5px !important;
@@ -209,7 +197,6 @@
 }
 #asistencias-table thead th:first-child { border-radius: 8px 0 0 8px !important; }
 #asistencias-table thead th:last-child  { border-radius: 0 8px 8px 0 !important; }
-
 #asistencias-table tbody tr td {
   background: #fff !important;
   border: none !important;
@@ -234,7 +221,6 @@
   border-color: color-mix(in srgb, var(--system-color-primary) 20%, #f0f2f7) !important;
   color: var(--system-color-primary) !important;
 }
-
 .day-chip {
   display: inline-flex;
   align-items: center;
@@ -258,8 +244,6 @@
   font-size: .8rem;
   font-weight: 600;
 }
-
-/* DataTables controles */
 #att-wrap .dataTables_wrapper .dataTables_length,
 #att-wrap .dataTables_wrapper .dataTables_filter,
 #att-wrap .dataTables_wrapper .dataTables_info,
@@ -300,13 +284,11 @@
     Historial de Asistencias
   </h3>
 
-  <!-- Selector mes -->
   <div class="att-month-selector">
     <label>Mes analizado</label>
     <select id="att-month-select"></select>
   </div>
 
-  <!-- Métricas -->
   <div class="att-metrics">
     <div class="att-card">
       <span class="att-card-label">Asistencias</span>
@@ -330,7 +312,6 @@
     </div>
   </div>
 
-  <!-- Barra porcentaje -->
   <div class="att-progress-wrap">
     <div class="att-progress-header">
       <span class="att-progress-title">Tasa de asistencia del mes</span>
@@ -347,13 +328,11 @@
     </div>
   </div>
 
-  <!-- Heatmap por día -->
   <div class="att-week-grid">
     <div class="att-week-title">Frecuencia por día (mes seleccionado)</div>
     <div class="att-days-row" id="att-week-row"></div>
   </div>
 
-  <!-- Tabla -->
   <table id="asistencias-table" class="table">
     <thead>
       <tr>
@@ -368,170 +347,198 @@
 </div>
 
 <script>
-// Se ejecuta cuando el tab de asistencias se activa
-document.addEventListener('DOMContentLoaded', function () {
+(function () {
 
-  const asistenciasTab = document.getElementById('asistencias-tab');
-  if (!asistenciasTab) return;
+  var ATT_CLIENTE_ID = <?= intval($id) ?>;
 
-  let yaInicializado = false;
-
-  asistenciasTab.addEventListener('shown.bs.tab', function () {
-    if (yaInicializado) return;
-    yaInicializado = true;
-    initAsistencias();
-  });
-
-  // Si el tab ya está activo al cargar (poco probable pero por si acaso)
-  if (asistenciasTab.classList.contains('active')) {
-    initAsistencias();
-    yaInicializado = true;
+  function norm(str) {
+    return (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   }
 
-  function initAsistencias() {
+  var DIAS      = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  var DIAS_NORM = DIAS.map(norm);
+  var statsData = [];
+  var statsLoaded = false;
+  var tableLoaded = false;
 
-    function norm(str) {
-      return (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  /* ── Días hábiles en el mes (lun–sab) ── */
+  function diasHabilesEnMes(year, month) {
+    var d = new Date(year, month - 1, 1);
+    var count = 0;
+    while (d.getMonth() === month - 1) {
+      var dow = d.getDay();
+      if (dow >= 1 && dow <= 6) count++;
+      d.setDate(d.getDate() + 1);
     }
+    return count;
+  }
 
-    const DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-    const DIAS_NORM = DIAS.map(norm);
-    let statsData = [];
-
-    function diasHabilesEnMes(year, month) {
-      const d = new Date(year, month - 1, 1);
-      let count = 0;
-      while (d.getMonth() === month - 1) {
-        const dow = d.getDay();
-        if (dow >= 1 && dow <= 6) count++;
-        d.setDate(d.getDate() + 1);
+  /* ── Racha ── */
+  function calcRacha(sortedDesc) {
+    if (!sortedDesc.length) return { actual: 0, mejor: 0 };
+    var setF = {};
+    sortedDesc.forEach(function(f){ setF[f] = true; });
+    var asc  = sortedDesc.slice().reverse();
+    var mejor = 1, curr = 1;
+    for (var i = 1; i < asc.length; i++) {
+      var prev = new Date(asc[i-1]), cur = new Date(asc[i]);
+      var diff = (cur - prev) / 86400000;
+      if (diff === 1 || (diff === 2 && new Date(asc[i-1]).getDay() === 6)) {
+        curr++; if (curr > mejor) mejor = curr;
+      } else curr = 1;
+    }
+    var racha = 0;
+    var d = new Date(); d.setHours(0,0,0,0);
+    for (var j = 0; j < 90; j++) {
+      var dow = d.getDay();
+      if (dow >= 1 && dow <= 6) {
+        var key = d.toISOString().slice(0,10);
+        if (setF[key]) racha++;
+        else break;
       }
-      return count;
+      d.setDate(d.getDate() - 1);
+    }
+    return { actual: racha, mejor: mejor };
+  }
+
+  /* ── Selector de meses ── */
+  function buildMonthOptions(data) {
+    var meses = {};
+    data.forEach(function(r){ meses[r.fecha.slice(0,7)] = true; });
+    var sel  = document.getElementById('att-month-select');
+    sel.innerHTML = '';
+    var keys = Object.keys(meses).sort().reverse();
+    keys.forEach(function(k) {
+      var parts = k.split('-');
+      var lbl = new Date(parts[0], parts[1]-1, 1)
+        .toLocaleDateString('es-CO', { month:'long', year:'numeric' });
+      var opt = document.createElement('option');
+      opt.value = k;
+      opt.textContent = lbl.charAt(0).toUpperCase() + lbl.slice(1);
+      sel.appendChild(opt);
+    });
+    return keys[0] || null;
+  }
+
+  /* ── Actualizar estadísticas ── */
+  function updateStats(monthKey) {
+    if (!monthKey) return;
+    var parts    = monthKey.split('-');
+    var y        = parseInt(parts[0]);
+    var m        = parseInt(parts[1]);
+    var filtered = statsData.filter(function(r){ return r.fecha.indexOf(monthKey) === 0; });
+    var total    = filtered.length;
+    var habiles  = diasHabilesEnMes(y, m);
+    var faltas   = Math.max(0, habiles - total);
+    var pct      = habiles ? Math.round((total / habiles) * 100) : 0;
+
+    var uniqFechas = [];
+    var seen = {};
+    statsData.forEach(function(r){
+      var f = r.fecha.slice(0,10);
+      if (!seen[f]) { seen[f] = true; uniqFechas.push(f); }
+    });
+    uniqFechas.sort().reverse();
+    var rachas = calcRacha(uniqFechas);
+
+    document.getElementById('stat-total').textContent       = total;
+    document.getElementById('stat-habiles').textContent     = habiles;
+    document.getElementById('stat-faltas').textContent      = faltas;
+    document.getElementById('stat-racha').textContent       = rachas.actual + ' días';
+    document.getElementById('stat-mejor-racha').textContent = rachas.mejor  + ' días';
+
+    var bar   = document.getElementById('att-bar');
+    var badge = document.getElementById('att-badge');
+    bar.style.width = pct + '%';
+
+    if (pct >= 85) {
+      badge.className = 'att-badge-stat ab-excelente';
+      badge.textContent = pct + '% · Excelente';
+      bar.style.background = '#16a34a';
+    } else if (pct >= 66) {
+      badge.className = 'att-badge-stat ab-bueno';
+      badge.textContent = pct + '% · Bueno';
+      bar.style.background = '#2563eb';
+    } else if (pct >= 40) {
+      badge.className = 'att-badge-stat ab-regular';
+      badge.textContent = pct + '% · Regular';
+      bar.style.background = '#ca8a04';
+    } else {
+      badge.className = 'att-badge-stat ab-malo';
+      badge.textContent = pct + '% · Malo';
+      bar.style.background = '#dc2626';
     }
 
-    function calcRacha(sortedDesc) {
-      if (!sortedDesc.length) return { actual: 0, mejor: 0 };
-      const setF = new Set(sortedDesc);
-      const asc  = [...sortedDesc].reverse();
-      let mejor = 1, curr = 1;
-      for (let i = 1; i < asc.length; i++) {
-        const prev = new Date(asc[i-1]), cur = new Date(asc[i]);
-        const diff = (cur - prev) / 86400000;
-        if (diff === 1 || (diff === 2 && new Date(asc[i-1]).getDay() === 6)) {
-          curr++; mejor = Math.max(mejor, curr);
-        } else curr = 1;
-      }
-      let racha = 0;
-      const d = new Date(); d.setHours(0,0,0,0);
-      for (let i = 0; i < 90; i++) {
-        const dow = d.getDay();
-        if (dow >= 1 && dow <= 6) {
-          if (setF.has(d.toISOString().slice(0,10))) racha++;
-          else break;
-        }
-        d.setDate(d.getDate() - 1);
-      }
-      return { actual: racha, mejor };
-    }
+    /* Heatmap */
+    var dayCount = {};
+    DIAS_NORM.forEach(function(dn){ dayCount[dn] = 0; });
+    filtered.forEach(function(r){
+      var n = norm(r.dia_semana);
+      if (typeof dayCount[n] !== 'undefined') dayCount[n]++;
+    });
+    var maxDay = 1;
+    DIAS_NORM.forEach(function(dn){ if (dayCount[dn] > maxDay) maxDay = dayCount[dn]; });
 
-    function buildMonthOptions(data) {
-      const meses = {};
-      data.forEach(r => { meses[r.fecha.slice(0,7)] = true; });
-      const sel  = document.getElementById('att-month-select');
-      sel.innerHTML = '';
-      const keys = Object.keys(meses).sort().reverse();
-      keys.forEach(k => {
-        const [y,m] = k.split('-');
-        const lbl   = new Date(y, m-1, 1)
-          .toLocaleDateString('es-CO', { month:'long', year:'numeric' });
-        const opt   = document.createElement('option');
-        opt.value   = k;
-        opt.textContent = lbl.charAt(0).toUpperCase() + lbl.slice(1);
-        sel.appendChild(opt);
-      });
-      return keys[0] || null;
-    }
+    var html = '';
+    DIAS.forEach(function(d, i){
+      var c   = dayCount[DIAS_NORM[i]] || 0;
+      var rat = c / maxDay;
+      var lv  = c === 0 ? 0 : rat < .33 ? 1 : rat < .66 ? 2 : rat < 1 ? 3 : 4;
+      html += '<div class="att-day-cell">'
+            + '<span class="att-day-label">' + d.slice(0,3) + '</span>'
+            + '<div class="att-day-dot lv' + lv + '" title="' + d + ': ' + c + ' asistencias">' + c + '</div>'
+            + '<span class="att-day-count">' + c + ' vez' + (c !== 1 ? 'es' : '') + '</span>'
+            + '</div>';
+    });
+    document.getElementById('att-week-row').innerHTML = html;
+  }
 
-    function updateStats(monthKey) {
-      if (!monthKey) return;
-      const [y, m]   = monthKey.split('-').map(Number);
-      const filtered = statsData.filter(r => r.fecha.startsWith(monthKey));
-      const total    = filtered.length;
-      const habiles  = diasHabilesEnMes(y, m);
-      const faltas   = Math.max(0, habiles - total);
-      const pct      = habiles ? Math.round((total / habiles) * 100) : 0;
-
-      const allFechas = [...new Set(statsData.map(r => r.fecha.slice(0,10)))].sort().reverse();
-      const { actual, mejor } = calcRacha(allFechas);
-
-      document.getElementById('stat-total').textContent       = total;
-      document.getElementById('stat-habiles').textContent     = habiles;
-      document.getElementById('stat-faltas').textContent      = faltas;
-      document.getElementById('stat-racha').textContent       = actual + ' días';
-      document.getElementById('stat-mejor-racha').textContent = mejor + ' días';
-
-      const bar   = document.getElementById('att-bar');
-      const badge = document.getElementById('att-badge');
-      bar.style.width = pct + '%';
-
-      if (pct >= 85)      { badge.className='att-badge-stat ab-excelente'; badge.textContent=`${pct}% · Excelente`; bar.style.background='#16a34a'; }
-      else if (pct >= 66) { badge.className='att-badge-stat ab-bueno';     badge.textContent=`${pct}% · Bueno`;     bar.style.background='#2563eb'; }
-      else if (pct >= 40) { badge.className='att-badge-stat ab-regular';   badge.textContent=`${pct}% · Regular`;   bar.style.background='#ca8a04'; }
-      else                { badge.className='att-badge-stat ab-malo';      badge.textContent=`${pct}% · Malo`;      bar.style.background='#dc2626'; }
-
-      const dayCount = {};
-      DIAS_NORM.forEach(dn => dayCount[dn] = 0);
-      filtered.forEach(r => {
-        const n = norm(r.dia_semana);
-        if (dayCount[n] !== undefined) dayCount[n]++;
-      });
-      const maxDay = Math.max(...Object.values(dayCount), 1);
-      document.getElementById('att-week-row').innerHTML = DIAS.map((d, i) => {
-        const c   = dayCount[DIAS_NORM[i]] || 0;
-        const rat = c / maxDay;
-        const lv  = c === 0 ? 0 : rat < .33 ? 1 : rat < .66 ? 2 : rat < 1 ? 3 : 4;
-        return `<div class="att-day-cell">
-          <span class="att-day-label">${d.slice(0,3)}</span>
-          <div class="att-day-dot lv${lv}" title="${d}: ${c} asistencias">${c}</div>
-          <span class="att-day-count">${c} vez${c!==1?'es':''}</span>
-        </div>`;
-      }).join('');
-    }
-
-    /* Stats (1 entrada por día) */
-    $.get('get_asistencias_stats.php', { cliente_id: '<?= $id ?>' }, function(json) {
-      statsData = json.data || [];
-      const def = buildMonthOptions(statsData);
+  /* ── Cargar stats ── */
+  function cargarStats() {
+    if (statsLoaded) return;
+    statsLoaded = true;
+    $.get('get_att_stats.php', { cliente_id: ATT_CLIENTE_ID }, function(json) {
+      statsData = (json && json.data) ? json.data : [];
+      var def = buildMonthOptions(statsData);
       updateStats(def);
       document.getElementById('att-month-select').addEventListener('change', function(){
         updateStats(this.value);
       });
+    }).fail(function(){
+      console.warn('get_att_stats.php no respondió correctamente');
     });
+  }
 
-    /* DataTable — todas las entradas */
+  /* ── Cargar tabla DataTable ── */
+  function cargarTabla() {
+    if (tableLoaded) return;
+    tableLoaded = true;
     if (!$.fn.DataTable.isDataTable('#asistencias-table')) {
       $('#asistencias-table').DataTable({
         ajax: {
           url : 'get_asistencias.php',
           type: 'GET',
-          data: { cliente_id: '<?= $id ?>' },
+          data: { cliente_id: ATT_CLIENTE_ID },
           dataSrc: 'data'
         },
         columns: [
           {
             data: 'dia_semana',
-            render: d => `<span class="day-chip"><span class="day-dot-chip"></span>${d.charAt(0).toUpperCase()+d.slice(1)}</span>`
+            render: function(d) {
+              return '<span class="day-chip"><span class="day-dot-chip"></span>'
+                   + d.charAt(0).toUpperCase() + d.slice(1) + '</span>';
+            }
           },
           { data: 'fecha' },
           {
             data: 'hora',
             render: function(data, type) {
               if (type === 'display') {
-                const [h,m] = data.split(':');
-                let hh = parseInt(h,10), suf = ' am';
+                var parts = data.split(':');
+                var hh = parseInt(parts[0], 10), suf = ' am';
                 if (hh === 0) hh = 12;
-                else if (hh >= 12){ suf=' pm'; if (hh>12) hh-=12; }
-                return `<span class="hora-pill">${hh}:${m}${suf}</span>`;
+                else if (hh >= 12) { suf = ' pm'; if (hh > 12) hh -= 12; }
+                return '<span class="hora-pill">' + hh + ':' + parts[1] + suf + '</span>';
               }
               return data;
             }
@@ -541,10 +548,27 @@ document.addEventListener('DOMContentLoaded', function () {
         language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json' }
       });
     }
+  }
 
-  } // fin initAsistencias
+  /* ── Disparar al activar el tab ── */
+  var tabBtn = document.getElementById('asistencias-tab');
+  if (tabBtn) {
+    tabBtn.addEventListener('shown.bs.tab', function() {
+      cargarStats();
+      cargarTabla();
+    });
+    /* Si ya está activo al cargar la página */
+    if (tabBtn.classList.contains('active')) {
+      cargarStats();
+      cargarTabla();
+    }
+  } else {
+    /* Fallback: si el tab no existe, cargar directo */
+    cargarStats();
+    cargarTabla();
+  }
 
-});
+})();
 </script>
 
 <?php endif; ?>
