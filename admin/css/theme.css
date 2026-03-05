@@ -244,7 +244,106 @@ body.dark-mode .sg-theme-icons i { color: #A0A7AC !important; }
 
 
 
-
+/* ── Modo oscuro — paleta del sistema ── */
+body.dark-mode #att-wrap {
+  color: #EFF3F5 !important;
+}
+body.dark-mode .att-month-selector label {
+  color: #C8CDD0 !important;
+}
+body.dark-mode .att-month-selector select {
+  background: #2A3B47 !important;
+  border-color: #A0A7AC !important;
+  color: #EFF3F5 !important;
+}
+body.dark-mode .att-card {
+  background: #212E36 !important;
+  border-color: #2A3B47 !important;
+}
+body.dark-mode .att-card-label {
+  color: #5a6a72 !important;
+}
+body.dark-mode .att-card-value {
+  color: #EFF3F5 !important;
+}
+body.dark-mode .att-progress-wrap {
+  background: #212E36 !important;
+  border-color: #2A3B47 !important;
+}
+body.dark-mode .att-progress-title {
+  color: #5a6a72 !important;
+}
+body.dark-mode .att-bar-track {
+  background: #2A3B47 !important;
+}
+body.dark-mode .att-bar-labels {
+  color: #5a6a72 !important;
+}
+body.dark-mode .att-week-grid {
+  background: #212E36 !important;
+  border-color: #2A3B47 !important;
+}
+body.dark-mode .att-week-title {
+  color: #5a6a72 !important;
+}
+body.dark-mode .att-day-label {
+  color: #5a6a72 !important;
+}
+body.dark-mode .att-day-count {
+  color: #5a6a72 !important;
+}
+body.dark-mode .att-day-dot.lv0 {
+  background: #2A3B47 !important;
+  border-color: #3a4d5a !important;
+  color: #5a6a72 !important;
+}
+body.dark-mode #asistencias-table tbody tr td {
+  background: #212E36 !important;
+  border-color: #2A3B47 !important;
+  color: #EFF3F5 !important;
+}
+body.dark-mode #asistencias-table tbody tr td:first-child {
+  border-left-color: #2A3B47 !important;
+}
+body.dark-mode #asistencias-table tbody tr td:last-child {
+  border-right-color: #2A3B47 !important;
+}
+body.dark-mode #asistencias-table tbody tr:hover td {
+  background: #2A3B47 !important;
+  border-color: var(--system-color-primary-dark, #52A5E0) !important;
+  color: #EFF3F5 !important;
+}
+body.dark-mode .hora-pill {
+  background: rgba(82,165,224,0.15) !important;
+  border-color: rgba(82,165,224,0.3) !important;
+  color: #52A5E0 !important;
+}
+body.dark-mode .day-dot-chip {
+  background: var(--system-color-primary-dark, #52A5E0) !important;
+}
+body.dark-mode #att-wrap .dataTables_wrapper .dataTables_length,
+body.dark-mode #att-wrap .dataTables_wrapper .dataTables_filter,
+body.dark-mode #att-wrap .dataTables_wrapper .dataTables_info,
+body.dark-mode #att-wrap .dataTables_wrapper .dataTables_paginate {
+  color: #C8CDD0 !important;
+}
+body.dark-mode #att-wrap .dataTables_wrapper .dataTables_filter input,
+body.dark-mode #att-wrap .dataTables_wrapper .dataTables_length select {
+  background: #2A3B47 !important;
+  border-color: #A0A7AC !important;
+  color: #EFF3F5 !important;
+}
+body.dark-mode #att-wrap .dataTables_wrapper .dataTables_paginate .paginate_button {
+  background: #2A3B47 !important;
+  border-color: #2A3B47 !important;
+  color: #C8CDD0 !important;
+}
+body.dark-mode #att-wrap .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+body.dark-mode #att-wrap .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: var(--system-color-primary-dark, #52A5E0) !important;
+  border-color: var(--system-color-primary-dark, #52A5E0) !important;
+  color: #EFF3F5 !important;
+}
 
 
 
