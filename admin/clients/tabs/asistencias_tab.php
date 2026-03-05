@@ -275,6 +275,84 @@
   border-color: var(--system-color-primary) !important;
   color: #fff !important;
 }
+
+/* ── Modo oscuro ── */
+body.dark-mode #att-wrap {
+  color: #e8eaf0;
+}
+
+body.dark-mode .att-card {
+  background: #1a1d27 !important;
+  border-color: #2a2d3a !important;
+}
+
+body.dark-mode .att-card-value {
+  color: #fff !important;
+}
+
+body.dark-mode .att-progress-wrap {
+  background: #1a1d27 !important;
+  border-color: #2a2d3a !important;
+}
+
+body.dark-mode .att-progress-title {
+  color: #6b7080 !important;
+}
+
+body.dark-mode .att-bar-track {
+  background: #2a2d3a !important;
+}
+
+body.dark-mode .att-week-grid {
+  background: #1a1d27 !important;
+  border-color: #2a2d3a !important;
+}
+
+body.dark-mode .att-week-title {
+  color: #6b7080 !important;
+}
+
+body.dark-mode .att-day-dot.lv0 {
+  background: #2a2d3a !important;
+  border-color: #3a3d4a !important;
+  color: #6b7080 !important;
+}
+
+body.dark-mode .att-month-selector select {
+  background: #1a1d27 !important;
+  border-color: #2a2d3a !important;
+  color: #e8eaf0 !important;
+}
+
+body.dark-mode #asistencias-table tbody tr td {
+  background: #1a1d27 !important;
+  border-color: #2a2d3a !important;
+  color: #e8eaf0 !important;
+}
+
+body.dark-mode #asistencias-table tbody tr:hover td {
+  background: #22253a !important;
+}
+
+body.dark-mode #att-wrap .dataTables_wrapper .dataTables_length,
+body.dark-mode #att-wrap .dataTables_wrapper .dataTables_filter,
+body.dark-mode #att-wrap .dataTables_wrapper .dataTables_info,
+body.dark-mode #att-wrap .dataTables_wrapper .dataTables_paginate {
+  color: #9aa3b5 !important;
+}
+
+body.dark-mode #att-wrap .dataTables_wrapper .dataTables_filter input,
+body.dark-mode #att-wrap .dataTables_wrapper .dataTables_length select {
+  background: #1a1d27 !important;
+  border-color: #2a2d3a !important;
+  color: #e8eaf0 !important;
+}
+
+body.dark-mode #att-wrap .dataTables_wrapper .dataTables_paginate .paginate_button {
+  background: #1a1d27 !important;
+  border-color: #2a2d3a !important;
+  color: #9aa3b5 !important;
+}
 </style>
 
 <div id="att-wrap">
