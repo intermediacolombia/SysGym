@@ -5,24 +5,18 @@ $cliente = intval($_GET['cliente_id'] ?? 0);
 
 try {
     db()->exec("SET lc_time_names = 'es_ES';");
-
     $stmt = db()->prepare("
         SELECT 
-            MIN(fecha)  AS fecha,
-            MIN(hora)   AS hora,
+            MIN(fecha) AS fecha,
+            MIN(hora)  AS hora,
             DATE_FORMAT(MIN(fecha),'%W') AS dia_semana
         FROM asistencias
         WHERE idCliente = :id
         GROUP BY DATE(fecha)
-        ORDER BY fecha DESC, hora DESC
+        ORDER BY fecha DESC
     ");
-
     $stmt->execute([':id' => $cliente]);
-
-    echo json_encode([
-        'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)
-    ]);
-
+    echo json_encode(['data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['data' => [], 'error' => $e->getMessage()]);
