@@ -1251,7 +1251,7 @@ $('#valoraciones-table tbody').on('click', 'tr', function(){
   });
 	
 	
-	
+	/*
 	$('#sendConsentLink').on('click', function(){
     const clientId = "<?php echo $id; ?>";
     const primaryColor = "<?php echo SYSTEM_COLOR_PRIMARY; ?>";
@@ -1323,8 +1323,74 @@ $('#valoraciones-table tbody').on('click', 'tr', function(){
             }
         }
     });
-});
+});*/
+$('#sendConsentLink').on('click', function(){
+    const clientId = "<?php echo $id; ?>";
+    const primaryColor = "<?php echo SYSTEM_COLOR_PRIMARY; ?>";
+    
+    Swal.fire({
+        title: '📲 Enviar Consentimiento',
+        text: '¿Deseas enviar el enlace de consentimiento informado al cliente por WhatsApp?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: '✓ Sí, enviar',
+        cancelButtonText: '✗ Cancelar',
+        confirmButtonColor: primaryColor,
+        cancelButtonColor: '#6c757d',
+        showLoaderOnConfirm: true,
+        allowOutsideClick: () => !Swal.isLoading(),
+        preConfirm: () => {
+            return $.ajax({
+                url: '/whatsapp/send_pending_consent.php',
+                type: 'POST',
+                dataType: 'json',
+                data: { cliente_id: clientId }
+            }).then(function(data){ return data; })
+              .catch(function(error) {
+                Swal.showValidationMessage(
+                    `Error de conexión: ${error.statusText || 'No se pudo contactar con el servidor'}`
+                );
+                return false;
+            });
+        }
+    }).then(result => {
+        if (!result.isConfirmed || !result.value) return;  // ← guard clause
 
+        const res = result.value;
+        
+        if (res.status === 'success') {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Enviado! 🎉',
+                html: `<strong>${res.message}</strong><br><br>
+                       <small>El cliente recibirá el enlace por WhatsApp</small>`,
+                confirmButtonText: 'Perfecto',
+                confirmButtonColor: primaryColor,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        } else if (res.status === 'warning') {
+            Swal.fire({
+                icon: 'warning',
+                title: '⏰ Token Pendiente',
+                html: `Ya existe un enlace activo para este cliente.<br><br>
+                       <strong>Expira en:</strong> ${res.tiempo_restante}<br>
+                       <small class="text-muted">Debe esperar a que expire o que el cliente lo complete</small>`,
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: primaryColor,
+                footer: '<small>💡 Puedes reenviar cuando expire el enlace actual</small>'
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al Enviar',
+                text: res.message || 'Ocurrió un error inesperado',
+                confirmButtonText: 'Cerrar',
+                confirmButtonColor: primaryColor
+            });
+        }
+    });
+});
 
 	
 
