@@ -1673,14 +1673,14 @@ if ( ! $.fn.DataTable.isDataTable('#asistencias-table') ) {
 </script-->
 
 <script>
+$(document).ready(function() {
 (function () {
-  // Normaliza tildes para comparar días
   function norm(str) {
     return (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
   }
 
   const DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-  const DIAS_NORM = DIAS.map(norm); // ['lunes','martes','miercoles',...]
+  const DIAS_NORM = DIAS.map(norm);
   let statsData = [];
 
   function diasHabilesEnMes(year, month) {
@@ -1739,7 +1739,7 @@ if ( ! $.fn.DataTable.isDataTable('#asistencias-table') ) {
 
   function updateStats(monthKey) {
     if (!monthKey) return;
-    const [y, m]  = monthKey.split('-').map(Number);
+    const [y, m]   = monthKey.split('-').map(Number);
     const filtered = statsData.filter(r => r.fecha.startsWith(monthKey));
     const total    = filtered.length;
     const habiles  = diasHabilesEnMes(y, m);
@@ -1764,7 +1764,6 @@ if ( ! $.fn.DataTable.isDataTable('#asistencias-table') ) {
     else if (pct >= 40) { badge.className='att-badge-stat ab-regular';   badge.textContent=`${pct}% · Regular`;   bar.style.background='#ca8a04'; }
     else                { badge.className='att-badge-stat ab-malo';      badge.textContent=`${pct}% · Malo`;      bar.style.background='#dc2626'; }
 
-    // Heatmap — comparar con norm() para evitar problemas de tildes
     const dayCount = {};
     DIAS_NORM.forEach(d => dayCount[d] = 0);
     filtered.forEach(r => {
@@ -1784,7 +1783,7 @@ if ( ! $.fn.DataTable.isDataTable('#asistencias-table') ) {
     }).join('');
   }
 
-  /* Stats separadas (1 por día) */
+  /* Stats separadas */
   $.get('get_asistencias_stats.php', { cliente_id: '<?= $id ?>' }, function(json) {
     statsData = json.data || [];
     const def = buildMonthOptions(statsData);
@@ -1794,7 +1793,7 @@ if ( ! $.fn.DataTable.isDataTable('#asistencias-table') ) {
     });
   });
 
-  /* DataTable — todas las entradas, sin cambios */
+  /* DataTable */
   if (!$.fn.DataTable.isDataTable('#asistencias-table')) {
     $('#asistencias-table').DataTable({
       ajax: {
@@ -1829,6 +1828,7 @@ if ( ! $.fn.DataTable.isDataTable('#asistencias-table') ) {
   }
 
 })();
+}); // fin document.ready
 </script>
 
 
