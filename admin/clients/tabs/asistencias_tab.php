@@ -367,6 +367,184 @@
 
 </div>
 
+<script>
+// Se ejecuta cuando el tab de asistencias se activa
+document.addEventListener('DOMContentLoaded', function () {
 
+  const asistenciasTab = document.getElementById('asistencias-tab');
+  if (!asistenciasTab) return;
+
+  let yaInicializado = false;
+
+  asistenciasTab.addEventListener('shown.bs.tab', function () {
+    if (yaInicializado) return;
+    yaInicializado = true;
+    initAsistencias();
+  });
+
+  // Si el tab ya está activo al cargar (poco probable pero por si acaso)
+  if (asistenciasTab.classList.contains('active')) {
+    initAsistencias();
+    yaInicializado = true;
+  }
+
+  function initAsistencias() {
+
+    function norm(str) {
+      return (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    }
+
+    const DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+    const DIAS_NORM = DIAS.map(norm);
+    let statsData = [];
+
+    function diasHabilesEnMes(year, month) {
+      const d = new Date(year, month - 1, 1);
+      let count = 0;
+      while (d.getMonth() === month - 1) {
+        const dow = d.getDay();
+        if (dow >= 1 && dow <= 6) count++;
+        d.setDate(d.getDate() + 1);
+      }
+      return count;
+    }
+
+    function calcRacha(sortedDesc) {
+      if (!sortedDesc.length) return { actual: 0, mejor: 0 };
+      const setF = new Set(sortedDesc);
+      const asc  = [...sortedDesc].reverse();
+      let mejor = 1, curr = 1;
+      for (let i = 1; i < asc.length; i++) {
+        const prev = new Date(asc[i-1]), cur = new Date(asc[i]);
+        const diff = (cur - prev) / 86400000;
+        if (diff === 1 || (diff === 2 && new Date(asc[i-1]).getDay() === 6)) {
+          curr++; mejor = Math.max(mejor, curr);
+        } else curr = 1;
+      }
+      let racha = 0;
+      const d = new Date(); d.setHours(0,0,0,0);
+      for (let i = 0; i < 90; i++) {
+        const dow = d.getDay();
+        if (dow >= 1 && dow <= 6) {
+          if (setF.has(d.toISOString().slice(0,10))) racha++;
+          else break;
+        }
+        d.setDate(d.getDate() - 1);
+      }
+      return { actual: racha, mejor };
+    }
+
+    function buildMonthOptions(data) {
+      const meses = {};
+      data.forEach(r => { meses[r.fecha.slice(0,7)] = true; });
+      const sel  = document.getElementById('att-month-select');
+      sel.innerHTML = '';
+      const keys = Object.keys(meses).sort().reverse();
+      keys.forEach(k => {
+        const [y,m] = k.split('-');
+        const lbl   = new Date(y, m-1, 1)
+          .toLocaleDateString('es-CO', { month:'long', year:'numeric' });
+        const opt   = document.createElement('option');
+        opt.value   = k;
+        opt.textContent = lbl.charAt(0).toUpperCase() + lbl.slice(1);
+        sel.appendChild(opt);
+      });
+      return keys[0] || null;
+    }
+
+    function updateStats(monthKey) {
+      if (!monthKey) return;
+      const [y, m]   = monthKey.split('-').map(Number);
+      const filtered = statsData.filter(r => r.fecha.startsWith(monthKey));
+      const total    = filtered.length;
+      const habiles  = diasHabilesEnMes(y, m);
+      const faltas   = Math.max(0, habiles - total);
+      const pct      = habiles ? Math.round((total / habiles) * 100) : 0;
+
+      const allFechas = [...new Set(statsData.map(r => r.fecha.slice(0,10)))].sort().reverse();
+      const { actual, mejor } = calcRacha(allFechas);
+
+      document.getElementById('stat-total').textContent       = total;
+      document.getElementById('stat-habiles').textContent     = habiles;
+      document.getElementById('stat-faltas').textContent      = faltas;
+      document.getElementById('stat-racha').textContent       = actual + ' días';
+      document.getElementById('stat-mejor-racha').textContent = mejor + ' días';
+
+      const bar   = document.getElementById('att-bar');
+      const badge = document.getElementById('att-badge');
+      bar.style.width = pct + '%';
+
+      if (pct >= 85)      { badge.className='att-badge-stat ab-excelente'; badge.textContent=`${pct}% · Excelente`; bar.style.background='#16a34a'; }
+      else if (pct >= 66) { badge.className='att-badge-stat ab-bueno';     badge.textContent=`${pct}% · Bueno`;     bar.style.background='#2563eb'; }
+      else if (pct >= 40) { badge.className='att-badge-stat ab-regular';   badge.textContent=`${pct}% · Regular`;   bar.style.background='#ca8a04'; }
+      else                { badge.className='att-badge-stat ab-malo';      badge.textContent=`${pct}% · Malo`;      bar.style.background='#dc2626'; }
+
+      const dayCount = {};
+      DIAS_NORM.forEach(dn => dayCount[dn] = 0);
+      filtered.forEach(r => {
+        const n = norm(r.dia_semana);
+        if (dayCount[n] !== undefined) dayCount[n]++;
+      });
+      const maxDay = Math.max(...Object.values(dayCount), 1);
+      document.getElementById('att-week-row').innerHTML = DIAS.map((d, i) => {
+        const c   = dayCount[DIAS_NORM[i]] || 0;
+        const rat = c / maxDay;
+        const lv  = c === 0 ? 0 : rat < .33 ? 1 : rat < .66 ? 2 : rat < 1 ? 3 : 4;
+        return `<div class="att-day-cell">
+          <span class="att-day-label">${d.slice(0,3)}</span>
+          <div class="att-day-dot lv${lv}" title="${d}: ${c} asistencias">${c}</div>
+          <span class="att-day-count">${c} vez${c!==1?'es':''}</span>
+        </div>`;
+      }).join('');
+    }
+
+    /* Stats (1 entrada por día) */
+    $.get('get_asistencias_stats.php', { cliente_id: '<?= $id ?>' }, function(json) {
+      statsData = json.data || [];
+      const def = buildMonthOptions(statsData);
+      updateStats(def);
+      document.getElementById('att-month-select').addEventListener('change', function(){
+        updateStats(this.value);
+      });
+    });
+
+    /* DataTable — todas las entradas */
+    if (!$.fn.DataTable.isDataTable('#asistencias-table')) {
+      $('#asistencias-table').DataTable({
+        ajax: {
+          url : 'get_asistencias.php',
+          type: 'GET',
+          data: { cliente_id: '<?= $id ?>' },
+          dataSrc: 'data'
+        },
+        columns: [
+          {
+            data: 'dia_semana',
+            render: d => `<span class="day-chip"><span class="day-dot-chip"></span>${d.charAt(0).toUpperCase()+d.slice(1)}</span>`
+          },
+          { data: 'fecha' },
+          {
+            data: 'hora',
+            render: function(data, type) {
+              if (type === 'display') {
+                const [h,m] = data.split(':');
+                let hh = parseInt(h,10), suf = ' am';
+                if (hh === 0) hh = 12;
+                else if (hh >= 12){ suf=' pm'; if (hh>12) hh-=12; }
+                return `<span class="hora-pill">${hh}:${m}${suf}</span>`;
+              }
+              return data;
+            }
+          }
+        ],
+        order: [[1,'desc'],[2,'desc']],
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json' }
+      });
+    }
+
+  } // fin initAsistencias
+
+});
+</script>
 
 <?php endif; ?>
