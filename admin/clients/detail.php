@@ -1672,7 +1672,230 @@ if ( ! $.fn.DataTable.isDataTable('#asistencias-table') ) {
 
 </script-->
 
+<script>
+(function () {
 
+  var ATT_CLIENTE_ID = <?= intval($id) ?>;
+
+  function norm(str) {
+    return (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  }
+
+  var DIAS      = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  var DIAS_NORM = DIAS.map(norm);
+  var statsData = [];
+  var statsLoaded = false;
+  var tableLoaded = false;
+
+  /* ── Días hábiles en el mes (lun–sab) ── */
+  function diasHabilesEnMes(year, month) {
+    var d = new Date(year, month - 1, 1);
+    var count = 0;
+    while (d.getMonth() === month - 1) {
+      var dow = d.getDay();
+      if (dow >= 1 && dow <= 6) count++;
+      d.setDate(d.getDate() + 1);
+    }
+    return count;
+  }
+
+  /* ── Racha ── */
+  function calcRacha(sortedDesc) {
+    if (!sortedDesc.length) return { actual: 0, mejor: 0 };
+    var setF = {};
+    sortedDesc.forEach(function(f){ setF[f] = true; });
+    var asc  = sortedDesc.slice().reverse();
+    var mejor = 1, curr = 1;
+    for (var i = 1; i < asc.length; i++) {
+      var prev = new Date(asc[i-1]), cur = new Date(asc[i]);
+      var diff = (cur - prev) / 86400000;
+      if (diff === 1 || (diff === 2 && new Date(asc[i-1]).getDay() === 6)) {
+        curr++; if (curr > mejor) mejor = curr;
+      } else curr = 1;
+    }
+    var racha = 0;
+    var d = new Date(); d.setHours(0,0,0,0);
+    for (var j = 0; j < 90; j++) {
+      var dow = d.getDay();
+      if (dow >= 1 && dow <= 6) {
+        var key = d.toISOString().slice(0,10);
+        if (setF[key]) racha++;
+        else break;
+      }
+      d.setDate(d.getDate() - 1);
+    }
+    return { actual: racha, mejor: mejor };
+  }
+
+  /* ── Selector de meses ── */
+  function buildMonthOptions(data) {
+    var meses = {};
+    data.forEach(function(r){ meses[r.fecha.slice(0,7)] = true; });
+    var sel  = document.getElementById('att-month-select');
+    sel.innerHTML = '';
+    var keys = Object.keys(meses).sort().reverse();
+    keys.forEach(function(k) {
+      var parts = k.split('-');
+      var lbl = new Date(parts[0], parts[1]-1, 1)
+        .toLocaleDateString('es-CO', { month:'long', year:'numeric' });
+      var opt = document.createElement('option');
+      opt.value = k;
+      opt.textContent = lbl.charAt(0).toUpperCase() + lbl.slice(1);
+      sel.appendChild(opt);
+    });
+    return keys[0] || null;
+  }
+
+  /* ── Actualizar estadísticas ── */
+  function updateStats(monthKey) {
+    if (!monthKey) return;
+    var parts    = monthKey.split('-');
+    var y        = parseInt(parts[0]);
+    var m        = parseInt(parts[1]);
+    var filtered = statsData.filter(function(r){ return r.fecha.indexOf(monthKey) === 0; });
+    var total    = filtered.length;
+    var habiles  = diasHabilesEnMes(y, m);
+    var faltas   = Math.max(0, habiles - total);
+    var pct      = habiles ? Math.round((total / habiles) * 100) : 0;
+
+    var uniqFechas = [];
+    var seen = {};
+    statsData.forEach(function(r){
+      var f = r.fecha.slice(0,10);
+      if (!seen[f]) { seen[f] = true; uniqFechas.push(f); }
+    });
+    uniqFechas.sort().reverse();
+    var rachas = calcRacha(uniqFechas);
+
+    document.getElementById('stat-total').textContent       = total;
+    document.getElementById('stat-habiles').textContent     = habiles;
+    document.getElementById('stat-faltas').textContent      = faltas;
+    document.getElementById('stat-racha').textContent       = rachas.actual + ' días';
+    document.getElementById('stat-mejor-racha').textContent = rachas.mejor  + ' días';
+
+    var bar   = document.getElementById('att-bar');
+    var badge = document.getElementById('att-badge');
+    bar.style.width = pct + '%';
+
+    if (pct >= 85) {
+      badge.className = 'att-badge-stat ab-excelente';
+      badge.textContent = pct + '% · Excelente';
+      bar.style.background = '#16a34a';
+    } else if (pct >= 66) {
+      badge.className = 'att-badge-stat ab-bueno';
+      badge.textContent = pct + '% · Bueno';
+      bar.style.background = '#2563eb';
+    } else if (pct >= 40) {
+      badge.className = 'att-badge-stat ab-regular';
+      badge.textContent = pct + '% · Regular';
+      bar.style.background = '#ca8a04';
+    } else {
+      badge.className = 'att-badge-stat ab-malo';
+      badge.textContent = pct + '% · Malo';
+      bar.style.background = '#dc2626';
+    }
+
+    /* Heatmap */
+    var dayCount = {};
+    DIAS_NORM.forEach(function(dn){ dayCount[dn] = 0; });
+    filtered.forEach(function(r){
+      var n = norm(r.dia_semana);
+      if (typeof dayCount[n] !== 'undefined') dayCount[n]++;
+    });
+    var maxDay = 1;
+    DIAS_NORM.forEach(function(dn){ if (dayCount[dn] > maxDay) maxDay = dayCount[dn]; });
+
+    var html = '';
+    DIAS.forEach(function(d, i){
+      var c   = dayCount[DIAS_NORM[i]] || 0;
+      var rat = c / maxDay;
+      var lv  = c === 0 ? 0 : rat < .33 ? 1 : rat < .66 ? 2 : rat < 1 ? 3 : 4;
+      html += '<div class="att-day-cell">'
+            + '<span class="att-day-label">' + d.slice(0,3) + '</span>'
+            + '<div class="att-day-dot lv' + lv + '" title="' + d + ': ' + c + ' asistencias">' + c + '</div>'
+            + '<span class="att-day-count">' + c + ' vez' + (c !== 1 ? 'es' : '') + '</span>'
+            + '</div>';
+    });
+    document.getElementById('att-week-row').innerHTML = html;
+  }
+
+  /* ── Cargar stats ── */
+  function cargarStats() {
+    if (statsLoaded) return;
+    statsLoaded = true;
+    $.get('get_att_stats.php', { cliente_id: ATT_CLIENTE_ID }, function(json) {
+      statsData = (json && json.data) ? json.data : [];
+      var def = buildMonthOptions(statsData);
+      updateStats(def);
+      document.getElementById('att-month-select').addEventListener('change', function(){
+        updateStats(this.value);
+      });
+    }).fail(function(){
+      console.warn('get_att_stats.php no respondió correctamente');
+    });
+  }
+
+  /* ── Cargar tabla DataTable ── */
+  function cargarTabla() {
+    if (tableLoaded) return;
+    tableLoaded = true;
+    if (!$.fn.DataTable.isDataTable('#asistencias-table')) {
+      $('#asistencias-table').DataTable({
+        ajax: {
+          url : 'get_asistencias.php',
+          type: 'GET',
+          data: { cliente_id: ATT_CLIENTE_ID },
+          dataSrc: 'data'
+        },
+        columns: [
+          {
+            data: 'dia_semana',
+            render: function(d) {
+              return '<span class="day-chip"><span class="day-dot-chip"></span>'
+                   + d.charAt(0).toUpperCase() + d.slice(1) + '</span>';
+            }
+          },
+          { data: 'fecha' },
+          {
+            data: 'hora',
+            render: function(data, type) {
+              if (type === 'display') {
+                var parts = data.split(':');
+                var hh = parseInt(parts[0], 10), suf = ' am';
+                if (hh === 0) hh = 12;
+                else if (hh >= 12) { suf = ' pm'; if (hh > 12) hh -= 12; }
+                return '<span class="hora-pill">' + hh + ':' + parts[1] + suf + '</span>';
+              }
+              return data;
+            }
+          }
+        ],
+        order: [[1,'desc'],[2,'desc']],
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json' }
+      });
+    }
+  }
+
+  /* ── Disparar al activar el tab ── */
+  var tabBtn = document.getElementById('asistencias-tab');
+  if (tabBtn) {
+    tabBtn.addEventListener('shown.bs.tab', function() {
+      cargarStats();
+      cargarTabla();
+    });
+    /* Si ya está activo al cargar la página */
+    if (tabBtn.classList.contains('active')) {
+      cargarStats();
+      cargarTabla();
+    }
+  } else {
+    /* Fallback: si el tab no existe, cargar directo */
+    cargarStats();
+    cargarTabla();
+  }
+
+})();
+</script>
 
 
 <script>
