@@ -778,80 +778,7 @@ $(document).ready(function(){
     });
   });
 
-  /*-----------------------------
-    (Opcional) Botón: Congelar Plan
-    (Código comentado; descomentar para activarlo)
-  -----------------------------*/
   
-  /*$("#btnFreezePlan").on("click", function(){
-    Swal.fire({
-      title: "¿Estás seguro?",
-      text: "Se congelará el plan del cliente.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Sí, congelar",
-      cancelButtonText: "Cancelar"
-    }).then((result) => {
-      if(result.isConfirmed){
-        $.ajax({
-          url: "freeze_plan.php",
-          method: "POST",
-          data: { id: "<?php echo $id; ?>" },
-          dataType: "json",
-          success: function(response){
-            if(response.status === 'success'){
-              Swal.fire("Éxito", response.message, "success").then(function(){
-                window.location.reload();
-              });
-            } else {
-              Swal.fire("Error", response.message, "error");
-            }
-          },
-          error: function(){
-            Swal.fire("Error", "No se pudo congelar el plan.", "error");
-          }
-        });
-      }
-    });
-  });*/
-  
-	
-/*-----------------------------
-    (Opcional) Botón: desCongelar Plan
-    (Código comentado; descomentar para activarlo)
-  -----------------------------*/
-  
- /* $("#btnUnFreezePlan").on("click", function(){
-    Swal.fire({
-      title: "¿Estás seguro?",
-      text: "Se descongelará el plan del cliente.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Sí, descongelar",
-      cancelButtonText: "Cancelar"
-    }).then((result) => {
-      if(result.isConfirmed){
-        $.ajax({
-          url: "unfreeze_plan.php",
-          method: "POST",
-          data: { id: "<?php echo $id; ?>" },
-          dataType: "json",
-          success: function(response){
-            if(response.status === 'success'){
-              Swal.fire("Éxito", response.message, "success").then(function(){
-                window.location.reload();
-              });
-            } else {
-              Swal.fire("Error", response.message, "error");
-            }
-          },
-          error: function(){
-            Swal.fire("Error", "No se pudo descongelar el plan.", "error");
-          }
-        });
-      }
-    });
-  });*/
 	
 	
 	// Abrir modal al hacer clic en Transferir Plan
@@ -1707,7 +1634,7 @@ $(function(){
 });
 </script>
 
-<script>
+<!--script>
 if ( ! $.fn.DataTable.isDataTable('#asistencias-table') ) {
   $('#asistencias-table').DataTable({
     ajax: {
@@ -1743,7 +1670,7 @@ if ( ! $.fn.DataTable.isDataTable('#asistencias-table') ) {
   });
 }
 
-</script>
+</script-->
 
 
 <script>
