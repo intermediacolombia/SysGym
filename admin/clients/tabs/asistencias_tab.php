@@ -1,38 +1,12 @@
 <?php if (isset($_SESSION["user_permissions"])
           && in_array('Ver Asistencias', $_SESSION["user_permissions"])): ?>
 
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-
 <style>
-:root {
-  --att-bg:      #0f1117;
-  --att-surface: #1a1d27;
-  --att-border:  #2a2d3a;
-  --att-text:    #e8eaf0;
-  --att-muted:   #6b7080;
-  --att-green:   #22c55e;
-  --att-yellow:  #f59e0b;
-  --att-orange:  #f97316;
-  --att-red:     #ef4444;
-  --att-blue:    #3b82f6;
-  --att-accent:  #6366f1;
-}
-
-#asistencias-wrapper {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--att-bg);
-  border-radius: 16px;
-  padding: 28px;
-  margin-top: 20px;
-  color: var(--att-text);
-}
-#asistencias-wrapper h3 {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.35rem;
-  font-weight: 800;
-  letter-spacing: -.3px;
-  color: #fff;
-  margin: 0 0 20px;
+/* ── Variables locales (heredan del sistema) ── */
+#att-wrap {
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+  margin-top: 24px;
+  color: #3a4155;
 }
 
 /* Selector mes */
@@ -40,103 +14,112 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 22px;
+  margin-bottom: 18px;
 }
 .att-month-selector label {
-  font-size: .8rem;
-  font-weight: 500;
-  color: var(--att-muted);
+  font-size: .75rem;
+  font-weight: 600;
+  color: #5a6478;
   text-transform: uppercase;
   letter-spacing: .08em;
+  margin: 0;
 }
 .att-month-selector select {
-  background: var(--att-surface);
-  border: 1px solid var(--att-border);
-  color: var(--att-text);
-  border-radius: 8px;
+  border: 1.5px solid #e5e7ef;
+  border-radius: 10px;
   padding: 6px 12px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: .875rem;
-  cursor: pointer;
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+  font-size: .85rem;
+  color: #3a4155;
   outline: none;
+  cursor: pointer;
   transition: border-color .2s;
+  background: #fff;
 }
-.att-month-selector select:focus { border-color: var(--att-accent); }
+.att-month-selector select:focus {
+  border-color: var(--system-color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--system-color-primary) 15%, transparent);
+}
 
 /* Métricas */
 .att-metrics {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 14px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
 }
 .att-card {
-  background: var(--att-surface);
-  border: 1px solid var(--att-border);
+  background: #fff;
+  border: 1.5px solid #e5e7ef;
   border-radius: 14px;
-  padding: 18px 20px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  transition: transform .18s, border-color .18s;
+  transition: transform .18s, box-shadow .18s, border-color .18s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
-.att-card:hover { transform: translateY(-2px); border-color: var(--att-accent); }
+.att-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  border-color: var(--system-color-primary);
+}
 .att-card-label {
-  font-size: .72rem;
+  font-size: .7rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .1em;
-  color: var(--att-muted);
+  color: #9aa3b5;
 }
 .att-card-value {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.8rem;
-  font-weight: 800;
+  font-size: 1.7rem;
+  font-weight: 700;
   line-height: 1;
-  color: #fff;
+  color: #1a2235;
 }
-.att-card-value.green  { color: var(--att-green);  }
-.att-card-value.yellow { color: var(--att-yellow); }
-.att-card-value.red    { color: var(--att-red);    }
-.att-card-value.purple { color: #a5b4fc; }
+.att-card-value.c-green  { color: #16a34a; }
+.att-card-value.c-red    { color: #dc2626; }
+.att-card-value.c-purple { color: var(--system-color-primary); }
+.att-card-value.c-blue   { color: #2563eb; }
 
 /* Barra progreso */
 .att-progress-wrap {
-  background: var(--att-surface);
-  border: 1px solid var(--att-border);
+  background: #fff;
+  border: 1.5px solid #e5e7ef;
   border-radius: 14px;
-  padding: 20px 22px;
-  margin-bottom: 24px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 .att-progress-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 14px;
+  align-items: center;
+  margin-bottom: 12px;
 }
 .att-progress-title {
-  font-size: .8rem;
+  font-size: .75rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--att-muted);
+  letter-spacing: .08em;
+  color: #9aa3b5;
 }
-.att-badge {
-  font-size: .78rem;
+.att-badge-stat {
+  font-size: .75rem;
   font-weight: 700;
   padding: 3px 10px;
   border-radius: 20px;
   text-transform: uppercase;
-  letter-spacing: .06em;
+  letter-spacing: .05em;
 }
-.badge-excelente { background: rgba(34,197,94,.15);  color: var(--att-green);  border: 1px solid rgba(34,197,94,.3); }
-.badge-bueno     { background: rgba(59,130,246,.15); color: var(--att-blue);   border: 1px solid rgba(59,130,246,.3); }
-.badge-regular   { background: rgba(245,158,11,.15); color: var(--att-yellow); border: 1px solid rgba(245,158,11,.3); }
-.badge-malo      { background: rgba(239,68,68,.15);  color: var(--att-red);    border: 1px solid rgba(239,68,68,.3); }
+.ab-excelente { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
+.ab-bueno     { background: #dbeafe; color: #2563eb; border: 1px solid #bfdbfe; }
+.ab-regular   { background: #fef9c3; color: #ca8a04; border: 1px solid #fde68a; }
+.ab-malo      { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
 
 .att-bar-track {
-  height: 10px;
-  background: var(--att-border);
+  height: 8px;
+  background: #f0f2f7;
   border-radius: 99px;
   overflow: hidden;
 }
@@ -144,29 +127,31 @@
   height: 100%;
   border-radius: 99px;
   transition: width .7s cubic-bezier(.4,0,.2,1);
+  background: var(--system-color-primary);
 }
 .att-bar-labels {
   display: flex;
   justify-content: space-between;
   margin-top: 8px;
-  font-size: .7rem;
-  color: var(--att-muted);
+  font-size: .68rem;
+  color: #c0c7d4;
 }
 
-/* Heatmap semanal */
+/* Heatmap */
 .att-week-grid {
-  background: var(--att-surface);
-  border: 1px solid var(--att-border);
+  background: #fff;
+  border: 1.5px solid #e5e7ef;
   border-radius: 14px;
-  padding: 20px 22px;
-  margin-bottom: 24px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 .att-week-title {
-  font-size: .8rem;
+  font-size: .75rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--att-muted);
+  letter-spacing: .08em;
+  color: #9aa3b5;
   margin-bottom: 14px;
 }
 .att-days-row {
@@ -178,128 +163,142 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 .att-day-label {
-  font-size: .68rem;
+  font-size: .65rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .05em;
-  color: var(--att-muted);
+  color: #9aa3b5;
 }
 .att-day-dot {
-  width: 36px; height: 36px;
+  width: 38px; height: 38px;
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
-  font-family: 'Syne', sans-serif;
-  font-size: .8rem;
-  font-weight: 800;
-  border: 1px solid var(--att-border);
+  font-size: .82rem;
+  font-weight: 700;
+  border: 1.5px solid #e5e7ef;
   transition: transform .15s;
   cursor: default;
 }
-.att-day-dot:hover { transform: scale(1.1); }
-.att-day-dot.level-0 { background: var(--att-border);         color: var(--att-muted); }
-.att-day-dot.level-1 { background: rgba(239,68,68,.2);        color: var(--att-red);    border-color: rgba(239,68,68,.4); }
-.att-day-dot.level-2 { background: rgba(245,158,11,.2);       color: var(--att-yellow); border-color: rgba(245,158,11,.4); }
-.att-day-dot.level-3 { background: rgba(34,197,94,.2);        color: var(--att-green);  border-color: rgba(34,197,94,.4); }
-.att-day-dot.level-4 { background: rgba(34,197,94,.5);        color: #fff;              border-color: rgba(34,197,94,.7); box-shadow: 0 0 10px rgba(34,197,94,.3); }
-.att-day-count { font-size: .65rem; color: var(--att-muted); }
+.att-day-dot:hover { transform: scale(1.08); }
+.att-day-dot.lv0 { background: #f8faff; color: #c0c7d4; }
+.att-day-dot.lv1 { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+.att-day-dot.lv2 { background: #fef9c3; color: #ca8a04; border-color: #fde68a; }
+.att-day-dot.lv3 { background: #dcfce7; color: #16a34a; border-color: #bbf7d0; }
+.att-day-dot.lv4 { background: #16a34a; color: #fff;    border-color: #15803d; box-shadow: 0 2px 8px rgba(22,163,74,.3); }
+.att-day-count { font-size: .62rem; color: #9aa3b5; }
 
-/* Tabla */
+/* Tabla — neutralizar estilos globales del sistema */
 #asistencias-table.dataTable {
   border-collapse: separate !important;
-  border-spacing: 0 6px !important;
+  border-spacing: 0 5px !important;
   width: 100% !important;
 }
 #asistencias-table thead th {
-  background: transparent !important;
+  background-color: var(--system-color-primary) !important;
+  color: #fff !important;
+  font-size: .75rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .08em !important;
+  padding: 10px 16px !important;
   border: none !important;
-  color: var(--att-muted);
-  font-size: .72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  padding: 4px 16px 12px !important;
+  white-space: nowrap;
 }
+#asistencias-table thead th:first-child { border-radius: 8px 0 0 8px !important; }
+#asistencias-table thead th:last-child  { border-radius: 0 8px 8px 0 !important; }
+
 #asistencias-table tbody tr td {
-  background: var(--att-surface) !important;
+  background: #fff !important;
   border: none !important;
-  border-top: 1px solid var(--att-border) !important;
-  border-bottom: 1px solid var(--att-border) !important;
-  color: var(--att-text);
-  padding: 12px 16px !important;
-  font-size: .875rem;
-  transition: background .15s;
+  border-top: 1.5px solid #f0f2f7 !important;
+  border-bottom: 1.5px solid #f0f2f7 !important;
+  color: #3a4155 !important;
+  padding: 11px 16px !important;
+  font-size: .875rem !important;
+  vertical-align: middle !important;
+  transition: background .12s !important;
 }
 #asistencias-table tbody tr td:first-child {
-  border-left: 1px solid var(--att-border) !important;
+  border-left: 1.5px solid #f0f2f7 !important;
   border-radius: 10px 0 0 10px !important;
 }
 #asistencias-table tbody tr td:last-child {
-  border-right: 1px solid var(--att-border) !important;
+  border-right: 1.5px solid #f0f2f7 !important;
   border-radius: 0 10px 10px 0 !important;
 }
 #asistencias-table tbody tr:hover td {
-  background: #22253a !important;
-  border-color: var(--att-accent) !important;
+  background: color-mix(in srgb, var(--system-color-primary) 6%, #fff) !important;
+  border-color: color-mix(in srgb, var(--system-color-primary) 20%, #f0f2f7) !important;
+  color: var(--system-color-primary) !important;
 }
+
 .day-chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-weight: 600;
-  font-size: .8rem;
+  font-size: .82rem;
 }
-.day-dot {
+.day-dot-chip {
   width: 7px; height: 7px;
   border-radius: 50%;
-  background: var(--att-accent);
+  background: var(--system-color-primary);
   flex-shrink: 0;
 }
 .hora-pill {
   display: inline-block;
-  background: rgba(99,102,241,.12);
-  border: 1px solid rgba(99,102,241,.25);
-  color: #a5b4fc;
+  background: color-mix(in srgb, var(--system-color-primary) 10%, #fff);
+  border: 1px solid color-mix(in srgb, var(--system-color-primary) 25%, #fff);
+  color: var(--system-color-primary);
   border-radius: 20px;
   padding: 2px 10px;
   font-size: .8rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
-/* DataTables dark overrides */
-.dataTables_wrapper .dataTables_length,
-.dataTables_wrapper .dataTables_filter,
-.dataTables_wrapper .dataTables_info,
-.dataTables_wrapper .dataTables_paginate { color: var(--att-muted) !important; font-size: .8rem; }
-.dataTables_wrapper .dataTables_filter input,
-.dataTables_wrapper .dataTables_length select {
-  background: var(--att-surface) !important;
-  border: 1px solid var(--att-border) !important;
-  color: var(--att-text) !important;
-  border-radius: 8px;
-  padding: 4px 10px;
+/* DataTables controles */
+#att-wrap .dataTables_wrapper .dataTables_length,
+#att-wrap .dataTables_wrapper .dataTables_filter,
+#att-wrap .dataTables_wrapper .dataTables_info,
+#att-wrap .dataTables_wrapper .dataTables_paginate {
+  color: #5a6478 !important;
+  font-size: .8rem;
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+}
+#att-wrap .dataTables_wrapper .dataTables_filter input,
+#att-wrap .dataTables_wrapper .dataTables_length select {
+  border: 1.5px solid #e5e7ef !important;
+  border-radius: 10px !important;
+  padding: 4px 10px !important;
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+  font-size: .82rem !important;
+  color: #3a4155 !important;
   outline: none;
 }
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-  background: var(--att-surface) !important;
-  border: 1px solid var(--att-border) !important;
-  color: var(--att-muted) !important;
+#att-wrap .dataTables_wrapper .dataTables_paginate .paginate_button {
   border-radius: 8px !important;
+  border: 1.5px solid #e5e7ef !important;
+  color: #5a6478 !important;
   margin: 0 2px !important;
+  font-size: .8rem !important;
 }
-.dataTables_wrapper .dataTables_paginate .paginate_button.current,
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-  background: var(--att-accent) !important;
-  border-color: var(--att-accent) !important;
+#att-wrap .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+#att-wrap .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: var(--system-color-primary) !important;
+  border-color: var(--system-color-primary) !important;
   color: #fff !important;
 }
 </style>
 
-<div id="asistencias-wrapper">
+<div id="att-wrap">
 
-  <h3><i class="fa fa-calendar-check-o" style="color:var(--att-accent);margin-right:8px"></i> Historial de Asistencias</h3>
+  <h3 class="mb-3" style="font-weight:700;font-size:1.1rem;color:#1a2235;">
+    <i class="fa fa-calendar-check-o" style="color:var(--system-color-primary);margin-right:8px"></i>
+    Historial de Asistencias
+  </h3>
 
   <!-- Selector mes -->
   <div class="att-month-selector">
@@ -311,7 +310,7 @@
   <div class="att-metrics">
     <div class="att-card">
       <span class="att-card-label">Asistencias</span>
-      <span class="att-card-value" id="stat-total">—</span>
+      <span class="att-card-value c-purple" id="stat-total">—</span>
     </div>
     <div class="att-card">
       <span class="att-card-label">Días hábiles</span>
@@ -319,15 +318,15 @@
     </div>
     <div class="att-card">
       <span class="att-card-label">Faltas</span>
-      <span class="att-card-value red" id="stat-faltas">—</span>
+      <span class="att-card-value c-red" id="stat-faltas">—</span>
     </div>
     <div class="att-card">
       <span class="att-card-label">Racha actual</span>
-      <span class="att-card-value green" id="stat-racha">—</span>
+      <span class="att-card-value c-green" id="stat-racha">—</span>
     </div>
     <div class="att-card">
       <span class="att-card-label">Mejor racha</span>
-      <span class="att-card-value purple" id="stat-mejor-racha">—</span>
+      <span class="att-card-value c-blue" id="stat-mejor-racha">—</span>
     </div>
   </div>
 
@@ -335,7 +334,7 @@
   <div class="att-progress-wrap">
     <div class="att-progress-header">
       <span class="att-progress-title">Tasa de asistencia del mes</span>
-      <span class="att-badge" id="att-badge">—</span>
+      <span class="att-badge-stat" id="att-badge">—</span>
     </div>
     <div class="att-bar-track">
       <div class="att-bar-fill" id="att-bar" style="width:0%"></div>
@@ -354,7 +353,7 @@
     <div class="att-days-row" id="att-week-row"></div>
   </div>
 
-  <!-- Tabla (todas las entradas, sin cambios) -->
+  <!-- Tabla -->
   <table id="asistencias-table" class="table">
     <thead>
       <tr>
@@ -370,10 +369,15 @@
 
 <script>
 (function () {
-  const DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-  let statsData = []; // datos deduplicados solo para estadísticas
+  // Normaliza tildes para comparar días
+  function norm(str) {
+    return (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  }
 
-  /* ── Helpers ── */
+  const DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const DIAS_NORM = DIAS.map(norm); // ['lunes','martes','miercoles',...]
+  let statsData = [];
+
   function diasHabilesEnMes(year, month) {
     const d = new Date(year, month - 1, 1);
     let count = 0;
@@ -385,57 +389,44 @@
     return count;
   }
 
-  function calcRacha(sorted) {
-    // sorted: fechas únicas ['2025-06-03','2025-06-02',...] DESC
-    if (!sorted.length) return { actual: 0, mejor: 0 };
-    const setFechas = new Set(sorted);
-
-    // mejor racha global
-    const asc = [...sorted].reverse();
+  function calcRacha(sortedDesc) {
+    if (!sortedDesc.length) return { actual: 0, mejor: 0 };
+    const setF = new Set(sortedDesc);
+    const asc  = [...sortedDesc].reverse();
     let mejor = 1, curr = 1;
     for (let i = 1; i < asc.length; i++) {
       const prev = new Date(asc[i-1]), cur = new Date(asc[i]);
       const diff = (cur - prev) / 86400000;
-      // consecutivo si diff=1, o diff=2 saltando domingo (sab→lun)
       if (diff === 1 || (diff === 2 && new Date(asc[i-1]).getDay() === 6)) {
         curr++; mejor = Math.max(mejor, curr);
-      } else { curr = 1; }
+      } else curr = 1;
     }
-
-    // racha actual: hacia atrás desde hoy
     let racha = 0;
-    const hoy = new Date(); hoy.setHours(0,0,0,0);
-    const d = new Date(hoy);
-    let intentos = 0;
-    while (intentos < 90) {
+    const d = new Date(); d.setHours(0,0,0,0);
+    for (let i = 0; i < 90; i++) {
       const dow = d.getDay();
       if (dow >= 1 && dow <= 6) {
-        const key = d.toISOString().slice(0,10);
-        if (setFechas.has(key)) racha++;
+        if (setF.has(d.toISOString().slice(0,10))) racha++;
         else break;
       }
       d.setDate(d.getDate() - 1);
-      intentos++;
     }
     return { actual: racha, mejor };
   }
 
   function buildMonthOptions(data) {
     const meses = {};
-    data.forEach(r => {
-      const key = r.fecha.slice(0,7); // YYYY-MM
-      meses[key] = true;
-    });
-    const sel = document.getElementById('att-month-select');
+    data.forEach(r => { meses[r.fecha.slice(0,7)] = true; });
+    const sel  = document.getElementById('att-month-select');
     sel.innerHTML = '';
     const keys = Object.keys(meses).sort().reverse();
     keys.forEach(k => {
-      const [y, m] = k.split('-');
-      const label = new Date(y, m-1, 1)
+      const [y,m] = k.split('-');
+      const lbl   = new Date(y, m-1, 1)
         .toLocaleDateString('es-CO', { month:'long', year:'numeric' });
-      const opt = document.createElement('option');
-      opt.value = k;
-      opt.textContent = label.charAt(0).toUpperCase() + label.slice(1);
+      const opt   = document.createElement('option');
+      opt.value   = k;
+      opt.textContent = lbl.charAt(0).toUpperCase() + lbl.slice(1);
       sel.appendChild(opt);
     });
     return keys[0] || null;
@@ -443,66 +434,62 @@
 
   function updateStats(monthKey) {
     if (!monthKey) return;
-    const [y, m] = monthKey.split('-').map(Number);
+    const [y, m]  = monthKey.split('-').map(Number);
     const filtered = statsData.filter(r => r.fecha.startsWith(monthKey));
-    const total   = filtered.length;
-    const habiles = diasHabilesEnMes(y, m);
-    const faltas  = Math.max(0, habiles - total);
-    const pct     = habiles ? Math.round((total / habiles) * 100) : 0;
+    const total    = filtered.length;
+    const habiles  = diasHabilesEnMes(y, m);
+    const faltas   = Math.max(0, habiles - total);
+    const pct      = habiles ? Math.round((total / habiles) * 100) : 0;
 
-    // rachas con todas las fechas únicas históricas
     const allFechas = [...new Set(statsData.map(r => r.fecha.slice(0,10)))].sort().reverse();
     const { actual, mejor } = calcRacha(allFechas);
 
-    document.getElementById('stat-total').textContent        = total;
-    document.getElementById('stat-habiles').textContent      = habiles;
-    document.getElementById('stat-faltas').textContent       = faltas;
-    document.getElementById('stat-racha').textContent        = actual + ' días';
-    document.getElementById('stat-mejor-racha').textContent  = mejor + ' días';
+    document.getElementById('stat-total').textContent       = total;
+    document.getElementById('stat-habiles').textContent     = habiles;
+    document.getElementById('stat-faltas').textContent      = faltas;
+    document.getElementById('stat-racha').textContent       = actual + ' días';
+    document.getElementById('stat-mejor-racha').textContent = mejor + ' días';
 
-    // barra y badge
     const bar   = document.getElementById('att-bar');
     const badge = document.getElementById('att-badge');
     bar.style.width = pct + '%';
 
-    let color;
-    if (pct >= 85)      { badge.className='att-badge badge-excelente'; badge.textContent=`${pct}% · Excelente`; color='#22c55e'; }
-    else if (pct >= 66) { badge.className='att-badge badge-bueno';     badge.textContent=`${pct}% · Bueno`;     color='#3b82f6'; }
-    else if (pct >= 40) { badge.className='att-badge badge-regular';   badge.textContent=`${pct}% · Regular`;   color='#f59e0b'; }
-    else                { badge.className='att-badge badge-malo';      badge.textContent=`${pct}% · Malo`;      color='#ef4444'; }
-    bar.style.background = `linear-gradient(90deg, ${color}88, ${color})`;
+    if (pct >= 85)      { badge.className='att-badge-stat ab-excelente'; badge.textContent=`${pct}% · Excelente`; bar.style.background='#16a34a'; }
+    else if (pct >= 66) { badge.className='att-badge-stat ab-bueno';     badge.textContent=`${pct}% · Bueno`;     bar.style.background='#2563eb'; }
+    else if (pct >= 40) { badge.className='att-badge-stat ab-regular';   badge.textContent=`${pct}% · Regular`;   bar.style.background='#ca8a04'; }
+    else                { badge.className='att-badge-stat ab-malo';      badge.textContent=`${pct}% · Malo`;      bar.style.background='#dc2626'; }
 
-    // heatmap
-    const dayCount = { 'Lunes':0,'Martes':0,'Miércoles':0,'Jueves':0,'Viernes':0,'Sábado':0 };
+    // Heatmap — comparar con norm() para evitar problemas de tildes
+    const dayCount = {};
+    DIAS_NORM.forEach(d => dayCount[d] = 0);
     filtered.forEach(r => {
-      const cap = r.dia_semana.charAt(0).toUpperCase() + r.dia_semana.slice(1);
-      if (dayCount[cap] !== undefined) dayCount[cap]++;
+      const n = norm(r.dia_semana);
+      if (dayCount[n] !== undefined) dayCount[n]++;
     });
     const maxDay = Math.max(...Object.values(dayCount), 1);
-    document.getElementById('att-week-row').innerHTML = DIAS.map(d => {
-      const c = dayCount[d] || 0;
-      const ratio = c / maxDay;
-      const lvl = c === 0 ? 0 : ratio < .33 ? 1 : ratio < .66 ? 2 : ratio < 1 ? 3 : 4;
+    document.getElementById('att-week-row').innerHTML = DIAS.map((d, i) => {
+      const c   = dayCount[DIAS_NORM[i]] || 0;
+      const rat = c / maxDay;
+      const lv  = c === 0 ? 0 : rat < .33 ? 1 : rat < .66 ? 2 : rat < 1 ? 3 : 4;
       return `<div class="att-day-cell">
         <span class="att-day-label">${d.slice(0,3)}</span>
-        <div class="att-day-dot level-${lvl}" title="${d}: ${c} asistencias">${c}</div>
+        <div class="att-day-dot lv${lv}" title="${d}: ${c} asistencias">${c}</div>
         <span class="att-day-count">${c} vez${c!==1?'es':''}</span>
       </div>`;
     }).join('');
   }
 
-  /* ── Stats: llamada separada con datos deduplicados ── */
+  /* Stats separadas (1 por día) */
   $.get('get_asistencias_stats.php', { cliente_id: '<?= $id ?>' }, function(json) {
     statsData = json.data || [];
-    const defaultMonth = buildMonthOptions(statsData);
-    updateStats(defaultMonth);
-
+    const def = buildMonthOptions(statsData);
+    updateStats(def);
     document.getElementById('att-month-select').addEventListener('change', function(){
       updateStats(this.value);
     });
   });
 
-  /* ── DataTable: intacto, muestra TODAS las entradas ── */
+  /* DataTable — todas las entradas, sin cambios */
   if (!$.fn.DataTable.isDataTable('#asistencias-table')) {
     $('#asistencias-table').DataTable({
       ajax: {
@@ -514,7 +501,7 @@
       columns: [
         {
           data: 'dia_semana',
-          render: d => `<span class="day-chip"><span class="day-dot"></span>${d.charAt(0).toUpperCase()+d.slice(1)}</span>`
+          render: d => `<span class="day-chip"><span class="day-dot-chip"></span>${d.charAt(0).toUpperCase()+d.slice(1)}</span>`
         },
         { data: 'fecha' },
         {
