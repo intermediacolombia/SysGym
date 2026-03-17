@@ -17,7 +17,7 @@ try {
         'status'  => 'error',
         'message' => 'Error en la conexión: ' . $e->getMessage()
     ]);
-    exit;
+    return;
 }
 
 // Filtrar clientes que tienen notificaciones activadas (notificaciones = 1)

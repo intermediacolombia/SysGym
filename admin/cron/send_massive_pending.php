@@ -156,7 +156,7 @@ if (!in_array($diaActual, $diasPermitidos)) {
     echo "[DIA] Dia no permitido para envios\n";
     echo "      Dias permitidos: " . implode(', ', $diasPermitidosNombres) . "\n";
     echo "      Dia actual: " . ($nombresDias[$diaActual] ?? $diaActual) . "\n";
-    exit;
+    return;
 }
 
 // ------------- VERIFICAR HORARIO -------------
@@ -165,7 +165,7 @@ if ($horaActual < HORA_INICIO || $horaActual >= HORA_FIN) {
     echo "[HORA] Fuera de horario de envio\n";
     echo "       Horario permitido: " . HORA_INICIO . ":00 - " . HORA_FIN . ":00\n";
     echo "       Hora actual: " . date('H:i') . "\n";
-    exit;
+    return;
 }
 
 // ------------- VERIFICAR LIMITE DIARIO -------------
@@ -175,7 +175,7 @@ echo "[INFO] Mensajes enviados hoy: $enviadosHoy / " . LIMITE_DIARIO . "\n\n";
 if ($enviadosHoy >= LIMITE_DIARIO) {
     echo "[LIMITE] LIMITE DIARIO ALCANZADO\n";
     echo "         Los envios continuaran manana.\n";
-    exit;
+    return;
 }
 
 // ------------- OBTENER UN MENSAJE PENDIENTE -------------
@@ -191,12 +191,12 @@ try {
 
     if (!$pendiente) {
         echo "[OK] No hay mensajes pendientes en la cola.\n";
-        exit;
+        return;
     }
 
 } catch (PDOException $e) {
     echo "[ERROR] ERROR BD: " . $e->getMessage() . "\n";
-    exit;
+    return;
 }
 
 // ------------- PREPARAR DATOS -------------

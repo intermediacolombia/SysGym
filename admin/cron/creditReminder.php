@@ -76,7 +76,7 @@ try {
         'status'  => 'error',
         'message' => 'Error en la conexión: ' . $e->getMessage()
     ]);
-    exit;
+    return;
 }
 ?>
 
