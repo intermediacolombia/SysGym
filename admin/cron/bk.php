@@ -37,8 +37,8 @@ if ($debug) {
 /* --------------------------------------------------------------------------
  *  Rutas de respaldo (relativas al archivo, independiente del dominio)
  * -------------------------------------------------------------------------- */
-    $backupPathOriginal   = __DIR__ . '/original/';
-    $backupPathCompressed = __DIR__ . '/compressed/';
+   $backupPathOriginal   = __DIR__ . '/../bk/original/';
+    $backupPathCompressed = __DIR__ . '/../bk/compressed/';
 
 foreach ([$backupPathOriginal, $backupPathCompressed] as $dir) {
     if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
