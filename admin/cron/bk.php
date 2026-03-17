@@ -34,8 +34,11 @@ if ($debug) {
 /* --------------------------------------------------------------------------
  *  Rutas de respaldo
  * -------------------------------------------------------------------------- */
-$backupPathOriginal   = '/home/activgym/sysgym.intermediacolombia.com/admin/bk/original/';
-$backupPathCompressed = '/home/activgym/sysgym.intermediacolombia.com/admin/bk/compressed/';
+/* --------------------------------------------------------------------------
+ *  Rutas de respaldo (relativas al archivo, independiente del dominio)
+ * -------------------------------------------------------------------------- */
+    $backupPathOriginal   = __DIR__ . '/original/';
+    $backupPathCompressed = __DIR__ . '/compressed/';
 
 foreach ([$backupPathOriginal, $backupPathCompressed] as $dir) {
     if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
