@@ -313,7 +313,7 @@ function gestionarPago($doc) {
         $dias   = DAYS_ALLOWED_BEFORE_DUE;
 
         if ($diff <= $dias) {
-            $link = URLBASE."/pay/?doc={$doc}";
+            $link = "https://sysgym.intermediacolombia.com/pay/?doc={$doc}";
             return
                 "✅ ¡Hola *{$nombre}*! Tu pago ya está disponible.\n\n" .
                 "🔗 *Enlace de pago:*\n{$link}\n\n" .
@@ -383,7 +383,7 @@ function generarCertificado($doc, $telefono) {
 
         $clienteId = $c['id'];
         $nombre    = trim($c['nombres'] . ' ' . $c['apellidos']);
-        $baseUrl   = rtrim(defined('URLBASE') ? URLBASE : '/', '/');
+        $baseUrl   = rtrim(defined('URLBASE') ? URLBASE : 'https://sysgym.intermediacolombia.com', '/');
 
         // Descargar PDF desde el generador
         $pdfSrcUrl = $baseUrl . '/pdf/?type=cert&id=' . $clienteId;
@@ -577,7 +577,7 @@ if ($estado === 'asesor') {
     }
 
 // ── B. Detección de agente humano respondiendo ────────────────
-} elseif (preg_match('/\b(te atiendo|en que puedo ayudarte|buenos|buenas|hola|cuentame|dime|hola soy|te ayudo|un momento|ya te atiendo)\b/i', $mensajeLower)) {
+} elseif (preg_match('/\b(te atiendo|en que puedo ayudarte|cuentame|dime|hola soy|te ayudo|un momento|ya te atiendo)\b/i', $mensajeLower)) {
     guardarEstado($sesKey, 'asesor', ['agente' => true]);
     wlog("[$clientId] Humano detectado");
     http_response_code(200); exit('OK');
