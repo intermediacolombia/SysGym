@@ -1,16 +1,19 @@
 <?php
 /**
  * reset_webhook_logs.php
+ * Ubicación: /admin/cron/reset_webhook_logs.php
  * Limpia los logs y sesiones del webhook WS.
  * Ejecutar via cron a las 12:00 AM diariamente.
  */
 
-$base = __DIR__ . '/../webhook/';
+// __DIR__ = /home/activgym/app.activgym.com.co/admin/cron
+// webhook  = /home/activgym/app.activgym.com.co/webhook
+$base = dirname(__DIR__, 2) . '/webhook/';
 
 $archivos = [
-    $base . 'webhook-ws.log'     => '',    // vaciar log
-    $base . 'estados_ws.json'    => '[]',  // resetear sesiones
-    $base . 'processed_ids.json' => '[]',  // resetear anti-duplicados
+    $base . 'webhook-ws.log'     => '',
+    $base . 'estados_ws.json'    => '[]',
+    $base . 'processed_ids.json' => '[]',
 ];
 
 $resultados = [];
