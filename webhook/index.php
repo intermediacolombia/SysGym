@@ -11,7 +11,7 @@ defined('API_URL')            || define('API_URL',            rtrim(WA_API_URL, 
 defined('LOG_FILE')           || define('LOG_FILE',           __DIR__ . '/webhook-ws.log');
 defined('ESTADOS_FILE')       || define('ESTADOS_FILE',       __DIR__ . '/estados_ws.json');
 defined('MENU_TIMEOUT_SECS')  || define('MENU_TIMEOUT_SECS',  5 * 60);
-defined('ASESOR_TIMEOUT_SECS')|| define('ASESOR_TIMEOUT_SECS',2 * 60 * 60);
+defined('ASESOR_TIMEOUT_SECS')|| define('ASESOR_TIMEOUT_SECS', 45 * 60);
 
 defined('HORARIOS_GYM') || define('HORARIOS_GYM',
     "🏋️ *" . NAME_GYM . "* — Horarios de atención\n\n" .
@@ -118,6 +118,55 @@ function wsSend($telefono, $mensaje, $pdfUrl = null) {
     }
     wlog("wsSend $telefono HTTP=$code success=" . ($success ? 'SI' : 'NO') . ($pdfUrl ? ' [PDF]' : '') . " msg=" . mb_substr($mensaje, 0, 60));
     return $success;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  DETECCIÓN DE ASESOR VÍA API
+// ════════════════════════════════════════════════════════════════
+function asesorRespondioRecientemente($telefono, $minutosAtras = 30) {
+    // Normalizar número: quitar @s.whatsapp.net si viene con JID
+    $numero = explode('@', $telefono)[0];
+
+    $ch = curl_init(rtrim(WA_API_URL, '/') . '/my-messages?limit=50&offset=0&status=all');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER     => [
+            'Authorization: Bearer ' . API_KEY,
+        ],
+        CURLOPT_TIMEOUT => 5,
+    ]);
+    $response = curl_exec($ch);
+    $code     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($code !== 200 || empty($response)) return false;
+
+    $data  = json_decode($response, true);
+    $msgs  = $data['messages'] ?? $data['data'] ?? $data ?? [];
+    $desde = time() - ($minutosAtras * 60);
+
+    foreach ($msgs as $msg) {
+        // Buscar mensajes enviados hacia este número
+        $dest      = $msg['to'] ?? $msg['phone'] ?? $msg['phonenumber'] ?? '';
+        $timestamp = $msg['createdAt'] ?? $msg['timestamp'] ?? $msg['created_at'] ?? 0;
+
+        // Normalizar destino
+        $destNum = explode('@', $dest)[0];
+
+        // Comparar últimos 9 dígitos para evitar problemas con código de país
+        $sufDest  = substr(preg_replace('/\D/', '', $destNum), -9);
+        $sufTel   = substr(preg_replace('/\D/', '', $numero), -9);
+
+        if ($sufDest !== $sufTel) continue;
+
+        // Convertir timestamp
+        if (is_string($timestamp)) $timestamp = strtotime($timestamp);
+        if ($timestamp > $desde) {
+            wlog("ASESOR detectado vía API: msg hacia $dest en " . date('H:i:s', $timestamp));
+            return true;
+        }
+    }
+    return false;
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -559,9 +608,21 @@ $mensajeLower = mb_strtolower($mensaje);
 
 wlog("[$clientId] $telefono ($nombre) → \"$mensaje\"");
 
+// Guardar estado anterior antes de verificar expiración
+$sesDataRaw  = jsonLeer();
+$estadoPrevio = $sesDataRaw[$sesKey]['estado'] ?? null;
+
 $sesData = obtenerEstado($sesKey);
 $estado  = $sesData['estado'] ?? null;
-wlog("[$clientId] Estado: " . ($estado ?? 'NINGUNO'));
+wlog("[$clientId] Estado: " . ($estado ?? 'NINGUNO') . ($estadoPrevio && !$estado ? " (expiró: $estadoPrevio)" : ''));
+
+// ── Verificación dinámica de asesor via API ───────────────────
+// Si no está en estado asesor pero el asesor respondió recientemente → forzar asesor
+if ($estado !== 'asesor' && asesorRespondioRecientemente($telefono)) {
+    wlog("[$clientId] Asesor detectado via API — forzando estado asesor");
+    guardarEstado($sesKey, 'asesor', ['detectado_api' => true]);
+    $estado = 'asesor';
+}
 
 $respuesta = null;
 $pdfUrl    = null;
@@ -576,13 +637,7 @@ if ($estado === 'asesor') {
         http_response_code(200); exit('OK');
     }
 
-// ── B. Detección de agente humano respondiendo ────────────────
-} elseif (preg_match('/\b(te atiendo|en que puedo ayudarte|cuentame|dime|hola soy|te ayudo|un momento|ya te atiendo)\b/i', $mensajeLower)) {
-    guardarEstado($sesKey, 'asesor', ['agente' => true]);
-    wlog("[$clientId] Humano detectado");
-    http_response_code(200); exit('OK');
-
-// ── C. Palabra "asesor" → verificar horario ──────────────────
+// ── B. Palabra "asesor" → verificar horario ──────────────────
 } elseif (preg_match('/^\s*asesor\s*$/i', $mensajeLower)) {
     if (gimnasioAbierto()) {
         $respuesta =
@@ -741,10 +796,23 @@ if ($estado === 'asesor') {
         guardarEstado($sesKey, 'espera_doc_cert');
     }
 
-// ── I. Sin estado ─────────────────────────────────────────────
+// ── I. Sin estado (primera vez o expirado) ───────────────────
 } else {
     wlog("[$clientId] Sin estado — menú inicial");
-    $respuesta = resetMenu($sesKey, $nombre);
+    if ($estadoPrevio === 'asesor') {
+        // Venía de sesión con asesor que expiró — avisar y mostrar menú
+        wlog("[$clientId] Sesión asesor expirada — retomando bot");
+        $respuesta =
+            "⏱️ _Tu conversación con el asesor finalizó por inactividad._
+
+" .
+            "El bot retomó la atención. Si necesitas más ayuda, estamos aquí. 😊
+
+" .
+            resetMenu($sesKey, $nombre);
+    } else {
+        $respuesta = resetMenu($sesKey, $nombre);
+    }
 }
 
 // ── Enviar ────────────────────────────────────────────────────
