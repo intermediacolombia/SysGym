@@ -9,7 +9,27 @@ ini_set('display_errors', $debug ? 1 : 0);
 set_time_limit(0);
 date_default_timezone_set('America/Bogota');
 
-require_once __DIR__ . '/../../inc/config.php';   // $host, $dbname, $dbuser, $dbpass
+// Cargar config.php (que a su vez carga url_bd.php)
+require_once __DIR__ . '/../../inc/config.php';
+
+// Extraer variables de BD desde $GLOBALS (donde config.php las deja)
+$host   = $GLOBALS['host']   ?? '';
+$dbname = $GLOBALS['dbname'] ?? '';
+$dbuser = $GLOBALS['dbuser'] ?? '';
+$dbpass = $GLOBALS['dbpass'] ?? '';
+
+// Validar que las variables estén disponibles
+if (!$host || !$dbname || !$dbuser || !$dbpass) {
+    die("Error: No se pudieron obtener las variables de conexión a la BD.");
+}
+
+if ($debug) {
+    echo "=== Variables BD ===\n";
+    echo "host:   $host\n";
+    echo "dbname: $dbname\n";
+    echo "dbuser: $dbuser\n";
+    echo "dbpass: (oculta)\n\n";
+}
 
 /* --------------------------------------------------------------------------
  *  Rutas de respaldo
@@ -32,23 +52,23 @@ $dumpFile   = $backupPathOriginal   . $baseName . '.sql';
 $dumpFileGz = $backupPathCompressed . $baseName . '.sql.gz';
 
 /* --------------------------------------------------------------------------
- *  1) Archivo .cnf temporal (contraseña entre comillas + protocolo TCP)
+ *  1) Archivo .cnf temporal (sin protocol=TCP para compatibilidad cPanel)
  * -------------------------------------------------------------------------- */
-$tmpCnf = tempnam(sys_get_temp_dir(), 'mysqldump_');
-$passEsc = str_replace(['\\', '"'], ['\\\\', '\\"'], $dbpass);   // escapar \ y "
+$tmpCnf  = tempnam(sys_get_temp_dir(), 'mysqldump_');
+$passEsc = str_replace(['\\', '"'], ['\\\\', '\\"'], $dbpass);
+
 $cfg = <<<CNF
 [client]
 user     = "{$dbuser}"
 password = "{$passEsc}"
 host     = "{$host}"
-protocol = TCP
 
 [mysqldump]
 user     = "{$dbuser}"
 password = "{$passEsc}"
 host     = "{$host}"
-protocol = TCP
 CNF;
+
 file_put_contents($tmpCnf, $cfg);
 chmod($tmpCnf, 0600);
 
@@ -56,8 +76,7 @@ chmod($tmpCnf, 0600);
  *  2) Ejecutar mysqldump
  * -------------------------------------------------------------------------- */
 $cmdDump = sprintf(
-    'mysqldump --defaults-extra-file=%s --routines --triggers --events ' .
-    '--protocol=TCP %s > %s 2>&1',
+    'mysqldump --defaults-extra-file=%s --routines --triggers --events %s > %s 2>&1',
     escapeshellarg($tmpCnf),
     escapeshellarg($dbname),
     escapeshellarg($dumpFile)
@@ -68,6 +87,10 @@ if ($debug) {
 }
 
 exec($cmdDump, $outDump, $retDump);
+
+if ($debug && !empty($outDump)) {
+    echo "=== Salida mysqldump ===\n" . implode("\n", $outDump) . "\n";
+}
 
 /* --------------------------------------------------------------------------
  *  3) Comprimir si el dump fue OK
@@ -84,6 +107,7 @@ if ($retDump === 0) {
         limpiarAntiguos($backupPathOriginal,   '*.sql',    5);
         limpiarAntiguos($backupPathCompressed, '*.sql.gz', 5);
         // require '../bk/mailer/nuevo-backup.php';
+        if ($debug) echo "✅ Backup completado: $dumpFileGz\n";
     } else {
         registrarError('Error al comprimir respaldo', $outGzip);
     }
@@ -104,6 +128,7 @@ exit;
 function limpiarAntiguos(string $dir, string $pat, int $keep = 5): void
 {
     $files = glob($dir . $pat);
+    if (!$files) return;
     usort($files, fn($a, $b) => filemtime($b) <=> filemtime($a));
     foreach (array_slice($files, $keep) as $f) { @unlink($f); }
 }
