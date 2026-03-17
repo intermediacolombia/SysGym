@@ -34,7 +34,7 @@ try {
 
 } catch (PDOException $e) {
     echo "Error de BD: " . $e->getMessage() . "\n";
-    exit;
+    return;
 }
 
 

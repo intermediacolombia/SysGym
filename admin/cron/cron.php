@@ -7,7 +7,7 @@ $hora    = date('H:i');
 $minutos = (int) date('i');
 
 switch (true) {
-    case ($hora === '00:00'): // tareas de medianoche
+    case ($hora === '00:04'): // tareas de medianoche
         include 'closed_caja.php'; // Cerrar cajas abiertas
         include 'bk.php';          // Backup BD
         include 'reset_webhook_logs.php';
