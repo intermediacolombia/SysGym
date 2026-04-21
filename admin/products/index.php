@@ -11,9 +11,9 @@ require_once __DIR__ . '/../../inc/config.php';
 // =====================================================
 if (isset($_GET['action']) && $_GET['action'] == "fetch") {
     $stmt = db()->prepare("SELECT p.id, p.nombre, p.precio, p.coste, p.stock, p.estado, p.id_bolsillo, b.nombre AS bolsillo, b.borrado,
-                              p.alerta_stock, p.minimo_stock
-                       FROM productos p 
-                       LEFT JOIN bolsillos b ON p.id_bolsillo = b.id 
+                              p.alerta_stock, p.minimo_stock, p.tiene_fecha_vencimiento, p.fecha_vencimiento
+                       FROM productos p
+                       LEFT JOIN bolsillos b ON p.id_bolsillo = b.id
                        WHERE p.borrado = 0");
 
     $stmt->execute();
@@ -39,9 +39,11 @@ if (isset($_POST['action'])) {
         $estado = trim($_POST['estado']);
         $id_bolsillo = trim($_POST['id_bolsillo']);
        $alerta_stock = (!empty($_POST['alerta_stock']) && $_POST['alerta_stock'] == '1') ? 1 : 0;
-        $minimo_stock = isset($_POST['minimo_stock']) && $_POST['minimo_stock'] !== '' ? (int)$_POST['minimo_stock'] : null;
+         $minimo_stock = isset($_POST['minimo_stock']) && $_POST['minimo_stock'] !== '' ? (int)$_POST['minimo_stock'] : null;
+         $tiene_fecha_vencimiento = isset($_POST['tiene_fecha_vencimiento']) && $_POST['tiene_fecha_vencimiento'] == '1' ? 1 : 0;
+         $fecha_vencimiento = !empty($_POST['fecha_vencimiento']) ? $_POST['fecha_vencimiento'] : null;
 
-        // Verificar si ya existe un producto con el mismo nombre
+         // Verificar si ya existe un producto con el mismo nombre
         $stmtCheck = db()->prepare("SELECT id, borrado FROM productos WHERE nombre = :nombre LIMIT 1");
         $stmtCheck->execute([':nombre' => $nombre]);
         $existing = $stmtCheck->fetch(PDO::FETCH_ASSOC);
@@ -53,9 +55,10 @@ if (isset($_POST['action'])) {
             } else {
                 // Reactivar producto borrado
                 $stmtUpdate = db()->prepare("
-                    UPDATE productos 
+                    UPDATE productos
                     SET precio = :precio, coste = :coste, stock = :stock, estado = :estado, id_bolsillo = :id_bolsillo,
-                        alerta_stock = :alerta_stock, minimo_stock = :minimo_stock, borrado = 0
+                        alerta_stock = :alerta_stock, minimo_stock = :minimo_stock, borrado = 0,
+                        tiene_fecha_vencimiento = :tiene_fecha_vencimiento, fecha_vencimiento = :fecha_vencimiento
                     WHERE id = :id
                 ");
                 if ($stmtUpdate->execute([
@@ -66,6 +69,8 @@ if (isset($_POST['action'])) {
                     ':id_bolsillo' => $id_bolsillo,
                     ':alerta_stock' => $alerta_stock,
                     ':minimo_stock' => $minimo_stock,
+                    ':tiene_fecha_vencimiento' => $tiene_fecha_vencimiento,
+                    ':fecha_vencimiento' => $fecha_vencimiento,
                     ':id' => $existing['id']
                 ])) {
 
@@ -78,6 +83,8 @@ if (isset($_POST['action'])) {
                         'id_bolsillo' => $id_bolsillo,
                         'alerta_stock' => $alerta_stock,
                         'minimo_stock' => $minimo_stock,
+                        'tiene_fecha_vencimiento' => $tiene_fecha_vencimiento,
+                        'fecha_vencimiento' => $fecha_vencimiento,
                         'id' => $existing['id']
                     ], JSON_UNESCAPED_UNICODE);
                     log_action('Reactivar Producto', $desc, 'Productos');
@@ -92,10 +99,10 @@ if (isset($_POST['action'])) {
 
         // Insertar nuevo producto
         $stmt = db()->prepare("
-            INSERT INTO productos 
-            (nombre, precio, coste, stock, estado, id_bolsillo, alerta_stock, minimo_stock, borrado)
+            INSERT INTO productos
+            (nombre, precio, coste, stock, estado, id_bolsillo, alerta_stock, minimo_stock, borrado, tiene_fecha_vencimiento, fecha_vencimiento)
             VALUES
-            (:nombre, :precio, :coste, :stock, :estado, :id_bolsillo, :alerta_stock, :minimo_stock, 0)
+            (:nombre, :precio, :coste, :stock, :estado, :id_bolsillo, :alerta_stock, :minimo_stock, 0, :tiene_fecha_vencimiento, :fecha_vencimiento)
         ");
         if ($stmt->execute([
             ':nombre' => $nombre,
@@ -105,7 +112,9 @@ if (isset($_POST['action'])) {
             ':estado' => $estado,
             ':id_bolsillo' => $id_bolsillo,
             ':alerta_stock' => $alerta_stock,
-            ':minimo_stock' => $minimo_stock
+            ':minimo_stock' => $minimo_stock,
+            ':tiene_fecha_vencimiento' => $tiene_fecha_vencimiento,
+            ':fecha_vencimiento' => $fecha_vencimiento
         ])) {
 
             require_once __DIR__ . '/../inc/log_action.php';
@@ -117,7 +126,9 @@ if (isset($_POST['action'])) {
                 'estado' => $estado,
                 'id_bolsillo' => $id_bolsillo,
                 'alerta_stock' => $alerta_stock,
-                'minimo_stock' => $minimo_stock
+                'minimo_stock' => $minimo_stock,
+                'tiene_fecha_vencimiento' => $tiene_fecha_vencimiento,
+                'fecha_vencimiento' => $fecha_vencimiento
             ], JSON_UNESCAPED_UNICODE);
             log_action('Agregar Producto', $desc, 'Productos');
 
@@ -141,11 +152,14 @@ if (isset($_POST['action'])) {
         $id_bolsillo = trim($_POST['id_bolsillo']);
         $alerta_stock = isset($_POST['alerta_stock']) && $_POST['alerta_stock'] == '1' ? 1 : 0;
         $minimo_stock = isset($_POST['minimo_stock']) && $_POST['minimo_stock'] !== '' ? (int)$_POST['minimo_stock'] : null;
+        $tiene_fecha_vencimiento = isset($_POST['tiene_fecha_vencimiento']) && $_POST['tiene_fecha_vencimiento'] == '1' ? 1 : 0;
+        $fecha_vencimiento = !empty($_POST['fecha_vencimiento']) ? $_POST['fecha_vencimiento'] : null;
 
         $stmt = db()->prepare("
-            UPDATE productos 
+            UPDATE productos
             SET nombre = :nombre, precio = :precio, coste = :coste, stock = :stock, estado = :estado,
-                id_bolsillo = :id_bolsillo, alerta_stock = :alerta_stock, minimo_stock = :minimo_stock
+                id_bolsillo = :id_bolsillo, alerta_stock = :alerta_stock, minimo_stock = :minimo_stock,
+                tiene_fecha_vencimiento = :tiene_fecha_vencimiento, fecha_vencimiento = :fecha_vencimiento
             WHERE id = :id
         ");
         if ($stmt->execute([
@@ -157,6 +171,8 @@ if (isset($_POST['action'])) {
             ':id_bolsillo' => $id_bolsillo,
             ':alerta_stock' => $alerta_stock,
             ':minimo_stock' => $minimo_stock,
+            ':tiene_fecha_vencimiento' => $tiene_fecha_vencimiento,
+            ':fecha_vencimiento' => $fecha_vencimiento,
             ':id' => $id
         ])) {
 
@@ -170,7 +186,9 @@ if (isset($_POST['action'])) {
                 'estado' => $estado,
                 'id_bolsillo' => $id_bolsillo,
                 'alerta_stock' => $alerta_stock,
-                'minimo_stock' => $minimo_stock
+                'minimo_stock' => $minimo_stock,
+                'tiene_fecha_vencimiento' => $tiene_fecha_vencimiento,
+                'fecha_vencimiento' => $fecha_vencimiento
             ], JSON_UNESCAPED_UNICODE);
             log_action('Editar Producto', $desc, 'Productos');
 
@@ -316,7 +334,17 @@ if (isset($_POST['action'])) {
   <input type="number" class="form-control" id="add_minimo_stock" name="minimo_stock">
 </div>
 
-			
+			<hr>
+			<div class="form-check form-switch mb-3">
+  <input class="form-check-input" type="checkbox" id="add_tiene_fecha_vencimiento" name="tiene_fecha_vencimiento">
+  <label class="form-check-label" for="add_tiene_fecha_vencimiento">¿Tiene fecha de vencimiento?</label>
+</div>
+<div class="mb-3" id="add_fecha_vencimiento_container" style="display:none;">
+  <label for="add_fecha_vencimiento" class="form-label">Fecha de vencimiento</label>
+  <input type="date" class="form-control" id="add_fecha_vencimiento" name="fecha_vencimiento">
+</div>
+
+
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Guardar</button>
@@ -404,7 +432,17 @@ if (isset($_POST['action'])) {
   <input type="number" class="form-control" id="edit_minimo_stock" name="minimo_stock">
 </div>
 
-			  
+			<hr>
+			<div class="form-check form-switch mb-3">
+  <input class="form-check-input" type="checkbox" id="edit_tiene_fecha_vencimiento">
+  <label class="form-check-label" for="edit_tiene_fecha_vencimiento">¿Tiene fecha de vencimiento?</label>
+</div>
+<div class="mb-3" id="edit_fecha_vencimiento_container" style="display:none;">
+  <label for="edit_fecha_vencimiento" class="form-label">Fecha de vencimiento</label>
+  <input type="date" class="form-control" id="edit_fecha_vencimiento" name="fecha_vencimiento">
+</div>
+
+
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-danger" id="btnDeleteProducto"><i class="fa fa-trash-o"></i> Borrar Producto</button>
@@ -483,7 +521,9 @@ if (isset($_POST['action'])) {
       },
       { "data": "bolsillo", "defaultContent": "Sin Asignar" },
       { "data": "alerta_stock", "visible": false },
-      { "data": "minimo_stock", "visible": false }
+      { "data": "minimo_stock", "visible": false },
+      { "data": "tiene_fecha_vencimiento", "visible": false },
+      { "data": "fecha_vencimiento", "visible": false }
     ],
     "pageLength": 50,
     "language": {
@@ -495,6 +535,7 @@ if (isset($_POST['action'])) {
   $("#btnAddProducto").click(function(){
     $("#formAddProducto")[0].reset();
     $("#add_minimo_container").hide();
+    $("#add_fecha_vencimiento_container").hide();
     $("#modalAddProducto").modal("show");
   });
 
@@ -513,7 +554,9 @@ if (isset($_POST['action'])) {
         estado: $("#add_estado").val(),
         id_bolsillo: $("#add_id_bolsillo").val(),
         alerta_stock: $("#add_alerta_stock").is(":checked") ? 1 : 0,
-        minimo_stock: $("#add_alerta_stock").is(":checked") ? $("#add_minimo_stock").val() : null
+        minimo_stock: $("#add_alerta_stock").is(":checked") ? $("#add_minimo_stock").val() : null,
+        tiene_fecha_vencimiento: $("#add_tiene_fecha_vencimiento").is(":checked") ? 1 : 0,
+        fecha_vencimiento: $("#add_tiene_fecha_vencimiento").is(":checked") ? $("#add_fecha_vencimiento").val() : null
       },
       dataType: "json",
       success: function(response){
@@ -550,7 +593,18 @@ if (isset($_POST['action'])) {
         $("#edit_minimo_container").hide();
         $("#edit_minimo_stock").val('');
       }
-      
+
+      // Fecha de vencimiento
+      if (data.tiene_fecha_vencimiento == 1) {
+        $("#edit_tiene_fecha_vencimiento").prop('checked', true);
+        $("#edit_fecha_vencimiento_container").show();
+        $("#edit_fecha_vencimiento").val(data.fecha_vencimiento);
+      } else {
+        $("#edit_tiene_fecha_vencimiento").prop('checked', false);
+        $("#edit_fecha_vencimiento_container").hide();
+        $("#edit_fecha_vencimiento").val('');
+      }
+
       $("#modalEditProducto").modal("show");
     }
   });
@@ -571,7 +625,9 @@ if (isset($_POST['action'])) {
         estado: $("#edit_estado").val(),
         id_bolsillo: $("#edit_id_bolsillo").val(),
         alerta_stock: $("#edit_alerta_stock").is(":checked") ? 1 : 0,
-        minimo_stock: $("#edit_alerta_stock").is(":checked") ? $("#edit_minimo_stock").val() : null
+        minimo_stock: $("#edit_alerta_stock").is(":checked") ? $("#edit_minimo_stock").val() : null,
+        tiene_fecha_vencimiento: $("#edit_tiene_fecha_vencimiento").is(":checked") ? 1 : 0,
+        fecha_vencimiento: $("#edit_tiene_fecha_vencimiento").is(":checked") ? $("#edit_fecha_vencimiento").val() : null
       },
       dataType: "json",
       success: function(response){
@@ -625,6 +681,16 @@ if (isset($_POST['action'])) {
   // Mostrar/ocultar en Editar
   $("#edit_alerta_stock").on("change", function() {
     $("#edit_minimo_container").toggle(this.checked);
+  });
+
+  // Mostrar/ocultar fecha de vencimiento en Agregar
+  $("#add_tiene_fecha_vencimiento").on("change", function() {
+    $("#add_fecha_vencimiento_container").toggle(this.checked);
+  });
+
+  // Mostrar/ocultar fecha de vencimiento en Editar
+  $("#edit_tiene_fecha_vencimiento").on("change", function() {
+    $("#edit_fecha_vencimiento_container").toggle(this.checked);
   });
 });
 	</script>
