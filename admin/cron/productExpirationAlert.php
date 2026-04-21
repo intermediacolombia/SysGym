@@ -26,8 +26,10 @@ try {
         SELECT id, nombre, apellido, dialcode, telefono
         FROM usuarios
         WHERE borrado = 0
-          AND estado = 1
+          AND estado = 0
           AND recibe_alertas_stock = 1
+          AND telefono IS NOT NULL
+          AND telefono != ''
     ");
     $usuarios->execute();
     $users = $usuarios->fetchAll(PDO::FETCH_ASSOC);
