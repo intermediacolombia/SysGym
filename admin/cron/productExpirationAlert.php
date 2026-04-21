@@ -54,23 +54,37 @@ try {
                  . "Por favor revisar el inventario.";
 
         $checkExists = db()->prepare("
-            SELECT id, dias_restantes FROM alertas_productos_vencimiento
+            SELECT id, fecha_vencimiento FROM alertas_productos_vencimiento
             WHERE producto_id = :pid
         ");
         $checkExists->execute([':pid' => $product['id']]);
         $existingAlert = $checkExists->fetch(PDO::FETCH_ASSOC);
 
-        if ($existingAlert && (int)$existingAlert['dias_restantes'] === (int)$dias) {
+        if ($existingAlert && $existingAlert['fecha_vencimiento'] === $fecha_vencimiento) {
             continue;
         }
 
         if ($existingAlert) {
             $updateAlert = db()->prepare("
                 UPDATE alertas_productos_vencimiento
-                SET dias_restantes = :dias, fecha_alerta = NOW(), enviada = 1
+                SET fecha_vencimiento = :fv, dias_restantes = :dias, fecha_alerta = NOW(), enviada = 1
                 WHERE producto_id = :pid
             ");
-            $updateAlert->execute([':pid' => $product['id'], ':dias' => $dias]);
+            $updateAlert->execute([
+                ':pid' => $product['id'],
+                ':fv' => $fecha_vencimiento,
+                ':dias' => $dias
+            ]);
+        } else {
+            $insertAlert = db()->prepare("
+                INSERT INTO alertas_productos_vencimiento (producto_id, dias_restantes, fecha_vencimiento, fecha_alerta, enviada)
+                VALUES (:pid, :dias, :fv, NOW(), 1)
+            ");
+            $insertAlert->execute([
+                ':pid' => $product['id'],
+                ':dias' => $dias,
+                ':fv' => $fecha_vencimiento
+            ]);
         }
 
         foreach ($users as $u) {
@@ -114,15 +128,6 @@ try {
             error_log("✅ HTTP: $httpCode | 📞 $telefonoCompleto | RESPUESTA: $response | ERROR: $error");
             echo "Producto: $nombre_producto -> Usuario: $nombreUsuario - HTTP: $httpCode\n";
         }
-
-        $insertAlert = db()->prepare("
-            INSERT INTO alertas_productos_vencimiento (producto_id, dias_restantes, fecha_alerta, enviada)
-            VALUES (:pid, :dias, NOW(), 1)
-        ");
-        $insertAlert->execute([
-            ':pid' => $product['id'],
-            ':dias' => $dias
-        ]);
     }
 
     echo "Proceso completado.\n";
