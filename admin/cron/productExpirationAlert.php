@@ -53,6 +53,15 @@ try {
                  . "📦 *Stock actual:* $stock_actual unidades\n\n"
                  . "Por favor revisar el inventario.";
 
+        $checkExists = db()->prepare("
+            SELECT id FROM alertas_productos_vencimiento
+            WHERE producto_id = :pid
+        ");
+        $checkExists->execute([':pid' => $product['id']]);
+        if ($checkExists->fetch()) {
+            continue;
+        }
+
         foreach ($users as $u) {
             $telefonoCompleto = $u['dialCode'] . $u['telefono'];
             $nombreUsuario = $u['nombre'];
@@ -95,21 +104,14 @@ try {
             echo "Producto: $nombre_producto -> Usuario: $nombreUsuario - HTTP: $httpCode\n";
         }
 
-        $checkExists = db()->prepare("
-            SELECT id FROM alertas_productos_vencimiento
-            WHERE producto_id = :pid
+        $insertAlert = db()->prepare("
+            INSERT INTO alertas_productos_vencimiento (producto_id, dias_restantes, fecha_alerta, enviada)
+            VALUES (:pid, :dias, NOW(), 1)
         ");
-        $checkExists->execute([':pid' => $product['id']]);
-        if (!$checkExists->fetch()) {
-            $insertAlert = db()->prepare("
-                INSERT INTO alertas_productos_vencimiento (producto_id, dias_restantes, fecha_alerta, enviada)
-                VALUES (:pid, :dias, NOW(), 1)
-            ");
-            $insertAlert->execute([
-                ':pid' => $product['id'],
-                ':dias' => $dias
-            ]);
-        }
+        $insertAlert->execute([
+            ':pid' => $product['id'],
+            ':dias' => $dias
+        ]);
     }
 
     echo "Proceso completado.\n";
