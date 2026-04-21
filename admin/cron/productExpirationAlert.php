@@ -38,6 +38,7 @@ try {
     }
 
     $apiKey = $api_ws;
+    $urlEndpoint = rtrim(WA_API_URL, '/') . '/send';
 
     foreach ($products as $product) {
         $dias = $product['dias_restantes'];
@@ -60,7 +61,7 @@ try {
 
             $ch = curl_init();
             curl_setopt_array($ch, [
-                CURLOPT_URL => 'https://api.360messenger.com/v2/sendMessage',
+                CURLOPT_URL => $urlEndpoint,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_POST => true,
                 CURLOPT_POSTFIELDS => json_encode([
