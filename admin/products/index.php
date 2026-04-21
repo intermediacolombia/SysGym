@@ -342,6 +342,7 @@ if (isset($_POST['action'])) {
 <div class="mb-3" id="add_fecha_vencimiento_container" style="display:none;">
   <label for="add_fecha_vencimiento" class="form-label">Fecha de vencimiento</label>
   <input type="date" class="form-control" id="add_fecha_vencimiento" name="fecha_vencimiento">
+  <small class="text-danger">Se le enviará una alerta a los usuarios que tienen activada la alerta de stock</small>
 </div>
 
 
@@ -440,6 +441,7 @@ if (isset($_POST['action'])) {
 <div class="mb-3" id="edit_fecha_vencimiento_container" style="display:none;">
   <label for="edit_fecha_vencimiento" class="form-label">Fecha de vencimiento</label>
   <input type="date" class="form-control" id="edit_fecha_vencimiento" name="fecha_vencimiento">
+  <small class="text-danger">Se le enviará una alerta a los usuarios que tienen activada la alerta de stock</small>
 </div>
 
 

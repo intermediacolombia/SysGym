@@ -17,9 +17,10 @@ switch (true) {
         include 'inactive_client.php';
         break;
 
-    case ($hora === '08:00'): // 08:00 → recordatorios + cumpleaños
+    case ($hora === '08:00'): // 08:00 → recordatorios + cumpleaños + alertas productos
         include 'reminderMain.php';
         include 'birthday.php';
+        include 'productExpirationAlert.php';
         break;
 		
 	case ($hora === '12:00'): // 12:00 → Backup Sistema
