@@ -54,12 +54,23 @@ try {
                  . "Por favor revisar el inventario.";
 
         $checkExists = db()->prepare("
-            SELECT id FROM alertas_productos_vencimiento
+            SELECT id, dias_restantes FROM alertas_productos_vencimiento
             WHERE producto_id = :pid
         ");
         $checkExists->execute([':pid' => $product['id']]);
-        if ($checkExists->fetch()) {
+        $existingAlert = $checkExists->fetch(PDO::FETCH_ASSOC);
+
+        if ($existingAlert && (int)$existingAlert['dias_restantes'] === (int)$dias) {
             continue;
+        }
+
+        if ($existingAlert) {
+            $updateAlert = db()->prepare("
+                UPDATE alertas_productos_vencimiento
+                SET dias_restantes = :dias, fecha_alerta = NOW(), enviada = 1
+                WHERE producto_id = :pid
+            ");
+            $updateAlert->execute([':pid' => $product['id'], ':dias' => $dias]);
         }
 
         foreach ($users as $u) {
