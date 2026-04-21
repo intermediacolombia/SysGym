@@ -186,7 +186,7 @@ style="width:40px;height:40px;border-radius:6px;object-fit:cover;"></td>';
 <input type="tel" class="form-control" id="newTelefono" name="telefono">
 <div class="form-check form-switch mt-2">
   <input class="form-check-input" type="checkbox" id="newRecibeAlertas" name="recibe_alertas_stock">
-  <label class="form-check-label" for="newRecibeAlertas">Recibe notificaciones de pocos productos en stock</label>
+  <label class="form-check-label" for="newRecibeAlertas">Recibe notificaciones de pocos productos en stock y fechas de Vencimiento</label>
 </div>
 
 			

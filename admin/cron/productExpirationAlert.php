@@ -23,7 +23,7 @@ try {
     }
 
     $usuarios = db()->prepare("
-        SELECT id, nombres, apellidos, dialCode, telefono
+        SELECT id, nombre, apellido, dialcode, telefono
         FROM usuarios
         WHERE borrado = 0
           AND estado = 1
@@ -89,7 +89,7 @@ try {
                 saveFailedWSMessage($telefono, $msg, null);
             }
 
-            echo "Producto: {$product['nombre']} -> Usuario: {$user['nombres']} {$user['apellidos']} - HTTP: $httpCode\n";
+            echo "Producto: {$product['nombre']} -> Usuario: {$user['nombre']} {$user['apellido']} - HTTP: $httpCode\n";
         }
 
         $checkExists = db()->prepare("
