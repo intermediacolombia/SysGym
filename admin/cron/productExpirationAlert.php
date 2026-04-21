@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../inc/config.php';
+require_once __DIR__ . '/../../whatsapp/save_failed_ws.php';
 
 date_default_timezone_set('America/Bogota');
 
@@ -22,16 +23,13 @@ try {
         exit;
     }
 
-    $usuarios = db()->prepare("
-        SELECT id, nombre, apellido, dialcode, telefono
-        FROM usuarios
-        WHERE borrado = 0
-          AND estado = 0
-          AND recibe_alertas_stock = 1
-          AND telefono IS NOT NULL
+    $usuarios = db()->query("
+        SELECT nombre, apellido, dialCode, telefono
+        FROM usuarios 
+        WHERE recibe_alertas_stock = 1 
+          AND telefono IS NOT NULL 
           AND telefono != ''
     ");
-    $usuarios->execute();
     $users = $usuarios->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($users)) {
@@ -40,40 +38,42 @@ try {
     }
 
     $apiKey = $api_ws;
-    $urlEndpoint = rtrim(WA_API_URL, '/') . '/send';
-
-    $mensajeBase = "*ALERTA DE VENCIMIENTO DE PRODUCTO*\n\n";
-    $mensajeBase .= "El siguiente producto esta proximo a vencer:\n\n";
 
     foreach ($products as $product) {
         $dias = $product['dias_restantes'];
-        $msg = $mensajeBase;
-        $msg .= "▸ *Producto:* {$product['nombre']}\n";
-        $msg .= "▸ *Fecha de vencimiento:* {$product['fecha_vencimiento']}\n";
-        $msg .= "▸ *Dias restantes:* {$dias} dia(s)\n";
-        $msg .= "▸ *Stock actual:* {$product['stock']} unidades\n\n";
-        $msg .= "Por favor revisar el inventario.";
+        $nombre_producto = $product['nombre'];
+        $fecha_vencimiento = $product['fecha_vencimiento'];
+        $stock_actual = $product['stock'];
 
-        foreach ($users as $user) {
-            $telefono = $user['dialCode'] . $user['telefono'];
+        $mensaje = "⚠️ *ALERTA DE VENCIMIENTO DE PRODUCTO*\n\n"
+                 . "El producto *$nombre_producto* esta proximo a vencer.\n"
+                 . "📅 *Fecha de vencimiento:* $fecha_vencimiento\n"
+                 . "⏰ *Dias restantes:* $dias dia(s)\n"
+                 . "📦 *Stock actual:* $stock_actual unidades\n\n"
+                 . "Por favor revisar el inventario.";
 
-            $data = array(
-                'phonenumber' => $telefono,
-                'text' => $msg
-            );
+        foreach ($users as $u) {
+            $telefonoCompleto = $u['dialCode'] . $u['telefono'];
+            $nombreUsuario = $u['nombre'];
+
+            error_log("📢 Enviando alerta de vencimiento a $telefonoCompleto → $mensaje");
 
             $ch = curl_init();
-            curl_setopt_array($ch, array(
-                CURLOPT_URL => $urlEndpoint,
+            curl_setopt_array($ch, [
+                CURLOPT_URL => 'https://api.360messenger.com/v2/sendMessage',
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => json_encode($data, JSON_UNESCAPED_UNICODE),
-                CURLOPT_HTTPHEADER => array(
+                CURLOPT_POSTFIELDS => json_encode([
+                    'phonenumber' => $telefonoCompleto,
+                    'text' => $mensaje
+                ], JSON_UNESCAPED_UNICODE),
+                CURLOPT_HTTPHEADER => [
                     'Authorization: Bearer ' . $apiKey,
                     'Content-Type: application/json',
                     'Accept: application/json'
-                )
-            ));
+                ],
+                CURLOPT_TIMEOUT => 10
+            ]);
 
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -87,11 +87,11 @@ try {
             }
 
             if (!$successFlag) {
-                require_once __DIR__ . '/../../whatsapp/save_failed_ws.php';
-                saveFailedWSMessage($telefono, $msg, null);
+                saveFailedWSMessage($telefonoCompleto, $mensaje, null);
             }
 
-            echo "Producto: {$product['nombre']} -> Usuario: {$user['nombre']} {$user['apellido']} - HTTP: $httpCode\n";
+            error_log("✅ HTTP: $httpCode | 📞 $telefonoCompleto | RESPUESTA: $response | ERROR: $error");
+            echo "Producto: $nombre_producto -> Usuario: $nombreUsuario - HTTP: $httpCode\n";
         }
 
         $checkExists = db()->prepare("
@@ -114,6 +114,7 @@ try {
     echo "Proceso completado.\n";
 
 } catch (PDOException $e) {
+    error_log("❌ Error en productExpirationAlert: " . $e->getMessage());
     echo "Error: " . $e->getMessage() . "\n";
 }
 ?>
