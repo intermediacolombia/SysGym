@@ -62,7 +62,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'resend') {
     ];
     if (!empty($row['url'])) $payload['url'] = $row['url'];
 
-    $urlEndpoint = 'https://api.360messenger.com/v2/sendMessage';
+    $urlEndpoint = rtrim(WA_API_URL, '/') . '/send';
     $apiKey      = $api_ws;
 
     // cURL
@@ -143,7 +143,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'bulk_resend') {
     }
     $ids = array_map('intval', $ids);
 
-    $urlEndpoint = 'https://api.360messenger.com/v2/sendMessage';
+    $urlEndpoint = rtrim(WA_API_URL, '/') . '/send';
     $apiKey      = $api_ws;
 
     $ok = 0; $fail = 0;
