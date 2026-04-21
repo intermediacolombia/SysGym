@@ -97,7 +97,7 @@ try {
 
         $checkExists = db()->prepare("
             SELECT id FROM alertas_productos_vencimiento
-            WHERE producto_id = :pid AND DATE(fecha_alerta) = CURDATE()
+            WHERE producto_id = :pid
         ");
         $checkExists->execute([':pid' => $product['id']]);
         if (!$checkExists->fetch()) {
