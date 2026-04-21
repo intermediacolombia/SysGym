@@ -61,10 +61,10 @@ function check_stock_alert($producto_id, $stock_anterior, $nuevo_stock, $api_ws)
              . "Stock actual: *$nuevo_stock* unidades (Mínimo: $minimo).";
     // Log previo
     error_log("📢 Enviando alerta de stock a $telefonoCompleto → $mensaje");
-            // Enviar vía API 360Messenger
+            $urlEndpoint = rtrim(WA_API_URL, '/') . '/send';
             $ch = curl_init();
             curl_setopt_array($ch, [
-                CURLOPT_URL => 'https://api.360messenger.com/v2/sendMessage',
+                CURLOPT_URL => $urlEndpoint,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_POST => true,
                 CURLOPT_POSTFIELDS => json_encode([
