@@ -237,8 +237,9 @@ $tab-border-radius: 35px;
                   <th>Nombre</th>
                   <th>Precio</th>
                   <th>Stock</th>
-                  <th>Cantidad</th>
-                  <th>Método de Pago</th>
+                  <th style="width:80px">Cantidad</th>
+                  <th style="width:140px">Medio de Pago</th>
+				  <th>Descuento</th>
 					<?php if (isset($_SESSION["user_permissions"]) && in_array('Crear creditos productos', $_SESSION["user_permissions"])): ?>
 					<th>Crédito</th>
 					<?php endif;?>
@@ -253,19 +254,29 @@ $tab-border-radius: 35px;
                     <td>$<?php echo number_format($producto['precio'], 0, '', '.'); ?></td>
                     <td><?php echo $producto['stock']; ?></td>
                     <td>
-                      <input type="number" min="1" max="<?php echo $producto['stock']; ?>" value="1" class="form-control cantidadVenta" data-producto-id="<?php echo $producto['id']; ?>">
+                      <input type="number" min="1" max="<?php echo $producto['stock']; ?>" value="1" class="form-control form-control-sm cantidadVenta" style="width:70px" data-producto-id="<?php echo $producto['id']; ?>">
                     </td>
                     <td>
-                      <select class="form-select paymentMethod" data-producto-id="<?php echo $producto['id']; ?>">
+                      <select class="form-select form-select-sm paymentMethod" data-producto-id="<?php echo $producto['id']; ?>">
                         <option value="Efectivo" selected>Efectivo</option>
                         <option value="Transferencia">Transferencia</option>
                       </select>
-						
-					<select class="form-select bankSelect d-none" data-producto-id="<?php echo $producto['id']; ?>">
+					<select class="form-select form-select-sm bankSelect d-none" data-producto-id="<?php echo $producto['id']; ?>">
   					<?= getBancosOptions() ?>
 					</select>
-					
                     </td>
+					<td style="white-space:nowrap">
+					  <input type="checkbox" class="descuentoCheckbox" data-producto-id="<?php echo $producto['id']; ?>"> Desc.
+					  <div class="descuentoOpts d-none mt-1">
+					    <div class="input-group input-group-sm">
+					      <select class="descuentoTipo form-select form-select-sm" style="max-width:58px">
+					        <option value="porcentaje">%</option>
+					        <option value="fijo">$</option>
+					      </select>
+					      <input type="number" min="0" step="any" class="form-control form-control-sm descuentoValor" style="width:65px" placeholder="0">
+					    </div>
+					  </div>
+					</td>
 					  <?php if (isset($_SESSION["user_permissions"]) && in_array('Crear creditos productos', $_SESSION["user_permissions"])): ?>
 					<td>
   <input type="checkbox" class="creditoCheckbox" data-producto-id="<?php echo $producto['id']; ?>"> Crédito
@@ -448,6 +459,12 @@ $tab-border-radius: 35px;
             <label for="clienteSearch" class="form-label">Buscar Cliente (Identificación, Nombre o Apellido)</label>
             <input type="text" class="form-control" id="clienteSearch" placeholder="Escriba para buscar">
             <div id="clienteResults" class="mt-2"></div>
+          </div>
+          <div class="mb-3 d-none" id="totalCreditoContainer">
+            <div class="alert alert-info py-2 mb-0">
+              Total a cobrar: <strong>$<span id="totalCreditoValor">0</span></strong>
+              <span id="descuentoInfo" class="badge bg-success ms-2 d-none">con descuento</span>
+            </div>
           </div>
           <div class="mb-3 d-none" id="valorPagadoContainer">
   <label for="valorPagado" class="form-label">Valor Pagado</label>
@@ -770,6 +787,22 @@ var bancosDisponibles = <?= json_encode(getBancosDisponibles()) ?>;
     }
   });
   
+  // Helper: calcula el total considerando el descuento de la fila
+  function calcDescuentoTotal(pid, cant, precio) {
+    var $row = $(`#productos-table .btn-vender[data-producto-id='${pid}']`).closest('tr');
+    var total = Math.round(cant * precio);
+    if (!$row.find('.descuentoCheckbox').is(':checked')) return total;
+    var tipo = $row.find('.descuentoTipo').val();
+    var val  = parseFloat($row.find('.descuentoValor').val()) || 0;
+    if (tipo === 'porcentaje') return Math.max(0, Math.round(total * (1 - val / 100)));
+    return Math.max(0, Math.round(total - val));
+  }
+
+  // Mostrar/ocultar opciones de descuento
+  $(document).on('change', '.descuentoCheckbox', function () {
+    $(this).closest('td').find('.descuentoOpts').toggleClass('d-none', !this.checked);
+  });
+
   // Registrar venta
   $('#productos-table').on('click', '.btn-vender', function () {
   var btn = $(this);
@@ -784,17 +817,19 @@ var bancosDisponibles = <?= json_encode(getBancosDisponibles()) ?>;
     return;
   }
 
+  var totalConDescuento = calcDescuentoTotal(pid, cant, precio);
+
   if (isCredito) {
-    // Abrir el modal para ventas a crédito
-    $('#modalCredito').data('producto-id', pid).data('cantidad', cant).data('precio', precio).modal('show');
+    $('#modalCredito').data('producto-id', pid).data('cantidad', cant).data('precio', precio).data('total-desc', totalConDescuento).modal('show');
   } else {
-    // Procesar venta normal
-    procesarVentaNormal(btn, pid, cant, precio, coste);
+    procesarVentaNormal(btn, pid, cant, precio, coste, totalConDescuento);
   }
 });
 
-// Función para procesar venta normal (ya existente)
-function procesarVentaNormal(btn, pid, cant, precio, coste) {
+// Función para procesar venta normal
+function procesarVentaNormal(btn, pid, cant, precio, coste, totalConDescuento) {
+  var totalNormal = Math.round(cant * precio);
+  var tieneDescuento = (typeof totalConDescuento !== 'undefined') && (totalConDescuento !== totalNormal);
   var detalle = btn.closest('tr').find('td:first').text();
   var paymentMethod = btn.closest('tr').find('.paymentMethod').val();
   var bank = '';
@@ -805,18 +840,22 @@ function procesarVentaNormal(btn, pid, cant, precio, coste) {
       return;
     }
   }
+  var postData = {
+    producto_id: pid,
+    cantidad: cant,
+    precio: precio,
+    coste: coste,
+    detalle: detalle,
+    payment_method: paymentMethod,
+    bank: bank
+  };
+  if (tieneDescuento) {
+    postData.valor_override = totalConDescuento;
+  }
   $.ajax({
     url: 'register_sale.php',
     type: 'POST',
-    data: { 
-      producto_id: pid, 
-      cantidad: cant, 
-      precio: precio,
-      coste: coste,
-      detalle: detalle,
-      payment_method: paymentMethod,
-      bank: bank
-    },
+    data: postData,
     dataType: 'json',
     success: function(res){
       if(res.status === 'success'){
@@ -830,11 +869,13 @@ function procesarVentaNormal(btn, pid, cant, precio, coste) {
         btn.closest('tr').find('.cantidadVenta').val(1);
         // Usar delay para refrescar totales y tabla
 		  
-		  // Reiniciar el método de pago a "Efectivo" y ocultar el select de banco
+		  // Reiniciar controles de la fila
     var $tr = btn.closest('tr');
     $tr.find('.paymentMethod').val('Efectivo');
     $tr.find('.bankSelect').val('').addClass('d-none');
-		// Fin Reiniciar el método de pago a "Efectivo" y ocultar el select de banco
+    $tr.find('.descuentoCheckbox').prop('checked', false);
+    $tr.find('.descuentoOpts').addClass('d-none');
+    $tr.find('.descuentoValor').val('');
 		  
         setTimeout(function(){ 
           ventasTable.ajax.reload(null, false);
@@ -940,15 +981,9 @@ setTimeout(function(){
   }
 });
 
-// Seleccionar un cliente
+// Seleccionar un cliente (primer handler: solo limpia búsqueda y muestra campos)
 $(document).on('click', '.cliente-item', function () {
-  var clienteId = $(this).data('cliente-id');
-  var clienteNombre = $(this).text();
-  $('#clienteSearch').val(clienteNombre).data('cliente-id', clienteId);
   $('#clienteResults').empty();
-   $('#valorPagadoContainer').removeClass('d-none'); // Mostrar campo de Valor Pagado
-  $('#fechaLimiteContainer').removeClass('d-none'); // Mostrar campo de Fecha Límite
-	
 });
 	
 	
@@ -958,6 +993,7 @@ $(document).on('click', '.cliente-item', function () {
   var productoId = $('#modalCredito').data('producto-id');
   var cantidad = $('#modalCredito').data('cantidad');
   var precio = $('#modalCredito').data('precio');
+  var totalConDescuento = $('#modalCredito').data('total-desc') || Math.round(cantidad * precio);
   var clienteId = $('#clienteSearch').data('cliente-id');
   var valorPagado = parseFloat($('#valorPagado').val());
   var fechaLimite = $('#fechaLimite').val();
@@ -989,11 +1025,12 @@ $(document).on('click', '.cliente-item', function () {
       producto_id: productoId,
       cantidad: cantidad,
       precio: precio,
+      valor_total: totalConDescuento,
       cliente_id: clienteId,
       valor_pagado: valorPagado,
       fecha_limite: fechaLimite,
-      payment_method: paymentMethod, // Método de pago
-      bank: bank // Banco (si aplica)
+      payment_method: paymentMethod,
+      bank: bank
     },
     dataType: 'json',
     success: function (res) {
@@ -1021,9 +1058,16 @@ $(document).on('click', '.cliente-item', function () {
   var productoId = $('#modalCredito').data('producto-id');
   var cantidad = $('#modalCredito').data('cantidad');
   var precio = $('#modalCredito').data('precio');
+  var totalConDescuento = $('#modalCredito').data('total-desc') || Math.round(cantidad * precio);
 
-  // Calcular el total del producto
-  var totalProducto = cantidad * precio;
+  // Mostrar total con o sin descuento
+  $('#totalCreditoValor').text(totalConDescuento.toLocaleString('es-CO'));
+  if (totalConDescuento < Math.round(cantidad * precio)) {
+    $('#descuentoInfo').removeClass('d-none');
+  } else {
+    $('#descuentoInfo').addClass('d-none');
+  }
+  $('#totalCreditoContainer').removeClass('d-none');
 
   // Mostrar los campos de Valor Pagado y Fecha Límite
   $('#clienteSearch').val(clienteNombre).data('cliente-id', clienteId);
@@ -1031,8 +1075,8 @@ $(document).on('click', '.cliente-item', function () {
   $('#valorPagadoContainer').removeClass('d-none');
   $('#fechaLimiteContainer').removeClass('d-none');
 
-  // Establecer el atributo max en el campo Valor Pagado (máximo: totalProducto - 1)
-  var maxValorPagado = totalProducto - 1;
+  // Establecer el atributo max en el campo Valor Pagado (máximo: totalConDescuento - 1)
+  var maxValorPagado = totalConDescuento - 1;
   $('#valorPagado').attr('max', maxValorPagado);
 
   // Limpiar el campo Valor Pagado

@@ -32,8 +32,10 @@ $fecha_limite = $_POST['fecha_limite'];
 $payment_method = $_POST['payment_method']; // Método de pago seleccionado
 $bank = $_POST['bank'] ?? ''; // Banco seleccionado (si aplica)
 
-// Calcular el total de la venta y el crédito restante
-$total_venta = $cantidad * $precio;
+// Calcular el total de la venta (usar valor_total si viene con descuento)
+$total_venta = isset($_POST['valor_total']) && floatval($_POST['valor_total']) > 0
+    ? floatval($_POST['valor_total'])
+    : ($cantidad * $precio);
 $credito_restante = $total_venta - $valor_pagado;
 
 if ($credito_restante < 0) {

@@ -7,3 +7,7 @@ _notes/
 /admin/bk/
 /inc/connect.php
 /inc/url_bd.php
+/.claude/
+/.vscode/
+claude.md
+AGENTS.md
