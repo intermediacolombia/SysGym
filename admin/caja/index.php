@@ -265,15 +265,18 @@ $tab-border-radius: 35px;
   					<?= getBancosOptions() ?>
 					</select>
                     </td>
-					<td style="white-space:nowrap">
-					  <input type="checkbox" class="descuentoCheckbox" data-producto-id="<?php echo $producto['id']; ?>"> Desc.
-					  <div class="descuentoOpts d-none mt-1">
-					    <div class="input-group input-group-sm">
-					      <select class="descuentoTipo form-select form-select-sm" style="max-width:58px">
+					<td style="white-space:nowrap; min-width:130px">
+					  <label class="d-flex align-items-center gap-1 mb-1" style="cursor:pointer;font-size:12px">
+					    <input type="checkbox" class="descuentoCheckbox" data-producto-id="<?php echo $producto['id']; ?>">
+					    <span>Descuento</span>
+					  </label>
+					  <div class="descuentoOpts d-none">
+					    <div class="input-group" style="width:130px">
+					      <select class="descuentoTipo form-select" style="max-width:54px; font-size:13px; padding:3px 4px">
 					        <option value="porcentaje">%</option>
 					        <option value="fijo">$</option>
 					      </select>
-					      <input type="number" min="0" step="any" class="form-control form-control-sm descuentoValor" style="width:65px" placeholder="0">
+					      <input type="number" min="0" step="any" class="form-control descuentoValor" style="font-size:13px; padding:3px 6px" placeholder="0">
 					    </div>
 					  </div>
 					</td>
