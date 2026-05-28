@@ -5,12 +5,25 @@ include('../login/restriction.php'); ?>
 <?php
 require_once __DIR__ . '/../../inc/config.php';
 
-// Asegurar que el permiso "Aplicar Descuentos en Caja" exista
+// Asegurar que el permiso "Aplicar Descuentos en Caja" exista con la categoría correcta
 try {
-    $stmtChk = db()->prepare("SELECT id FROM permissions WHERE name = 'Aplicar Descuentos en Caja'");
+    // Detectar la categoría exacta que usa "Usar Cajas"
+    $stmtCat = db()->prepare("SELECT category FROM permissions WHERE name = 'Usar Cajas' LIMIT 1");
+    $stmtCat->execute();
+    $cajaCategory = $stmtCat->fetchColumn() ?: 'Caja';
+
+    // Si ya existe con categoría incorrecta, corregirla
+    $stmtChk = db()->prepare("SELECT id, category FROM permissions WHERE name = 'Aplicar Descuentos en Caja'");
     $stmtChk->execute();
-    if (!$stmtChk->fetch()) {
-        db()->exec("INSERT INTO permissions (name, category) VALUES ('Aplicar Descuentos en Caja', 'CAJA')");
+    $existente = $stmtChk->fetch(PDO::FETCH_ASSOC);
+    if ($existente) {
+        if ($existente['category'] !== $cajaCategory) {
+            $stmtFix = db()->prepare("UPDATE permissions SET category = ? WHERE id = ?");
+            $stmtFix->execute([$cajaCategory, $existente['id']]);
+        }
+    } else {
+        $stmtIns = db()->prepare("INSERT INTO permissions (name, category) VALUES ('Aplicar Descuentos en Caja', ?)");
+        $stmtIns->execute([$cajaCategory]);
     }
 } catch (Exception $e) { /* ignore */ }
 
@@ -49,8 +62,7 @@ try {
     .cat-header:hover { background: #e9ecef; }
     .cat-header.open { background: var(--system-color-primary, #0d6efd); color: #fff; border-color: var(--system-color-primary, #0d6efd); }
     .cat-header.open .badge-perm { background: rgba(255,255,255,0.3) !important; color:#fff; }
-    .cat-header .arrow { transition: transform 0.2s; font-style:normal; }
-    .cat-header.open .arrow { transform: rotate(90deg); }
+    .cat-header .arrow { display:inline-block; transition: transform 0.2s; font-style:normal; }
     .cat-body {
       display: none;
       border: 1px solid #dee2e6;
@@ -174,13 +186,16 @@ $(document).ready(function () {
   // ── Toggle de cada categoría (jQuery puro) ─────────────────
   $(document).on('click', '.cat-header', function () {
     var targetId = $(this).data('target');
-    var $body = $('#' + targetId);
+    var $body    = $('#' + targetId);
+    var $arrow   = $(this).find('.arrow');
     if ($body.is(':visible')) {
       $body.slideUp(180);
       $(this).removeClass('open');
+      $arrow.css('transform', 'rotate(0deg)');
     } else {
       $body.slideDown(180);
       $(this).addClass('open');
+      $arrow.css('transform', 'rotate(90deg)');
     }
   });
 
@@ -218,12 +233,12 @@ $(document).ready(function () {
   $('#btnExpandAll').on('click', function (e) {
     e.preventDefault();
     $('.cat-body').slideDown(180);
-    $('.cat-header').addClass('open');
+    $('.cat-header').addClass('open').find('.arrow').css('transform', 'rotate(90deg)');
   });
   $('#btnCollapseAll').on('click', function (e) {
     e.preventDefault();
     $('.cat-body').slideUp(180);
-    $('.cat-header').removeClass('open');
+    $('.cat-header').removeClass('open').find('.arrow').css('transform', 'rotate(0deg)');
   });
 
   // ── Nuevo rol ──────────────────────────────────────────────
@@ -232,7 +247,7 @@ $(document).ready(function () {
     $('#edit_role_id').val('');
     $('.form-check-input').prop('checked', false);
     $('.cat-body').hide();
-    $('.cat-header').removeClass('open');
+    $('.cat-header').removeClass('open').find('.arrow').css('transform', 'rotate(0deg)');
     updateBadges();
     $('#modalAddRole').modal('show');
   });
@@ -306,7 +321,7 @@ $(document).ready(function () {
     $('#role_description').val(data.description);
     $('.form-check-input').prop('checked', false);
     $('.cat-body').hide();
-    $('.cat-header').removeClass('open');
+    $('.cat-header').removeClass('open').find('.arrow').css('transform', 'rotate(0deg)');
 
     $.ajax({
       url: 'get_roles.php',
@@ -323,7 +338,9 @@ $(document).ready(function () {
           $('.cat-body').each(function () {
             if ($(this).find('input:checked').length > 0) {
               $(this).show();
-              $('[data-target="' + this.id + '"]').addClass('open');
+              $('[data-target="' + this.id + '"]')
+                .addClass('open')
+                .find('.arrow').css('transform', 'rotate(90deg)');
             }
           });
           $('#modalAddRole').modal('show');
