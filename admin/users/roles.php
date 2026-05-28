@@ -31,12 +31,37 @@ try {
   <?php include('../inc/header.php'); ?>
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
   <style>
-    .accordion-button { font-weight: 600; font-size: 14px; }
-    .accordion-button:not(.collapsed) { background: var(--system-color-primary, #0d6efd); color: #fff; }
-    .accordion-button:not(.collapsed)::after { filter: brightness(10); }
-    .accordion-body { padding: 10px 16px; }
-    .form-check.form-switch { margin-bottom: 4px; }
-    .badge-perm { font-size: 11px; margin-left: 8px; }
+    .cat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      cursor: pointer;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      font-weight: 600;
+      font-size: 14px;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .cat-header:hover { background: #e9ecef; }
+    .cat-header.open { background: var(--system-color-primary, #0d6efd); color: #fff; border-color: var(--system-color-primary, #0d6efd); }
+    .cat-header.open .badge-perm { background: rgba(255,255,255,0.3) !important; color:#fff; }
+    .cat-header .arrow { transition: transform 0.2s; font-style:normal; }
+    .cat-header.open .arrow { transform: rotate(90deg); }
+    .cat-body {
+      display: none;
+      border: 1px solid #dee2e6;
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      padding: 10px 16px 12px;
+      margin-bottom: 8px;
+      margin-top: -4px;
+    }
+    .form-check.form-switch { margin-bottom: 5px; }
+    .badge-perm { font-size: 11px; }
   </style>
 </head>
 <body>
@@ -92,38 +117,31 @@ try {
             </div>
           </div>
 
-          <div class="accordion" id="accordionPermisos">
+          <div id="permisosContainer">
             <?php foreach ($permissionsGrouped as $category => $perms):
               $catId = 'cat_' . preg_replace('/[^a-zA-Z0-9]/', '_', strtolower($category));
             ?>
-            <div class="accordion-item">
-              <h2 class="accordion-header" id="heading_<?= $catId ?>">
-                <button class="accordion-button collapsed" type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#collapse_<?= $catId ?>"
-                        aria-expanded="false"
-                        aria-controls="collapse_<?= $catId ?>">
-                  <?= htmlspecialchars($category) ?>
-                  <span class="badge bg-secondary badge-perm ms-2" id="badge_<?= $catId ?>">0/<?= count($perms) ?></span>
-                </button>
-              </h2>
-              <div id="collapse_<?= $catId ?>" class="accordion-collapse collapse">
-                <div class="accordion-body">
-                  <div class="d-flex justify-content-end mb-2 gap-3">
-                    <a href="#" class="btn-select-cat small" data-cat="<?= $catId ?>">Marcar todos</a>
-                    <a href="#" class="btn-clear-cat small text-secondary" data-cat="<?= $catId ?>">Desmarcar todos</a>
-                  </div>
-                  <?php foreach ($perms as $perm): ?>
-                  <div class="form-check form-switch">
-                    <input class="form-check-input perm-<?= $catId ?>" type="checkbox"
-                           name="permissions[]"
-                           value="<?= $perm['id'] ?>"
-                           id="permission_<?= $perm['id'] ?>">
-                    <label class="form-check-label" for="permission_<?= $perm['id'] ?>"><?= htmlspecialchars($perm['name']) ?></label>
-                  </div>
-                  <?php endforeach; ?>
-                </div>
+            <div class="cat-header" data-target="<?= $catId ?>">
+              <span>
+                <i class="arrow">&#9658;</i>
+                <?= htmlspecialchars($category) ?>
+              </span>
+              <span class="badge bg-secondary badge-perm ms-2" id="badge_<?= $catId ?>">0/<?= count($perms) ?></span>
+            </div>
+            <div class="cat-body" id="<?= $catId ?>">
+              <div class="d-flex justify-content-end mb-2 gap-3">
+                <a href="#" class="btn-select-cat small" data-cat="<?= $catId ?>">Marcar todos</a>
+                <a href="#" class="btn-clear-cat small text-secondary" data-cat="<?= $catId ?>">Desmarcar todos</a>
               </div>
+              <?php foreach ($perms as $perm): ?>
+              <div class="form-check form-switch">
+                <input class="form-check-input perm-<?= $catId ?>" type="checkbox"
+                       name="permissions[]"
+                       value="<?= $perm['id'] ?>"
+                       id="permission_<?= $perm['id'] ?>">
+                <label class="form-check-label" for="permission_<?= $perm['id'] ?>"><?= htmlspecialchars($perm['name']) ?></label>
+              </div>
+              <?php endforeach; ?>
             </div>
             <?php endforeach; ?>
           </div>
@@ -140,11 +158,6 @@ try {
 </div>
 
 <?php include('../inc/menu-footer.php'); ?>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 <script>
 $(document).ready(function () {
 
@@ -158,10 +171,23 @@ $(document).ready(function () {
     language: { url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json" }
   });
 
+  // ── Toggle de cada categoría (jQuery puro) ─────────────────
+  $(document).on('click', '.cat-header', function () {
+    var targetId = $(this).data('target');
+    var $body = $('#' + targetId);
+    if ($body.is(':visible')) {
+      $body.slideUp(180);
+      $(this).removeClass('open');
+    } else {
+      $body.slideDown(180);
+      $(this).addClass('open');
+    }
+  });
+
   // ── Actualiza los badges de cada categoría ─────────────────
   function updateBadges() {
-    $('[id^="collapse_cat_"]').each(function () {
-      var catId = this.id.replace('collapse_', '');
+    $('.cat-body').each(function () {
+      var catId = this.id;
       var total   = $(this).find('input[type=checkbox]').length;
       var checked = $(this).find('input[type=checkbox]:checked').length;
       var $badge  = $('#badge_' + catId);
@@ -174,33 +200,30 @@ $(document).ready(function () {
     });
   }
 
-  // Badge cambia al tocar cualquier checkbox
   $(document).on('change', '.form-check-input', updateBadges);
 
   // ── Marcar / desmarcar todos de una categoría ──────────────
   $(document).on('click', '.btn-select-cat', function (e) {
     e.preventDefault();
-    var cat = $(this).data('cat');
-    $('#collapse_' + cat).find('input[type=checkbox]').prop('checked', true);
+    $('#' + $(this).data('cat')).find('input[type=checkbox]').prop('checked', true);
     updateBadges();
   });
   $(document).on('click', '.btn-clear-cat', function (e) {
     e.preventDefault();
-    var cat = $(this).data('cat');
-    $('#collapse_' + cat).find('input[type=checkbox]').prop('checked', false);
+    $('#' + $(this).data('cat')).find('input[type=checkbox]').prop('checked', false);
     updateBadges();
   });
 
   // ── Expandir / colapsar todo ───────────────────────────────
   $('#btnExpandAll').on('click', function (e) {
     e.preventDefault();
-    $('#accordionPermisos .accordion-collapse').addClass('show');
-    $('#accordionPermisos .accordion-button').removeClass('collapsed').attr('aria-expanded', true);
+    $('.cat-body').slideDown(180);
+    $('.cat-header').addClass('open');
   });
   $('#btnCollapseAll').on('click', function (e) {
     e.preventDefault();
-    $('#accordionPermisos .accordion-collapse').removeClass('show');
-    $('#accordionPermisos .accordion-button').addClass('collapsed').attr('aria-expanded', false);
+    $('.cat-body').slideUp(180);
+    $('.cat-header').removeClass('open');
   });
 
   // ── Nuevo rol ──────────────────────────────────────────────
@@ -208,6 +231,8 @@ $(document).ready(function () {
     $('#formAddRole')[0].reset();
     $('#edit_role_id').val('');
     $('.form-check-input').prop('checked', false);
+    $('.cat-body').hide();
+    $('.cat-header').removeClass('open');
     updateBadges();
     $('#modalAddRole').modal('show');
   });
@@ -280,6 +305,8 @@ $(document).ready(function () {
     $('#role_name').val(data.name);
     $('#role_description').val(data.description);
     $('.form-check-input').prop('checked', false);
+    $('.cat-body').hide();
+    $('.cat-header').removeClass('open');
 
     $.ajax({
       url: 'get_roles.php',
@@ -292,12 +319,11 @@ $(document).ready(function () {
             $('#permission_' + permId).prop('checked', true);
           });
           updateBadges();
-          // Abrir las categorías que tienen permisos marcados
-          $('[id^="collapse_cat_"]').each(function () {
+          // Abrir solo las categorías con permisos marcados
+          $('.cat-body').each(function () {
             if ($(this).find('input:checked').length > 0) {
-              $(this).addClass('show');
-              $('#' + this.id.replace('collapse_', 'heading_') + ' .accordion-button')
-                .removeClass('collapsed').attr('aria-expanded', true);
+              $(this).show();
+              $('[data-target="' + this.id + '"]').addClass('open');
             }
           });
           $('#modalAddRole').modal('show');
