@@ -239,7 +239,9 @@ $tab-border-radius: 35px;
                   <th>Stock</th>
                   <th style="width:80px">Cantidad</th>
                   <th style="width:140px">Medio de Pago</th>
+				  <?php if (isset($_SESSION["user_permissions"]) && in_array('Aplicar Descuentos en Caja', $_SESSION["user_permissions"])): ?>
 				  <th>Descuento</th>
+				  <?php endif; ?>
 					<?php if (isset($_SESSION["user_permissions"]) && in_array('Crear creditos productos', $_SESSION["user_permissions"])): ?>
 					<th>Crédito</th>
 					<?php endif;?>
@@ -265,6 +267,7 @@ $tab-border-radius: 35px;
   					<?= getBancosOptions() ?>
 					</select>
                     </td>
+					<?php if (isset($_SESSION["user_permissions"]) && in_array('Aplicar Descuentos en Caja', $_SESSION["user_permissions"])): ?>
 					<td style="white-space:nowrap; min-width:130px">
 					  <label class="d-flex align-items-center gap-1 mb-1" style="cursor:pointer;font-size:12px">
 					    <input type="checkbox" class="descuentoCheckbox" data-producto-id="<?php echo $producto['id']; ?>">
@@ -280,6 +283,7 @@ $tab-border-radius: 35px;
 					    </div>
 					  </div>
 					</td>
+					<?php endif; ?>
 					  <?php if (isset($_SESSION["user_permissions"]) && in_array('Crear creditos productos', $_SESSION["user_permissions"])): ?>
 					<td>
   <input type="checkbox" class="creditoCheckbox" data-producto-id="<?php echo $producto['id']; ?>"> Crédito
