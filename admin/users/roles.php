@@ -334,15 +334,6 @@ $(document).ready(function () {
             $('#permission_' + permId).prop('checked', true);
           });
           updateBadges();
-          // Abrir solo las categorías con permisos marcados
-          $('.cat-body').each(function () {
-            if ($(this).find('input:checked').length > 0) {
-              $(this).show();
-              $('[data-target="' + this.id + '"]')
-                .addClass('open')
-                .find('.arrow').css('transform', 'rotate(90deg)');
-            }
-          });
           $('#modalAddRole').modal('show');
         } else {
           Swal.fire('Error', res.message, 'error');
