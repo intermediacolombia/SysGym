@@ -66,13 +66,13 @@ $logoDataURI = 'data:image/png;base64,' . $logoData;
 $genero = $cliente['genero'] ?? 'otro'; // Por defecto, asumimos "otro" si no está definido
 
 if ($genero === 'masculino') {
-    $titulo = 'el señor';
+    $titulo = 'el usuario';
 	$titulo2 = 'do';
 } elseif ($genero === 'femenino') {
-    $titulo = 'la señora';
+    $titulo = 'la usuaria';
 	$titulo2 = 'da';
 } else {
-    $titulo = 'la/el señor(a)'; // Para casos de género no binario u otro
+    $titulo = 'la/el usuario(a)'; // Para casos de género no binario u otro
 	$titulo2 = 'do(a)';
 }
 ?>
@@ -158,7 +158,7 @@ function formatearFechaEnEspanol($fecha) {
 	
 <p><strong>A QUIEN CORRESPONDA:</strong></p>
 <P>
-Por medio del presente, se certifica que <?php echo $titulo;?> <strong style="text-transform: uppercase"><?php echo htmlspecialchars($cliente['nombres'] . " " . $cliente['apellidos']); ?></strong>, identifica<?php echo $titulo2;?> con cédula de ciudadanía No. <strong><?php echo htmlspecialchars($cliente['identificacion']); ?></strong>, se encuentra vincula<?php echo $titulo2;?> activamente a nuestro gimnasio <strong>ACTIVGYM</strong> desde el <strong style="text-transform: uppercase"><?php echo formatearFechaEnEspanol($cliente['created_at']);?></strong> y su plan activo corresponde a 
+Por medio del presente, se certifica que <?php echo $titulo;?> <strong style="text-transform: uppercase"><?php echo htmlspecialchars($cliente['nombres'] . " " . $cliente['apellidos']); ?></strong>, identifica<?php echo $titulo2;?> con documento de identidad No. <strong><?php echo htmlspecialchars($cliente['identificacion']); ?></strong>, se encuentra vincula<?php echo $titulo2;?> activamente a nuestro gimnasio <strong>ACTIVGYM</strong> desde el <strong style="text-transform: uppercase"><?php echo formatearFechaEnEspanol($cliente['created_at']);?></strong> y su plan activo corresponde a 
     <strong style="text-transform: uppercase"><?php echo $planInfo ? htmlspecialchars($planInfo['nombre']) : 'Sin Plan Asignado'; ?></strong>, con una vigencia desde el <strong style="text-transform: uppercase"><?php 
   if (!empty($cliente['pago_plan'])) {
       echo formatearFechaEnEspanol($cliente['pago_plan']);
