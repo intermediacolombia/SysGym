@@ -93,10 +93,9 @@ try {
 
     /* ---- Entradas consumidas (solo tiqueteras) --------------------------- */
     $entradasConsumidas = 0;
-    if ($esTiquetera && !empty($cliente['pago_plan'])) {
-        $fechaFin = !empty($cliente['vencimiento_plan']) ? $cliente['vencimiento_plan'] : date('Y-m-d');
-        $stmtEnt = db()->prepare("SELECT COUNT(*) FROM asistencias WHERE idCliente = :id AND fecha >= :desde AND fecha <= :hasta");
-        $stmtEnt->execute([':id' => $id, ':desde' => $cliente['pago_plan'], ':hasta' => $fechaFin]);
+    if ($esTiquetera && !empty($cliente['tiquetera_factura_id'])) {
+        $stmtEnt = db()->prepare("SELECT COUNT(*) FROM tiquetera_consumos WHERE cliente_id = :id AND factura_id = :fid");
+        $stmtEnt->execute([':id' => $id, ':fid' => $cliente['tiquetera_factura_id']]);
         $entradasConsumidas = (int)$stmtEnt->fetchColumn();
     }
 

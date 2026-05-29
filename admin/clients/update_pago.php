@@ -137,6 +137,12 @@ ob_end_clean();
     $facturaData = $stmtFactura->fetch(PDO::FETCH_ASSOC);
     $factura_id = $facturaData['factura_id'] ?? null;
 
+    // Si es tiquetera, vincular la factura activa para el conteo de entradas
+    if ($esTiquetera && $factura_id) {
+        $stmtTiqFact = db()->prepare("UPDATE clientes SET tiquetera_factura_id = :fid WHERE id = :id");
+        $stmtTiqFact->execute([':fid' => $factura_id, ':id' => $id]);
+    }
+
     $detalleBase = "Factura #$factura_id";
 
     // REGISTRO DE VENTAS

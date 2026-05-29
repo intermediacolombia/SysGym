@@ -21,7 +21,7 @@ if (!$cliente_id) {
 try {
     // Verificar que el cliente existe, no está borrado y su estado permite registro
     $check = db()->prepare("
-        SELECT id, estado, congelado, vencimiento_plan
+        SELECT id, estado, congelado, vencimiento_plan, plan_tipo, tiquetera_factura_id
         FROM clientes
         WHERE id = :id AND borrado = 0
         LIMIT 1
@@ -48,6 +48,35 @@ try {
         exit;
     }
 
+    // Validar límite de entradas para tiqueteras
+    if (($cliente['plan_tipo'] ?? '') === 'tiquetera' && !empty($cliente['tiquetera_factura_id'])) {
+        $facturaActiva = (int)$cliente['tiquetera_factura_id'];
+
+        $stmtLimite = db()->prepare("
+            SELECT t.limite_entradas
+            FROM clientes c
+            JOIN tiqueteras t ON t.id = c.plan
+            WHERE c.id = :id AND t.borrado = 0
+        ");
+        $stmtLimite->execute([':id' => $cliente_id]);
+        $limiteEntradas = (int)$stmtLimite->fetchColumn();
+
+        $stmtConsumidas = db()->prepare("
+            SELECT COUNT(*) FROM tiquetera_consumos
+            WHERE cliente_id = :id AND factura_id = :fid
+        ");
+        $stmtConsumidas->execute([':id' => $cliente_id, ':fid' => $facturaActiva]);
+        $consumidas = (int)$stmtConsumidas->fetchColumn();
+
+        if ($consumidas >= $limiteEntradas) {
+            echo json_encode([
+                'success' => false,
+                'message' => "Tiquetera agotada ($consumidas/$limiteEntradas entradas usadas)"
+            ]);
+            exit;
+        }
+    }
+
     $stmt = db()->prepare("
         INSERT INTO asistencias (idCliente, fecha, hora)
         VALUES (:id, :fecha, :hora)
@@ -59,6 +88,23 @@ try {
     ]);
 
     if ($ok) {
+        $asistenciaId = db()->lastInsertId();
+
+        // Registrar consumo de tiquetera
+        if (($cliente['plan_tipo'] ?? '') === 'tiquetera' && !empty($cliente['tiquetera_factura_id'])) {
+            $stmtConsumo = db()->prepare("
+                INSERT INTO tiquetera_consumos (cliente_id, factura_id, asistencia_id, fecha, hora)
+                VALUES (:cid, :fid, :aid, :fecha, :hora)
+            ");
+            $stmtConsumo->execute([
+                ':cid'   => $cliente_id,
+                ':fid'   => (int)$cliente['tiquetera_factura_id'],
+                ':aid'   => $asistenciaId,
+                ':fecha' => $hoy,
+                ':hora'  => $hora,
+            ]);
+        }
+
         echo json_encode([
             'success' => true,
             'hora'    => 'Registrada a las ' . date('h:i A', strtotime($hora)),
