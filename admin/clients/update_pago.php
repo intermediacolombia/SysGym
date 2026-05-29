@@ -48,15 +48,20 @@ try {
     // Obtener datos del plan según plan_tipo
     $esTiquetera = ($clienteBase['plan_tipo'] ?? 'plan') === 'tiquetera';
     if ($esTiquetera) {
-        $stmtPlan = db()->prepare("SELECT nombre, precio, vigencia AS dias, 0 AS frecuencia FROM tiqueteras WHERE id = :id AND borrado = 0");
+        $stmtPlan = db()->prepare("SELECT nombre, precio, vigencia AS dias, 0 AS frecuencia, estado FROM tiqueteras WHERE id = :id AND borrado = 0");
     } else {
-        $stmtPlan = db()->prepare("SELECT nombre, precio, dias, frecuencia FROM planes WHERE id = :id AND borrado = 0");
+        $stmtPlan = db()->prepare("SELECT nombre, precio, dias, frecuencia, estado FROM planes WHERE id = :id AND borrado = 0");
     }
     $stmtPlan->execute([':id' => $clienteBase['plan']]);
     $planData = $stmtPlan->fetch(PDO::FETCH_ASSOC);
 
     if (!$planData) {
         echo json_encode(['status' => 'error', 'message' => 'Plan no encontrado.']);
+        exit;
+    }
+
+    if (($planData['estado'] ?? '') === 'inactivo') {
+        echo json_encode(['status' => 'error', 'message' => 'El plan "' . $planData['nombre'] . '" está inactivo. Por favor asigne un plan activo al cliente antes de registrar el pago.']);
         exit;
     }
 

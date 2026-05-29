@@ -56,10 +56,15 @@ $direccion      = $cliente['direccion'];
 $plan_nombre = "";
 if (!empty($cliente['plan'])) {
     $tabla = ($cliente['plan_tipo'] ?? 'plan') === 'tiquetera' ? 'tiqueteras' : 'planes';
-    $stmtPlan = db()->prepare("SELECT nombre FROM $tabla WHERE id = :plan AND borrado = 0");
+    $stmtPlan = db()->prepare("SELECT nombre, estado FROM $tabla WHERE id = :plan AND borrado = 0");
     $stmtPlan->execute([':plan' => $cliente['plan']]);
     $planData = $stmtPlan->fetch(PDO::FETCH_ASSOC);
     $plan_nombre = $planData ? $planData['nombre'] : '';
+
+    if ($planData && ($planData['estado'] ?? '') === 'inactivo') {
+        echo json_encode(['status' => 'error', 'message' => 'El plan "' . $planData['nombre'] . '" está inactivo. Por favor asigne un plan activo al cliente antes de registrar el pago.']);
+        exit;
+    }
 }
 
 $detalle = $plan_nombre;
