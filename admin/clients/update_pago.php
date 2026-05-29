@@ -71,37 +71,32 @@ try {
     $planMeses = (int)$cliente['frecuencia'];
     $planPrecio = (float)$cliente['precio'];
 
-    // Las tiqueteras siempre inician desde la fecha de pago
-    if ($esTiquetera) $respetarFechas = false;
+    // Función para calcular fin de plan
+    $calcFechaFin = function (DateTime $inicio, int $meses, int $dias): DateTime {
+        $fin = clone $inicio;
+        if ($meses > 0) {
+            $fin->modify("+{$meses} months");
+            $fin->modify('-1 day');
+        }
+        if ($dias > 0) {
+            $fin->modify("+{$dias} days");
+        }
+        return $fin;
+    };
 
-    // Mantener fechas existentes
-    if ($respetarFechas && !empty($cliente['pago_plan']) && !empty($cliente['vencimiento_plan'])) {
+    // Mantener fechas existentes (solo planes normales)
+    if (!$esTiquetera && $respetarFechas && !empty($cliente['pago_plan']) && !empty($cliente['vencimiento_plan'])) {
         $pago_plan = $cliente['pago_plan'];
         $vencimiento_plan = $cliente['vencimiento_plan'];
 
     } else {
 
-        // Funci�n para calcular fin de plan
-        $calcFechaFin = function (DateTime $inicio, int $meses, int $dias): DateTime {
-            $fin = clone $inicio;
-
-            if ($meses > 0) {
-                $fin->modify("+{$meses} months");
-                $fin->modify('-1 day');
-            }
-            if ($dias > 0) {
-                $fin->modify("+{$dias} days");
-            }
-            return $fin;
-        };
-
-        $estaVencidoOVenceHoy = (!$vencAnterior) || ($vencAnterior <= $hoy);
-
-        if ($estaVencidoOVenceHoy) {
+        if ($esTiquetera) {
+            // Tiqueteras: siempre arrancan hoy sin importar nada
             $inicio = clone $hoy;
         } else {
-            $inicio = clone $vencAnterior;
-            $inicio->modify('+1 day');
+            $estaVencidoOVenceHoy = (!$vencAnterior) || ($vencAnterior <= $hoy);
+            $inicio = $estaVencidoOVenceHoy ? clone $hoy : (clone $vencAnterior)->modify('+1 day');
         }
 
         $nuevoVencimiento = $calcFechaFin($inicio, $planMeses, $planDias);
