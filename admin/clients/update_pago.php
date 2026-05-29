@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../inc/config.php';
 header('Content-Type: application/json; charset=UTF-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['status' => 'error', 'message' => 'Método no permitido.']);
+    echo json_encode(['status' => 'error', 'message' => 'Mï¿½todo no permitido.']);
     exit;
 }
 
@@ -30,22 +30,37 @@ $respetarFechas = isset($_POST['respetarFechas']) && $_POST['respetarFechas'] ==
 
 try {
 
-    // Obtener datos del cliente y plan
+    // Obtener datos del cliente
     $stmt = db()->prepare("
-        SELECT c.nombres, c.apellidos, c.dialCode, c.telefono, c.notificaciones,
-               c.pago_plan, c.vencimiento_plan, c.plan,
-               p.precio, p.dias, p.frecuencia
-        FROM clientes c
-        INNER JOIN planes p ON p.id = c.plan
-        WHERE c.id = :id
+        SELECT nombres, apellidos, dialCode, telefono, notificaciones,
+               pago_plan, vencimiento_plan, plan, plan_tipo
+        FROM clientes
+        WHERE id = :id AND borrado = 0
     ");
     $stmt->execute([':id' => $id]);
-    $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
+    $clienteBase = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$cliente) {
+    if (!$clienteBase) {
         echo json_encode(['status' => 'error', 'message' => 'Cliente no encontrado.']);
         exit;
     }
+
+    // Obtener datos del plan segÃºn plan_tipo
+    $esTiquetera = ($clienteBase['plan_tipo'] ?? 'plan') === 'tiquetera';
+    if ($esTiquetera) {
+        $stmtPlan = db()->prepare("SELECT nombre, precio, vigencia AS dias, 0 AS frecuencia FROM tiqueteras WHERE id = :id AND borrado = 0");
+    } else {
+        $stmtPlan = db()->prepare("SELECT nombre, precio, dias, frecuencia FROM planes WHERE id = :id AND borrado = 0");
+    }
+    $stmtPlan->execute([':id' => $clienteBase['plan']]);
+    $planData = $stmtPlan->fetch(PDO::FETCH_ASSOC);
+
+    if (!$planData) {
+        echo json_encode(['status' => 'error', 'message' => 'Plan no encontrado.']);
+        exit;
+    }
+
+    $cliente = array_merge($clienteBase, $planData);
 
     // Fechas base
     date_default_timezone_set('America/Bogota');
@@ -63,7 +78,7 @@ try {
 
     } else {
 
-        // Función para calcular fin de plan
+        // Funciï¿½n para calcular fin de plan
         $calcFechaFin = function (DateTime $inicio, int $meses, int $dias): DateTime {
             $fin = clone $inicio;
 
@@ -108,7 +123,7 @@ $stmt->execute([
     ':id' => $id
 ]);
 
-// AÑADIR: Pasar fechaPlazo desde el POST
+// Aï¿½ADIR: Pasar fechaPlazo desde el POST
 $fechaPlazo = isset($_POST['fechaPlazo']) ? trim($_POST['fechaPlazo']) : null;
 
 // Generar factura
@@ -189,7 +204,7 @@ ob_end_clean();
 
 
 /* ====================================
-   FUNCIÓN CORREGIDA (YA NO RECIBE db())
+   FUNCIï¿½N CORREGIDA (YA NO RECIBE db())
    ==================================== */
 function registrarVenta($clienteId, $valor, $metodo, $banco, $detalle = 'Pago') {
     global $id_user;

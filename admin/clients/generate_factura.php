@@ -55,11 +55,9 @@ $valor = 0;
 $detalle = "Sin Plan";
 
 if (!empty($planAssigned)) {
-    $stmtPlan = db()->prepare("
-        SELECT nombre, precio 
-        FROM planes 
-        WHERE id = :plan AND borrado = 0
-    ");
+    $esTiqueteraFact = ($clientData['plan_tipo'] ?? 'plan') === 'tiquetera';
+    $tablaFact = $esTiqueteraFact ? 'tiqueteras' : 'planes';
+    $stmtPlan = db()->prepare("SELECT nombre, precio FROM $tablaFact WHERE id = :plan AND borrado = 0");
     $stmtPlan->execute([':plan' => $planAssigned]);
     $planData = $stmtPlan->fetch(PDO::FETCH_ASSOC);
 
