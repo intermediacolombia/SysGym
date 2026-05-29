@@ -80,10 +80,24 @@ try {
 
     /* ---------------------------- Plan ------------------------------------ */
     $planInfo = null;
+    $esTiquetera = ($cliente['plan_tipo'] ?? 'plan') === 'tiquetera';
     if (!empty($cliente['plan'])) {
-        $stmtPlan = db()->prepare("SELECT * FROM planes WHERE id = :plan AND borrado = 0");
+        if ($esTiquetera) {
+            $stmtPlan = db()->prepare("SELECT * FROM tiqueteras WHERE id = :plan AND borrado = 0");
+        } else {
+            $stmtPlan = db()->prepare("SELECT * FROM planes WHERE id = :plan AND borrado = 0");
+        }
         $stmtPlan->execute([':plan' => $cliente['plan']]);
         $planInfo = $stmtPlan->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /* ---- Entradas consumidas (solo tiqueteras) --------------------------- */
+    $entradasConsumidas = 0;
+    if ($esTiquetera && !empty($cliente['pago_plan'])) {
+        $fechaFin = !empty($cliente['vencimiento_plan']) ? $cliente['vencimiento_plan'] : date('Y-m-d');
+        $stmtEnt = db()->prepare("SELECT COUNT(*) FROM asistencias WHERE idCliente = :id AND fecha >= :desde AND fecha <= :hasta");
+        $stmtEnt->execute([':id' => $id, ':desde' => $cliente['pago_plan'], ':hasta' => $fechaFin]);
+        $entradasConsumidas = (int)$stmtEnt->fetchColumn();
     }
 
     /* ---------------------------- Estado: activo/inactivo ------------------ */

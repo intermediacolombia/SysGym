@@ -109,6 +109,14 @@
 					<?php endif; ?>
 				</p>
 
+				<?php if ($esTiquetera && $planInfo): ?>
+				<p><strong>Entradas:</strong>
+					<span class="<?= $entradasConsumidas >= $planInfo['limite_entradas'] ? 'text-danger fw-bold' : 'text-success fw-bold' ?>">
+						<?= $entradasConsumidas ?>/<?= $planInfo['limite_entradas'] ?>
+					</span>
+				</p>
+				<?php endif; ?>
+
           </div>
         </div>
 

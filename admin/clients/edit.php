@@ -19,6 +19,12 @@ try {
 } catch (PDOException $e) {
     $planes = [];
 }
+try {
+    $stmtTiq = db()->query("SELECT * FROM tiqueteras WHERE borrado = 0 AND estado = 'activo' ORDER BY nombre ASC");
+    $tiqueteras = $stmtTiq->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $tiqueteras = [];
+}
 // Procesar el formulario (POST) para actualizar el cliente
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $identificacion        = trim($_POST['identificacion']);
@@ -42,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $enfermedades_actuales = trim($_POST['enfermedades_actuales']) ?: 'No';
     $observaciones         = trim($_POST['observaciones'])         ?: 'No';
     $plan                  = trim($_POST['plan']); // id del plan
+    $plan_tipo             = trim($_POST['plan_tipo']) ?: 'plan';
     $pago_plan             = trim($_POST['pago_plan']); // nuevo campo: fecha de pago
     $vencimiento_plan      = trim($_POST['vencimiento_plan']);
 	
@@ -104,6 +111,7 @@ if (isset($_FILES['imagen_perfil']) && $_FILES['imagen_perfil']['error'] === UPL
             enfermedades_actuales = :enfermedades_actuales,
             observaciones = :observaciones,
             plan = :plan,
+            plan_tipo = :plan_tipo,
             pago_plan = :pago_plan,
             vencimiento_plan = :vencimiento_plan,
             updated_at = NOW()
@@ -131,6 +139,7 @@ if (isset($_FILES['imagen_perfil']) && $_FILES['imagen_perfil']['error'] === UPL
             ':enfermedades_actuales' => $enfermedades_actuales,
             ':observaciones'         => $observaciones,
             ':plan'                  => $plan,
+            ':plan_tipo'             => $plan_tipo,
             ':pago_plan'             => $pago_plan,
             ':vencimiento_plan'      => $vencimiento_plan,
             ':id'                    => $id
@@ -456,24 +465,39 @@ $headerColor = ($cliente['estado'] === 'activo') ? '#28a745' : '#FD2D23';
               </div>
               
 				
-				<!-- Después del campo "Plan" y antes de "Precio Plan" -->
+				<!-- Plan / Tiquetera -->
+<input type="hidden" id="plan_tipo" name="plan_tipo" value="<?php echo htmlspecialchars($cliente['plan_tipo'] ?? 'plan'); ?>">
 <div class="mb-3">
                 <label for="plan" class="form-label">Plan</label>
                 <select class="form-control" id="plan" name="plan" required>
-					
                   <option value="">Seleccione...</option>
-<?php foreach ($planes as $plan): ?>
-  <option value="<?php echo $plan['id']; ?>" 
-          data-precio="<?php echo $plan['precio']; ?>" 
-          data-frecuencia="<?php echo $plan['frecuencia']; ?>"
-          data-dias="<?php echo $plan['dias']; ?>"
-    <?php echo ($cliente['plan'] == $plan['id']) ? 'selected' : ''; ?>>
-    <?php echo htmlspecialchars($plan['nombre']); ?>
-  </option>
-<?php endforeach; ?>
-
-					
-					
+                  <?php if (!empty($planes)): ?>
+                  <optgroup label="── Planes ──">
+                  <?php foreach ($planes as $p): ?>
+                    <option value="<?php echo $p['id']; ?>"
+                            data-tipo="plan"
+                            data-precio="<?php echo $p['precio']; ?>"
+                            data-frecuencia="<?php echo $p['frecuencia']; ?>"
+                            data-dias="<?php echo $p['dias']; ?>"
+                      <?php echo ($cliente['plan'] == $p['id'] && ($cliente['plan_tipo'] ?? 'plan') === 'plan') ? 'selected' : ''; ?>>
+                      <?php echo htmlspecialchars($p['nombre']); ?>
+                    </option>
+                  <?php endforeach; ?>
+                  </optgroup>
+                  <?php endif; ?>
+                  <?php if (!empty($tiqueteras)): ?>
+                  <optgroup label="── Tiqueteras ──">
+                  <?php foreach ($tiqueteras as $t): ?>
+                    <option value="<?php echo $t['id']; ?>"
+                            data-tipo="tiquetera"
+                            data-precio="<?php echo $t['precio']; ?>"
+                            data-vigencia="<?php echo $t['vigencia']; ?>"
+                      <?php echo ($cliente['plan'] == $t['id'] && ($cliente['plan_tipo'] ?? 'plan') === 'tiquetera') ? 'selected' : ''; ?>>
+                      <?php echo htmlspecialchars($t['nombre']); ?>
+                    </option>
+                  <?php endforeach; ?>
+                  </optgroup>
+                  <?php endif; ?>
                 </select>
               </div>
               <div class="mb-3">
@@ -779,18 +803,24 @@ $(function () {
 
   function updateVencimiento () {
     const pagoDate = getPagoDate();
-    if (!pagoDate) { 
-      fpVenci.clear(); 
-      return; 
+    if (!pagoDate) {
+      fpVenci.clear();
+      return;
     }
 
-    const $opt  = $("#plan option:selected");
-    const meses = parseInt($opt.data("frecuencia")) || 0;
-    const dias  = parseInt($opt.data("dias"))        || 0;
+    const $opt = $("#plan option:selected");
+    const tipo = $opt.data("tipo") || "plan";
+    const due  = new Date(pagoDate);
 
-    const due = new Date(pagoDate);
-    due.setMonth(due.getMonth() + meses);
-    due.setDate (due.getDate()  + dias - 1);
+    if (tipo === "tiquetera") {
+      const vigencia = parseInt($opt.data("vigencia")) || 0;
+      due.setDate(due.getDate() + vigencia - 1);
+    } else {
+      const meses = parseInt($opt.data("frecuencia")) || 0;
+      const dias  = parseInt($opt.data("dias"))        || 0;
+      due.setMonth(due.getMonth() + meses);
+      due.setDate(due.getDate()  + dias - 1);
+    }
 
     fpVenci.setDate(due, true);
   }
@@ -798,9 +828,12 @@ $(function () {
   /* ============ 5. Enlaces de eventos ============ */
   $("#plan").on("change", function () {
     updatePrecio();
-    
+
+    const $opt       = $(this).find("option:selected");
     const planActual = $(this).val();
-    
+    const tipo       = $opt.data("tipo") || "plan";
+    $("#plan_tipo").val(tipo);
+
     // Si vuelve al plan original, restaurar fechas originales
     if (planActual === planOriginal) {
       if (pagoOriginal) {
@@ -808,23 +841,23 @@ $(function () {
       } else {
         fpPago.clear();
       }
-      
+
       if (vencimientoOriginal) {
         fpVenci.setDate(vencimientoOriginal, true);
       } else {
         fpVenci.clear();
       }
-      
+
       // Ocultar advertencia
       $("#planWarning").slideUp();
-      
+
     } else {
       // Si cambia a un plan diferente, limpiar las fechas
       fpPago.clear();
       fpVenci.clear();
       $("#pago_plan").val('');
       $("#vencimiento_plan").val('');
-      
+
       // Mostrar advertencia si hay plan vigente
       if (planVigente) {
         $("#planWarning").slideDown();
