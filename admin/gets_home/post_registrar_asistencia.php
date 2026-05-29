@@ -112,8 +112,46 @@ try {
             $totalAhora = (int)$stmtNuevoTotal->fetchColumn();
 
             if ($totalAhora >= $limiteEntradas) {
-                $notifyUrl = rtrim(URLBASE, '/') . '/admin/gets_home/notify_tiquetera_agotada.php?cliente_id=' . $cliente_id;
-                @file_get_contents($notifyUrl);
+                $stmtClienteWs = db()->prepare("SELECT nombres, apellidos, dialCode, telefono FROM clientes WHERE id = :id AND borrado = 0 LIMIT 1");
+                $stmtClienteWs->execute([':id' => $cliente_id]);
+                $clienteWs = $stmtClienteWs->fetch(PDO::FETCH_ASSOC);
+
+                if ($clienteWs && !empty($clienteWs['telefono'])) {
+                    $plantilla = !empty($wa_tiquetera_agotada)
+                        ? $wa_tiquetera_agotada
+                        : 'Hola {nombres} 👋, has completado tus {entradas} entradas de tu tiquetera. Acércate a renovar para seguir entrenando 💪';
+
+                    $mensaje = str_replace(
+                        ['{nombres}', '{apellidos}', '{entradas}'],
+                        [$clienteWs['nombres'], $clienteWs['apellidos'], $limiteEntradas],
+                        $plantilla
+                    );
+
+                    $waCh = curl_init();
+                    curl_setopt_array($waCh, [
+                        CURLOPT_URL            => rtrim(WA_API_URL, '/') . '/send',
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_POST           => true,
+                        CURLOPT_POSTFIELDS     => json_encode([
+                            'phonenumber' => $clienteWs['dialCode'] . $clienteWs['telefono'],
+                            'text'        => $mensaje,
+                        ], JSON_UNESCAPED_UNICODE),
+                        CURLOPT_HTTPHEADER     => [
+                            'Authorization: Bearer ' . $api_ws,
+                            'Content-Type: application/json',
+                            'Accept: application/json'
+                        ]
+                    ]);
+                    $waResponse = curl_exec($waCh);
+                    $waCode     = curl_getinfo($waCh, CURLINFO_HTTP_CODE);
+                    $waError    = curl_error($waCh);
+                    curl_close($waCh);
+
+                    if ($waError || $waCode < 200 || $waCode >= 300 || empty(json_decode($waResponse, true)['success'])) {
+                        require_once __DIR__ . '/../../whatsapp/save_failed_ws.php';
+                        saveFailedWSMessage($clienteWs['dialCode'] . $clienteWs['telefono'], $mensaje);
+                    }
+                }
             }
         }
 
