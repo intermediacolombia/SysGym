@@ -111,10 +111,14 @@ try {
             $stmtNuevoTotal->execute([':id' => $cliente_id, ':fid' => $facturaActiva]);
             $totalAhora = (int)$stmtNuevoTotal->fetchColumn();
 
+            error_log("[TIQ] cliente=$cliente_id factura=$facturaActiva totalAhora=$totalAhora limiteEntradas=$limiteEntradas");
+
             if ($totalAhora >= $limiteEntradas) {
                 $stmtClienteWs = db()->prepare("SELECT nombres, apellidos, dialCode, telefono FROM clientes WHERE id = :id AND borrado = 0 LIMIT 1");
                 $stmtClienteWs->execute([':id' => $cliente_id]);
                 $clienteWs = $stmtClienteWs->fetch(PDO::FETCH_ASSOC);
+
+                error_log("[TIQ] Agotada — telefono=" . ($clienteWs['telefono'] ?? 'VACIO') . " WA_API_URL=" . WA_API_URL . " api_ws=" . (empty($api_ws) ? 'VACIO' : 'OK'));
 
                 if ($clienteWs && !empty($clienteWs['telefono'])) {
                     $plantilla = !empty($wa_tiquetera_agotada)
@@ -146,6 +150,8 @@ try {
                     $waCode     = curl_getinfo($waCh, CURLINFO_HTTP_CODE);
                     $waError    = curl_error($waCh);
                     curl_close($waCh);
+
+                    error_log("[TIQ] cURL httpCode=$waCode error=$waError response=$waResponse");
 
                     if ($waError || $waCode < 200 || $waCode >= 300 || empty(json_decode($waResponse, true)['success'])) {
                         require_once __DIR__ . '/../../whatsapp/save_failed_ws.php';
