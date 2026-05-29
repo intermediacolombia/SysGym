@@ -13,8 +13,9 @@ switch (true) {
         include 'reset_webhook_logs.php';
         break;
 
-    case ($hora === '05:00'): // 05:00 → inactivar clientes vencidos
+    case ($hora === '05:00'): // 05:00 → inactivar clientes vencidos + notificar tiqueteras agotadas
         include 'inactive_client.php';
+        include 'tiquetera_agotada.php';
         break;
 
     case ($hora === '08:00'): // 08:00 → recordatorios + cumpleaños + alertas productos
