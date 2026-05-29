@@ -5,7 +5,9 @@ require_once __DIR__ . '/save_failed_ws.php';
 // Variables esperadas del contexto que incluye este archivo:
 // $cp_nombres, $cp_apellidos, $cp_dialCode, $cp_telefono, $cp_entradas
 
-if (empty($wa_tiquetera_agotada)) return;
+$plantilla = !empty($wa_tiquetera_agotada)
+    ? $wa_tiquetera_agotada
+    : 'Hola {nombres} 👋, has completado tus {entradas} entradas de tu tiquetera. Acércate a renovar para seguir entrenando 💪';
 
 $apiKey      = $api_ws;
 $urlEndpoint = rtrim(WA_API_URL, '/') . '/send';
@@ -13,7 +15,7 @@ $urlEndpoint = rtrim(WA_API_URL, '/') . '/send';
 $mensaje = str_replace(
     ['{nombres}', '{apellidos}', '{entradas}'],
     [$cp_nombres,  $cp_apellidos,  $cp_entradas],
-    $wa_tiquetera_agotada
+    $plantilla
 );
 
 $data = [

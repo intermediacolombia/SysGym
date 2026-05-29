@@ -112,11 +112,11 @@ try {
             $totalAhora = (int)$stmtNuevoTotal->fetchColumn();
 
             if ($totalAhora >= $limiteEntradas) {
-                $stmtClienteWs = db()->prepare("SELECT nombres, apellidos, dialCode, telefono, notificaciones FROM clientes WHERE id = :id");
+                $stmtClienteWs = db()->prepare("SELECT nombres, apellidos, dialCode, telefono FROM clientes WHERE id = :id");
                 $stmtClienteWs->execute([':id' => $cliente_id]);
                 $clienteWs = $stmtClienteWs->fetch(PDO::FETCH_ASSOC);
 
-                if ($clienteWs && (int)$clienteWs['notificaciones'] === 1) {
+                if ($clienteWs && !empty($clienteWs['telefono'])) {
                     $cp_nombres   = $clienteWs['nombres'];
                     $cp_apellidos = $clienteWs['apellidos'];
                     $cp_dialCode  = $clienteWs['dialCode'];
