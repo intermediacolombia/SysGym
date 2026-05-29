@@ -25,8 +25,9 @@ $identificacion = $cliente['identificacion'];
 $direccion      = $cliente['direccion'];
 $planId         = $cliente['plan'];
 
-// === Obtener datos del plan ===
-$stmtPlan = db()->prepare("SELECT nombre, precio FROM planes WHERE id = :pid AND borrado = 0");
+// === Obtener datos del plan o tiquetera ===
+$tablaPlan = ($cliente['plan_tipo'] ?? 'plan') === 'tiquetera' ? 'tiqueteras' : 'planes';
+$stmtPlan = db()->prepare("SELECT nombre, precio FROM $tablaPlan WHERE id = :pid AND borrado = 0");
 $stmtPlan->execute([':pid' => $planId]);
 $plan = $stmtPlan->fetch(PDO::FETCH_ASSOC);
 

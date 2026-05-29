@@ -120,28 +120,38 @@ $stmtUpdatePago->execute([
         if ($estadoPago === 'approved' && preg_match('/pago_(\d+)_/', $ref, $match)) {
             $cliente_id = (int)$match[1];
 
-            // === Obtener datos del cliente y su plan ===
-            $stmtPlan = db()->prepare("
-                SELECT c.*, p.precio, p.dias, p.frecuencia
-                FROM clientes c
-                INNER JOIN planes p ON p.id = c.plan
-                WHERE c.id = :id LIMIT 1
-            ");
-            $stmtPlan->execute([':id' => $cliente_id]);
-            $cliente = $stmtPlan->fetch(PDO::FETCH_ASSOC);
+            // === Obtener datos del cliente ===
+            $stmtCliente = db()->prepare("SELECT * FROM clientes WHERE id = :id AND borrado = 0 LIMIT 1");
+            $stmtCliente->execute([':id' => $cliente_id]);
+            $cliente = $stmtCliente->fetch(PDO::FETCH_ASSOC);
 
             if ($cliente) {
-               
-                $hoy          = new DateTime('today');
-                $vencAnterior = !empty($cliente['vencimiento_plan']) ? new DateTime($cliente['vencimiento_plan']) : null;
-                $planDias     = (int)$cliente['dias'];
-                $planMeses    = (int)$cliente['frecuencia'];
+                $esTiquetera = ($cliente['plan_tipo'] ?? 'plan') === 'tiquetera';
+
+                // === Obtener datos del plan o tiquetera ===
+                if ($esTiquetera) {
+                    $stmtPlanData = db()->prepare("SELECT precio, vigencia AS dias, 0 AS frecuencia FROM tiqueteras WHERE id = :id AND borrado = 0");
+                } else {
+                    $stmtPlanData = db()->prepare("SELECT precio, dias, frecuencia FROM planes WHERE id = :id AND borrado = 0");
+                }
+                $stmtPlanData->execute([':id' => $cliente['plan']]);
+                $planData = $stmtPlanData->fetch(PDO::FETCH_ASSOC);
+
+                if (!$planData) {
+                    file_put_contents(__DIR__ . '/webhook_log.txt',
+                        date('Y-m-d H:i:s') . " [ERROR] Plan no encontrado para cliente $cliente_id\n", FILE_APPEND);
+                    http_response_code(200); exit;
+                }
+
+                $hoy      = new DateTime('today');
+                $planDias = (int)$planData['dias'];
+                $planMeses = (int)$planData['frecuencia'];
 
                 $calcFechaFin = function (DateTime $inicio, int $meses, int $dias): DateTime {
                     $fin = clone $inicio;
                     if ($meses > 0) {
                         $fin->modify("+{$meses} months");
-                        $fin->modify('-1 day'); // inclusivo
+                        $fin->modify('-1 day');
                     }
                     if ($dias > 0) {
                         $fin->modify('+' . $dias . ' days');
@@ -149,13 +159,20 @@ $stmtUpdatePago->execute([
                     return $fin;
                 };
 
-                $estaVencido = (!$vencAnterior) || ($vencAnterior <= $hoy);
-                $inicio      = $estaVencido ? clone $hoy : (clone $vencAnterior)->modify('+1 day');
-                $nuevoVenc   = $calcFechaFin($inicio, $planMeses, $planDias);
+                if ($esTiquetera) {
+                    // Tiqueteras: siempre arrancan hoy
+                    $inicio = clone $hoy;
+                } else {
+                    $vencAnterior = !empty($cliente['vencimiento_plan']) ? new DateTime($cliente['vencimiento_plan']) : null;
+                    $estaVencido  = (!$vencAnterior) || ($vencAnterior <= $hoy);
+                    $inicio       = $estaVencido ? clone $hoy : (clone $vencAnterior)->modify('+1 day');
+                }
+
+                $nuevoVenc = $calcFechaFin($inicio, $planMeses, $planDias);
 
                 // === Actualizar cliente ===
                 $stmtUpdate = db()->prepare("
-                    UPDATE clientes 
+                    UPDATE clientes
                     SET pago_plan = :pago, vencimiento_plan = :venc, estado = 'activo', congelado = 0, updated_at = NOW()
                     WHERE id = :id
                 ");
@@ -165,24 +182,26 @@ $stmtUpdatePago->execute([
                     ':id'   => $cliente_id
                 ]);
 
-                // === Registrar factura (usa tu archivo existente) ===
-                $id                 = $cliente_id;
-                $pago_plan          = $hoy->format('Y-m-d');
-                $vencimiento_plan   = $nuevoVenc->format('Y-m-d');
-                $payment_method     = 'Pago en Linea';
-                $bank               = 'Mercado Pago';
-                $credit             = 0;
-				
-				$porcentajeAdicional = (float) ADDITIONAL_PERCENTAGE_PAYMENT;
-				
-                $valorPagado        = $montoPago; 
-				$nombre				= 'Pasarela Pago';
+                // === Registrar factura ===
+                $id                  = $cliente_id;
+                $pago_plan           = $hoy->format('Y-m-d');
+                $vencimiento_plan    = $nuevoVenc->format('Y-m-d');
+                $payment_method      = 'Pago en Linea';
+                $bank                = 'Mercado Pago';
+                $credit              = 0;
+                $porcentajeAdicional = (float) ADDITIONAL_PERCENTAGE_PAYMENT;
+                $valorPagado         = $montoPago;
+                $nombre              = 'Pasarela Pago';
 
                 ob_start();
-                // Ajusta la ruta si tu generate_factura.php está en otra carpeta:
-                include(__DIR__ . '/../admin/clients/generate_factura_pasarela.php');
-
+                $facturaGenerada = include(__DIR__ . '/../admin/clients/generate_factura_pasarela.php');
                 ob_end_clean();
+
+                // === Si es tiquetera, vincular factura activa para conteo de entradas ===
+                if ($esTiquetera && $facturaGenerada) {
+                    $stmtTiqFact = db()->prepare("UPDATE clientes SET tiquetera_factura_id = :fid WHERE id = :id");
+                    $stmtTiqFact->execute([':fid' => $facturaGenerada, ':id' => $cliente_id]);
+                }
 
                 // === Notificar por WhatsApp (si aplica) ===
                 if ((int)$cliente['notificaciones'] === 1) {
