@@ -7,7 +7,7 @@ include('../login/restriction.php');?>
 require_once __DIR__ . '/../../inc/config.php';
 
 if(isset($_GET['action']) && $_GET['action'] == "fetch"){
-    $stmt = db()->prepare("SELECT id, nombre, precio, dias, estado FROM tiqueteras WHERE borrado = 0");
+    $stmt = db()->prepare("SELECT id, nombre, precio, limite_entradas, vigencia, estado FROM tiqueteras WHERE borrado = 0");
     $stmt->execute();
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode(['data'=>$data]);
@@ -18,10 +18,11 @@ if(isset($_POST['action'])){
     $action = $_POST['action'];
 
     if($action == "add"){
-        $nombre = trim($_POST['nombre']);
-        $precio  = trim($_POST['precio']);
-        $dias    = trim($_POST['dias']);
-        $estado  = trim($_POST['estado']);
+        $nombre           = trim($_POST['nombre']);
+        $precio           = trim($_POST['precio']);
+        $limite_entradas  = trim($_POST['limite_entradas']);
+        $vigencia         = trim($_POST['vigencia']);
+        $estado           = trim($_POST['estado']);
 
         $stmtCheck = db()->prepare("SELECT id, borrado FROM tiqueteras WHERE nombre = :nombre LIMIT 1");
         $stmtCheck->execute([':nombre' => $nombre]);
@@ -32,10 +33,10 @@ if(isset($_POST['action'])){
                 echo json_encode(['status'=>'error', 'message'=>'La tiquetera ya existe']);
                 exit;
             } else {
-                $stmtUpdate = db()->prepare("UPDATE tiqueteras SET precio = :precio, dias = :dias, estado = :estado, borrado = 0 WHERE id = :id");
-                if($stmtUpdate->execute([':precio'=>$precio, ':dias'=>$dias, ':estado'=>$estado, ':id'=>$existing['id']])){
+                $stmtUpdate = db()->prepare("UPDATE tiqueteras SET precio = :precio, limite_entradas = :limite_entradas, vigencia = :vigencia, estado = :estado, borrado = 0 WHERE id = :id");
+                if($stmtUpdate->execute([':precio'=>$precio, ':limite_entradas'=>$limite_entradas, ':vigencia'=>$vigencia, ':estado'=>$estado, ':id'=>$existing['id']])){
                     require_once __DIR__ . '/../inc/log_action.php';
-                    log_action('Agregar Tiqueteras', json_encode(['nombre'=>$nombre,'precio'=>$precio,'dias'=>$dias,'estado'=>$estado,'id'=>$existing['id']], JSON_UNESCAPED_UNICODE), 'Tiqueteras');
+                    log_action('Agregar Tiqueteras', json_encode(['nombre'=>$nombre,'precio'=>$precio,'limite_entradas'=>$limite_entradas,'vigencia'=>$vigencia,'estado'=>$estado,'id'=>$existing['id']], JSON_UNESCAPED_UNICODE), 'Tiqueteras');
                     echo json_encode(['status'=>'success', 'message'=>'Tiquetera reactivada y actualizada correctamente']);
                 } else {
                     echo json_encode(['status'=>'error', 'message'=>'Error al reactivar la tiquetera']);
@@ -44,10 +45,10 @@ if(isset($_POST['action'])){
             }
         }
 
-        $stmt = db()->prepare("INSERT INTO tiqueteras (nombre, precio, dias, estado, borrado) VALUES (:nombre, :precio, :dias, :estado, 0)");
-        if($stmt->execute([':nombre'=>$nombre, ':precio'=>$precio, ':dias'=>$dias, ':estado'=>$estado])){
+        $stmt = db()->prepare("INSERT INTO tiqueteras (nombre, precio, limite_entradas, vigencia, estado, borrado) VALUES (:nombre, :precio, :limite_entradas, :vigencia, :estado, 0)");
+        if($stmt->execute([':nombre'=>$nombre, ':precio'=>$precio, ':limite_entradas'=>$limite_entradas, ':vigencia'=>$vigencia, ':estado'=>$estado])){
             require_once __DIR__ . '/../inc/log_action.php';
-            log_action('Agregar Tiqueteras', json_encode(['nombre'=>$nombre,'precio'=>$precio,'dias'=>$dias,'estado'=>$estado], JSON_UNESCAPED_UNICODE), 'Tiqueteras');
+            log_action('Agregar Tiqueteras', json_encode(['nombre'=>$nombre,'precio'=>$precio,'limite_entradas'=>$limite_entradas,'vigencia'=>$vigencia,'estado'=>$estado], JSON_UNESCAPED_UNICODE), 'Tiqueteras');
             echo json_encode(['status'=>'success', 'message'=>'Tiquetera agregada correctamente']);
         } else {
             echo json_encode(['status'=>'error', 'message'=>'Error al agregar la tiquetera']);
@@ -55,16 +56,17 @@ if(isset($_POST['action'])){
         exit;
 
     } elseif($action == "edit"){
-        $id     = trim($_POST['id']);
-        $nombre = trim($_POST['nombre']);
-        $precio  = trim($_POST['precio']);
-        $dias    = trim($_POST['dias']);
-        $estado  = trim($_POST['estado']);
+        $id              = trim($_POST['id']);
+        $nombre          = trim($_POST['nombre']);
+        $precio          = trim($_POST['precio']);
+        $limite_entradas = trim($_POST['limite_entradas']);
+        $vigencia        = trim($_POST['vigencia']);
+        $estado          = trim($_POST['estado']);
 
-        $stmt = db()->prepare("UPDATE tiqueteras SET nombre = :nombre, precio = :precio, dias = :dias, estado = :estado WHERE id = :id");
-        if($stmt->execute([':nombre'=>$nombre, ':precio'=>$precio, ':dias'=>$dias, ':estado'=>$estado, ':id'=>$id])){
+        $stmt = db()->prepare("UPDATE tiqueteras SET nombre = :nombre, precio = :precio, limite_entradas = :limite_entradas, vigencia = :vigencia, estado = :estado WHERE id = :id");
+        if($stmt->execute([':nombre'=>$nombre, ':precio'=>$precio, ':limite_entradas'=>$limite_entradas, ':vigencia'=>$vigencia, ':estado'=>$estado, ':id'=>$id])){
             require_once __DIR__ . '/../inc/log_action.php';
-            log_action('Editar Tiqueteras', json_encode(['id'=>$id,'nombre'=>$nombre,'precio'=>$precio,'dias'=>$dias,'estado'=>$estado], JSON_UNESCAPED_UNICODE), 'Tiqueteras');
+            log_action('Editar Tiqueteras', json_encode(['id'=>$id,'nombre'=>$nombre,'precio'=>$precio,'limite_entradas'=>$limite_entradas,'vigencia'=>$vigencia,'estado'=>$estado], JSON_UNESCAPED_UNICODE), 'Tiqueteras');
             echo json_encode(['status'=>'success', 'message'=>'Tiquetera actualizada correctamente']);
         } else {
             echo json_encode(['status'=>'error', 'message'=>'Error al actualizar la tiquetera']);
@@ -108,7 +110,8 @@ if(isset($_POST['action'])){
       <tr>
         <th>Nombre</th>
         <th>Precio</th>
-        <th>Días para Gastar</th>
+        <th>Límite de Entradas</th>
+        <th>Vigencia (días)</th>
         <th>Estado</th>
       </tr>
     </thead>
@@ -138,8 +141,12 @@ if(isset($_POST['action'])){
             <input type="number" class="form-control" id="add_precio" name="precio" required step="0.01" min="0">
           </div>
           <div class="mb-3">
-            <label for="add_dias" class="form-label">Días para Gastar</label>
-            <input type="number" class="form-control" id="add_dias" name="dias" required min="1" value="30">
+            <label for="add_limite_entradas" class="form-label">Límite de Entradas</label>
+            <input type="number" class="form-control" id="add_limite_entradas" name="limite_entradas" required min="1" value="10">
+          </div>
+          <div class="mb-3">
+            <label for="add_vigencia" class="form-label">Vigencia (días)</label>
+            <input type="number" class="form-control" id="add_vigencia" name="vigencia" required min="1" value="30">
           </div>
           <div class="mb-3">
             <label for="add_estado" class="form-label">Estado</label>
@@ -181,8 +188,12 @@ if(isset($_POST['action'])){
             <input type="number" class="form-control" id="edit_precio" name="precio" required step="0.01" min="0">
           </div>
           <div class="mb-3">
-            <label for="edit_dias" class="form-label">Días para Gastar</label>
-            <input type="number" class="form-control" id="edit_dias" name="dias" required min="1">
+            <label for="edit_limite_entradas" class="form-label">Límite de Entradas</label>
+            <input type="number" class="form-control" id="edit_limite_entradas" name="limite_entradas" required min="1">
+          </div>
+          <div class="mb-3">
+            <label for="edit_vigencia" class="form-label">Vigencia (días)</label>
+            <input type="number" class="form-control" id="edit_vigencia" name="vigencia" required min="1">
           </div>
           <div class="mb-3">
             <label for="edit_estado" class="form-label">Estado</label>
@@ -221,7 +232,8 @@ if(isset($_POST['action'])){
             return isNaN(num) ? data : "$" + num.toLocaleString('es-CO');
           }
         },
-        { "data": "dias" },
+        { "data": "limite_entradas" },
+        { "data": "vigencia" },
         { "data": "estado" }
       ],
       "pageLength": 50,
@@ -244,7 +256,8 @@ if(isset($_POST['action'])){
           action: "add",
           nombre: $("#add_nombre").val(),
           precio: $("#add_precio").val(),
-          dias: $("#add_dias").val(),
+          limite_entradas: $("#add_limite_entradas").val(),
+          vigencia: $("#add_vigencia").val(),
           estado: $("#add_estado").val()
         },
         dataType: "json",
@@ -266,7 +279,8 @@ if(isset($_POST['action'])){
         $("#edit_id").val(data.id);
         $("#edit_nombre").val(data.nombre);
         $("#edit_precio").val(data.precio);
-        $("#edit_dias").val(data.dias);
+        $("#edit_limite_entradas").val(data.limite_entradas);
+        $("#edit_vigencia").val(data.vigencia);
         $("#edit_estado").val(data.estado);
         $("#modalEditTiquetera").modal("show");
       }
@@ -282,7 +296,8 @@ if(isset($_POST['action'])){
           id: $("#edit_id").val(),
           nombre: $("#edit_nombre").val(),
           precio: $("#edit_precio").val(),
-          dias: $("#edit_dias").val(),
+          limite_entradas: $("#edit_limite_entradas").val(),
+          vigencia: $("#edit_vigencia").val(),
           estado: $("#edit_estado").val()
         },
         dataType: "json",
