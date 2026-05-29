@@ -17,7 +17,7 @@ try {
           AND c.telefono IS NOT NULL AND c.telefono != ''
         GROUP BY c.id, t.limite_entradas
         HAVING consumidas >= t.limite_entradas
-           AND MAX(DATE(tc.fecha)) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+           AND MAX(DATE(tc.fecha)) >= DATE_SUB(CURDATE(), INTERVAL 1 DAY)
     ");
     $stmt->execute();
     $agotadas = $stmt->fetchAll(PDO::FETCH_ASSOC);
