@@ -55,7 +55,8 @@ $direccion      = $cliente['direccion'];
 // ===============================
 $plan_nombre = "";
 if (!empty($cliente['plan'])) {
-    $stmtPlan = db()->prepare("SELECT nombre FROM planes WHERE id = :plan AND borrado = 0");
+    $tabla = ($cliente['plan_tipo'] ?? 'plan') === 'tiquetera' ? 'tiqueteras' : 'planes';
+    $stmtPlan = db()->prepare("SELECT nombre FROM $tabla WHERE id = :plan AND borrado = 0");
     $stmtPlan->execute([':plan' => $cliente['plan']]);
     $planData = $stmtPlan->fetch(PDO::FETCH_ASSOC);
     $plan_nombre = $planData ? $planData['nombre'] : '';

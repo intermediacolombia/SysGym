@@ -10,14 +10,27 @@ require_once __DIR__ . '/../../inc/config.php';
 // Obtener planes para el dropdown usando db()
 try {
     $stmt = db()->query("
-        SELECT id, nombre 
-        FROM planes 
-        WHERE borrado = 0 
+        SELECT id, nombre
+        FROM planes
+        WHERE borrado = 0
         ORDER BY nombre ASC
     ");
     $planes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $planes = [];
+}
+
+// Obtener tiqueteras para el dropdown
+try {
+    $stmtTiq = db()->query("
+        SELECT id, nombre
+        FROM tiqueteras
+        WHERE borrado = 0
+        ORDER BY nombre ASC
+    ");
+    $tiqueteras = $stmtTiq->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $tiqueteras = [];
 }
 
 ?>
@@ -115,13 +128,25 @@ try {
     
 
     <div class="col-md-2 form-group">
-      <label for="plan" class="form-label">Plan</label>
+      <label for="plan" class="form-label">Plan / Tiquetera</label>
       <select id="plan" name="plan" class="form-select">
         <option value="">---</option>
-        <?php foreach ($planes as $pl): ?>
-          <option value="<?= $pl['id'] ?>"><?= htmlspecialchars($pl['nombre']) ?></option>
-        <?php endforeach; ?>
+        <?php if (!empty($planes)): ?>
+          <optgroup label="── Planes ──">
+            <?php foreach ($planes as $pl): ?>
+              <option value="<?= $pl['id'] ?>" data-tipo="plan"><?= htmlspecialchars($pl['nombre']) ?></option>
+            <?php endforeach; ?>
+          </optgroup>
+        <?php endif; ?>
+        <?php if (!empty($tiqueteras)): ?>
+          <optgroup label="── Tiqueteras ──">
+            <?php foreach ($tiqueteras as $t): ?>
+              <option value="<?= $t['id'] ?>" data-tipo="tiquetera"><?= htmlspecialchars($t['nombre']) ?></option>
+            <?php endforeach; ?>
+          </optgroup>
+        <?php endif; ?>
       </select>
+      <input type="hidden" id="plan_tipo" name="plan_tipo" value="">
     </div>
 	  
 	  <div class="col-md-2 form-group">
@@ -316,6 +341,12 @@ $(document).ready(function () {
     pageLength: 50
   });
 
+  // Sincronizar plan_tipo al cambiar el select de plan
+  $('#plan').on('change', function () {
+    const tipo = $(this).find(':selected').data('tipo') || '';
+    $('#plan_tipo').val(tipo);
+  });
+
   // 2. Recargar resultados al cambiar cualquier filtro
   $form.on('input change', 'input, select', () => {
     table.ajax.reload();
@@ -332,6 +363,7 @@ $(document).ready(function () {
   // 4. Botón Reset: limpiar filtros
   $('#resetFilters').on('click', function () {
     $form[0].reset();
+    $('#plan_tipo').val('');
     table.ajax.reload();
   });
 });

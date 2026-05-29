@@ -28,7 +28,7 @@ try {
     }
 
     // Campos exactos
-    foreach (['estado','genero','congelado','plan'] as $f) {
+    foreach (['estado','genero','congelado','plan','plan_tipo'] as $f) {
         if (!empty($_GET[$f])) {
             $where[]       = "$f = :$f";
             $params[":$f"] = $_GET[$f];
@@ -61,9 +61,13 @@ try {
     // 3) Agregar plan_nombre
     foreach ($clientes as &$c) {
         if (!empty($c['plan'])) {
-            $p = db()->prepare("SELECT nombre FROM planes WHERE id = ? AND borrado = 0");
+            if (($c['plan_tipo'] ?? 'plan') === 'tiquetera') {
+                $p = db()->prepare("SELECT nombre FROM tiqueteras WHERE id = ? AND borrado = 0");
+            } else {
+                $p = db()->prepare("SELECT nombre FROM planes WHERE id = ? AND borrado = 0");
+            }
             $p->execute([$c['plan']]);
-            $c['plan_nombre'] = $p->fetchColumn();
+            $c['plan_nombre'] = $p->fetchColumn() ?: '';
         } else {
             $c['plan_nombre'] = '';
         }
