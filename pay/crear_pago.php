@@ -15,31 +15,53 @@ try {
 	
 	
     	
-    // === Obtener datos del cliente y su plan ===
-    $stmt = db()->prepare("
-        SELECT c.*, p.nombre AS plan_nombre, p.precio AS plan_precio
-        FROM clientes c
-        LEFT JOIN planes p ON p.id = c.plan
-        WHERE c.id = :id LIMIT 1
-    ");
+    // === Obtener datos del cliente ===
+    $stmt = db()->prepare("SELECT * FROM clientes WHERE id = :id AND borrado = 0 LIMIT 1");
     $stmt->execute([':id' => $cliente_id]);
     $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$cliente) die("Cliente no encontrado.");
 
+    $esTiquetera = ($cliente['plan_tipo'] ?? 'plan') === 'tiquetera';
+
+    // === Obtener datos del plan o tiquetera ===
+    if ($esTiquetera) {
+        $stmtPlan = db()->prepare("SELECT nombre, precio, limite_entradas FROM tiqueteras WHERE id = :id AND borrado = 0");
+    } else {
+        $stmtPlan = db()->prepare("SELECT nombre, precio FROM planes WHERE id = :id AND borrado = 0");
+    }
+    $stmtPlan->execute([':id' => $cliente['plan']]);
+    $planInfo = $stmtPlan->fetch(PDO::FETCH_ASSOC);
+
+    if (!$planInfo) die("Plan no encontrado.");
+
+    // === Validación para tiqueteras: bloquear si aún tiene entradas y no ha vencido ===
+    if ($esTiquetera) {
+        $hoy = new DateTime('today');
+        $venc = !empty($cliente['vencimiento_plan']) ? new DateTime($cliente['vencimiento_plan']) : null;
+        $vencida = !$venc || $venc < $hoy;
+
+        if (!$vencida && !empty($cliente['tiquetera_factura_id'])) {
+            $stmtCons = db()->prepare("SELECT COUNT(*) FROM tiquetera_consumos WHERE cliente_id = :id AND factura_id = :fid");
+            $stmtCons->execute([':id' => $cliente_id, ':fid' => $cliente['tiquetera_factura_id']]);
+            $consumidas = (int)$stmtCons->fetchColumn();
+
+            if ($consumidas < (int)$planInfo['limite_entradas']) {
+                die("Aún tienes {$consumidas}/{$planInfo['limite_entradas']} entradas disponibles. Podrás renovar cuando las agotes o cuando venza tu tiquetera.");
+            }
+        }
+    }
+
     // === Definir datos del pago ===
-    // Datos del pago
-	
-	$porcentajeAdicional = (float) ADDITIONAL_PERCENTAGE_PAYMENT;
-	$monto = (float)($cliente['plan_precio'] ?? 0);
-	if ($monto <= 0) $monto = 50000; // valor base si el plan no tiene precio
+    $porcentajeAdicional = (float) ADDITIONAL_PERCENTAGE_PAYMENT;
+    $monto = (float)($planInfo['precio'] ?? 0);
+    if ($monto <= 0) $monto = 50000;
 
-	// === Aplicar incremento dinámico ===
-	if ($porcentajeAdicional > 0) {
-		$monto = round($monto * (1 + ($porcentajeAdicional / 100)), 2);
-	}
+    if ($porcentajeAdicional > 0) {
+        $monto = round($monto * (1 + ($porcentajeAdicional / 100)), 2);
+    }
 
-	$descripcion = "Pago Membresia - " . ($cliente['plan_nombre'] ?? 'Plan General');
+    $descripcion = "Pago Membresia - " . ($planInfo['nombre'] ?? 'Plan General');
 
     $referencia = "pago_{$cliente_id}_" . time();
 
