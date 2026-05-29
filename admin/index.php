@@ -960,6 +960,7 @@ document.addEventListener("theme-changed", actualizarHora);
   .asis-status-badge.vencido   { background: rgba(220,38,38,0.1);   color: #dc2626; }
   .asis-status-badge.inactivo  { background: rgba(100,116,139,0.12);color: #64748b; }
   .asis-status-badge.congelado { background: rgba(59,130,246,0.12); color: #2563eb; }
+  .asis-status-badge.agotada   { background: rgba(234,88,12,0.1);   color: #ea580c; }
 
   /* Alertas dentro del modal */
   .asis-alert {
@@ -1152,6 +1153,7 @@ function renderResultadoAsis(data) {
     inactivo:  'Inactivo',
     vencido:   'Plan Vencido',
     congelado: 'Plan Congelado',
+    agotada:   'Tiquetera Agotada',
   };
   const estadoLabel = estadoLabels[estado] || data.estado_real || 'Desconocido';
 
@@ -1159,15 +1161,26 @@ function renderResultadoAsis(data) {
   if (estado === 'vencido')   estadoClass = 'vencido';
   if (estado === 'inactivo')  estadoClass = 'inactivo';
   if (estado === 'congelado') estadoClass = 'congelado';
+  if (estado === 'agotada')   estadoClass = 'agotada';
+
+  // Texto de entradas para tiqueteras
+  let entradasBadge = '';
+  if (data.limite_entradas !== null) {
+    const restantes = data.limite_entradas - data.entradas_consumidas;
+    entradasBadge = `<span class="asis-status-badge ${restantes <= 0 ? 'agotada' : 'activo'}" style="margin-left:6px;">
+      <i class="fas fa-ticket-alt" style="font-size:0.5rem;"></i>
+      ${data.entradas_consumidas}/${data.limite_entradas} entradas
+    </span>`;
+  }
 
   document.getElementById('asis-status-badge-wrap').innerHTML = `
     <span class="asis-status-badge ${estadoClass}">
       <i class="fas fa-circle" style="font-size:0.5rem;"></i>
       ${estadoLabel}
-    </span>
+    </span>${entradasBadge}
   `;
 
-  const bloqueado = ['vencido', 'inactivo', 'congelado'].includes(estado);
+  const bloqueado = ['vencido', 'inactivo', 'congelado', 'agotada'].includes(estado);
   _asisPermiteRegistro = !bloqueado;
   _asisYaRegistro = data.ya_asistio > 0;
 
@@ -1179,6 +1192,7 @@ function renderResultadoAsis(data) {
       vencido:   'su plan está <strong>vencido</strong>',
       inactivo:  'el cliente se encuentra <strong>inactivo</strong>',
       congelado: 'el plan está <strong>congelado</strong>',
+      agotada:   'la tiquetera está <strong>agotada</strong> — debe renovar para ingresar',
     };
     alertHTML = `
       <div class="asis-alert error">
@@ -1203,10 +1217,13 @@ function renderResultadoAsis(data) {
     </div>`;
 
   } else {
+    const msgEntradas = data.limite_entradas !== null
+      ? ` — quedan <strong>${data.limite_entradas - data.entradas_consumidas}</strong> entradas`
+      : '';
     alertHTML = `
       <div class="asis-alert ok">
         <i class="fas fa-check-circle"></i>
-        <span>Cliente activo y listo para registrar asistencia.</span>
+        <span>Cliente activo y listo para registrar asistencia${msgEntradas}.</span>
       </div>`;
     accionHTML = `<div class="asis-action-row">
       <button class="asis-btn-cancel" onclick="cerrarModalAsistencia()">Cancelar</button>
