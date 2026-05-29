@@ -88,6 +88,13 @@
     </a>
     <?php endif; ?>
 
+    <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Tiqueteras', $_SESSION["user_permissions"])): ?>
+    <a href="<?= $url ?>/admin/tiqueteras" class="sg-item" onclick="sgCloseSidebar()">
+      <span class="sg-icon"><i class="fas fa-ticket-alt"></i></span>
+      <span class="sg-label">Tiqueteras</span>
+    </a>
+    <?php endif; ?>
+
     <?php if (isset($_SESSION["user_permissions"]) && (
         in_array('Ver Ejercicios', $_SESSION["user_permissions"]) ||
         in_array('Ver Rutinas', $_SESSION["user_permissions"])
