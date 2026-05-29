@@ -1465,13 +1465,13 @@ $(document).ready(function(){
           dataType: 'json',
           success: function(response){
             if(response.status === 'success'){
-              Swal.fire('Éxito', response.message, 'success');
-              $("#fecha_pago_display").text(response.pago_plan);
-              $("#fecha_vencimiento_display").text(response.vencimiento_plan).css("color", "red");
+              Swal.fire('Éxito', response.message, 'success').then(function(){
+                window.location.reload();
+              });
             } else {
               Swal.fire('Error', response.message, 'error');
+              processingPayment = false;
             }
-            processingPayment = false;
           },
           error: function(){
             Swal.fire('Error', 'No se pudo actualizar la fecha de pago.', 'error');
