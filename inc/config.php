@@ -160,7 +160,8 @@ $wa_valoracion          = $settings['wa_valoracion'] ?? '';
 $wa_creditReminder      = $settings['wa_creditReminder'] ?? '';
 $wa_creditReminder_day  = $settings['wa_creditReminder_day'] ?? '';
 $wa_creditReminder_hour = $settings['wa_creditReminder_hour'] ?? '';
-$wa_consent_pending     = $settings['wa_consent_pending'] ?? '';
+$wa_consent_pending       = $settings['wa_consent_pending'] ?? '';
+$wa_tiquetera_agotada     = $settings['wa_tiquetera_agotada'] ?? '';
 
 define('WA_API_URL', $settings['wa_api_url'] ?? '');
 # ===============================

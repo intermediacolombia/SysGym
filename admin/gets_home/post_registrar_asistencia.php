@@ -92,17 +92,41 @@ try {
 
         // Registrar consumo de tiquetera
         if (($cliente['plan_tipo'] ?? '') === 'tiquetera' && !empty($cliente['tiquetera_factura_id'])) {
+            $facturaActiva = (int)$cliente['tiquetera_factura_id'];
+
             $stmtConsumo = db()->prepare("
                 INSERT INTO tiquetera_consumos (cliente_id, factura_id, asistencia_id, fecha, hora)
                 VALUES (:cid, :fid, :aid, :fecha, :hora)
             ");
             $stmtConsumo->execute([
                 ':cid'   => $cliente_id,
-                ':fid'   => (int)$cliente['tiquetera_factura_id'],
+                ':fid'   => $facturaActiva,
                 ':aid'   => $asistenciaId,
                 ':fecha' => $hoy,
                 ':hora'  => $hora,
             ]);
+
+            // Notificar si se agotaron todas las entradas
+            $stmtNuevoTotal = db()->prepare("SELECT COUNT(*) FROM tiquetera_consumos WHERE cliente_id = :id AND factura_id = :fid");
+            $stmtNuevoTotal->execute([':id' => $cliente_id, ':fid' => $facturaActiva]);
+            $totalAhora = (int)$stmtNuevoTotal->fetchColumn();
+
+            if ($totalAhora >= $limiteEntradas) {
+                $stmtClienteWs = db()->prepare("SELECT nombres, apellidos, dialCode, telefono, notificaciones FROM clientes WHERE id = :id");
+                $stmtClienteWs->execute([':id' => $cliente_id]);
+                $clienteWs = $stmtClienteWs->fetch(PDO::FETCH_ASSOC);
+
+                if ($clienteWs && (int)$clienteWs['notificaciones'] === 1) {
+                    $cp_nombres   = $clienteWs['nombres'];
+                    $cp_apellidos = $clienteWs['apellidos'];
+                    $cp_dialCode  = $clienteWs['dialCode'];
+                    $cp_telefono  = $clienteWs['telefono'];
+                    $cp_entradas  = $limiteEntradas;
+                    ob_start();
+                    include(__DIR__ . '/../../whatsapp/tiquetera-agotada.php');
+                    ob_end_clean();
+                }
+            }
         }
 
         echo json_encode([

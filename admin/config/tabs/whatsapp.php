@@ -55,6 +55,10 @@
           'wa_valoracion' => [
             'label' => 'Mensaje de envío de valoración',
             'campos' => '{nombres}, {apellidos}'
+          ],
+          'wa_tiquetera_agotada' => [
+            'label' => 'Mensaje de tiquetera agotada',
+            'campos' => '{nombres}, {apellidos}, {entradas}'
           ]
         ];
 
