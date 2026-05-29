@@ -71,6 +71,9 @@ try {
     $planMeses = (int)$cliente['frecuencia'];
     $planPrecio = (float)$cliente['precio'];
 
+    // Las tiqueteras siempre inician desde la fecha de pago
+    if ($esTiquetera) $respetarFechas = false;
+
     // Mantener fechas existentes
     if ($respetarFechas && !empty($cliente['pago_plan']) && !empty($cliente['vencimiento_plan'])) {
         $pago_plan = $cliente['pago_plan'];
