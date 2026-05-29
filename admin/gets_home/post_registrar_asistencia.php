@@ -112,20 +112,8 @@ try {
             $totalAhora = (int)$stmtNuevoTotal->fetchColumn();
 
             if ($totalAhora >= $limiteEntradas) {
-                $stmtClienteWs = db()->prepare("SELECT nombres, apellidos, dialCode, telefono FROM clientes WHERE id = :id");
-                $stmtClienteWs->execute([':id' => $cliente_id]);
-                $clienteWs = $stmtClienteWs->fetch(PDO::FETCH_ASSOC);
-
-                if ($clienteWs && !empty($clienteWs['telefono'])) {
-                    $cp_nombres   = $clienteWs['nombres'];
-                    $cp_apellidos = $clienteWs['apellidos'];
-                    $cp_dialCode  = $clienteWs['dialCode'];
-                    $cp_telefono  = $clienteWs['telefono'];
-                    $cp_entradas  = $limiteEntradas;
-                    ob_start();
-                    include(__DIR__ . '/../../whatsapp/tiquetera-agotada.php');
-                    ob_end_clean();
-                }
+                $notifyUrl = rtrim(URLBASE, '/') . '/admin/gets_home/notify_tiquetera_agotada.php?cliente_id=' . $cliente_id;
+                @file_get_contents($notifyUrl);
             }
         }
 
