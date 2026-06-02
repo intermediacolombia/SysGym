@@ -121,8 +121,8 @@ $totalCaja = $totalIngresos - $egresos;
     <span id="totalCaja">$<?php echo number_format($totalCaja, 0, '', '.'); ?></span>
   </div>
   <div class="right">
-    <span><i class="fa fa-user"></i> <?php echo $nombreCompleto; ?></span>
     <span id="topbarAsistencias" title="Asistencias únicas hoy"><i class="fas fa-walking"></i> <span id="countAsistencias"><?php echo $asistenciasHoy; ?></span></span>
+    <span><i class="fa fa-user"></i> <?php echo $nombreCompleto; ?></span>
     <span id="topbarHora"></span>
     <a href="<?php echo $url; ?>/admin/caja/"><i class="fas fa-cash-register"></i> Ir a mi Caja</a>
   </div>
