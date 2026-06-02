@@ -20,6 +20,20 @@ $nombre = $_SESSION['user']['nombre'] ?? '';
 $apellido = $_SESSION['user']['apellido'] ?? '';
 $nombreCompleto = htmlspecialchars(trim("$nombre $apellido"));
 
+// Asistencias únicas hoy
+try {
+    $stmtAsis = db()->prepare("
+        SELECT COUNT(DISTINCT a.idCliente) AS total
+        FROM asistencias a
+        JOIN clientes c ON c.id = a.idCliente
+        WHERE a.fecha = :hoy AND c.borrado = 0
+    ");
+    $stmtAsis->execute([':hoy' => $hoy]);
+    $asistenciasHoy = (int)$stmtAsis->fetchColumn();
+} catch (Exception $e) {
+    $asistenciasHoy = 0;
+}
+
 try {
 
     if ($caja_id) {
@@ -108,7 +122,7 @@ $totalCaja = $totalIngresos - $egresos;
   </div>
   <div class="right">
     <span><i class="fa fa-user"></i> <?php echo $nombreCompleto; ?></span>
-    <span id="topbarAsistencias" title="Asistencias únicas hoy"><i class="fas fa-walking"></i> <span id="countAsistencias">...</span></span>
+    <span id="topbarAsistencias" title="Asistencias únicas hoy"><i class="fas fa-walking"></i> <span id="countAsistencias"><?php echo $asistenciasHoy; ?></span></span>
     <span id="topbarHora"></span>
     <a href="<?php echo $url; ?>/admin/caja/"><i class="fas fa-cash-register"></i> Ir a mi Caja</a>
   </div>
@@ -131,14 +145,17 @@ $(function() {
 
   // Asistencias únicas del día
   function actualizarAsistencias() {
-    $.getJSON('<?php echo $url; ?>/admin/asistencias_count.php', function(res) {
-      if (res.count !== undefined) {
-        $('#countAsistencias').text(res.count);
+    $.ajax({
+      url: '<?php echo $url; ?>/admin/asistencias_count.php',
+      dataType: 'json',
+      success: function(res) {
+        if (res.count !== undefined) {
+          $('#countAsistencias').text(res.count);
+        }
       }
     });
   }
-  actualizarAsistencias();
-  setInterval(actualizarAsistencias, 15000);
+  setInterval(actualizarAsistencias, 20000);
 
   // ?? Actualizar totales
   function actualizarTotales() {
