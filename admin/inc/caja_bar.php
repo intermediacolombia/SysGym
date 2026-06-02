@@ -108,6 +108,7 @@ $totalCaja = $totalIngresos - $egresos;
   </div>
   <div class="right">
     <span><i class="fa fa-user"></i> <?php echo $nombreCompleto; ?></span>
+    <span id="topbarAsistencias" title="Asistencias únicas hoy"><i class="fas fa-walking"></i> <span id="countAsistencias">...</span></span>
     <span id="topbarHora"></span>
     <a href="<?php echo $url; ?>/admin/caja/"><i class="fas fa-cash-register"></i> Ir a mi Caja</a>
   </div>
@@ -127,6 +128,17 @@ $(function() {
   }
   actualizarHora();
   setInterval(actualizarHora, 1000);
+
+  // Asistencias únicas del día
+  function actualizarAsistencias() {
+    $.getJSON('<?php echo $url; ?>/admin/asistencias_count.php', function(res) {
+      if (res.count !== undefined) {
+        $('#countAsistencias').text(res.count);
+      }
+    });
+  }
+  actualizarAsistencias();
+  setInterval(actualizarAsistencias, 15000);
 
   // ?? Actualizar totales
   function actualizarTotales() {
