@@ -12,9 +12,8 @@ try {
         SELECT COUNT(DISTINCT a.idCliente) AS total
         FROM   asistencias a
         JOIN   clientes    c ON c.id = a.idCliente
-        WHERE  a.fecha   = :hoy
+        WHERE  a.fecha = :hoy
           AND  c.borrado = 0
-          AND  c.estado  = 'activo'
     ";
 
     $stmt = db()->prepare($sql);

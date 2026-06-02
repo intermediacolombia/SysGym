@@ -155,7 +155,8 @@ $(function() {
       }
     });
   }
-  setInterval(actualizarAsistencias, 20000);
+  actualizarAsistencias();
+  setInterval(actualizarAsistencias, 10000);
 
   // ?? Actualizar totales
   function actualizarTotales() {
