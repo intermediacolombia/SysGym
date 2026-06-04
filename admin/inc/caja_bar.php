@@ -28,7 +28,7 @@ try {
         JOIN clientes c ON c.id = a.idCliente
         WHERE a.fecha = :hoy AND c.borrado = 0
     ");
-    $stmtAsis->execute([':hoy' => $hoy]);
+    $stmtAsis->execute([':hoy' => date('Y-m-d')]);
     $asistenciasHoy = (int)$stmtAsis->fetchColumn();
 } catch (Exception $e) {
     $asistenciasHoy = 0;
