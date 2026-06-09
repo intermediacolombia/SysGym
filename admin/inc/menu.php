@@ -19,7 +19,7 @@
   <div class="sg-logo-area">
     <div class="sg-logo-row" style="flex-direction:column; align-items:center; gap:0.4rem; margin-bottom:1rem;">
       <img src="<?= $url ?>/<?= SITE_LOGO ?>" alt="Logo" class="sg-logo-img" style="height:52px;">
-      <span class="sg-gym-name" style="max-width:100%; text-align:center; font-size:0.85rem;">SysGym V.2.0.1</span>
+      <span class="sg-gym-name" style="max-width:100%; text-align:center; font-size:0.85rem;">SysGym V.2.1.0</span>
     </div>
     <?php
       $foto = (!empty($foto_perfil) && file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $foto_perfil))
