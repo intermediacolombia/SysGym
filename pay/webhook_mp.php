@@ -211,7 +211,7 @@ $stmtUpdatePago->execute([
                     $cp_telefono         = $cliente['telefono'];
                     $cp_pago_plan        = $pago_plan;
                     $cp_vencimiento_plan = $vencimiento_plan;
-                    //$facturaId           = null;
+                    $facturaId           = $facturaGenerada;
 
                     ob_start();
                     include(__DIR__ . '/../whatsapp/client-pay.php');
