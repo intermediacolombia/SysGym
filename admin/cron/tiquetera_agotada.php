@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../inc/config.php';
 // Clientes cuya tiquetera se agotó ayer (última entrada fue ayer y alcanzó el límite)
 try {
     $stmt = db()->prepare("
-        SELECT c.id, c.nombres, c.apellidos, c.dialCode, c.telefono,
+        SELECT c.id, c.identificacion, c.nombres, c.apellidos, c.dialCode, c.telefono,
                t.limite_entradas,
                COUNT(tc.id) AS consumidas
         FROM clientes c
@@ -32,6 +32,7 @@ foreach ($agotadas as $row) {
     $cp_dialCode  = $row['dialCode'];
     $cp_telefono  = $row['telefono'];
     $cp_entradas  = (int)$row['limite_entradas'];
+    $cp_url_pago  = URLBASE . '/pay/?doc=' . urlencode($row['identificacion']);
 
     include(__DIR__ . '/../../whatsapp/tiquetera-agotada.php');
 }

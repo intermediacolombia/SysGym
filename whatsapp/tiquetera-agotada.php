@@ -3,7 +3,7 @@ require_once __DIR__ . '/../inc/config.php';
 require_once __DIR__ . '/save_failed_ws.php';
 
 // Variables esperadas del contexto que incluye este archivo:
-// $cp_nombres, $cp_apellidos, $cp_dialCode, $cp_telefono, $cp_entradas
+// $cp_nombres, $cp_apellidos, $cp_dialCode, $cp_telefono, $cp_entradas, $cp_url_pago
 
 $plantilla = !empty($wa_tiquetera_agotada)
     ? $wa_tiquetera_agotada
@@ -13,8 +13,8 @@ $apiKey      = $api_ws;
 $urlEndpoint = rtrim(WA_API_URL, '/') . '/send';
 
 $mensaje = str_replace(
-    ['{nombres}', '{apellidos}', '{entradas}'],
-    [$cp_nombres,  $cp_apellidos,  $cp_entradas],
+    ['{nombres}', '{apellidos}', '{entradas}', '{url_pago}'],
+    [$cp_nombres,  $cp_apellidos,  $cp_entradas, $cp_url_pago ?? ''],
     $plantilla
 );
 

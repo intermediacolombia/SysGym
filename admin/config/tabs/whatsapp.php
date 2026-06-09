@@ -58,7 +58,7 @@
           ],
           'wa_tiquetera_agotada' => [
             'label' => 'Mensaje de tiquetera agotada',
-            'campos' => '{nombres}, {apellidos}, {entradas}'
+            'campos' => '{nombres}, {apellidos}, {entradas}, {url_pago}'
           ]
         ];
 
