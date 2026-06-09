@@ -437,11 +437,13 @@ table{
 <?php endif; ?>
 	
 
+<?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Rutinas', $_SESSION["user_permissions"])): ?>
   <li class="nav-item" role="presentation">
-    <button class="nav-link" id="rutinas-tab" data-bs-toggle="tab" data-bs-target="#rutinas" type="button" role="tab" disabled>
-      <i class="material-icons" style="font-size:16px">fitness_center</i> Rutinas
+    <button class="nav-link" id="rutinas-tab" data-bs-toggle="tab" data-bs-target="#rutinas" type="button" role="tab">
+      <i class="material-icons" style="font-size:16px;vertical-align:middle">fitness_center</i> Rutinas
     </button>
   </li>
+<?php endif; ?>
 
 
 </ul>
@@ -470,7 +472,11 @@ table{
 	<div class="tab-pane fade" id="valoraciones" role="tabpanel" aria-labelledby="valoraciones-tab">
 		<?php include('tabs/valoraciones_tab.php');?>
 	</div>
-	
+
+	<div class="tab-pane fade" id="rutinas" role="tabpanel" aria-labelledby="rutinas-tab">
+		<?php include('tabs/rutinas_tab.php');?>
+	</div>
+
 </div>
 
 <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver y Crear Creditos', $_SESSION["user_permissions"])): ?>
@@ -1956,6 +1962,205 @@ $('#confirmDeleteCredit').on('click', function() {
 	  
 	  </script>
 	
+
+<!-- ── RUTINA SEMANAL ── -->
+<script>
+(function(){
+  const wrap = document.getElementById('rsWrap');
+  if (!wrap) return;
+
+  const clienteId = parseInt(wrap.dataset.clienteId, 10);
+  const DIAS = [
+    { key:'lunes',     abbr:'Lu', full:'Lunes'     },
+    { key:'martes',    abbr:'Ma', full:'Martes'    },
+    { key:'miercoles', abbr:'Mi', full:'Miércoles' },
+    { key:'jueves',    abbr:'Ju', full:'Jueves'    },
+    { key:'viernes',   abbr:'Vi', full:'Viernes'   },
+    { key:'sabado',    abbr:'Sá', full:'Sábado'    },
+    { key:'domingo',   abbr:'Do', full:'Domingo'   },
+  ];
+
+  let rutinas      = [];
+  let asignaciones = {};
+  let ejCache      = {};
+  let cargado      = false;
+
+  /* ── Render ─────────────────────────────────── */
+  function renderGrid() {
+    const grid = document.getElementById('rsWeekGrid');
+    let html = '';
+    DIAS.forEach(function(d) {
+      const sel   = asignaciones[d.key] || '';
+      const hasR  = !!sel;
+      let opts    = '<option value="">— Descanso —</option>';
+      rutinas.forEach(function(r) {
+        opts += '<option value="' + r.id + '"' + (sel == r.id ? ' selected' : '') + '>' + escHtml(r.nombre) + '</option>';
+      });
+      const extraHtml = hasR
+        ? '<button class="rs-ej-toggle" data-dia="' + d.key + '" data-rid="' + sel + '"><i class="fa fa-chevron-down" id="rschev-' + d.key + '"></i> Ejercicios</button><div class="rs-ej-list" id="rsej-' + d.key + '" style="display:none"></div>'
+        : '<div class="rs-rest"><i class="fa fa-moon-o"></i>&nbsp;Descanso</div>';
+
+      html += '<div class="rs-day-card' + (hasR ? ' has-rutina' : '') + '" id="rscard-' + d.key + '">'
+            +   '<div class="rs-day-hdr d-' + d.key + '">'
+            +     '<div class="rs-day-dot"></div>'
+            +     '<div class="rs-day-abbrev">' + d.abbr + '</div>'
+            +     '<div class="rs-day-full">' + d.full + '</div>'
+            +   '</div>'
+            +   '<div class="rs-day-body">'
+            +     '<select class="rs-day-select" data-dia="' + d.key + '">' + opts + '</select>'
+            +     '<div class="rs-day-extra" id="rsextra-' + d.key + '">' + extraHtml + '</div>'
+            +   '</div>'
+            + '</div>';
+    });
+    grid.innerHTML = html;
+    grid.style.display = '';
+    document.getElementById('rsLoading').style.display = 'none';
+    bindEvents();
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ── Events ─────────────────────────────────── */
+  function bindEvents() {
+    document.querySelectorAll('.rs-day-select').forEach(function(el) {
+      el.addEventListener('change', onDiaChange);
+    });
+    document.querySelectorAll('.rs-ej-toggle').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        rsToggleEj(btn.dataset.dia, btn.dataset.rid);
+      });
+    });
+  }
+
+  function onDiaChange(e) {
+    const dia     = e.target.dataset.dia;
+    const rutinaId = e.target.value;
+    const card    = document.getElementById('rscard-' + dia);
+    const extra   = document.getElementById('rsextra-' + dia);
+
+    if (rutinaId) {
+      asignaciones[dia] = rutinaId;
+      card.classList.add('has-rutina');
+      extra.innerHTML = '<button class="rs-ej-toggle" data-dia="' + dia + '" data-rid="' + rutinaId + '"><i class="fa fa-chevron-down" id="rschev-' + dia + '"></i> Ejercicios</button>'
+                      + '<div class="rs-ej-list" id="rsej-' + dia + '" style="display:none"></div>';
+    } else {
+      delete asignaciones[dia];
+      card.classList.remove('has-rutina');
+      extra.innerHTML = '<div class="rs-rest"><i class="fa fa-moon-o"></i>&nbsp;Descanso</div>';
+    }
+    // Re-bind the new toggle button
+    var newToggle = extra.querySelector('.rs-ej-toggle');
+    if (newToggle) {
+      newToggle.addEventListener('click', function() {
+        rsToggleEj(newToggle.dataset.dia, newToggle.dataset.rid);
+      });
+    }
+  }
+
+  function rsToggleEj(dia, rutinaId) {
+    const ejDiv = document.getElementById('rsej-' + dia);
+    const chev  = document.getElementById('rschev-' + dia);
+    if (!ejDiv) return;
+
+    if (ejDiv.style.display !== 'none') {
+      ejDiv.style.display = 'none';
+      if (chev) chev.className = 'fa fa-chevron-down';
+      return;
+    }
+
+    if (chev) chev.className = 'fa fa-chevron-up';
+
+    if (ejCache[rutinaId]) {
+      renderEjercicios(dia, ejCache[rutinaId]);
+      ejDiv.style.display = '';
+      return;
+    }
+
+    ejDiv.innerHTML = '<div class="text-center py-2"><div class="spinner-border spinner-border-sm" style="color:var(--system-color-primary)"></div></div>';
+    ejDiv.style.display = '';
+
+    $.getJSON('get_rutinas_cliente.php', { action: 'get_ejercicios_rutina', rutina_id: rutinaId, cliente_id: clienteId }, function(resp) {
+      ejCache[rutinaId] = resp.ejercicios || [];
+      renderEjercicios(dia, ejCache[rutinaId]);
+    });
+  }
+
+  function renderEjercicios(dia, ejercicios) {
+    const ejDiv = document.getElementById('rsej-' + dia);
+    if (!ejDiv) return;
+    ejDiv.style.display = '';
+    if (!ejercicios.length) {
+      ejDiv.innerHTML = '<div class="rs-rest" style="margin-top:6px">Sin ejercicios</div>';
+      return;
+    }
+    let html = '';
+    ejercicios.forEach(function(e, i) {
+      const meta = [];
+      if (e.series)       meta.push(e.series + ' series');
+      if (e.repeticiones) meta.push(e.repeticiones + ' reps');
+      if (e.duracion)     meta.push(e.duracion + 's');
+      if (e.descanso)     meta.push(e.descanso + 'min desc.');
+      html += '<div class="rs-ej-item">'
+            +   '<span class="rs-ej-num">' + (i + 1) + '</span>'
+            +   '<div class="rs-ej-info">'
+            +     '<div class="rs-ej-name">' + escHtml(e.nombre) + '</div>'
+            +     (meta.length ? '<div class="rs-ej-meta">' + meta.join(' · ') + '</div>' : '')
+            +   '</div>'
+            + '</div>';
+    });
+    ejDiv.innerHTML = html;
+  }
+
+  /* ── Load data ──────────────────────────────── */
+  function cargar() {
+    $.getJSON('get_rutinas_cliente.php', { action: 'get', cliente_id: clienteId }, function(resp) {
+      rutinas      = resp.rutinas || [];
+      asignaciones = {};
+      (resp.asignaciones || []).forEach(function(a) {
+        asignaciones[a.dia_semana] = String(a.rutina_id);
+      });
+      renderGrid();
+    });
+  }
+
+  $('#rutinas-tab').on('shown.bs.tab', function() {
+    if (!cargado) { cargado = true; cargar(); }
+  });
+
+  /* ── Guardar ─────────────────────────────────── */
+  document.getElementById('rsBtnGuardar').addEventListener('click', function() {
+    const btn  = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Guardando...';
+
+    const dias = Object.keys(asignaciones).map(function(k) {
+      return { dia_semana: k, rutina_id: asignaciones[k] };
+    });
+
+    $.ajax({
+      url:         'get_rutinas_cliente.php',
+      method:      'POST',
+      contentType: 'application/json',
+      data:        JSON.stringify({ action: 'save', cliente_id: clienteId, dias: dias }),
+      dataType:    'json',
+      success: function(resp) {
+        if (resp.status === 'success') {
+          Swal.fire({ icon:'success', title:'¡Guardado!', text:'Rutina semanal actualizada.', timer:1700, showConfirmButton:false });
+        } else {
+          Swal.fire('Error','No se pudo guardar.','error');
+        }
+      },
+      error: function() { Swal.fire('Error','Error de conexión.','error'); },
+      complete: function() {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa fa-save"></i> Guardar Semana';
+      }
+    });
+  });
+}());
+</script>
 
 </body>
 </html>
