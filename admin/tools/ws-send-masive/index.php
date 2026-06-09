@@ -11,6 +11,11 @@ $stmtPlanes = db()->prepare("SELECT id, nombre FROM planes WHERE borrado = 0 AND
 $stmtPlanes->execute();
 $planes = $stmtPlanes->fetchAll(PDO::FETCH_ASSOC);
 
+// Obtener tiqueteras activas para el filtro
+$stmtTiq = db()->prepare("SELECT id, nombre FROM tiqueteras WHERE borrado = 0 ORDER BY nombre");
+$stmtTiq->execute();
+$tiqueteras = $stmtTiq->fetchAll(PDO::FETCH_ASSOC);
+
 // Procesar filtros si se envio el formulario
 $clientes = [];
 $filtrosAplicados = [];
@@ -32,24 +37,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
         $filtrosAplicados[] = "Estado: " . implode(', ', array_map('ucfirst', $_POST['estado']));
     }
     
-    // Filtro: Plan (multiple)
+    // Filtro: Plan/Tiquetera (multiple) — valores con prefijo p_ o t_
     if (!empty($_POST['plan']) && is_array($_POST['plan'])) {
-        $planPlaceholders = [];
-        foreach ($_POST['plan'] as $i => $planId) {
-            $key = ":plan_$i";
-            $planPlaceholders[] = $key;
-            $params[$key] = $planId;
-        }
-        $where[] = "c.plan IN (" . implode(',', $planPlaceholders) . ")";
-        
-        // Obtener nombres de planes seleccionados
-        $nombresPlanes = [];
-        foreach ($planes as $p) {
-            if (in_array($p['id'], $_POST['plan'])) {
-                $nombresPlanes[] = $p['nombre'];
+        $planConditions = [];
+        $nombresPlanes  = [];
+
+        foreach ($_POST['plan'] as $i => $planVal) {
+            if (strpos($planVal, 'p_') === 0) {
+                $planId = (int)substr($planVal, 2);
+                $key = ":plan_id_$i";
+                $planConditions[] = "(c.plan = $key AND (c.plan_tipo IS NULL OR c.plan_tipo = 'plan'))";
+                $params[$key] = $planId;
+                foreach ($planes as $p) {
+                    if ((int)$p['id'] === $planId) { $nombresPlanes[] = $p['nombre']; break; }
+                }
+            } elseif (strpos($planVal, 't_') === 0) {
+                $tiqId = (int)substr($planVal, 2);
+                $key = ":tiq_id_$i";
+                $planConditions[] = "(c.plan = $key AND c.plan_tipo = 'tiquetera')";
+                $params[$key] = $tiqId;
+                foreach ($tiqueteras as $t) {
+                    if ((int)$t['id'] === $tiqId) { $nombresPlanes[] = $t['nombre'] . ' (tiq.)'; break; }
+                }
             }
         }
-        $filtrosAplicados[] = "Plan: " . implode(', ', $nombresPlanes);
+
+        if (!empty($planConditions)) {
+            $where[] = "(" . implode(" OR ", $planConditions) . ")";
+            $filtrosAplicados[] = "Plan: " . implode(', ', $nombresPlanes);
+        }
     }
     
     // Filtro: Genero (multiple)
@@ -122,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
     $where[] = "c.dialCode IS NOT NULL AND c.dialCode != ''";
     
     // Construir query
-    $sql = "SELECT 
+    $sql = "SELECT
                 c.id,
                 c.nombres,
                 c.apellidos,
@@ -133,9 +149,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
                 c.vencimiento_plan,
                 c.congelado,
                 c.notificaciones,
-                p.nombre AS nombre_plan
+                COALESCE(p.nombre, t.nombre) AS nombre_plan
             FROM clientes c
-            LEFT JOIN planes p ON c.plan = p.id
+            LEFT JOIN planes     p ON c.plan = p.id AND (c.plan_tipo IS NULL OR c.plan_tipo = 'plan') AND p.borrado = 0
+            LEFT JOIN tiqueteras t ON c.plan = t.id AND c.plan_tipo = 'tiquetera' AND t.borrado = 0
             WHERE " . implode(" AND ", $where) . "
             ORDER BY c.apellidos, c.nombres";
     
@@ -361,6 +378,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
             flex: 1;
             font-size: 12px;
         }
+        .multi-select-group-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            background: #f0f2f5;
+            color: #6c757d;
+            padding: 5px 12px;
+        }
     </style>
 </head>
 <body>
@@ -434,13 +460,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filtrar'])) {
                                 <i class="fas fa-chevron-down"></i>
                             </div>
                             <div class="multi-select-menu">
+                                <?php if (!empty($planes)): ?>
+                                <div class="multi-select-group-label">Planes regulares</div>
                                 <?php foreach ($planes as $plan): ?>
                                 <div class="multi-select-item">
-                                    <input type="checkbox" id="plan_<?= $plan['id'] ?>" value="<?= $plan['id'] ?>"
-                                           <?= (isset($_POST['plan']) && in_array($plan['id'], $_POST['plan'])) ? 'checked' : '' ?>>
-                                    <label for="plan_<?= $plan['id'] ?>"><?= htmlspecialchars($plan['nombre']) ?></label>
+                                    <input type="checkbox" id="plan_p_<?= $plan['id'] ?>" value="p_<?= $plan['id'] ?>"
+                                           <?= (isset($_POST['plan']) && in_array('p_'.$plan['id'], $_POST['plan'])) ? 'checked' : '' ?>>
+                                    <label for="plan_p_<?= $plan['id'] ?>"><?= htmlspecialchars($plan['nombre']) ?></label>
                                 </div>
                                 <?php endforeach; ?>
+                                <?php endif; ?>
+                                <?php if (!empty($tiqueteras)): ?>
+                                <div class="multi-select-group-label" style="border-top:1px solid #dee2e6;margin-top:2px">Tiqueteras</div>
+                                <?php foreach ($tiqueteras as $tiq): ?>
+                                <div class="multi-select-item">
+                                    <input type="checkbox" id="plan_t_<?= $tiq['id'] ?>" value="t_<?= $tiq['id'] ?>"
+                                           <?= (isset($_POST['plan']) && in_array('t_'.$tiq['id'], $_POST['plan'])) ? 'checked' : '' ?>>
+                                    <label for="plan_t_<?= $tiq['id'] ?>"><?= htmlspecialchars($tiq['nombre']) ?> <span class="badge bg-info text-dark" style="font-size:9px;vertical-align:middle">Tiquetera</span></label>
+                                </div>
+                                <?php endforeach; ?>
+                                <?php endif; ?>
                                 <div class="multi-select-actions">
                                     <button type="button" class="btn btn-sm btn-outline-primary btn-select-all">Todos</button>
                                     <button type="button" class="btn btn-sm btn-outline-secondary btn-clear">Limpiar</button>
