@@ -11,11 +11,12 @@ header('Content-Type: application/json; charset=utf-8');
 try {
 
     $stmt = db()->prepare("
-        SELECT 
+        SELECT
             c.*,
-            p.nombre AS nombre_plan
+            COALESCE(p.nombre, t.nombre) AS nombre_plan
         FROM clientes c
-        LEFT JOIN planes p ON p.id = c.plan AND p.borrado = 0
+        LEFT JOIN planes     p ON p.id = c.plan AND p.borrado = 0 AND COALESCE(c.plan_tipo,'plan') = 'plan'
+        LEFT JOIN tiqueteras t ON t.id = c.plan AND t.borrado = 0 AND c.plan_tipo = 'tiquetera'
         WHERE c.borrado = 0
         ORDER BY c.identificacion DESC
     ");
