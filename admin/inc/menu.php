@@ -152,30 +152,6 @@
     <?php endif; ?>
 
     <?php if (isset($_SESSION["user_permissions"]) && (
-        in_array('Administrar Almacén', $_SESSION["user_permissions"]) ||
-        in_array('Registrar Entradas Almacén', $_SESSION["user_permissions"]) ||
-        in_array('Registrar Salidas Almacén', $_SESSION["user_permissions"])
-    )): ?>
-    <div class="sg-divider"></div>
-    <span class="sg-section-label">Almacén</span>
-
-    <?php if (in_array('Administrar Almacén', $_SESSION["user_permissions"])): ?>
-      <a href="<?= $url ?>/admin/almacen/" class="sg-item" onclick="sgCloseSidebar()">
-        <span class="sg-icon"><i class="fas fa-box"></i></span>
-        <span class="sg-label">Elementos</span>
-      </a>
-      <a href="<?= $url ?>/admin/almacen/categorias.php" class="sg-item" onclick="sgCloseSidebar()">
-        <span class="sg-icon"><i class="fas fa-tags"></i></span>
-        <span class="sg-label">Categorías</span>
-      </a>
-    <?php endif; ?>
-    <a href="<?= $url ?>/admin/almacen/movimientos.php" class="sg-item" onclick="sgCloseSidebar()">
-      <span class="sg-icon"><i class="fas fa-exchange-alt"></i></span>
-      <span class="sg-label">Movimientos</span>
-    </a>
-    <?php endif; ?>
-
-    <?php if (isset($_SESSION["user_permissions"]) && (
         in_array('Ver Nominas', $_SESSION["user_permissions"]) ||
         in_array('Pagar Nominas', $_SESSION["user_permissions"]) ||
         in_array('Ver Empleados', $_SESSION["user_permissions"])
@@ -215,6 +191,25 @@
       <?php if (in_array('Ver Pagos Pasarela', $_SESSION["user_permissions"])): ?>
         <a href="<?= $url ?>/admin/contabilidad/gateway_registration.php" class="sg-subitem" onclick="sgCloseSidebar()">Registros pasarela</a>
       <?php endif; ?>
+    </div></div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION["user_permissions"]) && (
+        in_array('Administrar Almacén', $_SESSION["user_permissions"]) ||
+        in_array('Registrar Entradas Almacén', $_SESSION["user_permissions"]) ||
+        in_array('Registrar Salidas Almacén', $_SESSION["user_permissions"])
+    )): ?>
+    <button class="sg-item" onclick="sgToggle(this)">
+      <span class="sg-icon"><i class="fas fa-warehouse"></i></span>
+      <span class="sg-label">Almacén</span>
+      <i class="fas fa-chevron-down sg-chevron"></i>
+    </button>
+    <div class="sg-submenu"><div>
+      <?php if (in_array('Administrar Almacén', $_SESSION["user_permissions"])): ?>
+        <a href="<?= $url ?>/admin/almacen/" class="sg-subitem" onclick="sgCloseSidebar()">Elementos</a>
+        <a href="<?= $url ?>/admin/almacen/categorias.php" class="sg-subitem" onclick="sgCloseSidebar()">Categorías</a>
+      <?php endif; ?>
+      <a href="<?= $url ?>/admin/almacen/movimientos.php" class="sg-subitem" onclick="sgCloseSidebar()">Movimientos</a>
     </div></div>
     <?php endif; ?>
 
