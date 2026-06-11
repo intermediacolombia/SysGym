@@ -1,6 +1,9 @@
 -- =====================================================
 -- Módulo Almacén (insumos internos) — esquema y permisos
 -- Ejecutar manualmente contra la base de datos del sistema.
+-- NOTA: este script NO es idempotente. No ejecutarlo más de una vez,
+-- ya que `permissions` y `role_permissions` no tienen restricciones
+-- UNIQUE y una segunda ejecución duplicaría permisos y asignaciones.
 -- =====================================================
 
 CREATE TABLE `almacen_categorias` (
@@ -39,6 +42,8 @@ CREATE TABLE `almacen_movimientos` (
   PRIMARY KEY (`id`),
   KEY `elemento_id` (`elemento_id`),
   KEY `usuario_id` (`usuario_id`),
+  -- Sin ON DELETE: los elementos se borran de forma lógica (borrado=1),
+  -- nunca físicamente, por lo que el RESTRICT por defecto es intencional.
   CONSTRAINT `fk_almacen_movimientos_elemento`
     FOREIGN KEY (`elemento_id`) REFERENCES `almacen_elementos` (`id`),
   CONSTRAINT `fk_almacen_movimientos_usuario`
