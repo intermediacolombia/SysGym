@@ -1,6 +1,7 @@
 <?php require_once __DIR__ . '/../login/session.php'; ?>
 <?php
 require_once __DIR__ . '/../../inc/config.php';
+require_once __DIR__ . '/check_stock_alert.php';
 
 $permisos = $_SESSION['user_permissions'] ?? [];
 $puedeAdministrar = in_array('Administrar Almacén', $permisos);
@@ -186,6 +187,9 @@ if (isset($_POST['action']) && $_POST['action'] == "salida") {
         log_action('Registrar Salida Almacén', json_encode([
             'elemento_id' => $elemento_id, 'cantidad' => $cantidad, 'observacion' => $observacion
         ], JSON_UNESCAPED_UNICODE), 'Almacén');
+
+        $stock_anterior = (float)$elemento['stock_actual'];
+        check_almacen_stock_alert($elemento_id, $stock_anterior, $stock_anterior - $cantidad, $api_ws);
 
         echo json_encode(['status' => 'success', 'message' => 'Salida registrada correctamente']);
     } catch (Exception $ex) {
