@@ -68,14 +68,13 @@ if (isset($_POST['action'])) {
         if ($existing && $existing['borrado'] == 1) {
             $stmtUpdate = db()->prepare("
                 UPDATE almacen_elementos
-                SET categoria_id = :categoria_id, unidad_medida = :unidad_medida, stock_actual = :stock_actual,
+                SET categoria_id = :categoria_id, unidad_medida = :unidad_medida,
                     stock_minimo = :stock_minimo, alerta_stock = :alerta_stock, estado = :estado, borrado = 0
                 WHERE id = :id
             ");
             $stmtUpdate->execute([
                 ':categoria_id' => $categoria_id,
                 ':unidad_medida' => $unidad_medida,
-                ':stock_actual' => $stock_actual,
                 ':stock_minimo' => $stock_minimo,
                 ':alerta_stock' => $alerta_stock,
                 ':estado' => $estado,
@@ -128,6 +127,13 @@ if (isset($_POST['action'])) {
 
         if ($nombre === '' || $unidad_medida === '' || !array_key_exists($unidad_medida, $unidades_medida)) {
             echo json_encode(['status' => 'error', 'message' => 'Nombre y unidad de medida son obligatorios']);
+            exit;
+        }
+
+        $stmtCheck = db()->prepare("SELECT id FROM almacen_elementos WHERE nombre = :nombre AND borrado = 0 AND id != :id LIMIT 1");
+        $stmtCheck->execute([':nombre' => $nombre, ':id' => $id]);
+        if ($stmtCheck->fetch()) {
+            echo json_encode(['status' => 'error', 'message' => 'Ya existe un elemento con ese nombre']);
             exit;
         }
 
