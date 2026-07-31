@@ -17,6 +17,10 @@ if (!isset($_POST['credit_id']) || empty($_POST['credit_id'])) {
 $credit_id = trim($_POST['credit_id']);
 $pago = isset($_POST['pago']) ? floatval(trim($_POST['pago'])) : 0; // Monto abonado
 $fecha_limite = isset($_POST['fecha_limite']) ? trim($_POST['fecha_limite']) : null;
+if ($fecha_limite && $fecha_limite < date('Y-m-d')) {
+    echo json_encode(['status' => 'error', 'message' => 'La fecha límite no puede ser anterior a hoy.']);
+    exit;
+}
 $descripcion = isset($_POST['descripcion']) ? trim($_POST['descripcion']) : null;
 $fecha = isset($_POST['fecha']) ? trim($_POST['fecha']) : null; // Opcional
 

@@ -29,6 +29,10 @@ $precio = floatval($_POST['precio']);
 $cliente_id = intval($_POST['cliente_id']);
 $valor_pagado = floatval($_POST['valor_pagado']);
 $fecha_limite = $_POST['fecha_limite'];
+if ($fecha_limite < date('Y-m-d')) {
+    echo json_encode(['status' => 'error', 'message' => 'La fecha límite no puede ser anterior a hoy.']);
+    exit;
+}
 $payment_method = $_POST['payment_method']; // Método de pago seleccionado
 $bank = $_POST['bank'] ?? ''; // Banco seleccionado (si aplica)
 

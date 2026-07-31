@@ -129,7 +129,7 @@
           <!-- Otros campos editables -->
           <div class="mb-3">
             <label for="editCreditFechaLimite" class="form-label">Fecha Límite</label>
-            <input type="date" class="form-control" id="editCreditFechaLimite" name="fecha_limite">
+            <input type="date" class="form-control" id="editCreditFechaLimite" name="fecha_limite" min="<?= date('Y-m-d') ?>">
           </div>
         </div>
         <div class="modal-footer d-flex justify-content-between">

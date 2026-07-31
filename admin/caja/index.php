@@ -485,7 +485,7 @@ $tab-border-radius: 35px;
 </div>
           <div class="mb-3 d-none" id="fechaLimiteContainer">
   <label for="fechaLimite" class="form-label">Fecha Límite del Crédito</label>
-  <input type="date" class="form-control" id="fechaLimite" name="fecha_limite" required>
+  <input type="date" class="form-control" id="fechaLimite" name="fecha_limite" required min="<?= date('Y-m-d') ?>">
 </div>
         </div>
         <div class="modal-footer">
