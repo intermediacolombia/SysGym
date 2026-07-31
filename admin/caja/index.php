@@ -726,12 +726,12 @@ var bancosDisponibles = <?= json_encode(getBancosDisponibles()) ?>;
       opacity: 0, transform: 'translateX(80px)', transition: 'all 0.35s cubic-bezier(.4,0,.2,1)',
       pointerEvents: 'none', lineHeight: '1.5'
     }).html(
-      '<div style="font-size:1.1em;font-weight:700;margin-bottom:4px">✅ Venta Registrada</div>' +
+      '<div style="font-size:1.1em;font-weight:700;margin-bottom:4px">Venta Registrada</div>' +
       '<div style="font-size:0.97em"><b>Producto:</b> ' + producto + '</div>' +
-      '<div style="font-size:0.97em"><b>Método:</b> ' + metodo + '</div>' +
+      '<div style="font-size:0.97em"><b>Metodo:</b> ' + metodo + '</div>' +
       '<div style="font-size:0.97em"><b>Valor:</b> $' + fmt(valor) + '</div>' +
       '<hr style="border-color:rgba(255,255,255,0.3);margin:8px 0">' +
-      '<div style="font-size:1em;font-weight:600">💰 Total en caja: $' + fmt(totalCaja) + '</div>'
+      '<div style="font-size:1em;font-weight:600">Total en caja: $' + fmt(totalCaja) + '</div>'
     );
     $('#venta-toasts').prepend(toast);
     // slide in
