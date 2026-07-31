@@ -119,7 +119,7 @@ function fechaBonita($fecha) {
 #  CARGAR SETTINGS DEL SISTEMA
 # ===============================
 try {
-    $stmt = db()->query("SELECT setting_name, value FROM system_settings WHERE enabled = 1");
+    $stmt = db()->query("SELECT setting_name, value FROM system_settings WHERE enabled = 1 AND id IN (SELECT MAX(id) FROM system_settings GROUP BY setting_name)");
     $settings = [];
 
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -178,6 +178,12 @@ define('SITE_LOGO', '/admin/uploads/' . ($settings['system_logo'] ?? ''));
 define('SITE_ICON', '/admin/uploads/' . ($settings['system_favicon'] ?? ''));
 define('CONSENT_FIRMANTE', $settings['consent_firmante'] ?? '');
 define('CONSENT_FIRMA_IMG', !empty($settings['consent_firma_img']) ? '/admin/uploads/' . $settings['consent_firma_img'] : '');
+define('DIRECCION_GYM', $settings['direccion_gym'] ?? '');
+define('CIUDAD_GYM', $settings['ciudad_gym'] ?? '');
+define('CERT_TEMPLATE', $settings['cert_template'] ?? '');
+define('CERT_FIRMANTE', $settings['cert_firmante'] ?? '');
+define('CERT_CARGO', $settings['cert_cargo'] ?? '');
+define('CERT_FIRMA_IMG', !empty($settings['cert_firma_img']) ? '/admin/uploads/' . $settings['cert_firma_img'] : '');
 
 # ===============================
 #  SMTP

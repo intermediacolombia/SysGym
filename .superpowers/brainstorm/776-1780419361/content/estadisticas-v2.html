@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mockup Estadísticas</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#f1f5f9;color:#1e293b;padding:20px}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:4px}
+.page-sub{color:#64748b;font-size:.85rem;margin-bottom:24px}
+
+/* QUESTION HEADER */
+.q-header{background:#fff;border-radius:14px;padding:18px 22px;margin-bottom:22px;border:1px solid #e2e8f0;display:flex;align-items:center;gap:14px}
+.q-icon{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;flex-shrink:0}
+.q-title{font-weight:700;font-size:1rem}
+.q-sub{color:#64748b;font-size:.8rem;margin-top:2px}
+
+/* OPTION WRAPPER */
+.opts{display:flex;flex-direction:column;gap:20px}
+.opt{border:2.5px solid #e2e8f0;border-radius:16px;overflow:hidden;cursor:pointer;transition:all .2s;background:#fff}
+.opt:hover{border-color:#6366f1;box-shadow:0 6px 24px rgba(99,102,241,.14)}
+.opt.selected{border-color:#6366f1;background:#fafafe}
+.opt-head{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #f1f5f9}
+.opt-letter{width:34px;height:34px;border-radius:50%;background:#6366f1;color:#fff;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.opt-title{font-weight:700;font-size:.95rem}
+.opt-desc{color:#64748b;font-size:.75rem;margin-top:2px}
+.opt-body{padding:16px 18px 18px}
+
+/* ======================== OPCIÓN A ======================== */
+/* Tabs + KPI row + grid sin descripciones */
+.tabs-a{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap}
+.tab-a{padding:6px 14px;border-radius:20px;font-size:.72rem;font-weight:600;cursor:pointer;border:1px solid #e2e8f0;background:#f8fafc;color:#64748b}
+.tab-a.active{background:#6366f1;color:#fff;border-color:#6366f1}
+.kpi-row-a{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.kpi-a{background:#f8fafc;border-radius:10px;padding:10px 12px;border:1px solid #e2e8f0}
+.kpi-a-val{font-size:1.4rem;font-weight:800}
+.kpi-a-lbl{font-size:.6rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+.kpi-a-delta{font-size:.65rem;margin-top:3px}
+.up{color:#10b981}.down{color:#ef4444}.neu{color:#94a3b8}
+.charts-a{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chart-card-a{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:12px}
+.chart-card-a.wide{grid-column:span 2}
+.cc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cc-title{font-weight:700;font-size:.8rem}
+.cc-badge{font-size:.6rem;padding:2px 8px;border-radius:10px;font-weight:600}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+.badge-green{background:#d1fae5;color:#065f46}
+.badge-purple{background:#ede9fe;color:#5b21b6}
+.badge-orange{background:#ffedd5;color:#9a3412}
+.badge-pink{background:#fce7f3;color:#9d174d}
+.chart-wrap{position:relative;height:130px}
+.chart-wrap-sm{position:relative;height:100px}
+
+/* ======================== OPCIÓN B ======================== */
+/* Misma estructura pero cards con franja de color arriba, sin párrafos */
+.kpi-strip-b{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.kpi-b{border-radius:10px;padding:10px 12px;color:#fff;position:relative;overflow:hidden}
+.kpi-b::after{content:'';position:absolute;right:-8px;top:-8px;width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.12)}
+.kpi-b-val{font-size:1.5rem;font-weight:900}
+.kpi-b-lbl{font-size:.58rem;opacity:.8;text-transform:uppercase;letter-spacing:.4px}
+.b-blue{background:linear-gradient(135deg,#3b82f6,#6366f1)}
+.b-green{background:linear-gradient(135deg,#10b981,#059669)}
+.b-orange{background:linear-gradient(135deg,#f59e0b,#ef4444)}
+.b-purple{background:linear-gradient(135deg,#8b5cf6,#a855f7)}
+.b-teal{background:linear-gradient(135deg,#14b8a6,#0d9488)}
+.charts-b{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+.chart-card-b{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:14px}
+.chart-card-b.tall{display:flex;flex-direction:column;gap:10px}
+.cc-head-b{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.cc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.cc-title-b{font-weight:700;font-size:.8rem}
+.chart-wrap-b{position:relative;height:140px}
+.chart-wrap-b-sm{position:relative;height:100px}
+.section-lbl{font-size:.62rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin:12px 0 8px;display:flex;align-items:center;gap:6px}
+.section-lbl::after{content:'';flex:1;height:1px;background:#e2e8f0}
+
+/* ======================== OPCIÓN C ======================== */
+/* Layout revista: 1 gráfico ancho arriba, luego 3 columnas */
+.hero-c{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:14px;padding:16px 20px;margin-bottom:12px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.hero-c-left h3{font-size:1rem;font-weight:800;margin-bottom:2px}
+.hero-c-left p{font-size:.7rem;color:rgba(255,255,255,.5)}
+.hero-kpis{display:flex;gap:16px}
+.hero-kpi{text-align:right}
+.hero-kpi-val{font-size:1.3rem;font-weight:900}
+.hero-kpi-lbl{font-size:.58rem;color:rgba(255,255,255,.5);text-transform:uppercase}
+.charts-c-top{display:grid;grid-template-columns:3fr 2fr;gap:10px;margin-bottom:10px}
+.charts-c-bot{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.chart-card-c{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:14px}
+.chart-card-c .cc-title{font-weight:700;font-size:.78rem;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.chart-card-c .cc-title i{width:20px;height:20px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:.6rem;color:#fff}
+.i-blue{background:#3b82f6}.i-purple{background:#8b5cf6}.i-green{background:#10b981}.i-orange{background:#f59e0b}.i-red{background:#ef4444}.i-teal{background:#14b8a6}
+.chart-wrap-c{position:relative;height:150px}
+.chart-wrap-c-sm{position:relative;height:110px}
+</style>
+</head>
+<body>
+
+<div class="q-header">
+  <div class="q-icon">📊</div>
+  <div>
+    <div class="q-title">¿Cómo te gustaría el rediseño de /admin/statistics/?</div>
+    <div class="q-sub">Actualmente: 6 gráficos Bootstrap en 2 columnas con párrafos descriptivos. Se añaden: asistencias por mes/semana, ingresos vs egresos, hora pico, distribución de retención.</div>
+  </div>
+</div>
+
+<div class="opts">
+
+  <!-- ===================== OPCIÓN A ===================== -->
+  <div class="opt" data-choice="a" onclick="toggleSelect(this)">
+    <div class="opt-head">
+      <div class="opt-letter">A</div>
+      <div>
+        <div class="opt-title">Tabs por categoría + KPIs resumen + gráficos limpios</div>
+        <div class="opt-desc">Pestañas: Todos · Clientes · Asistencias · Finanzas. Fila de KPIs al inicio. Sin párrafos descriptivos. Gráficos más grandes y con colores consistentes.</div>
+      </div>
+    </div>
+    <div class="opt-body">
+      <div class="tabs-a">
+        <div class="tab-a active">Todos</div>
+        <div class="tab-a">👥 Clientes</div>
+        <div class="tab-a">🚶 Asistencias</div>
+        <div class="tab-a">💰 Finanzas</div>
+      </div>
+      <div class="kpi-row-a">
+        <div class="kpi-a"><div class="kpi-a-val" style="color:#3b82f6">284</div><div class="kpi-a-lbl">Clientes Activos</div><div class="kpi-a-delta up">↑ 3 este mes</div></div>
+        <div class="kpi-a"><div class="kpi-a-val" style="color:#8b5cf6">47</div><div class="kpi-a-lbl">Asistencias Hoy</div><div class="kpi-a-delta up">↑ 12% vs ayer</div></div>
+        <div class="kpi-a"><div class="kpi-a-val" style="color:#10b981">$4.2M</div><div class="kpi-a-lbl">Ingresos Mes</div><div class="kpi-a-delta up">↑ 8%</div></div>
+        <div class="kpi-a"><div class="kpi-a-val" style="color:#ef4444">$890K</div><div class="kpi-a-lbl">Egresos Mes</div><div class="kpi-a-delta down">↑ 2%</div></div>
+      </div>
+      <div class="charts-a">
+        <div class="chart-card-a wide">
+          <div class="cc-head"><span class="cc-title">📈 Asistencias por Mes (nuevo)</span><span class="cc-badge badge-purple">Últimos 12 meses</span></div>
+          <div class="chart-wrap"><canvas id="cA1"></canvas></div>
+        </div>
+        <div class="chart-card-a">
+          <div class="cc-head"><span class="cc-title">💰 Ingresos vs Egresos (nuevo)</span><span class="cc-badge badge-green">Por mes</span></div>
+          <div class="chart-wrap"><canvas id="cA2"></canvas></div>
+        </div>
+        <div class="chart-card-a">
+          <div class="cc-head"><span class="cc-title">➕ Nuevos Clientes Mensuales</span><span class="cc-badge badge-orange">Histórico</span></div>
+          <div class="chart-wrap"><canvas id="cA3"></canvas></div>
+        </div>
+        <div class="chart-card-a">
+          <div class="cc-head"><span class="cc-title">🏷️ Usuarios por Plan</span><span class="cc-badge badge-blue">Activos</span></div>
+          <div class="chart-wrap"><canvas id="cA4"></canvas></div>
+        </div>
+        <div class="chart-card-a">
+          <div class="cc-head"><span class="cc-title">⚥ Distribución de Género</span><span class="cc-badge badge-pink">Clientes</span></div>
+          <div class="chart-wrap-sm"><canvas id="cA5"></canvas></div>
+        </div>
+        <div class="chart-card-a">
+          <div class="cc-head"><span class="cc-title">🎂 Cumpleaños por Mes</span><span class="cc-badge badge-blue">Todo el año</span></div>
+          <div class="chart-wrap-sm"><canvas id="cA6"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== OPCIÓN B ===================== -->
+  <div class="opt" data-choice="b" onclick="toggleSelect(this)">
+    <div class="opt-head">
+      <div class="opt-letter">B</div>
+      <div>
+        <div class="opt-title">KPIs con color + gráfico principal ancho + columna lateral</div>
+        <div class="opt-desc">5 KPIs con gradiente de color arriba. Un gráfico ancho principal (asistencias/ingresos) y una columna lateral con gráficos compactos apilados. Más denso visualmente.</div>
+      </div>
+    </div>
+    <div class="opt-body">
+      <div class="kpi-strip-b">
+        <div class="kpi-b b-blue"><div class="kpi-b-val">284</div><div class="kpi-b-lbl">Clientes Activos</div></div>
+        <div class="kpi-b b-purple"><div class="kpi-b-val">1.2K</div><div class="kpi-b-lbl">Asist. Este Mes</div></div>
+        <div class="kpi-b b-green"><div class="kpi-b-val">$4.2M</div><div class="kpi-b-lbl">Ingresos Mes</div></div>
+        <div class="kpi-b b-orange"><div class="kpi-b-val">$890K</div><div class="kpi-b-lbl">Egresos Mes</div></div>
+        <div class="kpi-b b-teal"><div class="kpi-b-val">18</div><div class="kpi-b-lbl">Nuevos Mes</div></div>
+      </div>
+      <div class="charts-b">
+        <div>
+          <div class="section-lbl">📈 Tendencias</div>
+          <div class="chart-card-b">
+            <div class="cc-head-b"><div class="cc-dot" style="background:#8b5cf6"></div><div class="cc-title-b">Asistencias por Mes — últimos 12 meses (nuevo)</div></div>
+            <div class="chart-wrap-b"><canvas id="cB1"></canvas></div>
+          </div>
+          <div class="section-lbl" style="margin-top:10px">💰 Finanzas</div>
+          <div class="chart-card-b">
+            <div class="cc-head-b"><div class="cc-dot" style="background:#10b981"></div><div class="cc-title-b">Ingresos vs Egresos mensuales (nuevo)</div></div>
+            <div class="chart-wrap-b"><canvas id="cB2"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-card-b tall">
+          <div class="section-lbl" style="margin-top:0">👥 Clientes</div>
+          <div class="chart-card-b" style="padding:10px;border:none;background:#f8fafc;border-radius:8px">
+            <div class="cc-title-b" style="margin-bottom:8px">Activos vs Inactivos</div>
+            <div class="chart-wrap-b-sm"><canvas id="cB3"></canvas></div>
+          </div>
+          <div class="chart-card-b" style="padding:10px;border:none;background:#f8fafc;border-radius:8px">
+            <div class="cc-title-b" style="margin-bottom:8px">Género</div>
+            <div class="chart-wrap-b-sm"><canvas id="cB4"></canvas></div>
+          </div>
+          <div class="chart-card-b" style="padding:10px;border:none;background:#f8fafc;border-radius:8px">
+            <div class="cc-title-b" style="margin-bottom:8px">Distribución de Edad</div>
+            <div class="chart-wrap-b-sm"><canvas id="cB5"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== OPCIÓN C ===================== -->
+  <div class="opt" data-choice="c" onclick="toggleSelect(this)">
+    <div class="opt-head">
+      <div class="opt-letter">C</div>
+      <div>
+        <div class="opt-title">Header oscuro ejecutivo + gráfico hero + grid 3 columnas</div>
+        <div class="opt-desc">Encabezado oscuro premium con KPIs clave. Gráfico principal grande (asistencias anuales). Luego todos los gráficos en grid de 3 columnas uniformes. Apariencia de BI dashboard.</div>
+      </div>
+    </div>
+    <div class="opt-body">
+      <div class="hero-c">
+        <div class="hero-c-left">
+          <h3>📊 Panel de Estadísticas</h3>
+          <p>Datos actualizados · Junio 2026</p>
+        </div>
+        <div class="hero-kpis">
+          <div class="hero-kpi"><div class="hero-kpi-val">284</div><div class="hero-kpi-lbl">Activos</div></div>
+          <div class="hero-kpi"><div class="hero-kpi-val" style="color:#a5f3fc">$3.3M</div><div class="hero-kpi-lbl">Neto Mes</div></div>
+          <div class="hero-kpi"><div class="hero-kpi-val" style="color:#c4b5fd">1.2K</div><div class="hero-kpi-lbl">Asist. Mes</div></div>
+          <div class="hero-kpi"><div class="hero-kpi-val" style="color:#86efac">18</div><div class="hero-kpi-lbl">Nuevos</div></div>
+        </div>
+      </div>
+      <div class="charts-c-top">
+        <div class="chart-card-c">
+          <div class="cc-title"><i class="i-purple">🚶</i>Asistencias por Mes — últimos 12 meses (nuevo)</div>
+          <div class="chart-wrap-c"><canvas id="cC1"></canvas></div>
+        </div>
+        <div class="chart-card-c">
+          <div class="cc-title"><i class="i-green">💰</i>Ingresos vs Egresos por mes (nuevo)</div>
+          <div class="chart-wrap-c"><canvas id="cC2"></canvas></div>
+        </div>
+      </div>
+      <div class="charts-c-bot">
+        <div class="chart-card-c">
+          <div class="cc-title"><i class="i-orange">➕</i>Nuevos Clientes</div>
+          <div class="chart-wrap-c-sm"><canvas id="cC3"></canvas></div>
+        </div>
+        <div class="chart-card-c">
+          <div class="cc-title"><i class="i-blue">🏷️</i>Usuarios por Plan</div>
+          <div class="chart-wrap-c-sm"><canvas id="cC4"></canvas></div>
+        </div>
+        <div class="chart-card-c">
+          <div class="cc-title"><i class="i-teal">👤</i>Activos vs Inactivos</div>
+          <div class="chart-wrap-c-sm"><canvas id="cC5"></canvas></div>
+        </div>
+        <div class="chart-card-c">
+          <div class="cc-title"><i class="i-purple">⚥</i>Distribución Género</div>
+          <div class="chart-wrap-c-sm"><canvas id="cC6"></canvas></div>
+        </div>
+        <div class="chart-card-c">
+          <div class="cc-title"><i class="i-red">📅</i>Edad Clientes</div>
+          <div class="chart-wrap-c-sm"><canvas id="cC7"></canvas></div>
+        </div>
+        <div class="chart-card-c">
+          <div class="cc-title"><i class="i-blue">🎂</i>Cumpleaños por Mes</div>
+          <div class="chart-wrap-c-sm"><canvas id="cC8"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggleSelect(el){
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  const ev={type:'click',choice:el.dataset.choice,text:el.querySelector('.opt-title').textContent,timestamp:Math.floor(Date.now()/1000)};
+  fetch('/event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(ev)}).catch(()=>{});
+}
+
+const meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const asis12=[38,42,55,48,60,65,72,58,80,75,88,95];
+const ing12=[3.2,3.5,4.1,3.8,4.5,4.2,5.0,4.3,5.5,5.1,5.8,4.2];
+const egr12=[0.7,0.8,0.9,0.75,1.0,0.89,1.1,0.95,1.2,1.0,1.1,0.89];
+const nuevos=[8,10,14,9,12,15,18,11,16,14,19,18];
+const planes=['Plan Mensual','Plan Trimestral','Plan Semestral','Plan Anual','Tiquetera'];
+const planD=[120,65,45,30,24];
+const gradColors=['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444','#ec4899'];
+const edadLbl=['15-20','21-25','26-30','31-35','36-40','41-50','51+'];
+const edadD=[18,45,62,55,40,28,14];
+const cumD=[12,8,15,10,18,22,14,19,11,16,20,13];
+
+const def={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}};
+const defAxes={plugins:{legend:{display:false}},responsive:true,maintainAspectRatio:false,scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:9}}}}};
+
+// ---- OPCIÓN A ----
+new Chart('cA1',{type:'line',data:{labels:meses,datasets:[{label:'Asistencias',data:asis12,borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,.1)',fill:true,tension:.4,pointRadius:3}]},options:defAxes});
+new Chart('cA2',{type:'bar',data:{labels:meses.slice(-6),datasets:[{label:'Ingresos',data:ing12.slice(-6),backgroundColor:'rgba(16,185,129,.7)',borderRadius:4},{label:'Egresos',data:egr12.slice(-6),backgroundColor:'rgba(239,68,68,.6)',borderRadius:4}]},options:{...defAxes,plugins:{legend:{display:true,labels:{font:{size:8},boxWidth:10}}}}});
+new Chart('cA3',{type:'line',data:{labels:meses,datasets:[{data:nuevos,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.1)',fill:true,tension:.4,pointRadius:2}]},options:defAxes});
+new Chart('cA4',{type:'bar',data:{labels:planes,datasets:[{data:planD,backgroundColor:gradColors,borderRadius:4}]},options:defAxes});
+new Chart('cA5',{type:'doughnut',data:{labels:['Masculino','Femenino','Otro'],datasets:[{data:[160,110,14],backgroundColor:['#3b82f6','#ec4899','#94a3b8'],borderWidth:0}]},options:{...def,plugins:{legend:{display:true,position:'bottom',labels:{font:{size:8},boxWidth:8}}}}});
+new Chart('cA6',{type:'bar',data:{labels:meses,datasets:[{data:cumD,backgroundColor:'rgba(99,102,241,.6)',borderRadius:3}]},options:defAxes});
+
+// ---- OPCIÓN B ----
+new Chart('cB1',{type:'line',data:{labels:meses,datasets:[{data:asis12,borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,.15)',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:'#8b5cf6'}]},options:defAxes});
+new Chart('cB2',{type:'bar',data:{labels:meses.slice(-6),datasets:[{label:'Ingresos',data:ing12.slice(-6),backgroundColor:'rgba(16,185,129,.75)',borderRadius:5},{label:'Egresos',data:egr12.slice(-6),backgroundColor:'rgba(239,68,68,.65)',borderRadius:5}]},options:{...defAxes,plugins:{legend:{display:true,labels:{font:{size:8},boxWidth:10}}}}});
+new Chart('cB3',{type:'doughnut',data:{labels:['Activos','Inactivos'],datasets:[{data:[284,48],backgroundColor:['#10b981','#e2e8f0'],borderWidth:0}]},options:{...def,plugins:{legend:{display:true,position:'right',labels:{font:{size:8},boxWidth:8}}}}});
+new Chart('cB4',{type:'pie',data:{labels:['Masc.','Fem.','Otro'],datasets:[{data:[160,110,14],backgroundColor:['#3b82f6','#ec4899','#94a3b8'],borderWidth:0}]},options:{...def,plugins:{legend:{display:true,position:'right',labels:{font:{size:8},boxWidth:8}}}}});
+new Chart('cB5',{type:'bar',data:{labels:edadLbl,datasets:[{data:edadD,backgroundColor:'rgba(99,102,241,.65)',borderRadius:3}]},options:defAxes});
+
+// ---- OPCIÓN C ----
+new Chart('cC1',{type:'line',data:{labels:meses,datasets:[{data:asis12,borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,.12)',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:'#8b5cf6'}]},options:defAxes});
+new Chart('cC2',{type:'bar',data:{labels:meses.slice(-6),datasets:[{label:'Ingresos',data:ing12.slice(-6),backgroundColor:'rgba(16,185,129,.75)',borderRadius:5},{label:'Egresos',data:egr12.slice(-6),backgroundColor:'rgba(239,68,68,.65)',borderRadius:5}]},options:{...defAxes,plugins:{legend:{display:true,labels:{font:{size:8},boxWidth:10}}}}});
+new Chart('cC3',{type:'line',data:{labels:meses,datasets:[{data:nuevos,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.1)',fill:true,tension:.4,pointRadius:2}]},options:defAxes});
+new Chart('cC4',{type:'bar',data:{labels:planes,datasets:[{data:planD,backgroundColor:gradColors,borderRadius:4}]},options:defAxes});
+new Chart('cC5',{type:'doughnut',data:{labels:['Activos','Inactivos'],datasets:[{data:[284,48],backgroundColor:['#10b981','#e2e8f0'],borderWidth:0}]},options:{...def,plugins:{legend:{display:true,position:'right',labels:{font:{size:8},boxWidth:8}}}}});
+new Chart('cC6',{type:'pie',data:{labels:['Masc.','Fem.','Otro'],datasets:[{data:[160,110,14],backgroundColor:['#3b82f6','#ec4899','#94a3b8'],borderWidth:0}]},options:{...def,plugins:{legend:{display:true,position:'right',labels:{font:{size:8},boxWidth:8}}}}});
+new Chart('cC7',{type:'bar',data:{labels:edadLbl,datasets:[{data:edadD,backgroundColor:'rgba(239,68,68,.65)',borderRadius:3}]},options:defAxes});
+new Chart('cC8',{type:'bar',data:{labels:meses,datasets:[{data:cumD,backgroundColor:'rgba(99,102,241,.6)',borderRadius:3}]},options:defAxes});
+</script>
+</body>
+</html>

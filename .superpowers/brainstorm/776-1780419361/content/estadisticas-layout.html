@@ -1,0 +1,386 @@
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; }
+
+h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 6px; color: #0f172a; }
+.subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 20px; }
+
+.options { display: flex; flex-direction: column; gap: 24px; }
+.option { border: 2px solid #e2e8f0; border-radius: 16px; padding: 20px; cursor: pointer; transition: all .2s; background: #fff; }
+.option:hover { border-color: #6366f1; box-shadow: 0 4px 20px rgba(99,102,241,0.12); }
+.option.selected { border-color: #6366f1; background: #f5f3ff; }
+.option-label { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.option-letter { width: 32px; height: 32px; border-radius: 50%; background: #6366f1; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: .9rem; flex-shrink: 0; }
+.option-title { font-weight: 700; font-size: 1rem; color: #1e293b; }
+.option-desc { font-size: 0.8rem; color: #64748b; }
+
+/* ---- OPCIÓN A: PREMIUM CARDS ---- */
+.preview-a { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.kpi-a { background: #fff; border-radius: 12px; padding: 14px; border: 1px solid #e2e8f0; position: relative; overflow: hidden; }
+.kpi-a::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.kpi-a.blue::before { background: linear-gradient(90deg,#3b82f6,#6366f1); }
+.kpi-a.green::before { background: linear-gradient(90deg,#10b981,#059669); }
+.kpi-a.orange::before { background: linear-gradient(90deg,#f59e0b,#ef4444); }
+.kpi-a.purple::before { background: linear-gradient(90deg,#8b5cf6,#6366f1); }
+.kpi-a.cyan::before { background: linear-gradient(90deg,#06b6d4,#3b82f6); }
+.kpi-a.red::before { background: linear-gradient(90deg,#ef4444,#dc2626); }
+.kpi-a.teal::before { background: linear-gradient(90deg,#14b8a6,#0d9488); }
+.kpi-a.pink::before { background: linear-gradient(90deg,#ec4899,#db2777); }
+.kpi-a-row { display: flex; justify-content: space-between; align-items: flex-start; }
+.kpi-a-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #fff; flex-shrink: 0; }
+.blue .kpi-a-icon { background: linear-gradient(135deg,#3b82f6,#6366f1); }
+.green .kpi-a-icon { background: linear-gradient(135deg,#10b981,#059669); }
+.orange .kpi-a-icon { background: linear-gradient(135deg,#f59e0b,#ef4444); }
+.purple .kpi-a-icon { background: linear-gradient(135deg,#8b5cf6,#6366f1); }
+.cyan .kpi-a-icon { background: linear-gradient(135deg,#06b6d4,#3b82f6); }
+.red .kpi-a-icon { background: linear-gradient(135deg,#ef4444,#dc2626); }
+.teal .kpi-a-icon { background: linear-gradient(135deg,#14b8a6,#0d9488); }
+.pink .kpi-a-icon { background: linear-gradient(135deg,#ec4899,#db2777); }
+.kpi-a-val { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 6px 0 2px; line-height: 1; }
+.kpi-a-lbl { font-size: 0.65rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: .5px; }
+.kpi-a-trend { font-size: 0.68rem; margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+.trend-up { color: #10b981; } .trend-down { color: #ef4444; } .trend-neutral { color: #94a3b8; }
+.sparkline { display: flex; align-items: flex-end; gap: 2px; height: 20px; margin-top: 8px; }
+.spark-bar { width: 4px; border-radius: 2px; background: #e2e8f0; }
+.spark-bar.active { background: #6366f1; opacity: 0.5; }
+.spark-bar.last { background: #6366f1; opacity: 1; }
+
+/* ---- OPCIÓN B: SECCIONES POR TEMA ---- */
+.preview-b { display: flex; flex-direction: column; gap: 10px; }
+.section-b { border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; }
+.section-b-header { padding: 8px 14px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
+.section-b-header.fin { background: linear-gradient(90deg,#0f172a,#1e293b); color: #fff; }
+.section-b-header.cli { background: linear-gradient(90deg,#0369a1,#0284c7); color: #fff; }
+.section-b-header.asis { background: linear-gradient(90deg,#7c3aed,#6d28d9); color: #fff; }
+.section-b-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; background: #f8fafc; }
+.kpi-b { padding: 12px 14px; border-right: 1px solid #e2e8f0; background: #fff; }
+.kpi-b:last-child { border-right: none; }
+.kpi-b-val { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
+.kpi-b-lbl { font-size: 0.62rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .4px; margin-top: 2px; }
+.kpi-b-sub { font-size: 0.68rem; margin-top: 4px; }
+.green-txt { color: #10b981; } .red-txt { color: #ef4444; } .blue-txt { color: #3b82f6; } .purple-txt { color: #8b5cf6; }
+.ingreso-egreso { display: flex; align-items: center; gap: 4px; margin-top: 6px; height: 6px; border-radius: 3px; overflow: hidden; }
+.bar-ing { background: #10b981; height: 100%; border-radius: 3px 0 0 3px; }
+.bar-eg { background: #ef4444; height: 100%; border-radius: 0 3px 3px 0; }
+
+/* ---- OPCIÓN C: FEATURED + MINI ---- */
+.preview-c { display: grid; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: auto auto; gap: 10px; }
+.kpi-c { background: #fff; border-radius: 12px; padding: 14px; border: 1px solid #e2e8f0; }
+.kpi-c.featured { grid-row: span 2; background: linear-gradient(135deg,#1e1b4b,#312e81); color: #fff; display: flex; flex-direction: column; justify-content: space-between; }
+.kpi-c.featured .kpi-c-val { font-size: 2.6rem; font-weight: 900; }
+.kpi-c.featured .kpi-c-lbl { color: rgba(255,255,255,0.6); font-size: 0.7rem; text-transform: uppercase; }
+.kpi-c.featured .kpi-c-sub { color: rgba(255,255,255,0.8); font-size: 0.78rem; }
+.kpi-c-val { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
+.kpi-c-lbl { font-size: 0.62rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .4px; }
+.kpi-c-sub { font-size: 0.7rem; color: #64748b; margin-top: 4px; }
+.progress-ring { width: 56px; height: 56px; }
+.donut-wrap { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.donut-info span { display: block; font-size: 0.65rem; color: rgba(255,255,255,0.6); }
+.donut-info strong { font-size: 1.2rem; color: #fff; }
+.goal-bar { height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; margin-top: 8px; overflow: hidden; }
+.goal-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg,#a5f3fc,#67e8f9); }
+.stat-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+.stat-badge { padding: 2px 8px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; }
+.badge-green { background: #d1fae5; color: #065f46; }
+.badge-red { background: #fee2e2; color: #991b1b; }
+.badge-blue { background: #dbeafe; color: #1e40af; }
+.hora-pico { font-size: 1.8rem; font-weight: 900; color: #6366f1; }
+
+.tag-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.tag { padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; background: #f1f5f9; color: #475569; }
+</style>
+
+<h2>¿Cómo te gustaría el nuevo panel de estadísticas?</h2>
+<p class="subtitle">3 propuestas con métricas adicionales: asistencias, ingresos vs egresos, tasa de retención, hora pico, clientes inactivos y más</p>
+
+<div class="options">
+
+  <!-- OPCIÓN A -->
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="option-label">
+      <div class="option-letter">A</div>
+      <div>
+        <div class="option-title">Premium Cards — Grid 4×2 con tendencias y sparklines</div>
+        <div class="option-desc">Mismo grid actual pero con barra de color superior, ícono degradado, indicadores ↑↓ vs semana anterior y minigráficos de barras. 8 métricas.</div>
+      </div>
+    </div>
+    <div class="preview-a">
+      <div class="kpi-a blue">
+        <div class="kpi-a-row">
+          <div>
+            <div class="kpi-a-lbl">Asistencias Hoy</div>
+            <div class="kpi-a-val">47</div>
+          </div>
+          <div class="kpi-a-icon">🚶</div>
+        </div>
+        <div class="kpi-a-trend trend-up">↑ 12% vs ayer</div>
+        <div class="sparkline">
+          <div class="spark-bar" style="height:40%"></div><div class="spark-bar" style="height:55%"></div><div class="spark-bar active" style="height:70%"></div><div class="spark-bar active" style="height:60%"></div><div class="spark-bar active" style="height:80%"></div><div class="spark-bar last" style="height:100%"></div>
+        </div>
+      </div>
+      <div class="kpi-a green">
+        <div class="kpi-a-row">
+          <div>
+            <div class="kpi-a-lbl">Clientes Activos</div>
+            <div class="kpi-a-val">284</div>
+          </div>
+          <div class="kpi-a-icon">👥</div>
+        </div>
+        <div class="kpi-a-trend trend-up">↑ 3 este mes</div>
+        <div class="sparkline">
+          <div class="spark-bar" style="height:60%"></div><div class="spark-bar active" style="height:65%"></div><div class="spark-bar active" style="height:72%"></div><div class="spark-bar active" style="height:80%"></div><div class="spark-bar active" style="height:88%"></div><div class="spark-bar last" style="height:100%"></div>
+        </div>
+      </div>
+      <div class="kpi-a cyan">
+        <div class="kpi-a-row">
+          <div>
+            <div class="kpi-a-lbl">Ingresos del Mes</div>
+            <div class="kpi-a-val">$4.2M</div>
+          </div>
+          <div class="kpi-a-icon">💰</div>
+        </div>
+        <div class="kpi-a-trend trend-up">↑ 8% vs mes anterior</div>
+        <div class="sparkline">
+          <div class="spark-bar" style="height:50%"></div><div class="spark-bar active" style="height:60%"></div><div class="spark-bar active" style="height:55%"></div><div class="spark-bar active" style="height:75%"></div><div class="spark-bar active" style="height:90%"></div><div class="spark-bar last" style="height:100%"></div>
+        </div>
+      </div>
+      <div class="kpi-a red">
+        <div class="kpi-a-row">
+          <div>
+            <div class="kpi-a-lbl">Egresos del Mes</div>
+            <div class="kpi-a-val">$890K</div>
+          </div>
+          <div class="kpi-a-icon">📤</div>
+        </div>
+        <div class="kpi-a-trend trend-down">↑ 2% vs mes anterior</div>
+        <div class="sparkline">
+          <div class="spark-bar" style="height:45%"></div><div class="spark-bar active" style="height:50%"></div><div class="spark-bar active" style="height:70%"></div><div class="spark-bar active" style="height:60%"></div><div class="spark-bar active" style="height:80%"></div><div class="spark-bar last" style="height:100%"></div>
+        </div>
+      </div>
+      <div class="kpi-a orange">
+        <div class="kpi-a-row">
+          <div>
+            <div class="kpi-a-lbl">Vencen Hoy</div>
+            <div class="kpi-a-val">6</div>
+          </div>
+          <div class="kpi-a-icon">⏰</div>
+        </div>
+        <div class="kpi-a-trend trend-neutral">Requieren atención</div>
+        <div class="sparkline">
+          <div class="spark-bar" style="height:80%"></div><div class="spark-bar active" style="height:40%"></div><div class="spark-bar active" style="height:60%"></div><div class="spark-bar active" style="height:30%"></div><div class="spark-bar active" style="height:50%"></div><div class="spark-bar last" style="height:75%"></div>
+        </div>
+      </div>
+      <div class="kpi-a purple">
+        <div class="kpi-a-row">
+          <div>
+            <div class="kpi-a-lbl">Asist. Únicas Mes</div>
+            <div class="kpi-a-val">198</div>
+          </div>
+          <div class="kpi-a-icon">📊</div>
+        </div>
+        <div class="kpi-a-trend trend-neutral">70% del total</div>
+        <div class="sparkline">
+          <div class="spark-bar" style="height:55%"></div><div class="spark-bar active" style="height:65%"></div><div class="spark-bar active" style="height:75%"></div><div class="spark-bar active" style="height:85%"></div><div class="spark-bar active" style="height:90%"></div><div class="spark-bar last" style="height:100%"></div>
+        </div>
+      </div>
+      <div class="kpi-a teal">
+        <div class="kpi-a-row">
+          <div>
+            <div class="kpi-a-lbl">Nuevos Este Mes</div>
+            <div class="kpi-a-val">18</div>
+          </div>
+          <div class="kpi-a-icon">➕</div>
+        </div>
+        <div class="kpi-a-trend trend-up">↑ vs mes anterior</div>
+        <div class="sparkline">
+          <div class="spark-bar" style="height:40%"></div><div class="spark-bar active" style="height:55%"></div><div class="spark-bar active" style="height:50%"></div><div class="spark-bar active" style="height:70%"></div><div class="spark-bar active" style="height:85%"></div><div class="spark-bar last" style="height:100%"></div>
+        </div>
+      </div>
+      <div class="kpi-a pink">
+        <div class="kpi-a-row">
+          <div>
+            <div class="kpi-a-lbl">Créditos Activos</div>
+            <div class="kpi-a-val">12</div>
+          </div>
+          <div class="kpi-a-icon">💳</div>
+        </div>
+        <div class="kpi-a-trend trend-neutral">Cartera abierta</div>
+        <div class="sparkline">
+          <div class="spark-bar" style="height:60%"></div><div class="spark-bar active" style="height:70%"></div><div class="spark-bar active" style="height:65%"></div><div class="spark-bar active" style="height:80%"></div><div class="spark-bar active" style="height:75%"></div><div class="spark-bar last" style="height:100%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPCIÓN B -->
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="option-label">
+      <div class="option-letter">B</div>
+      <div>
+        <div class="option-title">Secciones por Tema — Finanzas · Clientes · Asistencias</div>
+        <div class="option-desc">Las métricas agrupadas por categoría con cabecera de color por sección. Incluye barra visual de ingresos vs egresos. Fácil de escanear.</div>
+      </div>
+    </div>
+    <div class="preview-b">
+      <div class="section-b">
+        <div class="section-b-header fin">💰 Finanzas</div>
+        <div class="section-b-cards">
+          <div class="kpi-b">
+            <div class="kpi-b-val green-txt">$4.2M</div>
+            <div class="kpi-b-lbl">Ingresos del Mes</div>
+            <div class="ingreso-egreso" style="margin-top:6px;">
+              <div class="bar-ing" style="width:83%"></div>
+              <div class="bar-eg" style="width:17%"></div>
+            </div>
+            <div class="kpi-b-sub green-txt">82% ingresos · 18% egresos</div>
+          </div>
+          <div class="kpi-b">
+            <div class="kpi-b-val red-txt">$890K</div>
+            <div class="kpi-b-lbl">Egresos del Mes</div>
+            <div class="kpi-b-sub red-txt">↑ 2% vs mes anterior</div>
+          </div>
+          <div class="kpi-b">
+            <div class="kpi-b-val green-txt">$3.3M</div>
+            <div class="kpi-b-lbl">Ingresos Netos</div>
+            <div class="kpi-b-sub green-txt">Ingresos − Egresos</div>
+          </div>
+          <div class="kpi-b">
+            <div class="kpi-b-val blue-txt">$248K</div>
+            <div class="kpi-b-lbl">Ventas Hoy</div>
+            <div class="kpi-b-sub blue-txt">↑ 15% vs ayer</div>
+          </div>
+        </div>
+      </div>
+      <div class="section-b">
+        <div class="section-b-header cli">👥 Clientes</div>
+        <div class="section-b-cards">
+          <div class="kpi-b">
+            <div class="kpi-b-val" style="color:#0284c7">284</div>
+            <div class="kpi-b-lbl">Clientes Activos</div>
+            <div class="kpi-b-sub blue-txt">Con plan vigente</div>
+          </div>
+          <div class="kpi-b">
+            <div class="kpi-b-val" style="color:#f59e0b">18</div>
+            <div class="kpi-b-lbl">Nuevos Este Mes</div>
+            <div class="kpi-b-sub green-txt">↑ vs mes anterior</div>
+          </div>
+          <div class="kpi-b">
+            <div class="kpi-b-val" style="color:#ef4444">6</div>
+            <div class="kpi-b-lbl">Vencen Hoy</div>
+            <div class="kpi-b-sub red-txt">Requieren atención</div>
+          </div>
+          <div class="kpi-b">
+            <div class="kpi-b-val" style="color:#8b5cf6">12</div>
+            <div class="kpi-b-lbl">Créditos Activos</div>
+            <div class="kpi-b-sub" style="color:#94a3b8">Cartera abierta</div>
+          </div>
+        </div>
+      </div>
+      <div class="section-b">
+        <div class="section-b-header asis">🚶 Asistencias</div>
+        <div class="section-b-cards">
+          <div class="kpi-b">
+            <div class="kpi-b-val purple-txt">47</div>
+            <div class="kpi-b-lbl">Asistencias Hoy</div>
+            <div class="kpi-b-sub green-txt">↑ 12% vs ayer</div>
+          </div>
+          <div class="kpi-b">
+            <div class="kpi-b-val purple-txt">198</div>
+            <div class="kpi-b-lbl">Únicas Este Mes</div>
+            <div class="kpi-b-sub" style="color:#94a3b8">70% del total activos</div>
+          </div>
+          <div class="kpi-b">
+            <div class="kpi-b-val purple-txt">8.9</div>
+            <div class="kpi-b-lbl">Prom. Diario Mes</div>
+            <div class="kpi-b-sub" style="color:#94a3b8">Asist. por día hábil</div>
+          </div>
+          <div class="kpi-b">
+            <div class="kpi-b-val" style="color:#0d9488">7am</div>
+            <div class="kpi-b-lbl">Hora Pico Hoy</div>
+            <div class="kpi-b-sub" style="color:#94a3b8">Mayor afluencia</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPCIÓN C -->
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="option-label">
+      <div class="option-letter">C</div>
+      <div>
+        <div class="option-title">Featured Widgets — Tarjeta principal grande + métricas secundarias</div>
+        <div class="option-desc">Una tarjeta grande con la métrica más importante (ingresos del mes + meta), acompañada de tarjetas compactas. Más visual e impactante.</div>
+      </div>
+    </div>
+    <div class="preview-c">
+      <div class="kpi-c featured">
+        <div>
+          <div class="kpi-c-lbl">💰 Ingresos del Mes</div>
+          <div class="kpi-c-val" style="font-size:2.2rem;font-weight:900;color:#fff;margin:6px 0;">$4.200.000</div>
+          <div class="kpi-c-sub">Meta mensual: $5.000.000</div>
+          <div class="goal-bar" style="margin-top:8px;">
+            <div class="goal-fill" style="width:84%"></div>
+          </div>
+          <div style="font-size:0.65rem;color:rgba(255,255,255,0.5);margin-top:4px;">84% de la meta alcanzada</div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:rgba(255,255,255,0.7);margin-bottom:4px;">
+            <span>📈 Ingresos</span><span style="color:#a5f3fc">$4.200.000</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:rgba(255,255,255,0.7);margin-bottom:4px;">
+            <span>📉 Egresos</span><span style="color:#fca5a5">$890.000</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:rgba(255,255,255,0.7);">
+            <span>✅ Neto</span><span style="color:#86efac">$3.310.000</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-c">
+        <div class="kpi-c-lbl">🚶 Asistencias Hoy</div>
+        <div class="kpi-c-val" style="color:#7c3aed;font-size:2rem;">47</div>
+        <div class="stat-row">
+          <span class="kpi-c-sub">↑ 12% vs ayer</span>
+          <span class="stat-badge badge-green">En tiempo real</span>
+        </div>
+      </div>
+
+      <div class="kpi-c">
+        <div class="kpi-c-lbl">👥 Clientes Activos</div>
+        <div class="kpi-c-val" style="color:#0284c7;font-size:2rem;">284</div>
+        <div class="stat-row">
+          <span class="kpi-c-sub">+18 este mes</span>
+          <span class="stat-badge badge-blue">70% asisten</span>
+        </div>
+      </div>
+
+      <div class="kpi-c">
+        <div class="kpi-c-lbl">⏰ Hora Pico Hoy</div>
+        <div class="hora-pico">7am</div>
+        <div class="tag-list">
+          <span class="tag">6am: 12</span><span class="tag">7am: 19</span><span class="tag">8am: 14</span><span class="tag">5pm: 11</span>
+        </div>
+      </div>
+
+      <div class="kpi-c">
+        <div class="kpi-c-lbl">📅 Asist. Únicas Mes</div>
+        <div class="kpi-c-val" style="color:#7c3aed;font-size:2rem;">198</div>
+        <div class="stat-row">
+          <span class="kpi-c-sub">Prom: 8.9/día</span>
+          <span class="stat-badge badge-blue">70%</span>
+        </div>
+      </div>
+
+      <div class="kpi-c">
+        <div class="kpi-c-lbl">⚠️ Vencen Hoy</div>
+        <div class="kpi-c-val" style="color:#ef4444;font-size:2rem;">6</div>
+        <div class="stat-row">
+          <span class="kpi-c-sub">Requieren atención</span>
+          <span class="stat-badge badge-red">Urgente</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

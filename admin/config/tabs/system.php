@@ -52,6 +52,20 @@
 		<small class="text-muted">Se imprimirá en la información de la factura.</small>
       </div>
 
+      <!-- DIRECCION -->
+      <div class="mb-3">
+        <label class="form-label"><strong>Dirección del Gimnasio</strong></label>
+        <input type="text" class="form-control" name="direccion_gym" value="<?= htmlspecialchars($settings['direccion_gym'] ?? '') ?>">
+        <small class="text-muted">Se imprimirá en certificados y documentos.</small>
+      </div>
+
+      <!-- CIUDAD -->
+      <div class="mb-3">
+        <label class="form-label"><strong>Ciudad</strong></label>
+        <input type="text" class="form-control" name="ciudad_gym" value="<?= htmlspecialchars($settings['ciudad_gym'] ?? '') ?>">
+        <small class="text-muted">Ej: Armenia, Quindío</small>
+      </div>
+
       <hr class="my-4">
 <!-- ===== COLORES DEL SISTEMA ===== -->
 <h5><i class="fas fa-palette me-2"></i>Colores del Sistema</h5>
