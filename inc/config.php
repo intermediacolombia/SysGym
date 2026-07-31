@@ -176,6 +176,8 @@ define('NIT_GYM', $settings['nit_gym'] ?? '');
 define('TEL_GYM', $settings['tel_gym'] ?? '');
 define('SITE_LOGO', '/admin/uploads/' . ($settings['system_logo'] ?? ''));
 define('SITE_ICON', '/admin/uploads/' . ($settings['system_favicon'] ?? ''));
+define('CONSENT_FIRMANTE', $settings['consent_firmante'] ?? '');
+define('CONSENT_FIRMA_IMG', !empty($settings['consent_firma_img']) ? '/admin/uploads/' . $settings['consent_firma_img'] : '');
 
 # ===============================
 #  SMTP

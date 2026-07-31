@@ -10,7 +10,7 @@ try {
     $uploadDir = __DIR__ . '/../uploads/';
     if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
-    $files = ['system_logo', 'system_favicon'];
+    $files = ['system_logo', 'system_favicon', 'consent_firma_img'];
     foreach ($files as $fileKey) {
         if (!empty($_FILES[$fileKey]['name'])) {
             $ext = pathinfo($_FILES[$fileKey]['name'], PATHINFO_EXTENSION);

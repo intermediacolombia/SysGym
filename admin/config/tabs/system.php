@@ -52,7 +52,29 @@
 		<small class="text-muted">Se imprimirá en la información de la factura.</small>
       </div>
 
-      <hr class="my-4">     
+      <hr class="my-4">
+
+      <!-- FIRMA CONSENTIMIENTO -->
+      <h5 class="mb-3">Firma del Consentimiento Informado</h5>
+
+      <div class="mb-3">
+        <label class="form-label"><strong>Nombre del Firmante</strong></label>
+        <input type="text" class="form-control" name="consent_firmante" value="<?= htmlspecialchars($settings['consent_firmante'] ?? '') ?>">
+        <small class="text-muted">Nombre que aparece al pie del consentimiento como responsable.</small>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label"><strong>Imagen de Firma</strong></label>
+        <?php if (!empty($settings['consent_firma_img'])): ?>
+          <div class="mb-2">
+            <img src="../uploads/<?= htmlspecialchars($settings['consent_firma_img']) ?>" alt="Firma actual" style="max-height: 80px;" class="border rounded bg-white p-1">
+          </div>
+        <?php endif; ?>
+        <input type="file" class="form-control" name="consent_firma_img" accept="image/*">
+        <small class="text-muted">PNG con fondo transparente recomendado. Se imprimirá en el PDF del consentimiento.</small>
+      </div>
+
+      <hr class="my-4">
 <!-- ===== COLORES DEL SISTEMA ===== -->
 <h5><i class="fas fa-palette me-2"></i>Colores del Sistema</h5>
 <div class="card border-0 shadow-sm">
