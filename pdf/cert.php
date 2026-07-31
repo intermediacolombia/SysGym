@@ -26,11 +26,17 @@ try {
     die("Error en la conexión: " . $e->getMessage());
 }
 
-$logoPath = $_SERVER['DOCUMENT_ROOT'] . SITE_LOGO;
-if (!file_exists($logoPath)) {
-    die("Error: No se encontró el logo en la ruta: " . $logoPath);
+$logoDataURI = '';
+$_siteLogo = defined('SITE_LOGO') ? SITE_LOGO : '';
+if ($_siteLogo) {
+    $logoPath = $_SERVER['DOCUMENT_ROOT'] . $_siteLogo;
+    if (file_exists($logoPath) && is_file($logoPath)) {
+        $logoData    = file_get_contents($logoPath);
+        $logoExt     = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION));
+        $logoMime    = in_array($logoExt, ['jpg','jpeg']) ? 'image/jpeg' : 'image/png';
+        $logoDataURI = 'data:' . $logoMime . ';base64,' . base64_encode($logoData);
+    }
 }
-$logoDataURI = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
 
 $genero = $cliente['genero'] ?? 'otro';
 if ($genero === 'masculino') { $titulo = 'el usuario'; $titulo2 = 'do'; }
@@ -105,9 +111,11 @@ function resolverCertTemplate($template, $cliente, $planInfo, $titulo, $titulo2)
 </head>
 <body>
 
+  <?php if ($logoDataURI): ?>
   <div class="logo">
     <img src="<?php echo $logoDataURI; ?>" width="150" alt="Logo">
   </div>
+  <?php endif; ?>
 
   <h4 style="color: #000;">CERTIFICADO DE VINCULACIÓN</h4>
 
