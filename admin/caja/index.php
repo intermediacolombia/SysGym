@@ -333,7 +333,7 @@ $tab-border-radius: 35px;
     </div>
 
 <!-- Toast container: ventas exitosas -->
-<div id="venta-toasts" style="position:fixed;top:50%;right:24px;transform:translateY(-50%);z-index:9999;display:flex;flex-direction:column-reverse;gap:10px;pointer-events:none;"></div>
+<div id="venta-toasts" style="position:fixed;top:80px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;"></div>
   <?php endif; ?>
   
 </div>
@@ -721,17 +721,14 @@ var bancosDisponibles = <?= json_encode(getBancosDisponibles()) ?>;
     var fmt = function(n){ return Number(n).toLocaleString('es-CO'); };
     var color = getComputedStyle(document.documentElement).getPropertyValue('--system-color-primary').trim() || '#198754';
     var toast = $('<div>').css({
-      background: '#fff',
-      color: '#222',
-      borderRadius: '10px',
-      borderTop: '4px solid ' + color,
-      borderBottom: '4px solid ' + color,
-      padding: '14px 20px',
-      minWidth: '270px', maxWidth: '320px',
-      boxShadow: '0 4px 18px rgba(0,0,0,0.13)',
+      background: '#fff', color: '#222', borderRadius: '10px',
+      borderTop: '4px solid ' + color, borderBottom: '4px solid ' + color,
+      padding: '14px 20px 14px 20px', minWidth: '270px', maxWidth: '320px',
+      boxShadow: '0 4px 18px rgba(0,0,0,0.13)', position: 'relative',
       opacity: 0, transform: 'translateX(80px)', transition: 'all 0.35s cubic-bezier(.4,0,.2,1)',
-      pointerEvents: 'none', lineHeight: '1.6'
+      lineHeight: '1.6'
     }).html(
+      '<button style="position:absolute;top:8px;right:10px;background:none;border:none;font-size:1.1em;color:#aaa;cursor:pointer;line-height:1;" class="toast-close">&times;</button>' +
       '<div style="font-size:1em;font-weight:700;margin-bottom:6px;color:' + color + '">Venta Registrada</div>' +
       '<div style="font-size:0.92em"><b>Producto:</b> ' + producto + '</div>' +
       '<div style="font-size:0.92em"><b>Metodo:</b> ' + metodo + '</div>' +
@@ -739,14 +736,14 @@ var bancosDisponibles = <?= json_encode(getBancosDisponibles()) ?>;
       '<hr style="border-color:#eee;margin:8px 0">' +
       '<div style="font-size:0.95em;font-weight:600;color:' + color + '">Total en caja: $' + fmt(totalCaja) + '</div>'
     );
-    $('#venta-toasts').prepend(toast);
-    // slide in
-    setTimeout(function(){ toast.css({opacity:1, transform:'translateX(0)'}); }, 10);
-    // slide out & remove
-    setTimeout(function(){
+    var cerrar = function() {
       toast.css({opacity:0, transform:'translateX(80px)'});
       setTimeout(function(){ toast.remove(); }, 400);
-    }, 5000);
+    };
+    toast.find('.toast-close').on('click', cerrar);
+    $('#venta-toasts').prepend(toast);
+    setTimeout(function(){ toast.css({opacity:1, transform:'translateX(0)'}); }, 10);
+    setTimeout(cerrar, 5000);
   };
 
 	//function refreshVentas(){
