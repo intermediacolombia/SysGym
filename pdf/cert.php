@@ -37,9 +37,18 @@ if ($genero === 'masculino') { $titulo = 'el usuario'; $titulo2 = 'do'; }
 elseif ($genero === 'femenino') { $titulo = 'la usuaria'; $titulo2 = 'da'; }
 else { $titulo = 'la/el usuario(a)'; $titulo2 = 'do(a)'; }
 
+$_certTemplate  = defined('CERT_TEMPLATE')  ? CERT_TEMPLATE  : '';
+$_certFirmante  = defined('CERT_FIRMANTE')  ? CERT_FIRMANTE  : '';
+$_certCargo     = defined('CERT_CARGO')     ? CERT_CARGO     : '';
+$_nameGym       = defined('NAME_GYM')       ? NAME_GYM       : '';
+$_telGym        = defined('TEL_GYM')        ? TEL_GYM        : '';
+$_direccionGym  = defined('DIRECCION_GYM')  ? DIRECCION_GYM  : '';
+$_ciudadGym     = defined('CIUDAD_GYM')     ? CIUDAD_GYM     : '';
+
 $certFirmaURI = '';
-if (CERT_FIRMA_IMG) {
-    $firmaPath = $_SERVER['DOCUMENT_ROOT'] . CERT_FIRMA_IMG;
+$_certFirmaImg = defined('CERT_FIRMA_IMG') ? CERT_FIRMA_IMG : '';
+if ($_certFirmaImg) {
+    $firmaPath = $_SERVER['DOCUMENT_ROOT'] . $_certFirmaImg;
     if (file_exists($firmaPath)) {
         $ext  = strtolower(pathinfo($firmaPath, PATHINFO_EXTENSION));
         $mime = ($ext === 'png') ? 'image/png' : 'image/jpeg';
@@ -69,7 +78,7 @@ function resolverCertTemplate($template, $cliente, $planInfo, $titulo, $titulo2)
         '{apellidos}'         => htmlspecialchars($cliente['apellidos']),
         '{nombre_completo}'   => htmlspecialchars($cliente['nombres'] . ' ' . $cliente['apellidos']),
         '{identificacion}'    => htmlspecialchars($cliente['identificacion']),
-        '{nombre_gym}'        => htmlspecialchars(NAME_GYM),
+        '{nombre_gym}'        => htmlspecialchars($GLOBALS['_nameGym']),
         '{fecha_vinculacion}' => $fechaVinculacion,
         '{plan_activo}'       => $plan,
         '{fecha_inicio_plan}' => $fechaInicio,
@@ -102,8 +111,8 @@ function resolverCertTemplate($template, $cliente, $planInfo, $titulo, $titulo2)
 
   <h4 style="color: #000;">CERTIFICADO DE VINCULACIÓN</h4>
 
-  <?php if (!empty(CERT_TEMPLATE)): ?>
-    <?php echo resolverCertTemplate(CERT_TEMPLATE, $cliente, $planInfo, $titulo, $titulo2); ?>
+  <?php if (!empty($_certTemplate)): ?>
+    <?php echo resolverCertTemplate($_certTemplate, $cliente, $planInfo, $titulo, $titulo2); ?>
   <?php else: ?>
     <p><strong>A QUIEN CORRESPONDA:</strong></p>
     <p>
@@ -112,7 +121,7 @@ function resolverCertTemplate($template, $cliente, $planInfo, $titulo, $titulo2)
       identifica<?php echo $titulo2; ?> con documento de identidad No.
       <strong><?php echo htmlspecialchars($cliente['identificacion']); ?></strong>,
       se encuentra vincula<?php echo $titulo2; ?> activamente a nuestro gimnasio
-      <strong><?php echo htmlspecialchars(NAME_GYM); ?></strong>
+      <strong><?php echo htmlspecialchars($_nameGym); ?></strong>
       desde el <strong style="text-transform: uppercase"><?php echo formatearFechaEnEspanol(substr($cliente['created_at'], 0, 10)); ?></strong>
       y su plan activo corresponde a
       <strong style="text-transform: uppercase"><?php echo $planInfo ? htmlspecialchars($planInfo['nombre']) : 'Sin Plan Asignado'; ?></strong>,
@@ -132,11 +141,11 @@ function resolverCertTemplate($template, $cliente, $planInfo, $titulo, $titulo2)
     <?php if ($certFirmaURI): ?>
       <img src="<?php echo $certFirmaURI; ?>" style="max-width:200px;max-height:80px;display:block;margin-bottom:4px;"><br>
     <?php endif; ?>
-    <strong><?php echo htmlspecialchars(CERT_FIRMANTE); ?></strong><br>
-    <?php echo htmlspecialchars(CERT_CARGO); ?><br>
-    <?php if (DIRECCION_GYM): ?><?php echo htmlspecialchars(DIRECCION_GYM); ?><br><?php endif; ?>
-    <?php if (TEL_GYM): ?>Tel. <?php echo htmlspecialchars(TEL_GYM); ?><br><?php endif; ?>
-    <?php echo htmlspecialchars(CIUDAD_GYM); ?>
+    <strong><?php echo htmlspecialchars($_certFirmante); ?></strong><br>
+    <?php echo htmlspecialchars($_certCargo); ?><br>
+    <?php if ($_direccionGym): ?><?php echo htmlspecialchars($_direccionGym); ?><br><?php endif; ?>
+    <?php if ($_telGym): ?>Tel. <?php echo htmlspecialchars($_telGym); ?><br><?php endif; ?>
+    <?php echo htmlspecialchars($_ciudadGym); ?>
   </p>
 
 </body>
