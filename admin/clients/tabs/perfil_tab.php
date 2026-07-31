@@ -332,7 +332,7 @@
               </div>
               <div class="mb-3">
                 <label for="fecha_plazo" class="form-label">Fecha de Plazo</label>
-                <input type="date" id="fecha_plazo" class="form-control">
+                <input type="date" id="fecha_plazo" class="form-control" min="<?= date('Y-m-d') ?>">
               </div>
             </div>
           <?php endif; ?>

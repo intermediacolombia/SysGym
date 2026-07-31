@@ -14,6 +14,10 @@ $valorPagado   = isset($valorPagado) ? floatval($valorPagado) : null;
 $fechaPlazo    = isset($fechaPlazo) && !empty($fechaPlazo)
                     ? $fechaPlazo
                     : date('Y-m-d', strtotime('+30 days'));
+if ($fechaPlazo < date('Y-m-d')) {
+    echo json_encode(['status' => 'error', 'message' => 'La fecha límite no puede ser anterior a hoy.']);
+    exit;
+}
 
 // ---------------------------------------------------------
 // Asegurar conexión con PDO
