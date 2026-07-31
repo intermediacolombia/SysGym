@@ -3,8 +3,17 @@ require_once __DIR__ . '/../login/session.php';
 header('Content-Type: application/json');
 
 try {
-    
+
     db()->exec("SET NAMES utf8mb4");
+
+    // Garantizar clave unica en setting_name (migracion automatica)
+    $indexes = db()->query("SHOW INDEX FROM system_settings WHERE Key_name = 'unique_setting_name'")->fetchAll();
+    if (empty($indexes)) {
+        // Eliminar duplicados dejando solo el mas reciente
+        db()->exec("DELETE s1 FROM system_settings s1 INNER JOIN system_settings s2
+            WHERE s1.setting_name = s2.setting_name AND s1.id < s2.id");
+        db()->exec("ALTER TABLE system_settings ADD UNIQUE KEY unique_setting_name (setting_name)");
+    }
 
     // === GUARDAR ARCHIVOS ===
     $uploadDir = __DIR__ . '/../uploads/';
