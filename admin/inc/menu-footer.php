@@ -169,14 +169,48 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Selectores rapidos de fecha
-  $(document).on('click', '.fecha-rapida', function() {
-    var dias = parseInt($(this).data('dias'));
-    var target = $(this).data('target');
-    var d = new Date();
-    d.setDate(d.getDate() + dias);
-    var val = d.toISOString().split('T')[0];
-    $('#' + target).val(val);
+  // Flatpickr con shortcuts de fecha para inputs de credito
+  var _atajos = [
+    { label: '5 días',   dias: 5  },
+    { label: '1 semana', dias: 7  },
+    { label: '15 días',  dias: 15 },
+    { label: '1 mes',    dias: 30 },
+  ];
+  function _sumarDias(n) {
+    var d = new Date(); d.setDate(d.getDate() + n); return d;
+  }
+  function _initFechaCredito(el) {
+    if (!el || el._flatpickr) return;
+    var color = getComputedStyle(document.documentElement).getPropertyValue('--system-color-primary').trim() || '#198754';
+    flatpickr(el, {
+      locale: 'es',
+      minDate: 'today',
+      dateFormat: 'Y-m-d',
+      onReady: function(_, __, fp) {
+        var bar = document.createElement('div');
+        bar.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;padding:8px 10px 6px;border-top:1px solid #eee;';
+        _atajos.forEach(function(a) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = a.label;
+          btn.style.cssText = 'flex:1;min-width:60px;font-size:0.78em;padding:3px 6px;border:1px solid ' + color + ';border-radius:4px;background:#fff;color:' + color + ';cursor:pointer;';
+          btn.addEventListener('mouseenter', function(){ this.style.background = color; this.style.color = '#fff'; });
+          btn.addEventListener('mouseleave', function(){ this.style.background = '#fff'; this.style.color = color; });
+          btn.addEventListener('click', function() { fp.setDate(_sumarDias(a.dias), true); fp.close(); });
+          bar.appendChild(btn);
+        });
+        fp.calendarContainer.appendChild(bar);
+      }
+    });
+  }
+  // Inicializar los inputs existentes y los que aparezcan en modales
+  ['fechaLimite','editCreditFechaLimite','fecha_plazo'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) _initFechaCredito(el);
+  });
+  // Para inputs dentro de modales que se renderizan tarde
+  $(document).on('show.bs.modal focus', '[id$="Limite"],[id="fecha_plazo"]', function() {
+    _initFechaCredito(this);
   });
 
   // Ocultar loader cuando TODO cargue (incluyendo im�genes)

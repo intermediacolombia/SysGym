@@ -486,12 +486,6 @@ $tab-border-radius: 35px;
           <div class="mb-3 d-none" id="fechaLimiteContainer">
   <label for="fechaLimite" class="form-label">Fecha Límite del Crédito</label>
   <input type="date" class="form-control" id="fechaLimite" name="fecha_limite" required min="<?= date('Y-m-d') ?>">
-  <div class="mt-1 d-flex gap-1 flex-wrap">
-    <button type="button" class="btn btn-outline-secondary btn-sm fecha-rapida" data-target="fechaLimite" data-dias="5">5 días</button>
-    <button type="button" class="btn btn-outline-secondary btn-sm fecha-rapida" data-target="fechaLimite" data-dias="7">1 semana</button>
-    <button type="button" class="btn btn-outline-secondary btn-sm fecha-rapida" data-target="fechaLimite" data-dias="15">15 días</button>
-    <button type="button" class="btn btn-outline-secondary btn-sm fecha-rapida" data-target="fechaLimite" data-dias="30">1 mes</button>
-  </div>
 </div>
         </div>
         <div class="modal-footer">
