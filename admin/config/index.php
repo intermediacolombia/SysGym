@@ -163,80 +163,53 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
-<script>
-$(document).ready(function(){
-  $("#configForm").submit(function(e){
-    e.preventDefault();
-
-    var formData = new FormData(this);
-    $.ajax({
-      url: $(this).attr("action"),
-      type: "POST",
-      data: formData,
-      contentType: false,
-      processData: false,
-      dataType: "json",
-      success: function(res){
-        Swal.fire({
-          icon: res.success ? 'success' : 'error',
-          title: res.success ? 'Éxito' : 'Error',
-          text: res.message
-        }).then(() => {
-          if(res.success) location.reload();
-        });
-      },
-      error: function(){
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'No se pudo guardar la configuración.'
-        });
-      }
-    });
-  });
-});
-</script>
-	
-	
-	<!-- Summernote CSS & JS -->
+<!-- Summernote CSS & JS -->
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
 
 <script>
 $(document).ready(function() {
-  $('#cert_template').summernote({
-    placeholder: 'Escribe aquí el texto del certificado usando los campos dinámicos...',
-    tabsize: 2,
-    height: 300,
-    toolbar: [
-      ['style', ['bold', 'italic', 'underline', 'clear']],
-      ['font', ['fontsize', 'color']],
-      ['para', ['ul', 'ol', 'paragraph']],
-      ['view', ['fullscreen', 'codeview']]
-    ]
+
+  var _snConfig = function(placeholder) {
+    return {
+      placeholder: placeholder,
+      tabsize: 2,
+      height: 300,
+      toolbar: [
+        ['style', ['bold', 'italic', 'underline', 'clear']],
+        ['font', ['fontsize', 'color']],
+        ['para', ['ul', 'ol', 'paragraph']],
+        ['insert', ['link', 'picture', 'video']],
+        ['view', ['fullscreen', 'codeview']]
+      ]
+    };
+  };
+
+  // Consentimiento: inicializar en su tab
+  $('#consent-tab').one('shown.bs.tab', function() {
+    if (!$('#wa_consent_html').data('summernote')) {
+      $('#wa_consent_html').summernote(_snConfig('Escribe aquí el consentimiento informado...'));
+    }
   });
 
-  // Inicializar Summernote solo cuando se muestre la pestaña
-  $('#wa_consent_html').summernote({
-    placeholder: 'Escribe aquí el consentimiento informado...',
-    tabsize: 2,
-    height: 300,
-    toolbar: [
-      ['style', ['bold', 'italic', 'underline', 'clear']],
-      ['font', ['fontsize', 'color']],
-      ['para', ['ul', 'ol', 'paragraph']],
-      ['insert', ['link', 'picture', 'video']],
-      ['view', ['fullscreen', 'codeview']]
-    ]
+  // Certificado: inicializar en su tab
+  $('#certificado-tab').one('shown.bs.tab', function() {
+    if (!$('#cert_template').data('summernote')) {
+      $('#cert_template').summernote(_snConfig('Escribe aquí el texto del certificado usando los campos dinámicos...'));
+    }
   });
 
-  // Guardar por AJAX
-  $("#configForm").off('submit').on('submit', function(e){
+  // Un solo handler de submit
+  $("#configForm").on('submit', function(e) {
     e.preventDefault();
+    var formData = new FormData(this);
 
-    const formData = new FormData(this);
-    formData.set('wa_consent_html', $('#wa_consent_html').summernote('code'));
-    formData.set('cert_template', $('#cert_template').summernote('code'));
+    if ($('#wa_consent_html').data('summernote')) {
+      formData.set('wa_consent_html', $('#wa_consent_html').summernote('code'));
+    }
+    if ($('#cert_template').data('summernote')) {
+      formData.set('cert_template', $('#cert_template').summernote('code'));
+    }
 
     $.ajax({
       url: $(this).attr("action"),
@@ -245,24 +218,21 @@ $(document).ready(function() {
       contentType: false,
       processData: false,
       dataType: "json",
-      success: function(res){
+      success: function(res) {
         Swal.fire({
           icon: res.success ? 'success' : 'error',
           title: res.success ? 'Éxito' : 'Error',
           text: res.message
-        }).then(() => {
-          if(res.success) location.reload();
+        }).then(function() {
+          if (res.success) location.reload();
         });
       },
-      error: function(){
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'No se pudo guardar la configuración.'
-        });
+      error: function() {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo guardar la configuración.' });
       }
     });
   });
+
 });
 </script>
 
