@@ -14,7 +14,7 @@ $producto_id = intval($_POST['producto_id']);
 $cantidad = intval($_POST['cantidad']);
 
 // Verificar que la venta exista y obtener el creditoId (si existe)
-$stmtSale = db()->prepare("SELECT valor, creditoId FROM ventas WHERE id = :id");
+$stmtSale = db()->prepare("SELECT v.valor, v.creditoId, v.caja_id, p.nombre AS detalle FROM ventas v LEFT JOIN productos p ON p.id = v.producto_id WHERE v.id = :id");
 $stmtSale->execute([':id' => $sale_id]);
 $sale = $stmtSale->fetch(PDO::FETCH_ASSOC);
 if (!$sale) {
@@ -49,10 +49,17 @@ try {
 
     db()->commit();
 
+    $stmtTotal = db()->prepare("SELECT IFNULL(SUM(valor), 0) AS total FROM ventas WHERE caja_id = :caja_id");
+    $stmtTotal->execute([':caja_id' => $sale['caja_id']]);
+    $total_caja = (int)$stmtTotal->fetchColumn();
+
     echo json_encode([
-        'status' => 'success',
-        'message' => 'Venta borrada y stock actualizado' . ($creditoId ? '. Crédito eliminado.' : ''),
-        'nuevo_stock' => $nuevo_stock
+        'status'     => 'success',
+        'message'    => 'Venta borrada y stock actualizado' . ($creditoId ? '. Credito eliminado.' : ''),
+        'nuevo_stock' => $nuevo_stock,
+        'detalle'    => $sale['detalle'] ?? '',
+        'valor'      => (int)$sale['valor'],
+        'total_caja' => $total_caja
     ]);
 } catch (Exception $e) {
     db()->rollBack();

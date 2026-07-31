@@ -717,9 +717,10 @@ $(function(){
 var bancosDisponibles = <?= json_encode(getBancosDisponibles()) ?>;
 	
   // ponytail: toast apilado de venta exitosa
-  window.mostrarToastVenta = function(producto, metodo, valor, totalCaja) {
+  window.mostrarToastVenta = function(producto, metodo, valor, totalCaja, colorOverride, titulo) {
     var fmt = function(n){ return Number(n).toLocaleString('es-CO'); };
-    var color = getComputedStyle(document.documentElement).getPropertyValue('--system-color-primary').trim() || '#198754';
+    var color = colorOverride || getComputedStyle(document.documentElement).getPropertyValue('--system-color-primary').trim() || '#198754';
+    titulo = titulo || 'Venta Registrada';
     var toast = $('<div>').css({
       background: '#fff', color: '#222', borderRadius: '10px',
       borderTop: '4px solid ' + color, borderBottom: '4px solid ' + color,
@@ -729,7 +730,7 @@ var bancosDisponibles = <?= json_encode(getBancosDisponibles()) ?>;
       lineHeight: '1.6'
     }).html(
       '<button style="position:absolute;top:8px;right:10px;background:none;border:none;font-size:1.1em;color:#aaa;cursor:pointer;line-height:1;" class="toast-close">&times;</button>' +
-      '<div style="font-size:1em;font-weight:700;margin-bottom:6px;color:' + color + '">Venta Registrada</div>' +
+      '<div style="font-size:1em;font-weight:700;margin-bottom:6px;color:' + color + '">' + titulo + '</div>' +
       '<div style="font-size:0.92em"><b>Producto:</b> ' + producto + '</div>' +
       '<div style="font-size:0.92em"><b>Metodo:</b> ' + metodo + '</div>' +
       '<div style="font-size:0.92em"><b>Valor:</b> $' + fmt(valor) + '</div>' +
@@ -945,16 +946,12 @@ function procesarVentaNormal(btn, pid, cant, precio, coste, totalConDescuento) {
           dataType: 'json',
           success: function(res){
             if(res.status==='success'){
-              $('#mensaje').html(`<div class='alert alert-success'>${res.message}</div>`);
-				$('#mensaje').stop(true, true).css('opacity', 1).show(); // Reinicia y muestra el mensaje
-setTimeout(function(){
-  $('#mensaje').fadeOut(1000); // Desvanece en 1 segundo
-}, 5000);
+              mostrarToastVenta(res.detalle || 'Producto', 'Eliminacion', '-' + res.valor, res.total_caja, '#dc3545', 'Venta Eliminada');
               var input = $(`#productos-table .cantidadVenta[data-producto-id='${productoId}']`);
               if(input.length){
                 input.closest('tr').find('td:nth-child(3)').text(res.nuevo_stock);
               }
-              setTimeout(function(){ 
+              setTimeout(function(){
                 ventasTable.ajax.reload(null, false);
                 refreshVentas();
               }, 500);
