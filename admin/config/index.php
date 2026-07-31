@@ -107,6 +107,12 @@ try {
       <i class="fas fa-file-signature"></i> Consentimiento Informado
     </button>
   </li>
+
+    <li class="nav-item" role="presentation">
+    <button class="nav-link" id="certificado-tab" data-bs-toggle="tab" data-bs-target="#certificado" type="button" role="tab">
+      <i class="fas fa-certificate"></i> Certificado
+    </button>
+  </li>
 		
 		<li class="nav-item" role="presentation">
   <button class="nav-link" id="smtp-tab" data-bs-toggle="tab" data-bs-target="#smtp" type="button" role="tab">
@@ -132,6 +138,7 @@ try {
      <?php require_once __DIR__ . '/tabs/whatsapp.php';?>
      <?php require_once __DIR__ . '/tabs/getaway.php';?>
 	<?php require_once __DIR__ . '/tabs/consent.php'; ?>
+	<?php require_once __DIR__ . '/tabs/cert.php'; ?>
 	<?php require_once __DIR__ . '/tabs/email.php'; ?>
 	<?php require_once __DIR__ . '/tabs/advanced.php'; ?>
 
@@ -197,6 +204,18 @@ $(document).ready(function(){
 
 <script>
 $(document).ready(function() {
+  $('#cert_template').summernote({
+    placeholder: 'Escribe aquí el texto del certificado usando los campos dinámicos...',
+    tabsize: 2,
+    height: 300,
+    toolbar: [
+      ['style', ['bold', 'italic', 'underline', 'clear']],
+      ['font', ['fontsize', 'color']],
+      ['para', ['ul', 'ol', 'paragraph']],
+      ['view', ['fullscreen', 'codeview']]
+    ]
+  });
+
   // Inicializar Summernote solo cuando se muestre la pestaña
   $('#wa_consent_html').summernote({
     placeholder: 'Escribe aquí el consentimiento informado...',
@@ -215,10 +234,9 @@ $(document).ready(function() {
   $("#configForm").off('submit').on('submit', function(e){
     e.preventDefault();
 
-    // Asegurar que el contenido HTML de Summernote se incluya
-    const htmlContent = $('#wa_consent_html').summernote('code');
     const formData = new FormData(this);
-    formData.set('wa_consent_html', htmlContent);
+    formData.set('wa_consent_html', $('#wa_consent_html').summernote('code'));
+    formData.set('cert_template', $('#cert_template').summernote('code'));
 
     $.ajax({
       url: $(this).attr("action"),

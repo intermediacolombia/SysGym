@@ -155,31 +155,10 @@ $logoDataURI = 'data:image/png;base64,' . $logoData;
       <td><?php echo str_replace('@', '&#64;', htmlspecialchars($clienteEmail)); ?></td>
     </tr>
   </table>
-  <table style="width:100%;margin-top:30px;">
-    <tr>
-      <td style="width:50%;padding:10px;vertical-align:bottom;">
-        <strong>FIRMA DEL CLIENTE:</strong><br>
-        <img src="<?php echo htmlspecialchars($formFirma); ?>" width="200px" alt="Firma cliente">
-      </td>
-      <td style="width:50%;padding:10px;vertical-align:bottom;text-align:center;">
-        <?php if (CONSENT_FIRMA_IMG && file_exists($_SERVER['DOCUMENT_ROOT'] . CONSENT_FIRMA_IMG)): ?>
-          <?php
-            $firmaPath = $_SERVER['DOCUMENT_ROOT'] . CONSENT_FIRMA_IMG;
-            $firmaExt = strtolower(pathinfo($firmaPath, PATHINFO_EXTENSION));
-            $firmaMime = ($firmaExt === 'png') ? 'image/png' : 'image/jpeg';
-            $firmaURI = 'data:' . $firmaMime . ';base64,' . base64_encode(file_get_contents($firmaPath));
-          ?>
-          <img src="<?= $firmaURI ?>" width="200px" alt="Firma responsable"><br>
-        <?php else: ?>
-          <br><br><br>
-        <?php endif; ?>
-        <?php if (CONSENT_FIRMANTE): ?>
-          <strong><?= htmlspecialchars(CONSENT_FIRMANTE) ?></strong><br>
-          <span style="font-size:11px;">Responsable</span>
-        <?php endif; ?>
-      </td>
-    </tr>
-  </table>
+  <div style="margin-top:30px;">
+    <strong>FIRMA DEL CLIENTE:</strong><br>
+    <img src="<?php echo htmlspecialchars($formFirma); ?>" width="200px" alt="Firma cliente">
+  </div>
   <!--fin lectura consentimiento-->
 </body>
 </html>
