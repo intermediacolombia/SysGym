@@ -169,6 +169,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
+  // Selectores rapidos de fecha
+  $(document).on('click', '.fecha-rapida', function() {
+    var dias = parseInt($(this).data('dias'));
+    var target = $(this).data('target');
+    var d = new Date();
+    d.setDate(d.getDate() + dias);
+    var val = d.toISOString().split('T')[0];
+    $('#' + target).val(val);
+  });
+
   // Ocultar loader cuando TODO cargue (incluyendo im�genes)
   window.addEventListener('load', () => {
     const loader = document.getElementById('page-loader');
