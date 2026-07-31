@@ -130,6 +130,12 @@
           <div class="mb-3">
             <label for="editCreditFechaLimite" class="form-label">Fecha Límite</label>
             <input type="date" class="form-control" id="editCreditFechaLimite" name="fecha_limite" min="<?= date('Y-m-d') ?>">
+            <div class="mt-1 d-flex gap-1 flex-wrap">
+              <button type="button" class="btn btn-outline-secondary btn-sm fecha-rapida" data-target="editCreditFechaLimite" data-dias="5">5 días</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm fecha-rapida" data-target="editCreditFechaLimite" data-dias="7">1 semana</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm fecha-rapida" data-target="editCreditFechaLimite" data-dias="15">15 días</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm fecha-rapida" data-target="editCreditFechaLimite" data-dias="30">1 mes</button>
+            </div>
           </div>
         </div>
         <div class="modal-footer d-flex justify-content-between">

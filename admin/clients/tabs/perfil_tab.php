@@ -333,6 +333,12 @@
               <div class="mb-3">
                 <label for="fecha_plazo" class="form-label">Fecha de Plazo</label>
                 <input type="date" id="fecha_plazo" class="form-control" min="<?= date('Y-m-d') ?>">
+                <div class="mt-1 d-flex gap-1 flex-wrap">
+                  <button type="button" class="btn btn-outline-secondary btn-sm fecha-rapida" data-target="fecha_plazo" data-dias="5">5 días</button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm fecha-rapida" data-target="fecha_plazo" data-dias="7">1 semana</button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm fecha-rapida" data-target="fecha_plazo" data-dias="15">15 días</button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm fecha-rapida" data-target="fecha_plazo" data-dias="30">1 mes</button>
+                </div>
               </div>
             </div>
           <?php endif; ?>
