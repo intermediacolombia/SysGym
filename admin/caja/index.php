@@ -948,7 +948,7 @@ function procesarVentaNormal(btn, pid, cant, precio, coste, totalConDescuento) {
           dataType: 'json',
           success: function(res){
             if(res.status==='success'){
-              mostrarToastVenta(res.detalle || 'Producto', 'Eliminacion', '-' + res.valor, res.total_caja, '#dc3545', 'Venta Eliminada');
+              mostrarToastVenta(res.detalle || 'Producto', 'Eliminacion', '-' + res.valor, res.total_caja, null, 'Venta Eliminada');
               var input = $(`#productos-table .cantidadVenta[data-producto-id='${productoId}']`);
               if(input.length){
                 input.closest('tr').find('td:nth-child(3)').text(res.nuevo_stock);
@@ -1174,7 +1174,7 @@ $(document).ready(function(){
       dataType: 'json',
       success: function(res){
         if(res.status === 'success'){
-          mostrarToastVenta(res.detalle, 'Egreso', '-' + res.valor, res.total_caja, '#dc3545', 'Egreso Registrado');
+          mostrarToastVenta(res.detalle, 'Egreso', '-' + res.valor, res.total_caja, null, 'Egreso Registrado');
           $('#modalEgreso').modal('hide');
           setTimeout(function(){ refreshVentas(); }, 500);
         } else {
