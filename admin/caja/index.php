@@ -331,6 +331,9 @@ $tab-border-radius: 35px;
       </div>
 		<div id="mensaje"></div>
     </div>
+
+<!-- Toast container: ventas exitosas -->
+<div id="venta-toasts" style="position:fixed;top:50%;right:24px;transform:translateY(-50%);z-index:9999;display:flex;flex-direction:column-reverse;gap:10px;pointer-events:none;"></div>
   <?php endif; ?>
   
 </div>
@@ -713,6 +716,33 @@ $(function(){
 	// Bancos disponibles desde PHP
 var bancosDisponibles = <?= json_encode(getBancosDisponibles()) ?>;
 	
+  // ponytail: toast apilado de venta exitosa
+  window.mostrarToastVenta = function(producto, metodo, valor, totalCaja) {
+    var fmt = function(n){ return Number(n).toLocaleString('es-CO'); };
+    var toast = $('<div>').css({
+      background: 'linear-gradient(135deg,#1a7a4a 0%,#25a56a 100%)',
+      color: '#fff', borderRadius: '14px', padding: '16px 22px',
+      minWidth: '280px', maxWidth: '340px', boxShadow: '0 6px 24px rgba(0,0,0,0.25)',
+      opacity: 0, transform: 'translateX(80px)', transition: 'all 0.35s cubic-bezier(.4,0,.2,1)',
+      pointerEvents: 'none', lineHeight: '1.5'
+    }).html(
+      '<div style="font-size:1.1em;font-weight:700;margin-bottom:4px">✅ Venta Registrada</div>' +
+      '<div style="font-size:0.97em"><b>Producto:</b> ' + producto + '</div>' +
+      '<div style="font-size:0.97em"><b>Método:</b> ' + metodo + '</div>' +
+      '<div style="font-size:0.97em"><b>Valor:</b> $' + fmt(valor) + '</div>' +
+      '<hr style="border-color:rgba(255,255,255,0.3);margin:8px 0">' +
+      '<div style="font-size:1em;font-weight:600">💰 Total en caja: $' + fmt(totalCaja) + '</div>'
+    );
+    $('#venta-toasts').prepend(toast);
+    // slide in
+    setTimeout(function(){ toast.css({opacity:1, transform:'translateX(0)'}); }, 10);
+    // slide out & remove
+    setTimeout(function(){
+      toast.css({opacity:0, transform:'translateX(80px)'});
+      setTimeout(function(){ toast.remove(); }, 400);
+    }, 5000);
+  };
+
 	//function refreshVentas(){
 	window.refreshVentas = function(){
   console.log("Ejecutando refreshVentas...");
@@ -866,12 +896,7 @@ function procesarVentaNormal(btn, pid, cant, precio, coste, totalConDescuento) {
     dataType: 'json',
     success: function(res){
       if(res.status === 'success'){
-        $('#mensaje').html(`<div class='alert alert-success'>${res.message}</div>`);
-        $('#mensaje').stop(true, true).css('opacity', 1).show(); // Reinicia y muestra el mensaje
-        setTimeout(function(){
-          $('#mensaje').fadeOut(1000); // Desvanece en 1 segundo
-        }, 5000);
-		  
+        mostrarToastVenta(detalle, paymentMethod, totalConDescuento || Math.round(cant * precio), res.total_caja);
         btn.closest('tr').find('td:nth-child(3)').text(res.nuevo_stock);
         btn.closest('tr').find('.cantidadVenta').val(1);
         // Usar delay para refrescar totales y tabla
@@ -1328,9 +1353,7 @@ $(function () {
             if (res2.status !== 'success') {
               Swal.fire('Atención', 'El segundo pago no se registró, revísalo manualmente.', 'warning');
             } else {
-              $('#mensaje').html(`<div class='alert alert-success'>Pagos registrados correctamente.</div>`)
-                           .stop(true, true).css('opacity', 1).show();
-              setTimeout(()=> $('#mensaje').fadeOut(1000), 5000);
+              mostrarToastVenta(detalle, m1 + ' / ' + m2, total, res2.total_caja);
             }
 
             $('#modalSplit').modal('hide');
