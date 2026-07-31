@@ -717,9 +717,11 @@ $(function(){
 var bancosDisponibles = <?= json_encode(getBancosDisponibles()) ?>;
 	
   // ponytail: toast apilado de venta exitosa
+  var _sysColor = getComputedStyle(document.documentElement).getPropertyValue('--system-color-primary').trim() || '#198754';
+
   window.mostrarToastVenta = function(producto, metodo, valor, totalCaja, colorOverride, titulo) {
     var fmt = function(n){ return Number(n).toLocaleString('es-CO'); };
-    var color = colorOverride || getComputedStyle(document.documentElement).getPropertyValue('--system-color-primary').trim() || '#198754';
+    var color = colorOverride || _sysColor;
     titulo = titulo || 'Venta Registrada';
     var toast = $('<div>').css({
       background: '#fff', color: '#222', borderRadius: '10px',
@@ -1172,9 +1174,9 @@ $(document).ready(function(){
       dataType: 'json',
       success: function(res){
         if(res.status === 'success'){
-          Swal.fire('Egreso Registrado', res.message, 'success').then(function(){
-            location.reload();
-          });
+          mostrarToastVenta(res.detalle, 'Egreso', '-' + res.valor, res.total_caja, '#dc3545', 'Egreso Registrado');
+          $('#modalEgreso').modal('hide');
+          setTimeout(function(){ refreshVentas(); }, 500);
         } else {
           Swal.fire('Error', res.message, 'error');
         }
@@ -1405,9 +1407,9 @@ $(document).ready(function(){
       dataType: 'json',
       success: function(res){
         if(res.status === 'success'){
-          Swal.fire('Ingreso Registrado', res.message, 'success').then(function(){
-            location.reload();
-          });
+          mostrarToastVenta(res.detalle, res.metodo, res.valor, res.total_caja, null, 'Ingreso Registrado');
+          $('#modalIngreso').modal('hide');
+          setTimeout(function(){ refreshVentas(); }, 500);
         } else {
           Swal.fire('Error', res.message, 'error');
         }

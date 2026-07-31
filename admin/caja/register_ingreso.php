@@ -70,7 +70,10 @@ if($stmtInsert->execute([
     log_action('Registrar Ingreso', $desc, 'Caja');
     // === Fin LOG ===
 
-    echo json_encode(['status'=>'success', 'message'=>'Ingreso registrado correctamente.']);
+    $stmtTotal = db()->prepare("SELECT IFNULL(SUM(valor), 0) AS total FROM ventas WHERE caja_id = :caja_id");
+    $stmtTotal->execute([':caja_id' => $caja_id]);
+    $total_caja = (int)$stmtTotal->fetchColumn();
+    echo json_encode(['status'=>'success', 'message'=>'Ingreso registrado correctamente.', 'detalle'=>$detalle, 'valor'=>$valor, 'metodo'=>$metodo, 'total_caja'=>$total_caja]);
 
 } else {
     echo json_encode(['status'=>'error', 'message'=>'Error al registrar el ingreso.']);

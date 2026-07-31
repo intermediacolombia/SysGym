@@ -61,7 +61,10 @@ $desc = json_encode([
 ], JSON_UNESCAPED_UNICODE);
 log_action('Registrar Egresos', $desc, 'Caja');
 // END LOGS
-    echo json_encode(['status'=>'success', 'message'=>'Egreso registrado correctamente.']);
+    $stmtTotal = db()->prepare("SELECT IFNULL(SUM(valor), 0) AS total FROM ventas WHERE caja_id = :caja_id");
+    $stmtTotal->execute([':caja_id' => $caja_id]);
+    $total_caja = (int)$stmtTotal->fetchColumn();
+    echo json_encode(['status'=>'success', 'message'=>'Egreso registrado correctamente.', 'detalle'=>$detalle, 'valor'=>$valorInput, 'total_caja'=>$total_caja]);
 } else {
     echo json_encode(['status'=>'error', 'message'=>'Error al registrar el egreso.']);
 }
