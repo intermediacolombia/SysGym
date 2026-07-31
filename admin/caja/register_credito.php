@@ -125,10 +125,15 @@ log_action('Registrar Creditos', $desc, 'Caja');
     $nuevoProducto = $stmtNewStock->fetch(PDO::FETCH_ASSOC);
     $nuevo_stock = $nuevoProducto ? $nuevoProducto['stock'] : 0;
 
+    $stmtTotal = db()->prepare("SELECT IFNULL(SUM(valor), 0) AS total FROM ventas WHERE caja_id = :caja_id");
+    $stmtTotal->execute([':caja_id' => $caja_id]);
+    $total_caja = (int)$stmtTotal->fetchColumn();
+
     echo json_encode([
-        'status' => 'success',
-        'message' => 'Venta registrada correctamente',
-        'nuevo_stock' => $nuevo_stock
+        'status'     => 'success',
+        'message'    => 'Venta registrada correctamente',
+        'nuevo_stock' => $nuevo_stock,
+        'total_caja' => $total_caja
     ]);
 } catch (Exception $e) {
     db()->rollBack();

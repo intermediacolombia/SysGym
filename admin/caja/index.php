@@ -719,19 +719,25 @@ var bancosDisponibles = <?= json_encode(getBancosDisponibles()) ?>;
   // ponytail: toast apilado de venta exitosa
   window.mostrarToastVenta = function(producto, metodo, valor, totalCaja) {
     var fmt = function(n){ return Number(n).toLocaleString('es-CO'); };
+    var color = getComputedStyle(document.documentElement).getPropertyValue('--system-color-primary').trim() || '#198754';
     var toast = $('<div>').css({
-      background: 'linear-gradient(135deg,#1a7a4a 0%,#25a56a 100%)',
-      color: '#fff', borderRadius: '14px', padding: '16px 22px',
-      minWidth: '280px', maxWidth: '340px', boxShadow: '0 6px 24px rgba(0,0,0,0.25)',
+      background: '#fff',
+      color: '#222',
+      borderRadius: '10px',
+      borderTop: '4px solid ' + color,
+      borderBottom: '4px solid ' + color,
+      padding: '14px 20px',
+      minWidth: '270px', maxWidth: '320px',
+      boxShadow: '0 4px 18px rgba(0,0,0,0.13)',
       opacity: 0, transform: 'translateX(80px)', transition: 'all 0.35s cubic-bezier(.4,0,.2,1)',
-      pointerEvents: 'none', lineHeight: '1.5'
+      pointerEvents: 'none', lineHeight: '1.6'
     }).html(
-      '<div style="font-size:1.1em;font-weight:700;margin-bottom:4px">Venta Registrada</div>' +
-      '<div style="font-size:0.97em"><b>Producto:</b> ' + producto + '</div>' +
-      '<div style="font-size:0.97em"><b>Metodo:</b> ' + metodo + '</div>' +
-      '<div style="font-size:0.97em"><b>Valor:</b> $' + fmt(valor) + '</div>' +
-      '<hr style="border-color:rgba(255,255,255,0.3);margin:8px 0">' +
-      '<div style="font-size:1em;font-weight:600">Total en caja: $' + fmt(totalCaja) + '</div>'
+      '<div style="font-size:1em;font-weight:700;margin-bottom:6px;color:' + color + '">Venta Registrada</div>' +
+      '<div style="font-size:0.92em"><b>Producto:</b> ' + producto + '</div>' +
+      '<div style="font-size:0.92em"><b>Metodo:</b> ' + metodo + '</div>' +
+      '<div style="font-size:0.92em"><b>Valor:</b> $' + fmt(valor) + '</div>' +
+      '<hr style="border-color:#eee;margin:8px 0">' +
+      '<div style="font-size:0.95em;font-weight:600;color:' + color + '">Total en caja: $' + fmt(totalCaja) + '</div>'
     );
     $('#venta-toasts').prepend(toast);
     // slide in
@@ -1067,15 +1073,16 @@ $(document).on('click', '.cliente-item', function () {
     dataType: 'json',
     success: function (res) {
       if (res.status === 'success') {
-        Swal.fire('Venta Registrada', res.message, 'success').then(function () {
-          location.reload();
-        });
+        var detalle = $tr.find('td:first').text().trim();
+        mostrarToastVenta(detalle, paymentMethod + ' (Credito)', totalConDescuento, res.total_caja);
+        $('#modalCredito').modal('hide');
+        setTimeout(function(){ location.reload(); }, 5200);
       } else {
         Swal.fire('Error', res.message, 'error');
       }
     },
     error: function () {
-      Swal.fire('Error', 'No se pudo registrar la venta a crédito.', 'error');
+      Swal.fire('Error', 'No se pudo registrar la venta a credito.', 'error');
     }
   });
 });
