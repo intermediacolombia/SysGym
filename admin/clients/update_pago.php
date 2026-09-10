@@ -100,8 +100,9 @@ try {
             // Tiqueteras: siempre arrancan hoy sin importar nada
             $inicio = clone $hoy;
         } else {
-            $estaVencidoOVenceHoy = (!$vencAnterior) || ($vencAnterior <= $hoy);
-            $inicio = $estaVencidoOVenceHoy ? clone $hoy : (clone $vencAnterior)->modify('+1 day');
+            // El dia de vencimiento sigue vigente: la renovacion comienza al dia siguiente.
+            $estaVencido = (!$vencAnterior) || ($vencAnterior < $hoy);
+            $inicio = $estaVencido ? clone $hoy : (clone $vencAnterior)->modify('+1 day');
         }
 
         $nuevoVencimiento = $calcFechaFin($inicio, $planMeses, $planDias);
