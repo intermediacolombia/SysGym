@@ -87,7 +87,7 @@ $stmtEgresos->execute([':caja_id' => $caja_id_detail_detail]);
 $rowEgresos = $stmtEgresos->fetch(PDO::FETCH_ASSOC);
 $totalEgresos = $rowEgresos ? abs(floatval($rowEgresos['total_egresos'])) : 0.0;
 
-$totalCaja = $base + $totalVentas;
+$totalCaja = $totalEfectivo - $totalEgresos + $totalTransferencias;
 
 // 4. Consulta para obtener los totales de ventas por bolsillo
 $stmtBolsillos = db()->prepare("SELECT IFNULL(b.nombre, 'Facturas') AS bolsillo, IFNULL(SUM(v.valor), 0) AS total 
@@ -175,13 +175,13 @@ if ($caja['usuario_id'] != $id_user &&
             <strong>Base:</strong> $<?php echo number_format($base, 0, '', '.'); ?>
           </p>
           <p class="mb-2">
-            <strong>Total Vendido (Efectivo):</strong> $<?php echo number_format($totalEfectivo, 0, '', '.'); ?>
+            <strong>Ventas en Efectivo:</strong> $<?php echo number_format($totalEfectivo, 0, '', '.'); ?>
           </p>
           <p class="mb-2">
-            <strong>Egresos:</strong> $-<?php echo number_format($totalEgresos, 0, '', '.'); ?>
+            <strong>Total Egresos:</strong> $-<?php echo number_format($totalEgresos, 0, '', '.'); ?>
           </p>
           <p class="mb-2">
-            <strong>Total Base + Efectivo<?php if($totalEgresos > 0): ?> - Egresos<?php endif; ?>:</strong> $<?php echo number_format($base + $totalEfectivo - $totalEgresos, 0, '', '.'); ?>
+            <strong>Total Efectivo:</strong> $<?php echo number_format($totalEfectivo - $totalEgresos, 0, '', '.'); ?>
           </p>
           
           <hr>
