@@ -26,16 +26,33 @@ if (!$cajaAbierta || ((int)$cajaAbierta['estado']) !== 1) {
 $base = (float)$cajaAbierta['monto_inicial'];
 
 // Consultar el total de ventas para la caja abierta
-$stmtVentas = db()->prepare("
-    SELECT IFNULL(SUM(valor), 0) AS total_ventas
-    FROM ventas
-    WHERE caja_id = :caja_id
-");
+$stmtVentas = db()->prepare("SELECT IFNULL(SUM(valor), 0) AS total_ventas FROM ventas WHERE caja_id = :caja_id");
 $stmtVentas->execute([':caja_id' => $cajaAbierta['id']]);
 $rowVentas = $stmtVentas->fetch(PDO::FETCH_ASSOC);
 $totalVentas = $rowVentas ? (float)$rowVentas['total_ventas'] : 0.0;
 
-// Calcular total_cierre = base + total_vendido
+// Efectivo, egresos y transferencias por banco para el modal de resumen
+$stmtEf = db()->prepare("SELECT IFNULL(SUM(valor),0) FROM ventas WHERE caja_id=:id AND payment_method='Efectivo'");
+$stmtEf->execute([':id' => $cajaAbierta['id']]);
+$efectivo = (float)$stmtEf->fetchColumn();
+
+$stmtEg = db()->prepare("SELECT IFNULL(SUM(valor),0) FROM ventas WHERE caja_id=:id AND payment_method='Egreso'");
+$stmtEg->execute([':id' => $cajaAbierta['id']]);
+$egresos = abs((float)$stmtEg->fetchColumn());
+
+$bancos = getBancosDisponibles();
+$transferByBank = array_fill_keys($bancos, 0);
+$stmtTr = db()->prepare("SELECT bank, IFNULL(SUM(valor),0) as t FROM ventas WHERE caja_id=:id AND payment_method='Transferencia' GROUP BY bank");
+$stmtTr->execute([':id' => $cajaAbierta['id']]);
+$totalTransferencias = 0;
+foreach ($stmtTr->fetchAll(PDO::FETCH_ASSOC) as $row) {
+    $b = $row['bank'] ?: 'Otro';
+    if (array_key_exists($b, $transferByBank)) $transferByBank[$b] = (float)$row['t'];
+    $totalTransferencias += (float)$row['t'];
+}
+$totalTurno = $efectivo - $egresos + $totalTransferencias;
+
+// Calcular total_cierre = base + total_vendido (guardado en DB)
 $totalCierre = $base + $totalVentas;
 
 // Obtener la fecha y la hora actuales para el cierre
@@ -77,11 +94,15 @@ if ($stmtUpdate->execute([
     ':id'            => $cajaAbierta['id']
 ])) {
     echo json_encode([
-        'status'  => 'success',
-        'message' => 'Caja cerrada exitosamente. ' 
-                    . 'Base: $' . number_format($base, 0, '', '.')
-                    . ' / Ventas: $' . number_format($totalVentas, 0, '', '.')
-                    . ' / Total en caja: $' . number_format($totalCierre, 0, '', '.')
+        'status'             => 'success',
+        'message'            => 'Caja cerrada exitosamente.',
+        'base'               => $base,
+        'efectivo'           => $efectivo,
+        'egresos'            => $egresos,
+        'totalEfectivo'      => $efectivo - $egresos,
+        'transferencias'     => $transferByBank,
+        'totalTransferencias'=> $totalTransferencias,
+        'totalTurno'         => $totalTurno,
     ]);
 } else {
     echo json_encode([

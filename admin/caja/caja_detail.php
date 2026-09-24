@@ -161,71 +161,86 @@ if ($caja['usuario_id'] != $id_user &&
     </div>
   </div>
 
-  <!-- Resumen Detallado de la Caja -->
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-header bg-danger text-white">
-      <h5 class="card-title mb-0">Resumen de Caja</h5>
+  <!-- Resumen de Caja -->
+<div class="card border-0 mb-4" style="border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.10)">
+  <div class="card-header border-0 d-flex align-items-center gap-2 py-3" style="background:linear-gradient(135deg,#b91c1c,#ef4444)">
+    <i class="fas fa-cash-register fa-lg text-white"></i>
+    <h5 class="card-title mb-0 text-white fw-bold">Resumen de Caja</h5>
+  </div>
+  <div class="card-body p-4" style="background:#fafafa">
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="rounded-3 p-3 text-center h-100" style="background:#f0fdf4;border:1.5px solid #86efac">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#15803d"><i class="fas fa-coins me-1"></i>Base</div>
+          <div class="mt-1" style="font-size:1.35rem;font-weight:800;color:#166534">$<?php echo number_format($base, 0, '', '.'); ?></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="rounded-3 p-3 text-center h-100" style="background:#eff6ff;border:1.5px solid #93c5fd">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#1d4ed8"><i class="fas fa-hand-holding-usd me-1"></i>Ventas Efectivo</div>
+          <div class="mt-1" style="font-size:1.35rem;font-weight:800;color:#1e3a8a">$<?php echo number_format($totalEfectivo, 0, '', '.'); ?></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="rounded-3 p-3 text-center h-100" style="background:#fff7ed;border:1.5px solid #fdba74">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#c2410c"><i class="fas fa-minus-circle me-1"></i>Egresos</div>
+          <div class="mt-1" style="font-size:1.35rem;font-weight:800;color:#9a3412">-$<?php echo number_format($totalEgresos, 0, '', '.'); ?></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="rounded-3 p-3 text-center h-100" style="background:#fdf4ff;border:1.5px solid #d8b4fe">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#7e22ce"><i class="fas fa-wallet me-1"></i>Total Efectivo</div>
+          <div class="mt-1" style="font-size:1.35rem;font-weight:800;color:#581c87">$<?php echo number_format($totalEfectivo - $totalEgresos, 0, '', '.'); ?></div>
+        </div>
+      </div>
     </div>
-    <div class="card-body">
-      <div class="row">
-        <!-- Columna Efectivo -->
-        <div class="col-md-6 border-end">
-          <h6 class="text-uppercase text-muted mb-3"><i class='fas fa-coins'></i> Efectivo</h6>
-          <p class="mb-2">
-            <strong>Base:</strong> $<?php echo number_format($base, 0, '', '.'); ?>
-          </p>
-          <p class="mb-2">
-            <strong>Ventas en Efectivo:</strong> $<?php echo number_format($totalEfectivo, 0, '', '.'); ?>
-          </p>
-          <p class="mb-2">
-            <strong>Total Egresos:</strong> $-<?php echo number_format($totalEgresos, 0, '', '.'); ?>
-          </p>
-          <p class="mb-2">
-            <strong>Total Efectivo:</strong> $<?php echo number_format($totalEfectivo - $totalEgresos, 0, '', '.'); ?>
-          </p>
-          
-          <hr>
-          <h6 class="text-uppercase text-muted mb-3"><i class='fab fa-get-pocket'></i> Bolsillos</h6>
-          <div class="alert alert-danger" role="alert" style="font-size: 12px;">
-            <strong style="color: red;">Nota:</strong> Esta información no se suma, solo se identifica cuanto debe ir en cada bolsillo y solo contempla el dinero en efectivo en la caja.
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="rounded-3 p-3 h-100" style="background:#fff;border:1.5px solid #e2e8f0">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="fab fa-get-pocket" style="color:#64748b"></i>
+            <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b">Bolsillos</span>
           </div>
-          
+          <div class="alert alert-warning py-2 px-3 mb-2" style="font-size:11px">Solo referencia de efectivo — no se suma al total.</div>
           <?php if(count($bolsillos) > 0): ?>
             <?php foreach($bolsillos as $b): ?>
-              <strong><?php echo htmlspecialchars($b['bolsillo']); ?>:</strong>
-              $<?php echo number_format($b['total'], 0, '', '.'); ?><br>
+              <div class="d-flex justify-content-between" style="font-size:13px"><span><?php echo htmlspecialchars($b['bolsillo']); ?></span><strong>$<?php echo number_format($b['total'], 0, '', '.'); ?></strong></div>
             <?php endforeach; ?>
           <?php else: ?>
-            <p>No se registraron ventas por bolsillo.</p>
+            <p class="text-muted mb-0" style="font-size:13px">Sin ventas por bolsillo.</p>
           <?php endif; ?>
         </div>
-        
-        <!-- Columna Transferencias (DINÁMICA) -->
-        <div class="col-md-6">
-          <h6 class="text-uppercase text-muted mb-3"><i class="fa fa-bank"></i> Transferencias</h6>
-          <p class="mb-2">
-            <strong>Total Transferencias:</strong> $<?php echo number_format($totalTransferencias, 0, '', '.'); ?>
-          </p>
+      </div>
+      <div class="col-md-6">
+        <div class="rounded-3 p-3 h-100" style="background:#fff;border:1.5px solid #e2e8f0">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="fa fa-bank" style="color:#64748b"></i>
+            <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b">Transferencias</span>
+            <span class="ms-auto fw-bold" style="color:#1e40af">$<?php echo number_format($totalTransferencias, 0, '', '.'); ?></span>
+          </div>
           <?php if(count($transferByBank) > 0): ?>
           <ul class="list-group list-group-flush">
             <?php foreach($transferByBank as $bank => $amount): ?>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <?php echo htmlspecialchars($bank); ?>
-                <span>$<?php echo number_format($amount, 0, '', '.'); ?></span>
-              </li>
+            <li class="list-group-item px-0 py-1 d-flex justify-content-between align-items-center" style="font-size:13px;border-color:#f1f5f9">
+              <?php echo htmlspecialchars($bank); ?>
+              <span class="badge" style="background:#dbeafe;color:#1e40af;font-size:12px">$<?php echo number_format($amount, 0, '', '.'); ?></span>
+            </li>
             <?php endforeach; ?>
           </ul>
           <?php else: ?>
-            <p>No se registraron transferencias.</p>
+            <p class="text-muted mb-0" style="font-size:13px">Sin transferencias.</p>
           <?php endif; ?>
         </div>
       </div>
-      <hr class="my-4">
-      <div class="text-center">
-        <h4 class="mb-3">Total Turno: $<?php echo number_format($totalCaja, 0, '', '.'); ?></h4>
-      </div>
     </div>
   </div>
+  <div class="card-footer border-0 d-flex align-items-center justify-content-center py-4 px-4" style="background:linear-gradient(135deg,#1e293b,#334155)">
+    <div class="text-center">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:#94a3b8">Total Turno</div>
+      <div style="font-size:2rem;font-weight:900;color:#fff">$<?php echo number_format($totalCaja, 0, '', '.'); ?></div>
+    </div>
+  </div>
+</div>
   
   <!-- Tabla de ventas realizadas -->
   <h3>Ventas Realizadas</h3>

@@ -144,70 +144,78 @@ $tab-border-radius: 35px;
     <button class="btn btn-primary mb-3" id="btnAbrirCaja">Abrir Caja</button>
     <div class="alert alert-danger">No tienes una caja abierta. Por favor abre la caja para continuar con las ventas.</div>
   <?php else: ?>
-    <!-- Bloque de totales detallados -->
-   <div class="card shadow-sm border-0 mb-4">
-  <div class="card-header bg-danger text-white">
-    <h5 class="card-title mb-0">Resumen de Caja</h5>
+    <!-- Resumen de Caja -->
+<div class="card border-0 mb-4" style="border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.10)">
+  <div class="card-header border-0 d-flex align-items-center gap-2 py-3" style="background:linear-gradient(135deg,#b91c1c,#ef4444)">
+    <i class="fas fa-cash-register fa-lg text-white"></i>
+    <h5 class="card-title mb-0 text-white fw-bold">Resumen de Caja</h5>
   </div>
-  <div class="card-body">
-    <div class="row">
-      <!-- Columna de Efectivo -->
-      <div class="col-md-6 border-end">
-        <h6 class="text-uppercase text-muted mb-3"><i class='fas fa-coins'></i> Efectivo</h6>
-        <p class="mb-2">
-          <strong>Base:</strong> $<span id="baseCaja2"><?php echo number_format($base, 0, '', '.'); ?></span>
-        </p>
-        <p class="mb-2">
-          <strong>Ventas en Efectivo:</strong> $<span id="efectivoVentas">0</span>
-        </p>
-        <p class="mb-2">
-          <strong>Total Egresos:</strong> $-<span id="egresosTotal">0</span>
-        </p>
-        <p class="mb-2">
-          <strong>Total Efectivo:</strong> $<span id="efectivoTotal">0</span>
-        </p>
-        
-		  
-		  
-		  
-		  	
-		  <hr>
-		  <h6 class="text-uppercase text-muted mb-3" title=""><i class='fab fa-get-pocket'></i> Bolsillos</h6>
-		  <div class="alert alert-danger" role="alert" style="font-size: 12px;"><strong style="color: red;">Nota:</strong> Esta información no se suma, solo se identifica cuanto debe ir en cada bolsillo y solo contempla el dinero en efectivo en la caja.</div>
-		  <div id="bolsillosContainer"></div>
-		  
-		  
-		  
+  <div class="card-body p-4" style="background:#fafafa">
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="rounded-3 p-3 text-center h-100" style="background:#f0fdf4;border:1.5px solid #86efac">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#15803d"><i class="fas fa-coins me-1"></i>Base</div>
+          <div class="mt-1" style="font-size:1.35rem;font-weight:800;color:#166534">$<span id="baseCaja2"><?php echo number_format($base, 0, '', '.'); ?></span></div>
+        </div>
       </div>
-		
-		
-      <!-- Columna de Transferencias -->
-<div class="col-md-6">
-  <h6 class="text-uppercase text-muted mb-3"><i class="fa fa-bank"></i> Transferencias</h6>
-  <p class="mb-2">
-    <strong>Total Transferencias:</strong> $<span id="totalTransferencias">0</span>
-  </p>
-  <ul class="list-group list-group-flush" id="listaBancosTransferencias">
-    <?php foreach(getBancosDisponibles() as $banco): 
-      $bancoId = preg_replace('/[^a-zA-Z0-9]/', '', $banco);
-    ?>
-    <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
-      <?= htmlspecialchars($banco) ?>
-      <span>$<span id="transfer<?= $bancoId ?>" class="transfer-banco" data-banco="<?= htmlspecialchars($banco) ?>">0</span></span>
-    </li>
-    <?php endforeach; ?>
-  </ul>
-</div>
-		
-		
+      <div class="col-6 col-md-3">
+        <div class="rounded-3 p-3 text-center h-100" style="background:#eff6ff;border:1.5px solid #93c5fd">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#1d4ed8"><i class="fas fa-hand-holding-usd me-1"></i>Ventas Efectivo</div>
+          <div class="mt-1" style="font-size:1.35rem;font-weight:800;color:#1e3a8a">$<span id="efectivoVentas">0</span></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="rounded-3 p-3 text-center h-100" style="background:#fff7ed;border:1.5px solid #fdba74">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#c2410c"><i class="fas fa-minus-circle me-1"></i>Egresos</div>
+          <div class="mt-1" style="font-size:1.35rem;font-weight:800;color:#9a3412">-$<span id="egresosTotal">0</span></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="rounded-3 p-3 text-center h-100" style="background:#fdf4ff;border:1.5px solid #d8b4fe">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#7e22ce"><i class="fas fa-wallet me-1"></i>Total Efectivo</div>
+          <div class="mt-1" style="font-size:1.35rem;font-weight:800;color:#581c87">$<span id="efectivoTotal">0</span></div>
+        </div>
+      </div>
     </div>
-    <hr class="my-4">
-    <div class="text-center">
-      <h4 class="mb-3">Total Turno: $<span id="totalCaja2">0</span></h4>
-		
-
-      <button class="btn btn-danger" id="btnCerrarCaja">Cerrar Caja</button>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="rounded-3 p-3 h-100" style="background:#fff;border:1.5px solid #e2e8f0">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="fab fa-get-pocket" style="color:#64748b"></i>
+            <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b">Bolsillos</span>
+          </div>
+          <div class="alert alert-warning py-2 px-3 mb-2" style="font-size:11px">Solo referencia de efectivo — no se suma al total.</div>
+          <div id="bolsillosContainer" style="font-size:13px"></div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="rounded-3 p-3 h-100" style="background:#fff;border:1.5px solid #e2e8f0">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="fa fa-bank" style="color:#64748b"></i>
+            <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b">Transferencias</span>
+            <span class="ms-auto fw-bold" style="color:#1e40af">$<span id="totalTransferencias">0</span></span>
+          </div>
+          <ul class="list-group list-group-flush" id="listaBancosTransferencias">
+            <?php foreach(getBancosDisponibles() as $banco):
+              $bancoId = preg_replace('/[^a-zA-Z0-9]/', '', $banco); ?>
+            <li class="list-group-item px-0 py-1 d-flex justify-content-between align-items-center" style="font-size:13px;border-color:#f1f5f9">
+              <?= htmlspecialchars($banco) ?>
+              <span class="badge" style="background:#dbeafe;color:#1e40af;font-size:12px">$<span id="transfer<?= $bancoId ?>" class="transfer-banco" data-banco="<?= htmlspecialchars($banco) ?>">0</span></span>
+            </li>
+            <?php endforeach; ?>
+          </ul>
+        </div>
+      </div>
     </div>
+  </div>
+  <div class="card-footer border-0 d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 py-4 px-4" style="background:linear-gradient(135deg,#1e293b,#334155)">
+    <div>
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:#94a3b8">Total Turno</div>
+      <div style="font-size:2rem;font-weight:900;color:#fff">$<span id="totalCaja2">0</span></div>
+    </div>
+    <button class="btn btn-lg px-5 fw-bold" id="btnCerrarCaja" style="background:#ef4444;color:#fff;border:none;border-radius:10px;box-shadow:0 2px 12px rgba(239,68,68,.4)">
+      <i class="fas fa-lock me-2"></i>Cerrar Caja
+    </button>
   </div>
 </div>
 
@@ -587,6 +595,69 @@ $tab-border-radius: 35px;
 
 	
 
+<!-- Modal resumen de cierre -->
+<div class="modal fade" id="modalCierreSummary" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0" style="border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.18)">
+      <div class="modal-header border-0 py-4" style="background:linear-gradient(135deg,#1e293b,#334155)">
+        <div class="d-flex align-items-center gap-3 w-100 justify-content-center">
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center">
+            <i class="fas fa-lock fa-lg text-white"></i>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#94a3b8">Turno Finalizado</div>
+            <h5 class="mb-0 text-white fw-bold">Caja Cerrada</h5>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body p-4" style="background:#f8fafc">
+        <div class="row g-2 mb-3">
+          <div class="col-6">
+            <div class="rounded-3 p-3 text-center" style="background:#f0fdf4;border:1.5px solid #86efac">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#15803d">Base</div>
+              <div style="font-size:1.2rem;font-weight:800;color:#166534">$<span id="cierreBase">0</span></div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="rounded-3 p-3 text-center" style="background:#eff6ff;border:1.5px solid #93c5fd">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#1d4ed8">Ventas Efectivo</div>
+              <div style="font-size:1.2rem;font-weight:800;color:#1e3a8a">$<span id="cierreEfectivo">0</span></div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="rounded-3 p-3 text-center" style="background:#fff7ed;border:1.5px solid #fdba74">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#c2410c">Egresos</div>
+              <div style="font-size:1.2rem;font-weight:800;color:#9a3412">-$<span id="cierreEgresos">0</span></div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="rounded-3 p-3 text-center" style="background:#fdf4ff;border:1.5px solid #d8b4fe">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#7e22ce">Total Efectivo</div>
+              <div style="font-size:1.2rem;font-weight:800;color:#581c87">$<span id="cierreTotalEfectivo">0</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="rounded-3 p-3 mb-3" style="background:#fff;border:1.5px solid #e2e8f0">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span style="font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b"><i class="fa fa-bank me-1"></i>Transferencias</span>
+            <span class="fw-bold" style="color:#1e40af">$<span id="cierreTotalTransf">0</span></span>
+          </div>
+          <div id="cierreTransfDetalle" style="font-size:13px"></div>
+        </div>
+        <div class="rounded-3 p-3 text-center" style="background:linear-gradient(135deg,#1e293b,#334155)">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:#94a3b8">Total Turno</div>
+          <div style="font-size:2.2rem;font-weight:900;color:#fff">$<span id="cierreTotalTurno">0</span></div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 py-3 px-4" style="background:#f8fafc">
+        <button type="button" class="btn btn-lg w-100 fw-bold" style="background:linear-gradient(135deg,#b91c1c,#ef4444);color:#fff;border:none;border-radius:10px" id="btnCierreOk">
+          <i class="fas fa-check me-2"></i>OK
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <?php include('../inc/menu-footer.php'); ?>
 
 <!-- Scripts: jQuery, Bootstrap, SweetAlert, DataTables -->
@@ -955,7 +1026,7 @@ function procesarVentaNormal(btn, pid, cant, precio, coste, totalConDescuento) {
   });
   
   // Cerrar Caja
- $('#btnCerrarCaja').click(function(){
+  $('#btnCerrarCaja').click(function(){
     Swal.fire({
       title: 'Cerrar Caja',
       text: '¿Deseas cerrar la caja actual?',
@@ -967,14 +1038,488 @@ function procesarVentaNormal(btn, pid, cant, precio, coste, totalConDescuento) {
       if(r.isConfirmed){
         $.get('close.php', function(res){
           if(res.status==='success'){
-            Swal.fire('Caja Cerrada', res.message, 'success')
-              .then(()=> location.reload());
+            var fmt = function(n){ return Number(n).toLocaleString('es-CO'); };
+            $('#cierreBase').text(fmt(res.base));
+            $('#cierreEfectivo').text(fmt(res.efectivo));
+            $('#cierreEgresos').text(fmt(res.egresos));
+            $('#cierreTotalEfectivo').text(fmt(res.totalEfectivo));
+            $('#cierreTotalTransf').text(fmt(res.totalTransferencias));
+            $('#cierreTotalTurno').text(fmt(res.totalTurno));
+            var detalle = '';
+            $.each(res.transferencias, function(banco, val){
+              if(val > 0) detalle += '<div class="d-flex justify-content-between"><span>' + banco + '</span><span class="badge" style="background:#dbeafe;color:#1e40af">
+	
+	
+	$('#clienteSearch').on('input', function () {
+  var query = $(this).val();
+  if (query.length >= 3) {
+    $.ajax({
+      url: 'search_clientes.php',
+      type: 'GET',
+      data: { query: query },
+      success: function (res) {
+        var results = JSON.parse(res);
+        var html = '';
+        if (results.length > 0) {
+          results.forEach(function (cliente) {
+            html += `<div class="cliente-item" data-cliente-id="${cliente.id}">${cliente.nombres} ${cliente.apellidos} (${cliente.identificacion})</div>`;
+          });
+        } else {
+          html = '<div>No se encontraron clientes.</div>';
+        }
+        $('#clienteResults').html(html);
+      }
+    });
+  } else {
+    $('#clienteResults').empty();
+  }
+});
+
+// Seleccionar un cliente (primer handler: solo limpia búsqueda y muestra campos)
+$(document).on('click', '.cliente-item', function () {
+  $('#clienteResults').empty();
+});
+	
+	
+	
+	$('#formCredito').submit(function (e) {
+  e.preventDefault();
+  var productoId = $('#modalCredito').data('producto-id');
+  var cantidad = $('#modalCredito').data('cantidad');
+  var precio = $('#modalCredito').data('precio');
+  var totalConDescuento = $('#modalCredito').data('total-desc') || Math.round(cantidad * precio);
+  var clienteId = $('#clienteSearch').data('cliente-id');
+  var valorPagado = parseFloat($('#valorPagado').val());
+  var fechaLimite = $('#fechaLimite').val();
+
+  // Obtener el método de pago y el banco de la fila correspondiente
+  var $tr = $(`#productos-table tr td input[data-producto-id='${productoId}']`).closest('tr');
+  var paymentMethod = $tr.find('.paymentMethod').val();
+  var bank = paymentMethod === 'Transferencia' ? $tr.find('.bankSelect').val() : '';
+
+  if (!clienteId) {
+    alert('Debe seleccionar un cliente.');
+    return;
+  }
+
+  if (isNaN(valorPagado) || valorPagado < 0) {
+    alert('El valor pagado es inválido.');
+    return;
+  }
+
+  if (!fechaLimite) {
+    alert('Debe seleccionar una fecha límite para el crédito.');
+    return;
+  }
+
+  $.ajax({
+    url: 'register_credito.php',
+    type: 'POST',
+    data: {
+      producto_id: productoId,
+      cantidad: cantidad,
+      precio: precio,
+      valor_total: totalConDescuento,
+      cliente_id: clienteId,
+      valor_pagado: valorPagado,
+      fecha_limite: fechaLimite,
+      payment_method: paymentMethod,
+      bank: bank
+    },
+    dataType: 'json',
+    success: function (res) {
+      if (res.status === 'success') {
+        var detalle = $tr.find('td:first').text().trim();
+        mostrarToastVenta(detalle, paymentMethod + ' (Credito)', totalConDescuento, res.total_caja);
+        $('#modalCredito').modal('hide');
+        setTimeout(function(){ location.reload(); }, 5200);
+      } else {
+        Swal.fire('Error', res.message, 'error');
+      }
+    },
+    error: function () {
+      Swal.fire('Error', 'No se pudo registrar la venta a credito.', 'error');
+    }
+  });
+});
+	
+	
+	
+	
+	// Calcular el total del producto cuando se selecciona un cliente
+$(document).on('click', '.cliente-item', function () {
+  var clienteId = $(this).data('cliente-id');
+  var clienteNombre = $(this).text();
+  var productoId = $('#modalCredito').data('producto-id');
+  var cantidad = $('#modalCredito').data('cantidad');
+  var precio = $('#modalCredito').data('precio');
+  var totalConDescuento = $('#modalCredito').data('total-desc') || Math.round(cantidad * precio);
+
+  // Mostrar total con o sin descuento
+  $('#totalCreditoValor').text(totalConDescuento.toLocaleString('es-CO'));
+  if (totalConDescuento < Math.round(cantidad * precio)) {
+    $('#descuentoInfo').removeClass('d-none');
+  } else {
+    $('#descuentoInfo').addClass('d-none');
+  }
+  $('#totalCreditoContainer').removeClass('d-none');
+
+  // Mostrar los campos de Valor Pagado y Fecha Límite
+  $('#clienteSearch').val(clienteNombre).data('cliente-id', clienteId);
+  $('#clienteResults').empty();
+  $('#valorPagadoContainer').removeClass('d-none');
+  $('#fechaLimiteContainer').removeClass('d-none');
+
+  // Establecer el atributo max en el campo Valor Pagado (máximo: totalConDescuento - 1)
+  var maxValorPagado = totalConDescuento - 1;
+  $('#valorPagado').attr('max', maxValorPagado);
+
+  // Limpiar el campo Valor Pagado
+  $('#valorPagado').val('');
+});
+
+// Validar el campo Valor Pagado en tiempo real
+$('#valorPagado').on('input', function () {
+  var valorPagado = parseFloat($(this).val());
+  var maxValor = parseFloat($(this).attr('max'));
+
+  if (isNaN(valorPagado) || valorPagado < 0) {
+    $(this).val(0); // Forzar un valor válido si es inválido
+  } else if (valorPagado > maxValor) {
+    $(this).val(maxValor); // Limitar al valor máximo permitido
+    alert(`El valor pagado no puede ser mayor a $${maxValor.toLocaleString('es-CO')}.`);
+  }
+});
+	
+	
+	
+});
+</script>
+
+<script>
+$(document).ready(function(){
+  $(".tab-slider--body").hide();
+  $(".tab-slider--body:first").show();
+});
+$(".tab-slider--nav li").click(function() {
+  $(".tab-slider--body").hide();
+  var activeTab = $(this).attr("rel");
+  $("#"+activeTab).fadeIn();
+  if($(this).attr("rel") == "tab2"){
+    $('.tab-slider--tabs').addClass('slide');
+  } else {
+    $('.tab-slider--tabs').removeClass('slide');
+  }
+  $(".tab-slider--nav li").removeClass("active");
+  $(this).addClass("active");
+});
+</script>
+	
+	
+<script>
+$(document).ready(function(){
+  // Mostrar modal al hacer clic en el botón Egreso
+  $('#btnEgreso').click(function(){
+    $('#modalEgreso').modal('show');
+  });
+  
+  // Enviar formulario de egreso
+  $('#formEgreso').submit(function(e){
+    e.preventDefault();
+    var formData = $(this).serialize();
+    $.ajax({
+      url: 'register_egreso.php',
+      type: 'POST',
+      data: formData,
+      dataType: 'json',
+      success: function(res){
+        if(res.status === 'success'){
+          mostrarToastVenta(res.detalle, 'Egreso', '-' + res.valor, res.total_caja, null, 'Egreso Registrado');
+          $('#modalEgreso').modal('hide');
+          setTimeout(function(){ refreshVentas(); }, 500);
+        } else {
+          Swal.fire('Error', res.message, 'error');
+        }
+      },
+      error: function(){
+        Swal.fire('Error', 'No se pudo registrar el egreso (error de red).', 'error');
+      }
+    });
+  });
+});
+
+	
+	
+
+	</script>
+	
+	<script>
+$(function () {
+  // Mostrar/ocultar banco según método seleccionado en el modal
+  function toggleBankWrap(idx) {
+    const method = $('#splitMethod' + idx).val();
+    $('#splitBankWrap' + idx).toggleClass('d-none', method !== 'Transferencia');
+    if (method !== 'Transferencia') {
+      $('#splitBank' + idx).val('');
+    }
+  }
+  $('#splitMethod1').on('change', () => toggleBankWrap(1));
+  $('#splitMethod2').on('change', () => toggleBankWrap(2));
+
+  // Auto-calcular Pago 2 = total - Pago 1
+  function recalcSplit() {
+    const total = parseInt($('#splitTotal').data('raw') || 0, 10);
+    let v1 = parseInt($('#splitValue1').val() || 0, 10);
+    if (v1 < 0) v1 = 0;
+    if (v1 > total) v1 = total;
+    $('#splitValue1').val(v1);
+    $('#splitValue2').val(total - v1);
+  }
+  $('#splitValue1').on('input', recalcSplit);
+
+  // Al marcar "Dividir pago" abrimos el modal con datos de la fila
+  $('#productos-table').on('change', '.splitCheckbox', function () {
+    const $cb = $(this);
+    if (!$cb.is(':checked')) return;
+
+    const pid = $cb.data('producto-id');
+    const $tr = $cb.closest('tr');
+
+    // No permitir dividir junto con "Crédito"
+    const isCredito = $tr.find('.creditoCheckbox').is(':checked');
+    if (isCredito) {
+      Swal.fire('No permitido', 'No puedes dividir un pago cuando la venta es a crédito.', 'info');
+      $cb.prop('checked', false);
+      return;
+    }
+
+    const detalle = $tr.find('td:first').text().trim();
+    const precio  = parseFloat($tr.find('.btn-vender').data('precio'));
+    const coste   = parseFloat($tr.find('.btn-vender').data('coste'));
+    const cant    = parseInt($tr.find('.cantidadVenta').val() || 1, 10);
+
+    if (cant <= 0) {
+      Swal.fire('Cantidad inválida', 'La cantidad debe ser mayor a 0.', 'warning');
+      $cb.prop('checked', false);
+      return;
+    }
+
+    const total = Math.round(precio * cant);
+
+    // Cargar datos en el modal
+    $('#splitPid').val(pid);
+    $('#splitCant').val(cant);
+    $('#splitPrecio').val(precio);
+    $('#splitCoste').val(coste);
+    $('#splitDetalle').val(detalle);
+
+    $('#splitTotal')
+      .text(total.toLocaleString('es-CO'))
+      .data('raw', total);
+
+    // Reset modal
+    $('#splitMethod1').val('Efectivo');  toggleBankWrap(1);
+    $('#splitMethod2').val('Efectivo');  toggleBankWrap(2);
+    $('#splitBank1').val('');
+    $('#splitBank2').val('');
+    $('#splitValue1').val(0);
+    $('#splitValue2').val(total);
+
+    // Mostrar modal
+    $('#modalSplit').modal('show');
+  });
+
+  // Enviar dos registros (1 descuenta stock, 2 no descuenta)
+  $('#formSplit').on('submit', function (e) {
+    e.preventDefault();
+
+    const pid     = $('#splitPid').val();
+    const cant    = parseInt($('#splitCant').val(), 10);
+    const precio  = parseFloat($('#splitPrecio').val());
+    const coste   = parseFloat($('#splitCoste').val());
+    const detalle = $('#splitDetalle').val();
+
+    const total   = parseInt($('#splitTotal').data('raw') || 0, 10);
+    let v1        = parseInt($('#splitValue1').val() || 0, 10);
+    let v2        = parseInt($('#splitValue2').val() || 0, 10);
+
+    // Métodos/bancos
+    const m1 = $('#splitMethod1').val();
+    const b1 = (m1 === 'Transferencia') ? ($('#splitBank1').val() || '') : '';
+    const m2 = $('#splitMethod2').val();
+    const b2 = (m2 === 'Transferencia') ? ($('#splitBank2').val() || '') : '';
+
+    // Validaciones
+    if (v1 < 0 || v2 < 0) {
+      Swal.fire('Valores inválidos', 'Los valores no pueden ser negativos.', 'error'); return;
+    }
+    if (v1 + v2 !== total) {
+      Swal.fire('Suma incorrecta', 'La suma de los pagos debe ser igual al total.', 'error'); return;
+    }
+    if (m1 === 'Transferencia' && !b1) {
+      Swal.fire('Falta banco', 'Selecciona el banco para el Pago 1.', 'warning'); return;
+    }
+    if (m2 === 'Transferencia' && !b2) {
+      Swal.fire('Falta banco', 'Selecciona el banco para el Pago 2.', 'warning'); return;
+    }
+
+    // Primera venta (descuenta stock)
+    $.ajax({
+      url: 'register_sale.php',
+      type: 'POST',
+      dataType: 'json',
+      data: {
+        producto_id: pid,
+        cantidad: cant,
+        precio: precio,
+        coste: coste,
+        detalle: detalle,
+        payment_method: m1,
+        bank: b1,
+        valor_override: v1 // <= usamos este valor exacto
+      },
+      success: function (res1) {
+        if (res1.status !== 'success') {
+          Swal.fire('Error', res1.message || 'No se pudo registrar el primer pago.', 'error');
+          return;
+        }
+
+        // Actualizamos stock en la fila
+        const $input = $(`#productos-table .cantidadVenta[data-producto-id='${pid}']`);
+        if ($input.length) {
+          $input.closest('tr').find('td:nth-child(3)').text(res1.nuevo_stock);
+          $input.val(1);
+          // resetear selects de esa fila
+          const $tr = $input.closest('tr');
+          $tr.find('.paymentMethod').val('Efectivo');
+          $tr.find('.bankSelect').val('').addClass('d-none');
+          $tr.find('.splitCheckbox').prop('checked', false);
+        }
+
+        // Segunda venta (NO descuenta stock)
+        $.ajax({
+          url: 'register_sale.php',
+          type: 'POST',
+          dataType: 'json',
+          data: {
+            producto_id: pid,
+            cantidad: 0,        // <- no afecta stock
+            precio: precio,
+            coste: coste,
+            detalle: detalle,
+            payment_method: m2,
+            bank: b2,
+            valor_override: v2,
+            skip_stock: 1       // <- bandera para no descontar stock
+          },
+          success: function (res2) {
+            if (res2.status !== 'success') {
+              Swal.fire('Atención', 'El segundo pago no se registró, revísalo manualmente.', 'warning');
+            } else {
+              mostrarToastVenta(detalle, m1 + ' / ' + m2, total, res2.total_caja);
+            }
+
+            $('#modalSplit').modal('hide');
+            setTimeout(function(){
+              $('#ventas-table').DataTable().ajax.reload(null, false);
+              if (typeof refreshVentas === 'function') refreshVentas();
+            }, 400);
+          },
+          error: function () {
+            Swal.fire('Error', 'No se pudo registrar el segundo pago.', 'error');
+          }
+        });
+      },
+      error: function () {
+        Swal.fire('Error', 'No se pudo registrar el primer pago.', 'error');
+      }
+    });
+  });
+});
+</script>
+
+<script>
+$(document).ready(function(){
+  // Mostrar modal al hacer clic en el botón Ingreso
+  $('#btnIngreso').click(function(){
+    $('#modalIngreso').modal('show');
+  });
+
+  // Mostrar/ocultar selector de banco según método
+  $('#ingresoMetodo').on('change', function(){
+    if ($(this).val() === 'Transferencia') {
+      $('#ingresoBancoWrap').removeClass('d-none');
+    } else {
+      $('#ingresoBancoWrap').addClass('d-none');
+      $('#ingresoBanco').val('');
+    }
+  });
+
+  // Enviar formulario de ingreso
+  $('#formIngreso').submit(function(e){
+    e.preventDefault();
+    var formData = $(this).serialize();
+
+    $.ajax({
+      url: 'register_ingreso.php',
+      type: 'POST',
+      data: formData,
+      dataType: 'json',
+      success: function(res){
+        if(res.status === 'success'){
+          mostrarToastVenta(res.detalle, res.metodo, res.valor, res.total_caja, null, 'Ingreso Registrado');
+          $('#modalIngreso').modal('hide');
+          setTimeout(function(){ refreshVentas(); }, 500);
+        } else {
+          Swal.fire('Error', res.message, 'error');
+        }
+      },
+      error: function(){
+        Swal.fire('Error', 'No se pudo registrar el ingreso (error de red).', 'error');
+      }
+    });
+  });
+});
+</script>
+	
+
+	
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ + fmt(val) + '</span></div>';
+            });
+            $('#cierreTransfDetalle').html(detalle || '<span class="text-muted">Sin transferencias</span>');
+            $('#modalCierreSummary').modal('show');
           } else {
             Swal.fire('Error', res.message, 'error');
           }
         }, 'json');
       }
     });
+  });
+
+  $('#btnCierreOk').on('click', function(){
+    $('#modalCierreSummary').modal('hide');
+    location.reload();
   });
 	
 	
