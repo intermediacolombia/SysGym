@@ -155,20 +155,13 @@ $tab-border-radius: 35px;
       <div class="col-md-6 border-end">
         <h6 class="text-uppercase text-muted mb-3"><i class='fas fa-coins'></i> Efectivo</h6>
         <p class="mb-2">
-          <strong>Base:</strong> $<span id="baseCaja2"><?php echo number_format($base, 0, '', '.'); ?></span>
+          <strong>Ventas en Efectivo:</strong> $<span id="efectivoVentas">0</span>
         </p>
-        <p class="mb-2">
-          <strong>Total en Efectivo:</strong> $<span id="efectivoVentas">0</span>
-        </p>
-		  
-		 <!-- Nueva línea para Total Egresos -->
         <p class="mb-2">
           <strong>Total Egresos:</strong> $-<span id="egresosTotal">0</span>
         </p>
-		  
         <p class="mb-2">
-          <strong>Total Base + Ventas Efectivo<span id="egresosLabel"></span>:</strong> $<span id="efectivoTotal">0</span>
-
+          <strong>Total Efectivo:</strong> $<span id="efectivoTotal">0</span>
         </p>
         
 		  
@@ -762,17 +755,9 @@ var bancosDisponibles = <?= json_encode(getBancosDisponibles()) ?>;
       console.log("Respuesta de get_total_caja:", res);
       if(res.status === 'success'){
 
-        var baseCaja = parseFloat($('#baseCaja2').text().replace(/\./g, ''));
         var efectivoVentas = parseFloat(res.efectivo);
         var egresos = parseFloat(res.egresos);
-
-        if (egresos > 0) {
-          $('#egresosLabel').text(" - Egresos");
-        } else {
-          $('#egresosLabel').text("");
-        }
-
-        var totalEfectivo = baseCaja + efectivoVentas - egresos;
+        var totalEfectivo = efectivoVentas - egresos;
 
         $('#efectivoVentas').text(efectivoVentas.toLocaleString('es-CO'));
         $('#efectivoTotal').text(totalEfectivo.toLocaleString('es-CO'));
