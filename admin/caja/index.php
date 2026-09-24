@@ -1048,8 +1048,22 @@ function procesarVentaNormal(btn, pid, cant, precio, coste, totalConDescuento) {
             var detalle = '';
             $.each(res.transferencias, function(banco, val){
               if(val > 0) detalle += '<div class="d-flex justify-content-between"><span>' + banco + '</span><span class="badge" style="background:#dbeafe;color:#1e40af">$' + fmt(val) + '</span></div>';
-	
-	
+            });
+            $('#cierreTransfDetalle').html(detalle || '<span class="text-muted">Sin transferencias</span>');
+            $('#modalCierreSummary').modal('show');
+          } else {
+            Swal.fire('Error', res.message, 'error');
+          }
+        }, 'json');
+      }
+    });
+  });
+
+  $('#btnCierreOk').on('click', function(){
+    $('#modalCierreSummary').modal('hide');
+    location.reload();
+  });
+
 	$('#clienteSearch').on('input', function () {
   var query = $(this).val();
   if (query.length >= 3) {
@@ -1515,11 +1529,6 @@ $(document).ready(function(){
         }, 'json');
       }
     });
-  });
-
-  $('#btnCierreOk').on('click', function(){
-    $('#modalCierreSummary').modal('hide');
-    location.reload();
   });
 	
 	
