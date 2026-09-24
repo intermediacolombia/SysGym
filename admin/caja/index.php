@@ -147,7 +147,7 @@ $tab-border-radius: 35px;
   <?php else: ?>
     <!-- Resumen de Caja -->
 <div class="card border-0 mb-4" style="border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.10)">
-  <div class="card-header border-0 d-flex align-items-center gap-2 py-3" style="background:linear-gradient(135deg,#b91c1c,#ef4444)">
+  <div class="card-header border-0 d-flex align-items-center gap-2 py-3" style="background:var(--system-color-primary)">
     <i class="fas fa-cash-register fa-lg text-white"></i>
     <h5 class="card-title mb-0 text-white fw-bold">Resumen de Caja</h5>
   </div>
