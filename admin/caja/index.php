@@ -339,7 +339,6 @@ $tab-border-radius: 35px;
 
 <!-- Toast container: ventas exitosas -->
 <div id="venta-toasts" style="position:fixed;top:80px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;"></div>
-  <?php endif; ?>
   
 </div>
 
@@ -658,6 +657,8 @@ $tab-border-radius: 35px;
     </div>
   </div>
 </div>
+
+<?php endif; ?>
 
 <?php include('../inc/menu-footer.php'); ?>
 
