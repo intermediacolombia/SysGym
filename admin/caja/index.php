@@ -1047,7 +1047,7 @@ function procesarVentaNormal(btn, pid, cant, precio, coste, totalConDescuento) {
             $('#cierreTotalTurno').text(fmt(res.totalTurno));
             var detalle = '';
             $.each(res.transferencias, function(banco, val){
-              if(val > 0) detalle += '<div class="d-flex justify-content-between"><span>' + banco + '</span><span class="badge" style="background:#dbeafe;color:#1e40af">
+              if(val > 0) detalle += '<div class="d-flex justify-content-between"><span>' + banco + '</span><span class="badge" style="background:#dbeafe;color:#1e40af">$' + fmt(val) + '</span></div>';
 	
 	
 	$('#clienteSearch').on('input', function () {
