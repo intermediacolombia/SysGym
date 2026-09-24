@@ -155,6 +155,9 @@ $tab-border-radius: 35px;
       <div class="col-md-6 border-end">
         <h6 class="text-uppercase text-muted mb-3"><i class='fas fa-coins'></i> Efectivo</h6>
         <p class="mb-2">
+          <strong>Base:</strong> $<span id="baseCaja2"><?php echo number_format($base, 0, '', '.'); ?></span>
+        </p>
+        <p class="mb-2">
           <strong>Ventas en Efectivo:</strong> $<span id="efectivoVentas">0</span>
         </p>
         <p class="mb-2">
