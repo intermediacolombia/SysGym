@@ -343,32 +343,6 @@ $tab-border-radius: 35px;
   
 </div>
 
-<!-- Modal para Apertura de Caja: Base Inicial -->
-<div class="modal fade" id="modalAbrirCaja" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form id="formAbrirCaja">
-        <div class="modal-header">
-          <h5 class="modal-title">Abrir Caja</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-        <div class="modal-body">
-          <label for="base" class="form-label">Base Inicial</label>
-		 <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text">$</span>
-                </div>
-          <input type="number" min="0" class="form-control" id="base" name="base" required>
-			</div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">Abrir</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 	
 
 <!-- Modal para registrar ingreso -->
@@ -801,6 +775,31 @@ $tab-border-radius: 35px;
 </div>
 
 <?php endif; ?>
+
+<!-- Modal para Apertura de Caja: Base Inicial -->
+<div class="modal fade" id="modalAbrirCaja" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="formAbrirCaja">
+        <div class="modal-header">
+          <h5 class="modal-title">Abrir Caja</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <label for="base" class="form-label">Base Inicial</label>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input type="number" min="0" class="form-control" id="base" name="base" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Abrir</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 <?php include('../inc/menu-footer.php'); ?>
 
