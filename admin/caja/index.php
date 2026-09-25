@@ -597,7 +597,8 @@ $tab-border-radius: 35px;
 
           <!-- Columna productos -->
           <div class="col-md-7 border-end p-3">
-            <input type="text" id="vmBuscar" class="form-control mb-3" placeholder="Buscar producto...">
+            <input type="text" id="vmBuscar" class="form-control mb-3" placeholder="Buscar producto..."
+              oninput="var q=this.value.toLowerCase().trim();document.querySelectorAll('#vmProductosList .vm-prod-row').forEach(function(r){r.style.display=(q===''||r.getAttribute('data-nombre').indexOf(q)!==-1)?'':'none';})">
             <div style="max-height:340px;overflow-y:auto" id="vmProductosList">
               <?php foreach($productos as $p): ?>
               <div class="vm-prod-row d-flex align-items-center gap-2 p-2 mb-1 rounded-2"
@@ -1741,14 +1742,6 @@ $(function(){
   var carrito = [];
   var fmt = function(n){ return Math.round(n).toLocaleString('es-CO'); };
 
-  // Buscar producto
-  $(document).on('input', '#vmBuscar', function(){
-    var q = $(this).val().toLowerCase().trim();
-    $('#vmProductosList .vm-prod-row').each(function(){
-      var nombre = $(this).attr('data-nombre') || '';
-      $(this).toggle(q === '' || nombre.indexOf(q) !== -1);
-    });
-  });
 
   // Mostrar/ocultar banco global
   $('#vmGlobalMethod').on('change', function(){
