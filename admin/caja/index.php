@@ -586,6 +586,7 @@ $tab-border-radius: 35px;
         <div class="px-4 pt-3 pb-2 border-bottom d-flex align-items-center gap-3" style="background:#fff">
           <span class="fw-semibold text-muted" style="font-size:13px;white-space:nowrap">Método de pago:</span>
           <select id="vmGlobalMethod" class="form-select form-select-sm" style="max-width:160px">
+            <option value="">-- Seleccione --</option>
             <option value="Efectivo">Efectivo</option>
             <option value="Transferencia">Transferencia</option>
           </select>
@@ -1760,6 +1761,7 @@ $(function(){
     var method = $('#vmGlobalMethod').val();
     var bank   = method === 'Transferencia' ? $('#vmGlobalBank').val() : '';
 
+    if (!method) { alert('Selecciona un método de pago antes de agregar productos.'); return; }
     if (method === 'Transferencia' && !bank) { alert('Selecciona un banco'); return; }
     if (qty < 1 || qty > stock) { alert('Cantidad inválida'); return; }
 
@@ -1803,7 +1805,7 @@ $(function(){
     renderCarrito();
     $('#vmBuscar').val('');
     $('#vmProductosList .vm-prod-row').removeClass('d-none');
-    $('#vmGlobalMethod').val('Efectivo');
+    $('#vmGlobalMethod').val('');
     $('#vmGlobalBank').addClass('d-none');
     $('#vmCreditoCheck').prop('checked', false);
     $('#vmCreditoFields').addClass('d-none');
@@ -1859,6 +1861,8 @@ $(function(){
     var bank      = method === 'Transferencia' ? $('#vmGlobalBank').val() : '';
     var total     = carrito.reduce(function(s,i){ return s + i.valor; }, 0);
     var esCredito = $('#vmCreditoCheck').is(':checked');
+
+    if (!method) { alert('Selecciona un método de pago.'); return; }
 
     if (esCredito) {
       // Validar campos crédito
