@@ -608,17 +608,27 @@ $tab-border-radius: 35px;
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-0" style="background:#f8fafc">
-        <div class="row g-0" style="min-height:420px">
+        <!-- Método de pago global -->
+        <div class="px-4 pt-3 pb-2 border-bottom d-flex align-items-center gap-3" style="background:#fff">
+          <span class="fw-semibold text-muted" style="font-size:13px;white-space:nowrap">Método de pago:</span>
+          <select id="vmGlobalMethod" class="form-select form-select-sm" style="max-width:160px">
+            <option value="Efectivo">Efectivo</option>
+            <option value="Transferencia">Transferencia</option>
+          </select>
+          <select id="vmGlobalBank" class="form-select form-select-sm d-none" style="max-width:160px">
+            <?= getBancosOptions() ?>
+          </select>
+        </div>
+        <div class="row g-0" style="min-height:380px">
 
           <!-- Columna productos -->
           <div class="col-md-7 border-end p-3">
             <input type="text" id="vmBuscar" class="form-control mb-3" placeholder="Buscar producto...">
-            <div style="max-height:380px;overflow-y:auto" id="vmProductosList">
+            <div style="max-height:340px;overflow-y:auto" id="vmProductosList">
               <?php foreach($productos as $p): ?>
               <div class="vm-prod-row d-flex align-items-center gap-2 p-2 mb-1 rounded-2"
                    style="background:#fff;border:1px solid #e2e8f0;font-size:13px"
-                   data-id="<?= $p['id'] ?>" data-nombre="<?= htmlspecialchars($p['nombre']) ?>"
-                   data-precio="<?= $p['precio'] ?>" data-coste="<?= $p['coste'] ?>" data-stock="<?= $p['stock'] ?>">
+                   data-id="<?= $p['id'] ?>" data-precio="<?= $p['precio'] ?>" data-coste="<?= $p['coste'] ?>" data-stock="<?= $p['stock'] ?>">
                 <div class="flex-fill">
                   <div class="fw-semibold"><?= htmlspecialchars($p['nombre']) ?></div>
                   <div class="text-muted" style="font-size:11px">Stock: <?= $p['stock'] ?></div>
@@ -626,14 +636,7 @@ $tab-border-radius: 35px;
                 <div class="fw-bold" style="color:var(--system-color-primary);min-width:70px;text-align:right">
                   $<?= number_format($p['precio'],0,'','.') ?>
                 </div>
-                <select class="form-select form-select-sm vm-method" style="width:110px">
-                  <option value="Efectivo">Efectivo</option>
-                  <option value="Transferencia">Transferencia</option>
-                </select>
-                <select class="form-select form-select-sm vm-bank d-none" style="width:110px">
-                  <?= getBancosOptions() ?>
-                </select>
-                <input type="number" class="form-control form-control-sm vm-qty" value="1" min="1" max="<?= $p['stock'] ?>" style="width:60px">
+                <input type="number" class="form-control form-control-sm vm-qty" value="1" min="1" max="<?= $p['stock'] ?>" style="width:65px">
                 <button class="btn btn-sm btn-primary vm-add-btn" style="white-space:nowrap">
                   <i class="fas fa-plus"></i>
                 </button>
@@ -647,21 +650,34 @@ $tab-border-radius: 35px;
             <h6 class="text-uppercase text-muted mb-3" style="font-size:11px;letter-spacing:.5px">
               <i class="fas fa-shopping-cart me-1"></i>Carrito
             </h6>
-            <div id="vmCarrito" class="flex-fill" style="max-height:340px;overflow-y:auto;font-size:13px">
+            <div id="vmCarrito" class="flex-fill" style="max-height:200px;overflow-y:auto;font-size:13px">
               <div id="vmCarritoVacio" class="text-center text-muted py-5">
                 <i class="fas fa-shopping-cart fa-2x mb-2 d-block" style="opacity:.3"></i>
                 Sin productos
               </div>
             </div>
             <hr class="my-2">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="text-muted" style="font-size:12px">Efectivo</span>
-              <span class="fw-bold" id="vmTotalEfectivo">$0</span>
+
+            <!-- Toggle crédito -->
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="vmCreditoCheck">
+              <label class="form-check-label fw-semibold" for="vmCreditoCheck" style="font-size:13px">A crédito</label>
             </div>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="text-muted" style="font-size:12px">Transferencia</span>
-              <span class="fw-bold" id="vmTotalTransf">$0</span>
+
+            <!-- Campos crédito -->
+            <div id="vmCreditoFields" class="d-none mb-2" style="font-size:13px">
+              <input type="text" id="vmClienteSearch" class="form-control form-control-sm mb-1" placeholder="Buscar cliente (nombre / ID)...">
+              <div id="vmClienteResults" class="mb-1" style="max-height:100px;overflow-y:auto"></div>
+              <div id="vmClienteSeleccionado" class="d-none alert alert-success py-1 px-2 mb-1" style="font-size:12px"></div>
+              <label class="form-label mb-0" style="font-size:12px">Abono inicial</label>
+              <div class="input-group input-group-sm mb-1">
+                <span class="input-group-text">$</span>
+                <input type="number" id="vmAbonoInicial" class="form-control" min="0" placeholder="0">
+              </div>
+              <label class="form-label mb-0" style="font-size:12px">Fecha límite</label>
+              <input type="date" id="vmFechaLimite" class="form-control form-control-sm" min="<?= date('Y-m-d') ?>">
             </div>
+
             <div class="rounded-3 p-2 text-center" style="background:var(--system-color-primary)">
               <div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.7)">Total</div>
               <div style="font-size:1.6rem;font-weight:900;color:#fff" id="vmTotal">$0</div>
@@ -1735,25 +1751,24 @@ $(function(){
     });
   });
 
-  // Mostrar/ocultar banco
-  $(document).on('change', '.vm-method', function(){
-    var $row = $(this).closest('.vm-prod-row');
-    $row.find('.vm-bank').toggleClass('d-none', $(this).val() !== 'Transferencia');
+  // Mostrar/ocultar banco global
+  $('#vmGlobalMethod').on('change', function(){
+    $('#vmGlobalBank').toggleClass('d-none', $(this).val() !== 'Transferencia');
   });
 
   // Agregar al carrito
   $(document).on('click', '.vm-add-btn', function(){
-    var $row = $(this).closest('.vm-prod-row');
+    var $row   = $(this).closest('.vm-prod-row');
     var pid    = $row.data('id');
-    var nombre = $row.data('nombre');
+    var nombre = $row.find('.fw-semibold').first().text();
     var precio = parseFloat($row.data('precio'));
     var coste  = parseFloat($row.data('coste'));
     var stock  = parseInt($row.data('stock'));
     var qty    = parseInt($row.find('.vm-qty').val()) || 1;
-    var method = $row.find('.vm-method').val();
-    var bank   = method === 'Transferencia' ? $row.find('.vm-bank').val() : '';
+    var method = $('#vmGlobalMethod').val();
+    var bank   = method === 'Transferencia' ? $('#vmGlobalBank').val() : '';
 
-    if (!bank && method === 'Transferencia') { alert('Selecciona un banco para ' + nombre); return; }
+    if (method === 'Transferencia' && !bank) { alert('Selecciona un banco'); return; }
     if (qty < 1 || qty > stock) { alert('Cantidad inválida'); return; }
 
     carrito.push({ pid, nombre, precio, coste, qty, method, bank, valor: Math.round(qty * precio) });
@@ -1763,26 +1778,23 @@ $(function(){
   function renderCarrito() {
     var $c = $('#vmCarrito');
     if (carrito.length === 0) {
-      $c.html('<div id="vmCarritoVacio" class="text-center text-muted py-5"><i class="fas fa-shopping-cart fa-2x mb-2 d-block" style="opacity:.3"></i>Sin productos</div>');
+      $c.html('<div class="text-center text-muted py-5"><i class="fas fa-shopping-cart fa-2x mb-2 d-block" style="opacity:.3"></i>Sin productos</div>');
       $('#btnRegistrarMultiple').prop('disabled', true);
-      $('#vmTotal, #vmTotalEfectivo, #vmTotalTransf').text('$0');
+      $('#vmTotal').text('$0');
       return;
     }
     var html = '';
-    var totEf = 0, totTr = 0;
+    var total = 0;
     carrito.forEach(function(item, i){
       html += '<div class="d-flex align-items-center gap-2 p-2 mb-1 rounded-2" style="background:#fff;border:1px solid #e2e8f0;font-size:12px">' +
         '<div class="flex-fill"><div class="fw-semibold">' + item.nombre + '</div>' +
-        '<div class="text-muted">x' + item.qty + ' · ' + item.method + (item.bank ? ' · ' + item.bank : '') + '</div></div>' +
+        '<div class="text-muted">x' + item.qty + '</div></div>' +
         '<div class="fw-bold" style="color:var(--system-color-primary)">$' + fmt(item.valor) + '</div>' +
         '<button class="btn btn-sm btn-outline-danger vm-remove-btn" data-idx="' + i + '" style="padding:2px 7px"><i class="fas fa-times"></i></button></div>';
-      if (item.method === 'Efectivo') totEf += item.valor;
-      else totTr += item.valor;
+      total += item.valor;
     });
     $c.html(html);
-    $('#vmTotalEfectivo').text('$' + fmt(totEf));
-    $('#vmTotalTransf').text('$' + fmt(totTr));
-    $('#vmTotal').text('$' + fmt(totEf + totTr));
+    $('#vmTotal').text('$' + fmt(total));
     $('#btnRegistrarMultiple').prop('disabled', false);
   }
 
@@ -1792,18 +1804,103 @@ $(function(){
     renderCarrito();
   });
 
-  // Abrir modal
+  // Abrir modal — resetear estado
   $('#btnVentaMultiple').on('click', function(){
     carrito = [];
+    vmClienteId = null;
     renderCarrito();
     $('#vmBuscar').val('');
     $('#vmProductosList .vm-prod-row').show();
+    $('#vmGlobalMethod').val('Efectivo');
+    $('#vmGlobalBank').addClass('d-none');
+    $('#vmCreditoCheck').prop('checked', false);
+    $('#vmCreditoFields').addClass('d-none');
+    $('#vmClienteSearch').val('');
+    $('#vmClienteResults').empty();
+    $('#vmClienteSeleccionado').addClass('d-none').text('');
+    $('#vmAbonoInicial').val('');
+    $('#vmFechaLimite').val('');
     $('#modalVentaMultiple').modal('show');
+  });
+
+  // Toggle crédito
+  var vmClienteId = null;
+  $('#vmCreditoCheck').on('change', function(){
+    $('#vmCreditoFields').toggleClass('d-none', !this.checked);
+    if (!this.checked) { vmClienteId = null; }
+  });
+
+  // Búsqueda de cliente (misma lógica que #modalCredito)
+  var vmClienteTimer;
+  $('#vmClienteSearch').on('input', function(){
+    clearTimeout(vmClienteTimer);
+    var q = $(this).val().trim();
+    if (q.length < 2) { $('#vmClienteResults').empty(); return; }
+    vmClienteTimer = setTimeout(function(){
+      $.ajax({
+        url: '../clients/search_clients.php', type: 'GET', dataType: 'json',
+        data: { q: q },
+        success: function(data){
+          var html = '';
+          if (!data.length) { html = '<div class="text-muted" style="font-size:12px">Sin resultados</div>'; }
+          data.forEach(function(c){
+            html += '<div class="vm-cliente-item p-1 rounded" style="cursor:pointer;font-size:12px;border:1px solid #e2e8f0;margin-bottom:2px;background:#fff" data-id="'+c.id+'" data-nombre="'+c.nombres+' '+c.apellidos+'">'
+              + '<strong>'+c.identificacion+'</strong> — '+c.nombres+' '+c.apellidos+'</div>';
+          });
+          $('#vmClienteResults').html(html);
+        }
+      });
+    }, 300);
+  });
+
+  $(document).on('click', '.vm-cliente-item', function(){
+    vmClienteId = $(this).data('id');
+    var nombre  = $(this).data('nombre');
+    $('#vmClienteSearch').val('');
+    $('#vmClienteResults').empty();
+    $('#vmClienteSeleccionado').removeClass('d-none').text('Cliente: ' + nombre);
   });
 
   // Registrar todo
   $('#btnRegistrarMultiple').on('click', function(){
-    var totEf = carrito.filter(function(i){ return i.method==='Efectivo'; }).reduce(function(s,i){ return s+i.valor; }, 0);
+    var method    = $('#vmGlobalMethod').val();
+    var bank      = method === 'Transferencia' ? $('#vmGlobalBank').val() : '';
+    var total     = carrito.reduce(function(s,i){ return s + i.valor; }, 0);
+    var esCredito = $('#vmCreditoCheck').is(':checked');
+
+    if (esCredito) {
+      // Validar campos crédito
+      if (!vmClienteId) { alert('Selecciona un cliente para el crédito.'); return; }
+      var abono = parseFloat($('#vmAbonoInicial').val()) || 0;
+      var fechaL = $('#vmFechaLimite').val();
+      if (abono >= total) { alert('El abono debe ser menor al total. Si va a pagar todo, desactiva crédito.'); return; }
+      if (!fechaL) { alert('Indica la fecha límite del crédito.'); return; }
+
+      $('#modalVentaMultiple').modal('hide');
+      var items = carrito.slice(); carrito = [];
+      $.ajax({
+        url: 'register_credito_multiple.php', type: 'POST', dataType: 'json',
+        data: {
+          items: JSON.stringify(items),
+          cliente_id: vmClienteId,
+          valor_pagado: abono,
+          fecha_limite: fechaL,
+          payment_method: method,
+          bank: bank
+        },
+        success: function(res){
+          if (res.status === 'success') {
+            mostrarToastVenta('Venta múltiple a crédito', method, abono, res.total_caja);
+            ventasTable.ajax.reload(null, false);
+            refreshVentas();
+          } else {
+            Swal.fire('Error', res.message, 'error');
+          }
+        },
+        error: function(){ Swal.fire('Error', 'No se pudo registrar el crédito múltiple.', 'error'); }
+      });
+      return;
+    }
 
     function ejecutarRegistros() {
       $('#modalVentaMultiple').modal('hide');
@@ -1822,11 +1919,10 @@ $(function(){
           url: 'register_sale.php', type: 'POST', dataType: 'json',
           data: { producto_id: item.pid, cantidad: item.qty, precio: item.precio,
                   coste: item.coste, detalle: item.nombre,
-                  payment_method: item.method, bank: item.bank },
+                  payment_method: method, bank: bank },
           success: function(res){
             if (res.status === 'success') {
-              mostrarToastVenta(item.nombre, item.method, item.valor, res.total_caja);
-              // actualizar stock en tabla
+              mostrarToastVenta(item.nombre, method, item.valor, res.total_caja);
               var $inp = $('#productos-table .cantidadVenta[data-producto-id="'+item.pid+'"]');
               if ($inp.length) $inp.closest('tr').find('td:nth-child(3)').text(res.nuevo_stock);
             } else {
@@ -1840,9 +1936,9 @@ $(function(){
       registrarSiguiente();
     }
 
-    if (totEf > 0) {
-      var nombres = carrito.filter(function(i){ return i.method==='Efectivo'; }).map(function(i){ return i.nombre; }).join(', ');
-      window.abrirVueltoModal(totEf, nombres, ejecutarRegistros);
+    if (method === 'Efectivo') {
+      var nombres = carrito.map(function(i){ return i.nombre; }).join(', ');
+      window.abrirVueltoModal(total, nombres, ejecutarRegistros);
     } else {
       ejecutarRegistros();
     }
