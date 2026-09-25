@@ -1416,6 +1416,11 @@ $(document).ready(function(){
 
   $("#valor_pagado").on("input", function(){
     let paid = parseFloat($(this).val()) || 0;
+    const maxPaid = originalTotal - 1;
+    if (paid >= originalTotal) {
+      paid = maxPaid;
+      $(this).val(paid);
+    }
     let remaining = Math.max(originalTotal - paid, 0);
     $("#valorRestanteDisplay").text("Valor Restante: $" + remaining.toLocaleString('es-CO'));
   });
@@ -1438,6 +1443,11 @@ $(document).ready(function(){
     if (!paymentMethod) { Swal.fire("Atención","Seleccione un medio de pago","warning"); processingPayment=false; return; }
     if (paymentMethod === 'Transferencia' && !bank) { Swal.fire("Atención","Seleccione un banco","warning"); processingPayment=false; return; }
     if (splitPayment && (!secondMethod || secondValue <= 0)) { Swal.fire("Atención","Complete los datos del segundo pago","warning"); processingPayment=false; return; }
+    if (creditSelected) {
+      let vp = parseFloat(valorPagado) || 0;
+      if (isNaN(vp) || vp < 0) { alert('El valor pagado es inválido.'); processingPayment=false; return; }
+      if (vp >= originalTotal) { alert('El valor pagado debe ser menor al total. Si va a pagar todo, no use crédito.'); processingPayment=false; return; }
+    }
 
     paymentModal.hide();
 

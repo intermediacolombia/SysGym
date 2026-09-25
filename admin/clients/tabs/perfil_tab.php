@@ -322,7 +322,7 @@
                 <label for="valor_pagado" class="form-label">Valor Pagado</label>
                 <div class="input-group">
                   <span class="input-group-text">$</span>
-                  <input type="number" id="valor_pagado" class="form-control" step="any" min="0" placeholder="Ingrese valor pagado">
+                  <input type="number" id="valor_pagado" class="form-control" step="any" min="0" max="<?php echo isset($planInfo['precio']) ? floatval($planInfo['precio']) - 1 : ''; ?>" placeholder="Ingrese valor pagado">
                 </div>
               </div>
               <div class="mb-3">
