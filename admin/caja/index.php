@@ -1019,8 +1019,8 @@ var bancosDisponibles = <?= json_encode(getBancosDisponibles()) ?>;
 
 
   
-  // Llamada inicial para refrescar totales
-  refreshVentas();
+  // Llamada inicial para refrescar totales (solo si hay caja abierta)
+  if (<?= $caja_id ? 'true' : 'false' ?>) refreshVentas();
   
   // Mostrar/ocultar select de banco según método de pago
   $(document).on('change', '.paymentMethod', function(){
