@@ -837,10 +837,10 @@ $(function(){
   });
 
   // Inicializar DataTable para la tabla de productos
-  var productsTable = $('#productos-table').DataTable({
+  var productsTable = $('#productos-table').length ? $('#productos-table').DataTable({
 	  "pageLength": 50,
     language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json' }
-  });
+  }) : null;
 
   // Inicializar DataTable para la tabla de ventas (se inicializa una sola vez)
   /*var ventasTable = $('#ventas-table').DataTable({
