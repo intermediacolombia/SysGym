@@ -1449,6 +1449,11 @@ $(document).ready(function(){
 
     paymentModal.hide();
 
+    var totalEfectivo = splitPayment ? firstValue : (creditSelected ? parseFloat(valorPagado)||0 : originalTotal);
+    var hayEfectivo = (paymentMethod === 'Efectivo' && !splitPayment) ||
+                      (splitPayment && paymentMethod === 'Efectivo' && firstValue > 0);
+
+    function confirmarPago() {
     Swal.fire({
       title: "Confirmar Pago",
       text: "¿Deseas marcar este pago y actualizar las fechas?",
@@ -1495,12 +1500,19 @@ $(document).ready(function(){
         processingPayment = false;
       }
     });
+    } // end confirmarPago
+
+    if (hayEfectivo) {
+      window.abrirVueltoPlan(totalEfectivo, confirmarPago);
+    } else {
+      confirmarPago();
+    }
   });
 });
 </script>
 
-	
-	
+
+
 <script>
 
 $(document).ready(function(){
@@ -2167,6 +2179,91 @@ $('#confirmDeleteCredit').on('click', function() {
       }
     });
   });
+}());
+</script>
+
+<!-- Modal vuelto plan -->
+<div class="modal fade" id="modalVueltoPlan" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="true" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:340px">
+    <div class="modal-content border-0" style="border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.18)">
+      <div class="modal-header border-0 py-3 px-4" style="background:var(--system-color-primary)">
+        <div>
+          <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7)">Calculadora de Vuelto</div>
+          <h5 class="mb-0 text-white fw-bold">Pago de Plan</h5>
+        </div>
+      </div>
+      <div class="modal-body p-4" style="background:#f8fafc">
+        <div class="text-center mb-3">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#64748b">Total a cobrar</div>
+          <div style="font-size:2rem;font-weight:900;color:#1e293b" id="vueltoPlanTotal">$0</div>
+        </div>
+        <label style="font-size:13px;font-weight:600;color:#475569">¿Con cuánto paga el cliente?</label>
+        <div class="input-group mt-1 mb-3">
+          <span class="input-group-text fw-bold">$</span>
+          <input type="text" id="vueltoPlanRecibido" class="form-control form-control-lg text-end fw-bold" style="font-size:1.4rem" inputmode="numeric" placeholder="0">
+        </div>
+        <div id="vueltoPlanResultBox" class="rounded-3 p-3 text-center" style="background:#f0fdf4;border:2px solid #86efac">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#15803d">Vuelto</div>
+          <div style="font-size:2rem;font-weight:900" id="vueltoPlanCambio">$0</div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 px-4 pb-4 pt-0" style="background:#f8fafc">
+        <button type="button" class="btn btn-secondary" id="btnVueltoPlanCancelar">Cancelar</button>
+        <button type="button" class="btn btn-primary fw-bold px-4" id="btnVueltoPlanOk">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var _vueltoCallback = null;
+  var _vueltoTotal = 0;
+  var fmt = function(n){ return Math.round(n).toLocaleString('es-CO'); };
+
+  function calcVuelto(){
+    var rec = parseFloat(String($('#vueltoPlanRecibido').val()).replace(/\./g,'')||0);
+    var cambio = rec - _vueltoTotal;
+    var ok = cambio >= 0;
+    $('#vueltoPlanCambio').text('$' + fmt(ok ? cambio : 0)).css('color', ok ? '#166534' : '#dc2626');
+    $('#vueltoPlanResultBox').css({'background': ok ? '#f0fdf4' : '#fef2f2', 'border-color': ok ? '#86efac' : '#fca5a5'});
+    $('#btnVueltoPlanOk').prop('disabled', !ok);
+  }
+
+  $('#vueltoPlanRecibido').on('input', function(){
+    var raw = this.value.replace(/[^\d]/g,'');
+    var num = parseInt(raw||'0');
+    this.value = num ? num.toLocaleString('es-CO') : '';
+    calcVuelto();
+  });
+
+  $('#modalVueltoPlan').on('shown.bs.modal', function(){
+    var v = _vueltoTotal.toLocaleString('es-CO');
+    $('#vueltoPlanRecibido').val(v).trigger('input').focus().select();
+  });
+
+  $(document).on('keydown', function(e){
+    if (!$('#modalVueltoPlan').hasClass('show')) return;
+    if (e.key === 'Enter' && !$('#btnVueltoPlanOk').prop('disabled')) $('#btnVueltoPlanOk').click();
+    if (e.key === 'Escape') $('#btnVueltoPlanCancelar').click();
+  });
+
+  $('#btnVueltoPlanOk').on('click', function(){
+    $('#modalVueltoPlan').modal('hide');
+    if (typeof _vueltoCallback === 'function') _vueltoCallback();
+  });
+
+  $('#btnVueltoPlanCancelar').on('click', function(){
+    $('#modalVueltoPlan').modal('hide');
+    _vueltoCallback = null;
+  });
+
+  window.abrirVueltoPlan = function(total, callback){
+    _vueltoTotal = total;
+    _vueltoCallback = callback;
+    $('#vueltoPlanTotal').text('$' + fmt(total));
+    $('#btnVueltoPlanOk').prop('disabled', true);
+    $('#modalVueltoPlan').modal('show');
+  };
 }());
 </script>
 
