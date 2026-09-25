@@ -1358,24 +1358,21 @@ $(document).ready(function(){
   var paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'), { keyboard: false });
   var processingPayment = false;
 
-  function limitarPagosDivididos() {
-    let first = parseFloat($("#first_payment_value").val()) || 0;
-    let second = parseFloat($("#second_payment_value").val()) || 0;
-    const total = first + second;
+  $("#first_payment_value").on("input", function(){
+    let first = parseFloat($(this).val()) || 0;
+    if (first < 0) first = 0;
+    if (first > originalTotal) first = originalTotal;
+    $(this).val(first);
+    $("#second_payment_value").val(originalTotal - first);
+  });
 
-    if (total > originalTotal) {
-      const exceso = total - originalTotal;
-      if (document.activeElement.id === "first_payment_value" && first > 0) {
-        first -= exceso;
-        $("#first_payment_value").val(first);
-      } else if (document.activeElement.id === "second_payment_value" && second > 0) {
-        second -= exceso;
-        $("#second_payment_value").val(second);
-      }
-    }
-  }
-
-  $("#first_payment_value, #second_payment_value").on("input", limitarPagosDivididos);
+  $("#second_payment_value").on("input", function(){
+    let second = parseFloat($(this).val()) || 0;
+    if (second < 0) second = 0;
+    if (second > originalTotal) second = originalTotal;
+    $(this).val(second);
+    $("#first_payment_value").val(originalTotal - second);
+  });
 
   $("#btnPago").click(function(){
     $("#paymentForm")[0].reset();
@@ -1443,6 +1440,7 @@ $(document).ready(function(){
     if (!paymentMethod) { Swal.fire("Atención","Seleccione un medio de pago","warning"); processingPayment=false; return; }
     if (paymentMethod === 'Transferencia' && !bank) { Swal.fire("Atención","Seleccione un banco","warning"); processingPayment=false; return; }
     if (splitPayment && (!secondMethod || secondValue <= 0)) { Swal.fire("Atención","Complete los datos del segundo pago","warning"); processingPayment=false; return; }
+    if (splitPayment && Math.round(firstValue + secondValue) !== Math.round(originalTotal)) { alert('La suma de los dos pagos debe ser exactamente $' + originalTotal.toLocaleString('es-CO') + '.'); processingPayment=false; return; }
     if (creditSelected) {
       let vp = parseFloat(valorPagado) || 0;
       if (isNaN(vp) || vp < 0) { alert('El valor pagado es inválido.'); processingPayment=false; return; }
