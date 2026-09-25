@@ -628,7 +628,7 @@ $tab-border-radius: 35px;
               <?php foreach($productos as $p): ?>
               <div class="vm-prod-row d-flex align-items-center gap-2 p-2 mb-1 rounded-2"
                    style="background:#fff;border:1px solid #e2e8f0;font-size:13px"
-                   data-id="<?= $p['id'] ?>" data-precio="<?= $p['precio'] ?>" data-coste="<?= $p['coste'] ?>" data-stock="<?= $p['stock'] ?>">
+                   data-id="<?= $p['id'] ?>" data-nombre="<?= htmlspecialchars(strtolower($p['nombre'])) ?>" data-precio="<?= $p['precio'] ?>" data-coste="<?= $p['coste'] ?>" data-stock="<?= $p['stock'] ?>">
                 <div class="flex-fill">
                   <div class="fw-semibold"><?= htmlspecialchars($p['nombre']) ?></div>
                   <div class="text-muted" style="font-size:11px">Stock: <?= $p['stock'] ?></div>
@@ -1746,7 +1746,7 @@ $(function(){
   $('#vmBuscar').on('input', function(){
     var q = $(this).val().toLowerCase().trim();
     $('#vmProductosList .vm-prod-row').each(function(){
-      var nombre = ($(this).find('.fw-semibold').first().text() || '').toLowerCase();
+      var nombre = $(this).attr('data-nombre') || '';
       $(this).toggle(q === '' || nombre.indexOf(q) !== -1);
     });
   });
@@ -1838,8 +1838,8 @@ $(function(){
     if (q.length < 2) { $('#vmClienteResults').empty(); return; }
     vmClienteTimer = setTimeout(function(){
       $.ajax({
-        url: '../clients/search_clients.php', type: 'GET', dataType: 'json',
-        data: { q: q },
+        url: 'search_clientes.php', type: 'GET', dataType: 'json',
+        data: { query: q },
         success: function(data){
           var html = '';
           if (!data.length) { html = '<div class="text-muted" style="font-size:12px">Sin resultados</div>'; }
