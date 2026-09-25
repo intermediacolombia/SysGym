@@ -233,6 +233,7 @@ $tab-border-radius: 35px;
         </div>
 		  <button class="btn btn-success" id="btnIngreso"><i class='fas fa-hand-holding-usd'></i> Registrar Ingreso</button>
 			<button class="btn btn-warning" id="btnEgreso"><i class='fas fa-comment-dollar'></i> Registrar Egreso</button>
+			<button class="btn btn-primary" id="btnVentaMultiple"><i class="fas fa-layer-group"></i> Varias Ventas</button>
         <div class="tab-slider--container">
           <div id="tab1" class="tab-slider--body">
             <h5>Productos Disponibles</h5>
@@ -594,6 +595,90 @@ $tab-border-radius: 35px;
 <!--FIN Modal dividir pago -->
 
 	
+
+<!-- Modal Venta Múltiple -->
+<div class="modal fade" id="modalVentaMultiple" tabindex="-1" data-bs-backdrop="static" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content border-0" style="border-radius:16px;overflow:hidden">
+      <div class="modal-header border-0 py-3 px-4" style="background:var(--system-color-primary)">
+        <div class="d-flex align-items-center gap-2">
+          <i class="fas fa-layer-group text-white fa-lg"></i>
+          <h5 class="mb-0 text-white fw-bold">Venta Múltiple</h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0" style="background:#f8fafc">
+        <div class="row g-0" style="min-height:420px">
+
+          <!-- Columna productos -->
+          <div class="col-md-7 border-end p-3">
+            <input type="text" id="vmBuscar" class="form-control mb-3" placeholder="Buscar producto...">
+            <div style="max-height:380px;overflow-y:auto" id="vmProductosList">
+              <?php foreach($productos as $p): ?>
+              <div class="vm-prod-row d-flex align-items-center gap-2 p-2 mb-1 rounded-2"
+                   style="background:#fff;border:1px solid #e2e8f0;font-size:13px"
+                   data-id="<?= $p['id'] ?>" data-nombre="<?= htmlspecialchars($p['nombre']) ?>"
+                   data-precio="<?= $p['precio'] ?>" data-coste="<?= $p['coste'] ?>" data-stock="<?= $p['stock'] ?>">
+                <div class="flex-fill">
+                  <div class="fw-semibold"><?= htmlspecialchars($p['nombre']) ?></div>
+                  <div class="text-muted" style="font-size:11px">Stock: <?= $p['stock'] ?></div>
+                </div>
+                <div class="fw-bold" style="color:var(--system-color-primary);min-width:70px;text-align:right">
+                  $<?= number_format($p['precio'],0,'','.') ?>
+                </div>
+                <select class="form-select form-select-sm vm-method" style="width:110px">
+                  <option value="Efectivo">Efectivo</option>
+                  <option value="Transferencia">Transferencia</option>
+                </select>
+                <select class="form-select form-select-sm vm-bank d-none" style="width:110px">
+                  <?= getBancosOptions() ?>
+                </select>
+                <input type="number" class="form-control form-control-sm vm-qty" value="1" min="1" max="<?= $p['stock'] ?>" style="width:60px">
+                <button class="btn btn-sm btn-primary vm-add-btn" style="white-space:nowrap">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+              <?php endforeach; ?>
+            </div>
+          </div>
+
+          <!-- Columna carrito -->
+          <div class="col-md-5 p-3 d-flex flex-column">
+            <h6 class="text-uppercase text-muted mb-3" style="font-size:11px;letter-spacing:.5px">
+              <i class="fas fa-shopping-cart me-1"></i>Carrito
+            </h6>
+            <div id="vmCarrito" class="flex-fill" style="max-height:340px;overflow-y:auto;font-size:13px">
+              <div id="vmCarritoVacio" class="text-center text-muted py-5">
+                <i class="fas fa-shopping-cart fa-2x mb-2 d-block" style="opacity:.3"></i>
+                Sin productos
+              </div>
+            </div>
+            <hr class="my-2">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="text-muted" style="font-size:12px">Efectivo</span>
+              <span class="fw-bold" id="vmTotalEfectivo">$0</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-muted" style="font-size:12px">Transferencia</span>
+              <span class="fw-bold" id="vmTotalTransf">$0</span>
+            </div>
+            <div class="rounded-3 p-2 text-center" style="background:var(--system-color-primary)">
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.7)">Total</div>
+              <div style="font-size:1.6rem;font-weight:900;color:#fff" id="vmTotal">$0</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer border-0 px-4 pb-4 pt-2" style="background:#f8fafc">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary fw-bold px-4" id="btnRegistrarMultiple" disabled>
+          <i class="fas fa-check me-1"></i>Registrar Todo
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Modal calculadora de vuelto -->
 <div class="modal fade" id="modalVuelto" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="true" aria-hidden="true">
@@ -1608,8 +1693,159 @@ $(function(){
     $('#vueltoRecibido').focus().select();
   });
 
-  $('#btnVueltoOk').on('click', registrarVuelto);
+  $('#btnVueltoOk').on('click', function(){ window.registrarVuelto(); });
   $('#btnVueltoCancel').on('click', function(){ $('#modalVuelto').modal('hide'); });
+
+  window.registrarVuelto = function() {
+    if ($('#btnVueltoOk').prop('disabled')) return;
+    var m = $('#modalVuelto');
+    var cb = m.data('vuelto-callback');
+    m.removeData('vuelto-callback').modal('hide');
+    if (typeof cb === 'function') {
+      cb();
+    } else {
+      procesarVentaNormal(m.data('btn'), m.data('pid'), m.data('cant'), m.data('precio'), m.data('coste'), m.data('total'));
+    }
+  };
+
+  window.abrirVueltoModal = function(total, nombre, callback) {
+    var f = function(n){ return Math.round(n).toLocaleString('es-CO'); };
+    $('#vueltoProductoNombre').text(nombre);
+    $('#vueltoTotalDisplay').text('$' + f(total));
+    $('#vueltoRecibido').val(f(total));
+    $('#vueltoCambio').text('$0');
+    $('#vueltoResultBox').css({'background':'#f0fdf4','border-color':'#86efac'});
+    $('#vueltoCambio').css('color','#166534');
+    $('#btnVueltoOk').prop('disabled', false);
+    $('#modalVuelto').data('total', total).data('vuelto-callback', callback || null).modal('show');
+  };
+});
+
+// ── Venta Múltiple ──────────────────────────────────────────────
+$(function(){
+  var carrito = [];
+  var fmt = function(n){ return Math.round(n).toLocaleString('es-CO'); };
+
+  // Buscar producto
+  $('#vmBuscar').on('input', function(){
+    var q = $(this).val().toLowerCase();
+    $('#vmProductosList .vm-prod-row').each(function(){
+      $(this).toggle($(this).data('nombre').toLowerCase().includes(q));
+    });
+  });
+
+  // Mostrar/ocultar banco
+  $(document).on('change', '.vm-method', function(){
+    var $row = $(this).closest('.vm-prod-row');
+    $row.find('.vm-bank').toggleClass('d-none', $(this).val() !== 'Transferencia');
+  });
+
+  // Agregar al carrito
+  $(document).on('click', '.vm-add-btn', function(){
+    var $row = $(this).closest('.vm-prod-row');
+    var pid    = $row.data('id');
+    var nombre = $row.data('nombre');
+    var precio = parseFloat($row.data('precio'));
+    var coste  = parseFloat($row.data('coste'));
+    var stock  = parseInt($row.data('stock'));
+    var qty    = parseInt($row.find('.vm-qty').val()) || 1;
+    var method = $row.find('.vm-method').val();
+    var bank   = method === 'Transferencia' ? $row.find('.vm-bank').val() : '';
+
+    if (!bank && method === 'Transferencia') { alert('Selecciona un banco para ' + nombre); return; }
+    if (qty < 1 || qty > stock) { alert('Cantidad inválida'); return; }
+
+    carrito.push({ pid, nombre, precio, coste, qty, method, bank, valor: Math.round(qty * precio) });
+    renderCarrito();
+  });
+
+  function renderCarrito() {
+    var $c = $('#vmCarrito');
+    if (carrito.length === 0) {
+      $c.html('<div id="vmCarritoVacio" class="text-center text-muted py-5"><i class="fas fa-shopping-cart fa-2x mb-2 d-block" style="opacity:.3"></i>Sin productos</div>');
+      $('#btnRegistrarMultiple').prop('disabled', true);
+      $('#vmTotal, #vmTotalEfectivo, #vmTotalTransf').text('$0');
+      return;
+    }
+    var html = '';
+    var totEf = 0, totTr = 0;
+    carrito.forEach(function(item, i){
+      html += '<div class="d-flex align-items-center gap-2 p-2 mb-1 rounded-2" style="background:#fff;border:1px solid #e2e8f0;font-size:12px">' +
+        '<div class="flex-fill"><div class="fw-semibold">' + item.nombre + '</div>' +
+        '<div class="text-muted">x' + item.qty + ' · ' + item.method + (item.bank ? ' · ' + item.bank : '') + '</div></div>' +
+        '<div class="fw-bold" style="color:var(--system-color-primary)">$' + fmt(item.valor) + '</div>' +
+        '<button class="btn btn-sm btn-outline-danger vm-remove-btn" data-idx="' + i + '" style="padding:2px 7px"><i class="fas fa-times"></i></button></div>';
+      if (item.method === 'Efectivo') totEf += item.valor;
+      else totTr += item.valor;
+    });
+    $c.html(html);
+    $('#vmTotalEfectivo').text('$' + fmt(totEf));
+    $('#vmTotalTransf').text('$' + fmt(totTr));
+    $('#vmTotal').text('$' + fmt(totEf + totTr));
+    $('#btnRegistrarMultiple').prop('disabled', false);
+  }
+
+  // Eliminar item carrito
+  $(document).on('click', '.vm-remove-btn', function(){
+    carrito.splice(parseInt($(this).data('idx')), 1);
+    renderCarrito();
+  });
+
+  // Abrir modal
+  $('#btnVentaMultiple').on('click', function(){
+    carrito = [];
+    renderCarrito();
+    $('#vmBuscar').val('');
+    $('#vmProductosList .vm-prod-row').show();
+    $('#modalVentaMultiple').modal('show');
+  });
+
+  // Registrar todo
+  $('#btnRegistrarMultiple').on('click', function(){
+    var totEf = carrito.filter(function(i){ return i.method==='Efectivo'; }).reduce(function(s,i){ return s+i.valor; }, 0);
+
+    function ejecutarRegistros() {
+      $('#modalVentaMultiple').modal('hide');
+      var items = carrito.slice();
+      carrito = [];
+      var idx = 0;
+
+      function registrarSiguiente() {
+        if (idx >= items.length) {
+          ventasTable.ajax.reload(null, false);
+          refreshVentas();
+          return;
+        }
+        var item = items[idx++];
+        $.ajax({
+          url: 'register_sale.php', type: 'POST', dataType: 'json',
+          data: { producto_id: item.pid, cantidad: item.qty, precio: item.precio,
+                  coste: item.coste, detalle: item.nombre,
+                  payment_method: item.method, bank: item.bank },
+          success: function(res){
+            if (res.status === 'success') {
+              mostrarToastVenta(item.nombre, item.method, item.valor, res.total_caja);
+              // actualizar stock en tabla
+              var $inp = $('#productos-table .cantidadVenta[data-producto-id="'+item.pid+'"]');
+              if ($inp.length) $inp.closest('tr').find('td:nth-child(3)').text(res.nuevo_stock);
+            } else {
+              Swal.fire('Error en ' + item.nombre, res.message, 'error');
+            }
+            registrarSiguiente();
+          },
+          error: function(){ Swal.fire('Error', 'No se pudo registrar ' + item.nombre, 'error'); registrarSiguiente(); }
+        });
+      }
+      registrarSiguiente();
+    }
+
+    if (totEf > 0) {
+      var nombres = carrito.filter(function(i){ return i.method==='Efectivo'; }).map(function(i){ return i.nombre; }).join(', ');
+      window.abrirVueltoModal(totEf, nombres, ejecutarRegistros);
+    } else {
+      ejecutarRegistros();
+    }
+  });
 });
 </script>
 <?php endif; ?>
