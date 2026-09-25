@@ -1728,9 +1728,10 @@ $(function(){
 
   // Buscar producto
   $('#vmBuscar').on('input', function(){
-    var q = $(this).val().toLowerCase();
+    var q = $(this).val().toLowerCase().trim();
     $('#vmProductosList .vm-prod-row').each(function(){
-      $(this).toggle($(this).data('nombre').toLowerCase().includes(q));
+      var nombre = ($(this).find('.fw-semibold').first().text() || '').toLowerCase();
+      $(this).toggle(q === '' || nombre.indexOf(q) !== -1);
     });
   });
 
