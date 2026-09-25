@@ -598,7 +598,7 @@ $tab-border-radius: 35px;
           <!-- Columna productos -->
           <div class="col-md-7 border-end p-3">
             <input type="text" id="vmBuscar" class="form-control mb-3" placeholder="Buscar producto..."
-              oninput="var q=this.value.toLowerCase().trim();document.querySelectorAll('#vmProductosList .vm-prod-row').forEach(function(r){r.style.display=(q===''||r.getAttribute('data-nombre').indexOf(q)!==-1)?'':'none';})">
+              oninput="var q=this.value.toLowerCase().trim();document.querySelectorAll('#vmProductosList .vm-prod-row').forEach(function(r){var m=q===''||r.getAttribute('data-nombre').indexOf(q)!==-1;r.classList.toggle('d-none',!m);});">
             <div style="max-height:340px;overflow-y:auto" id="vmProductosList">
               <?php foreach($productos as $p): ?>
               <div class="vm-prod-row d-flex align-items-center gap-2 p-2 mb-1 rounded-2"
@@ -1802,7 +1802,7 @@ $(function(){
     vmClienteId = null;
     renderCarrito();
     $('#vmBuscar').val('');
-    $('#vmProductosList .vm-prod-row').show();
+    $('#vmProductosList .vm-prod-row').removeClass('d-none');
     $('#vmGlobalMethod').val('Efectivo');
     $('#vmGlobalBank').addClass('d-none');
     $('#vmCreditoCheck').prop('checked', false);
