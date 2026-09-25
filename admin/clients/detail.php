@@ -661,6 +661,14 @@ $(document).ready(function(){
       return;
     }
 
+    var totalMasivo = 0;
+    $('#creditos-table tbody input[type="checkbox"]:checked').each(function(){
+      var tr = $(this).closest('tr');
+      var v = parseFloat(tr.find('td:eq(2)').text().replace(/[^\d,.-]/g,'').replace('.','').replace(',','.')) || 0;
+      totalMasivo += v;
+    });
+
+    function ejecutarPagoMasivo() {
     Swal.fire({
       title: 'Confirmar Pago',
       text: `Se aplicará el pago a ${ids.length} crédito(s) seleccionados.`,
@@ -691,6 +699,13 @@ $(document).ready(function(){
         }
       });
     });
+    } // end ejecutarPagoMasivo
+
+    if (metodo === 'Efectivo') {
+      window.abrirVueltoPlan(totalMasivo, ejecutarPagoMasivo);
+    } else {
+      ejecutarPagoMasivo();
+    }
   });
 });
 
@@ -1146,6 +1161,11 @@ if ( ! $.fn.DataTable.isDataTable('#creditos-table') ) {
   // Enviar formulario de pago
   $('#editCreditForm').on('submit', function(e) {
     e.preventDefault();
+    var metodoCredito = $('#editCreditPaymentMethod').val();
+    var valorCredito  = parseFloat($('#editPago').val()) || 0;
+    var formData = $(this).serialize();
+
+    function ejecutarPagoCredito() {
     Swal.fire({
       title: 'Confirmar Pago',
       text: '¿Desea aplicar el pago al crédito?',
@@ -1155,7 +1175,6 @@ if ( ! $.fn.DataTable.isDataTable('#creditos-table') ) {
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        var formData = $(this).serialize();
         $.ajax({
           url: 'update_credito.php',
           method: 'POST',
@@ -1176,6 +1195,13 @@ if ( ! $.fn.DataTable.isDataTable('#creditos-table') ) {
         });
       }
     });
+    } // end ejecutarPagoCredito
+
+    if (metodoCredito === 'Efectivo' && valorCredito > 0) {
+      window.abrirVueltoPlan(valorCredito, ejecutarPagoCredito);
+    } else {
+      ejecutarPagoCredito();
+    }
   });
 }
   /*-----------------------------
