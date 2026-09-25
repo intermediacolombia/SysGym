@@ -1122,6 +1122,11 @@ $(document).on('click', '.cliente-item', function () {
     return;
   }
 
+  if (valorPagado >= totalConDescuento) {
+    alert('El valor pagado debe ser menor al total. Si va a pagar todo, no use crédito.');
+    return;
+  }
+
   if (!fechaLimite) {
     alert('Debe seleccionar una fecha límite para el crédito.');
     return;

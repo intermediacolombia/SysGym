@@ -42,8 +42,8 @@ $total_venta = isset($_POST['valor_total']) && floatval($_POST['valor_total']) >
     : ($cantidad * $precio);
 $credito_restante = $total_venta - $valor_pagado;
 
-if ($credito_restante < 0) {
-    echo json_encode(['status' => 'error', 'message' => 'El valor pagado no puede ser mayor al total de la venta']);
+if ($credito_restante <= 0) {
+    echo json_encode(['status' => 'error', 'message' => 'El valor pagado debe ser menor al total. Si va a pagar todo, no use crédito.']);
     exit;
 }
 
