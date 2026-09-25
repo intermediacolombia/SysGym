@@ -595,6 +595,47 @@ $tab-border-radius: 35px;
 
 	
 
+<!-- Modal calculadora de vuelto -->
+<div class="modal fade" id="modalVuelto" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="true" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:360px">
+    <div class="modal-content border-0" style="border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.18)">
+      <div class="modal-header border-0 py-3 px-4" style="background:var(--system-color-primary)">
+        <div>
+          <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7)">Calculadora de Vuelto</div>
+          <h5 class="mb-0 text-white fw-bold" id="vueltoProductoNombre">Producto</h5>
+        </div>
+      </div>
+      <div class="modal-body p-4" style="background:#f8fafc">
+        <!-- Total a cobrar -->
+        <div class="text-center mb-4">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:#64748b">Total a Cobrar</div>
+          <div style="font-size:2.4rem;font-weight:900;color:#1e293b" id="vueltoTotalDisplay">$0</div>
+        </div>
+        <!-- Recibido -->
+        <div class="mb-3">
+          <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b">Dinero Recibido</label>
+          <div class="input-group mt-1">
+            <span class="input-group-text fw-bold" style="background:#e2e8f0;border:none;font-size:1.1rem">$</span>
+            <input type="text" id="vueltoRecibido" class="form-control" inputmode="numeric"
+              style="font-size:1.8rem;font-weight:800;border:none;background:#fff;text-align:right;letter-spacing:1px;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+          </div>
+        </div>
+        <!-- Vuelto -->
+        <div class="rounded-3 p-3 text-center" id="vueltoResultBox" style="background:#f0fdf4;border:1.5px solid #86efac;transition:background .2s">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#15803d">Vuelto a Entregar</div>
+          <div style="font-size:2rem;font-weight:900;color:#166534" id="vueltoCambio">$0</div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2" style="background:#f8fafc">
+        <button type="button" class="btn flex-fill fw-bold py-2" style="background:#e2e8f0;color:#475569;border:none;border-radius:10px" id="btnVueltoCancel">Cancelar</button>
+        <button type="button" class="btn flex-fill fw-bold py-2" id="btnVueltoOk" style="background:var(--system-color-primary);color:#fff;border:none;border-radius:10px">
+          <i class="fas fa-check me-1"></i>OK — Registrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Modal resumen de cierre -->
 <div class="modal fade" id="modalCierreSummary" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -925,7 +966,23 @@ var bancosDisponibles = <?= json_encode(getBancosDisponibles()) ?>;
   if (isCredito) {
     $('#modalCredito').data('producto-id', pid).data('cantidad', cant).data('precio', precio).data('total-desc', totalConDescuento).modal('show');
   } else {
-    procesarVentaNormal(btn, pid, cant, precio, coste, totalConDescuento);
+    var isSplit = btn.closest('tr').find('.splitCheckbox').is(':checked');
+    var payMethod = btn.closest('tr').find('.paymentMethod').val();
+    if (!isSplit && payMethod === 'Efectivo') {
+      // Mostrar calculadora de vuelto antes de registrar
+      var nombre = btn.closest('tr').find('td:first').text().trim();
+      $('#vueltoProductoNombre').text(nombre);
+      $('#vueltoTotalDisplay').text('$' + totalConDescuento.toLocaleString('es-CO'));
+      $('#vueltoRecibido').val(totalConDescuento.toLocaleString('es-CO'));
+      $('#vueltoCambio').text('$0');
+      $('#vueltoResultBox').css('background','#f0fdf4');
+      $('#modalVuelto')
+        .data('btn', btn).data('pid', pid).data('cant', cant)
+        .data('precio', precio).data('coste', coste).data('total', totalConDescuento)
+        .modal('show');
+    } else {
+      procesarVentaNormal(btn, pid, cant, precio, coste, totalConDescuento);
+    }
   }
 });
 
@@ -1502,8 +1559,61 @@ $(document).ready(function(){
   });
 });
 </script>
+
+<script>
+$(function(){
+  function fmt(n){ return Math.round(n).toLocaleString('es-CO'); }
+
+  function calcularVuelto() {
+    var raw = $('#vueltoRecibido').val().replace(/\./g,'');
+    var num = parseFloat(raw) || 0;
+    var total = parseFloat($('#modalVuelto').data('total')) || 0;
+    var cambio = num - total;
+    if (cambio < 0) {
+      $('#vueltoCambio').text('-$' + fmt(Math.abs(cambio)));
+      $('#vueltoResultBox').css({'background':'#fff7ed','border-color':'#fdba74'});
+      $('#vueltoCambio').css('color','#9a3412');
+      $('#btnVueltoOk').prop('disabled', true);
+    } else {
+      $('#vueltoCambio').text('$' + fmt(cambio));
+      $('#vueltoResultBox').css({'background':'#f0fdf4','border-color':'#86efac'});
+      $('#vueltoCambio').css('color','#166534');
+      $('#btnVueltoOk').prop('disabled', false);
+    }
+  }
+
+  function registrarVuelto() {
+    if ($('#btnVueltoOk').prop('disabled')) return;
+    var m = $('#modalVuelto');
+    $('#modalVuelto').modal('hide');
+    procesarVentaNormal(m.data('btn'), m.data('pid'), m.data('cant'), m.data('precio'), m.data('coste'), m.data('total'));
+  }
+
+  // Formatear al escribir y recalcular
+  $('#vueltoRecibido').on('input', function(){
+    var raw = $(this).val().replace(/\D/g,'');
+    var num = parseFloat(raw) || 0;
+    $(this).val(raw === '' ? '' : fmt(num));
+    calcularVuelto();
+  });
+
+  // Enter → OK, Escape → cancelar
+  $('#vueltoRecibido').on('keydown', function(e){
+    if (e.key === 'Enter')  { e.preventDefault(); registrarVuelto(); }
+    if (e.key === 'Escape') { e.preventDefault(); $('#modalVuelto').modal('hide'); }
+  });
+
+  // Foco automático al abrir + seleccionar todo
+  $('#modalVuelto').on('shown.bs.modal', function(){
+    $('#vueltoRecibido').focus().select();
+  });
+
+  $('#btnVueltoOk').on('click', registrarVuelto);
+  $('#btnVueltoCancel').on('click', function(){ $('#modalVuelto').modal('hide'); });
+});
+</script>
 <?php endif; ?>
-	
+
 
 	
 </body>
