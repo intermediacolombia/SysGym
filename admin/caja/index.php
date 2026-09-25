@@ -987,7 +987,7 @@ var bancosDisponibles = <?= json_encode(getBancosDisponibles()) ?>;
 });
 
 // Función para procesar venta normal
-function procesarVentaNormal(btn, pid, cant, precio, coste, totalConDescuento) {
+window.procesarVentaNormal = function(btn, pid, cant, precio, coste, totalConDescuento) {
   var totalNormal = Math.round(cant * precio);
   var tieneDescuento = (typeof totalConDescuento !== 'undefined') && (totalConDescuento !== totalNormal);
   var detalle = btn.closest('tr').find('td:first').text();
