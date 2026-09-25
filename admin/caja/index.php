@@ -878,7 +878,7 @@ $(function(){
   });*/
 	
 	//var ventasTable = $('#ventas-table').DataTable({
-	window.ventasTable = $('#ventas-table').DataTable({
+	window.ventasTable = $('#ventas-table').length ? $('#ventas-table').DataTable({
     ajax: {
         url: 'fetch_sales.php',
         type: 'GET',
@@ -920,7 +920,7 @@ $(function(){
     order: [[5, 'desc']], // Ordenar por la columna "hora" en orden descendente
     "pageLength": 50,
     language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json' }
-});
+}) : null;
 
   	
 	// Bancos disponibles desde PHP
@@ -1743,7 +1743,7 @@ $(function(){
   var fmt = function(n){ return Math.round(n).toLocaleString('es-CO'); };
 
   // Buscar producto
-  $('#vmBuscar').on('input', function(){
+  $(document).on('input', '#vmBuscar', function(){
     var q = $(this).val().toLowerCase().trim();
     $('#vmProductosList .vm-prod-row').each(function(){
       var nombre = $(this).attr('data-nombre') || '';
