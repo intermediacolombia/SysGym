@@ -9,6 +9,7 @@
 header('Content-Type: text/plain; charset=UTF-8');
 
 require_once __DIR__ . '/../../inc/config.php'; // $host,$dbname,$dbuser,$dbpass,$api_ws
+ws_outbox_migrate();
 
 $apiKey      = $api_ws;
 
@@ -16,8 +17,8 @@ $urlEndpoint = rtrim(WA_API_URL, '/') . '/send';
 
 $limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 10;
 
-// Traer pendientes (en orden FIFO)
-$sql = "SELECT id, phonenumber, text, url FROM ws_outbox ORDER BY id ASC LIMIT :lim";
+// Traer pendientes (en orden FIFO) - solo status=pending
+$sql = "SELECT id, phonenumber, text, url FROM ws_outbox WHERE status = 'pending' ORDER BY id ASC LIMIT :lim";
 $st  = db()->prepare($sql);
 $st->bindValue(':lim', $limit, PDO::PARAM_INT);
 $st->execute();
@@ -28,7 +29,9 @@ if (!$rows) {
     return;
 }
 
-$deleteSt = db()->prepare("DELETE FROM ws_outbox WHERE id = :id");
+$deleteSt   = db()->prepare("DELETE FROM ws_outbox WHERE id = :id");
+$markInvSt  = db()->prepare("UPDATE ws_outbox SET status='invalid', last_error=:err WHERE id = :id");
+$markErrSt  = db()->prepare("UPDATE ws_outbox SET last_error=:err WHERE id = :id");
 
 $ok = 0;
 $fail = 0;
@@ -68,9 +71,14 @@ foreach ($rows as $row) {
 
     $successFlag = false;
     $decoded = null;
+    $permanentFail = false;
+    $decoded = json_decode((string)$response, true);
     if (!$error && $httpCode >= 200 && $httpCode < 300) {
-        $decoded = json_decode($response, true);
         $successFlag = ws_sent_ok($decoded);
+    }
+    // ponytail: la API devolvio JSON con success:false (ej. numero no registrado) -> no reintentar
+    if (!$successFlag && is_array($decoded) && array_key_exists('success', $decoded) && $decoded['success'] === false) {
+        $permanentFail = true;
     }
 
     // ponytail: log temporal para capturar la respuesta real de la API
@@ -82,14 +90,20 @@ foreach ($rows as $row) {
     );
 
     if ($successFlag) {
-        // borrar definitivamente
         $deleteSt->execute([':id' => $row['id']]);
         $ok++;
         echo "[OK] id={$row['id']} phone={$row['phonenumber']} http=$httpCode\n";
-    } else {
+    } elseif ($permanentFail) {
+        // Error permanente -> marcar invalid, no reintentar en loop
+        $errMsg = $decoded['error'] ?? 'success:false';
+        $markInvSt->execute([':err' => mb_substr($errMsg, 0, 255), ':id' => $row['id']]);
         $fail++;
-        $why = $error ? "curl: $error" : "http:$httpCode resp:$response";
-        echo "[FAIL] id={$row['id']} phone={$row['phonenumber']} -> $why\n";
+        echo "[INVALID] id={$row['id']} phone={$row['phonenumber']} -> $errMsg\n";
+    } else {
+        $why = $error ? "curl: $error" : "http:$httpCode";
+        $markErrSt->execute([':err' => mb_substr($why, 0, 255), ':id' => $row['id']]);
+        $fail++;
+        echo "[RETRY] id={$row['id']} phone={$row['phonenumber']} -> $why\n";
     }
 
     // (Opcional) pequeña pausa para no saturar la API

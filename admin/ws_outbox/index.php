@@ -8,20 +8,34 @@ include('../login/restriction.php');
 <?php
 // admin/ws_outbox/index.php
 require_once __DIR__ . '/../../inc/config.php';
+ws_outbox_migrate();
 
 
 /* ======================= ENDPOINTS AJAX ======================= */
 if (isset($_GET['action']) && $_GET['action'] === 'fetch') {
-    $stmt = db()->prepare("SELECT id, phonenumber, text, url, created_at FROM ws_outbox ORDER BY id DESC");
-    $stmt->execute();
+    $status = ($_GET['status'] ?? 'pending') === 'invalid' ? 'invalid' : 'pending';
+    $stmt = db()->prepare("SELECT id, phonenumber, text, url, created_at, status, last_error FROM ws_outbox WHERE status = :s ORDER BY id DESC");
+    $stmt->execute([':s' => $status]);
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode(['data' => $data]);
     exit;
 }
 
+if (isset($_POST['action']) && $_POST['action'] === 'requeue') {
+    $ids = $_POST['ids'] ?? [];
+    if (!is_array($ids)) $ids = [$ids];
+    $ids = array_filter(array_map('intval', $ids));
+    if (!$ids) { echo json_encode(['status'=>'error','message'=>'Sin IDs']); exit; }
+    $in = str_repeat('?,', count($ids) - 1) . '?';
+    $stmt = db()->prepare("UPDATE ws_outbox SET status='pending', last_error=NULL WHERE id IN ($in)");
+    $stmt->execute($ids);
+    echo json_encode(['status'=>'success','updated'=>$stmt->rowCount()]);
+    exit;
+}
+
 if (isset($_GET['action']) && $_GET['action'] === 'get' && isset($_GET['id'])) {
     $id = (int)$_GET['id'];
-    $stmt = db()->prepare("SELECT id, phonenumber, text, url, created_at FROM ws_outbox WHERE id = :id LIMIT 1");
+    $stmt = db()->prepare("SELECT id, phonenumber, text, url, created_at, status, last_error FROM ws_outbox WHERE id = :id LIMIT 1");
     $stmt->execute([':id' => $id]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($row) {
@@ -104,6 +118,12 @@ if (isset($_POST['action']) && $_POST['action'] === 'resend') {
             'httpCode' => $httpCode
         ]);
     } else {
+        $dec = json_decode((string)$response, true);
+        if (is_array($dec) && array_key_exists('success', $dec) && $dec['success'] === false) {
+            $errMsg = $dec['error'] ?? 'success:false';
+            db()->prepare("UPDATE ws_outbox SET status='invalid', last_error=:err WHERE id=:id")
+                ->execute([':err' => mb_substr($errMsg, 0, 255), ':id' => $id]);
+        }
         echo json_encode([
             'status'   => 'error',
             'message'  => $error ? $error : "HTTP $httpCode",
@@ -151,6 +171,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'bulk_resend') {
 
     $fetchStmt = db()->prepare("SELECT id, phonenumber, text, url FROM ws_outbox WHERE id = :id LIMIT 1");
     $delStmt   = db()->prepare("DELETE FROM ws_outbox WHERE id = :id");
+    $invStmt   = db()->prepare("UPDATE ws_outbox SET status='invalid', last_error=:err WHERE id=:id");
 
     foreach ($ids as $id) {
         $fetchStmt->execute([':id' => $id]);
@@ -199,6 +220,10 @@ if (isset($_POST['action']) && $_POST['action'] === 'bulk_resend') {
             $ok++;
             $results[] = ['id'=>$id, 'status'=>'sent', 'httpCode'=>$httpCode];
         } else {
+            $dec = json_decode((string)$response, true);
+            if (is_array($dec) && array_key_exists('success', $dec) && $dec['success'] === false) {
+                $invStmt->execute([':err' => mb_substr($dec['error'] ?? 'success:false', 0, 255), ':id' => $id]);
+            }
             $fail++;
             $results[] = ['id'=>$id, 'status'=>'fail', 'httpCode'=>$httpCode, 'error'=>$error, 'response'=>$response];
         }
@@ -256,6 +281,9 @@ if (isset($_POST['action']) && $_POST['action'] === 'bulk_resend') {
     <div class="d-flex justify-content-between align-items-center px-3 pb-2">
       <div><h1>Mensajes Pendientes de Envío</h1></div>
       <div id="bulk-actions" class="d-none">
+        <button id="btnBulkRequeue" class="btn btn-warning me-2 d-none">
+          <i class="fa fa-refresh"></i> Reencolar
+        </button>
         <button id="btnBulkResend" class="btn btn-primary me-2">
           <i class="fa fa-send"></i> Reintentar envíos
         </button>
@@ -291,6 +319,11 @@ if (isset($_POST['action']) && $_POST['action'] === 'bulk_resend') {
 
 
 
+  <ul class="nav nav-tabs mb-3" id="ws-tabs">
+    <li class="nav-item"><a class="nav-link active" data-status="pending" href="#">Pendientes</a></li>
+    <li class="nav-item"><a class="nav-link" data-status="invalid" href="#">Números inválidos</a></li>
+  </ul>
+
   <table id="outbox-table" class="table table-striped table-bordered">
     <thead>
       <tr>
@@ -300,6 +333,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'bulk_resend') {
         <th>Teléfono</th>
         <th>Mensaje</th>
         <th>Adjunto</th>
+        <th>Error</th>
         <th>Creado</th>
       </tr>
     </thead>
@@ -364,17 +398,18 @@ if (isset($_POST['action']) && $_POST['action'] === 'bulk_resend') {
 <script>
 $(function(){
   /* ========= DataTable ========= */
+  var currentStatus = 'pending';
   var table = $('#outbox-table').DataTable({
-    ajax: "index.php?action=fetch",
+    ajax: function(d, cb){ $.getJSON('index.php?action=fetch&status=' + currentStatus, cb); },
     columns: [
-      { 
+      {
       data: null,
-      orderable: false, // 🔹 Esto anula el orden en esta columna
+      orderable: false,
       render: function(data, type, row) {
         return '<input type="checkbox" class="row-select" value="' + row.id + '">';
       }
       },
-      
+
       { data: "phonenumber" },
       { data: "text",
         render: function(data,type,row){
@@ -395,7 +430,17 @@ $(function(){
           return data;
         }
       },
-      { 
+      { data: "last_error",
+        render: function(data,type,row){
+          if (!data) return '';
+          if (type === 'display') {
+            const s = String(data);
+            return '<span class="text-danger" title="'+s.replace(/"/g,'&quot;')+'">'+(s.length>60?s.substring(0,60)+'…':s)+'</span>';
+          }
+          return data;
+        }
+      },
+      {
         data: "created_at",
         render: function(data, type, row) {
           if (!data) return '';
@@ -625,9 +670,52 @@ $(function(){
     });
   });
 
+  /* ========= Pestañas pending/invalid ========= */
+  $('#ws-tabs .nav-link').on('click', function(e){
+    e.preventDefault();
+    $('#ws-tabs .nav-link').removeClass('active');
+    $(this).addClass('active');
+    currentStatus = $(this).data('status');
+    // Mostrar/ocultar botones segun pestaña
+    if (currentStatus === 'invalid') {
+      $('#btnBulkRequeue').removeClass('d-none');
+      $('#btnBulkResend').addClass('d-none');
+    } else {
+      $('#btnBulkRequeue').addClass('d-none');
+      $('#btnBulkResend').removeClass('d-none');
+    }
+    table.ajax.reload();
+  });
+
+  /* ========= Reencolar (invalid -> pending) ========= */
+  $('#btnBulkRequeue').on('click', function(){
+    const ids = getSelectedIds();
+    if (ids.length === 0) return;
+    Swal.fire({
+      title: '¿Mover a Pendientes?',
+      text: ids.length + ' mensaje(s) volveran a reintentarse automaticamente',
+      icon: 'question', showCancelButton: true,
+      confirmButtonText: 'Si, reencolar', cancelButtonText: 'No'
+    }).then(function(r){
+      if (!r.isConfirmed) return;
+      $.ajax({
+        url:'index.php', method:'POST', dataType:'json',
+        data:{action:'requeue', ids:ids},
+        success:function(res){
+          if (res.status==='success'){
+            Swal.fire('Listo', 'Reencolados: '+res.updated, 'success');
+            table.ajax.reload(null,false);
+          } else {
+            Swal.fire('Error', res.message||'No se completo', 'error');
+          }
+        }
+      });
+    });
+  });
+
 });
 </script>
-	
+
 <!-- Script para abrir/cerrar -->
 <script>
 (function () {

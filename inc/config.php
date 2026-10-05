@@ -224,6 +224,18 @@ define('WA_MASS_LIMIT',      (int)($settings['wa_mass_limit'] ?? 50));         /
 define('WA_MASS_PROB',       (int)($settings['wa_mass_prob'] ?? 0));            // Máximo mensajes diarios
 define('EXCLUDE_WS_MENU',           $settings['exclude_ws_menu'] ?? '');        // Excluidos de menu de ws
 
+if (!function_exists('ws_outbox_migrate')) {
+    // ponytail: migracion idempotente; tira silencioso si la columna ya existe
+    function ws_outbox_migrate(): void {
+        static $done = false;
+        if ($done) return;
+        $done = true;
+        try { db()->exec("ALTER TABLE ws_outbox ADD COLUMN status ENUM('pending','invalid') NOT NULL DEFAULT 'pending'"); } catch (Throwable $e) {}
+        try { db()->exec("ALTER TABLE ws_outbox ADD COLUMN last_error VARCHAR(255) NULL"); } catch (Throwable $e) {}
+        try { db()->exec("ALTER TABLE ws_outbox ADD INDEX idx_status (status)"); } catch (Throwable $e) {}
+    }
+}
+
 if (!function_exists('ws_sent_ok')) {
     // ponytail: tolerante a cambios de la API; si truena, revisar log y ajustar aqui
     function ws_sent_ok($decoded): bool {
