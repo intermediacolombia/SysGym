@@ -1216,7 +1216,7 @@ window.procesarVentaNormal = function(btn, pid, cant, precio, coste, totalConDes
             $('#modalCierreSummary').modal('show');
             if (res.caja_id) {
               $('#btnReimprimirCierre').data('caja-id', res.caja_id).show();
-              window.open('print_cierre.php?id=' + res.caja_id, '_blank', 'width=420,height=640');
+              $('#btnCierreOk').data('caja-id', res.caja_id);
             }
           } else {
             Swal.fire('Error', res.message, 'error');
@@ -1227,6 +1227,8 @@ window.procesarVentaNormal = function(btn, pid, cant, precio, coste, totalConDes
   });
 
   $('#btnCierreOk').on('click', function(){
+    var id = $(this).data('caja-id');
+    if (id) window.open('print_cierre.php?id=' + id, '_blank', 'width=420,height=640');
     $('#modalCierreSummary').modal('hide');
     location.reload();
   });

@@ -6,7 +6,7 @@ $id = (int)($_GET['id'] ?? 0);
 if ($id <= 0) { http_response_code(400); exit('ID invalido'); }
 
 $st = db()->prepare("
-    SELECT c.*, u.name AS usuario_nombre
+    SELECT c.*, TRIM(CONCAT(COALESCE(u.nombre,''),' ',COALESCE(u.apellido,''))) AS usuario_nombre
     FROM cajas c
     LEFT JOIN usuarios u ON u.id = c.usuario_id
     WHERE c.id = :id LIMIT 1
