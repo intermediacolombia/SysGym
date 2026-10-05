@@ -85,9 +85,7 @@
     </a>
     <style>
       .ws-pending-badge{display:inline-block;margin-left:8px;background:#e53935;color:#fff;border-radius:10px;padding:1px 8px;font-size:12px;font-weight:700;min-width:20px;text-align:center}
-      .ws-pending-blink{animation:wsBlink 1s ease-in-out infinite}
       .ws-pending-blink .ws-pending-badge{animation:wsBadgePulse 1s ease-in-out infinite}
-      @keyframes wsBlink{0%,100%{background:transparent}50%{background:rgba(229,57,53,.18)}}
       @keyframes wsBadgePulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(229,57,53,.7)}50%{transform:scale(1.15);box-shadow:0 0 0 6px rgba(229,57,53,0)}}
     </style>
     <?php endif; ?>
