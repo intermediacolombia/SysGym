@@ -14,24 +14,34 @@ ws_outbox_migrate();
 /* ======================= ENDPOINTS AJAX ======================= */
 if (isset($_GET['action']) && $_GET['action'] === 'count') {
     header('Content-Type: application/json');
-    $counts = db()->query("SELECT status, COUNT(*) c FROM ws_outbox GROUP BY status")->fetchAll(PDO::FETCH_KEY_PAIR);
+    $pending = (int) db()->query("SELECT COUNT(*) FROM ws_outbox WHERE status='pending' AND (last_error IS NULL OR last_error='')")->fetchColumn();
+    $errored = (int) db()->query("SELECT COUNT(*) FROM ws_outbox WHERE status='pending' AND last_error IS NOT NULL AND last_error<>''")->fetchColumn();
+    $invalid = (int) db()->query("SELECT COUNT(*) FROM ws_outbox WHERE status='invalid'")->fetchColumn();
     echo json_encode([
-        'pending' => (int)($counts['pending'] ?? 0),
-        'invalid' => (int)($counts['invalid'] ?? 0),
-        'total'   => (int)($counts['pending'] ?? 0) + (int)($counts['invalid'] ?? 0)
+        'pending' => $pending,
+        'errored' => $errored,
+        'invalid' => $invalid,
+        'total'   => $pending + $errored + $invalid
     ]);
     exit;
 }
 
 if (isset($_GET['action']) && $_GET['action'] === 'fetch') {
-    $status = ($_GET['status'] ?? 'pending') === 'invalid' ? 'invalid' : 'pending';
-    $stmt = db()->prepare("SELECT id, phonenumber, text, url, created_at, status, last_error FROM ws_outbox WHERE status = :s ORDER BY id DESC");
-    $stmt->execute([':s' => $status]);
-    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $counts = db()->query("SELECT status, COUNT(*) c FROM ws_outbox GROUP BY status")->fetchAll(PDO::FETCH_KEY_PAIR);
+    $tab = $_GET['status'] ?? 'pending';
+    if ($tab === 'invalid') {
+        $where = "status='invalid'";
+    } elseif ($tab === 'errored') {
+        $where = "status='pending' AND last_error IS NOT NULL AND last_error<>''";
+    } else {
+        $where = "status='pending' AND (last_error IS NULL OR last_error='')";
+    }
+    $data = db()->query("SELECT id, phonenumber, text, url, created_at, status, last_error FROM ws_outbox WHERE $where ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
+    $pending = (int) db()->query("SELECT COUNT(*) FROM ws_outbox WHERE status='pending' AND (last_error IS NULL OR last_error='')")->fetchColumn();
+    $errored = (int) db()->query("SELECT COUNT(*) FROM ws_outbox WHERE status='pending' AND last_error IS NOT NULL AND last_error<>''")->fetchColumn();
+    $invalid = (int) db()->query("SELECT COUNT(*) FROM ws_outbox WHERE status='invalid'")->fetchColumn();
     echo json_encode([
         'data' => $data,
-        'counts' => ['pending' => (int)($counts['pending'] ?? 0), 'invalid' => (int)($counts['invalid'] ?? 0)]
+        'counts' => ['pending' => $pending, 'errored' => $errored, 'invalid' => $invalid]
     ]);
     exit;
 }
@@ -134,10 +144,9 @@ if (isset($_POST['action']) && $_POST['action'] === 'resend') {
         ]);
     } else {
         $dec = json_decode((string)$response, true);
-        if (is_array($dec) && array_key_exists('success', $dec) && $dec['success'] === false) {
-            $errMsg = $dec['error'] ?? 'success:false';
+        if (is_array($dec) && ($dec['success'] ?? null) === false && ws_is_invalid_number($dec['error'] ?? '')) {
             db()->prepare("UPDATE ws_outbox SET status='invalid', last_error=:err WHERE id=:id")
-                ->execute([':err' => mb_substr($errMsg, 0, 255), ':id' => $id]);
+                ->execute([':err' => mb_substr($dec['error'] ?? '', 0, 255), ':id' => $id]);
         }
         echo json_encode([
             'status'   => 'error',
@@ -236,8 +245,8 @@ if (isset($_POST['action']) && $_POST['action'] === 'bulk_resend') {
             $results[] = ['id'=>$id, 'status'=>'sent', 'httpCode'=>$httpCode];
         } else {
             $dec = json_decode((string)$response, true);
-            if (is_array($dec) && array_key_exists('success', $dec) && $dec['success'] === false) {
-                $invStmt->execute([':err' => mb_substr($dec['error'] ?? 'success:false', 0, 255), ':id' => $id]);
+            if (is_array($dec) && ($dec['success'] ?? null) === false && ws_is_invalid_number($dec['error'] ?? '')) {
+                $invStmt->execute([':err' => mb_substr($dec['error'] ?? '', 0, 255), ':id' => $id]);
             }
             $fail++;
             $results[] = ['id'=>$id, 'status'=>'fail', 'httpCode'=>$httpCode, 'error'=>$error, 'response'=>$response];
@@ -341,6 +350,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'bulk_resend') {
   </style>
   <ul class="nav nav-tabs mb-3" id="ws-tabs">
     <li class="nav-item"><a class="nav-link active" data-status="pending" href="#">Pendientes <span class="tab-count-badge ms-1" id="tab-count-pending">0</span></a></li>
+    <li class="nav-item"><a class="nav-link" data-status="errored" href="#">Con error <span class="tab-count-badge ms-1" id="tab-count-errored">0</span></a></li>
     <li class="nav-item"><a class="nav-link" data-status="invalid" href="#">Números inválidos <span class="tab-count-badge ms-1" id="tab-count-invalid">0</span></a></li>
   </ul>
 
@@ -424,6 +434,7 @@ $(function(){
       $.getJSON('index.php?action=fetch&status=' + currentStatus, function(res){
         if (res && res.counts) {
           $('#tab-count-pending').text(res.counts.pending).toggleClass('alert', res.counts.pending > 0);
+          $('#tab-count-errored').text(res.counts.errored).toggleClass('alert', res.counts.errored > 0);
           $('#tab-count-invalid').text(res.counts.invalid).toggleClass('alert', res.counts.invalid > 0);
         }
         cb(res);
@@ -709,6 +720,7 @@ $(function(){
       $('#btnBulkRequeue').removeClass('d-none');
       $('#btnBulkResend').addClass('d-none');
     } else {
+      // pending y errored: reintento manual tiene sentido
       $('#btnBulkRequeue').addClass('d-none');
       $('#btnBulkResend').removeClass('d-none');
     }

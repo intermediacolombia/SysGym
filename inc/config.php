@@ -236,6 +236,18 @@ if (!function_exists('ws_outbox_migrate')) {
     }
 }
 
+if (!function_exists('ws_is_invalid_number')) {
+    // ponytail: solo "numero no esta en WhatsApp" es permanente; todo lo demas se reintenta
+    function ws_is_invalid_number($errMsg): bool {
+        $m = strtolower((string)$errMsg);
+        if ($m === '') return false;
+        return (strpos($m, 'no está registrado') !== false)
+            || (strpos($m, 'no esta registrado') !== false)
+            || (strpos($m, 'not registered')     !== false)
+            || (strpos($m, 'not on whatsapp')    !== false);
+    }
+}
+
 if (!function_exists('ws_sent_ok')) {
     // ponytail: tolerante a cambios de la API; si truena, revisar log y ajustar aqui
     function ws_sent_ok($decoded): bool {

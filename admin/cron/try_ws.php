@@ -76,8 +76,10 @@ foreach ($rows as $row) {
     if (!$error && $httpCode >= 200 && $httpCode < 300) {
         $successFlag = ws_sent_ok($decoded);
     }
-    // ponytail: la API devolvio JSON con success:false (ej. numero no registrado) -> no reintentar
-    if (!$successFlag && is_array($decoded) && array_key_exists('success', $decoded) && $decoded['success'] === false) {
+    // Solo marcar invalid si la API confirma que el numero no esta en WhatsApp.
+    // Cualquier otro success:false (API caida, token malo, 500 generico) sigue como pending.
+    if (!$successFlag && is_array($decoded) && ($decoded['success'] ?? null) === false
+        && ws_is_invalid_number($decoded['error'] ?? '')) {
         $permanentFail = true;
     }
 
