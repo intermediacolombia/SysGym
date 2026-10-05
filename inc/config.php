@@ -224,6 +224,19 @@ define('WA_MASS_LIMIT',      (int)($settings['wa_mass_limit'] ?? 50));         /
 define('WA_MASS_PROB',       (int)($settings['wa_mass_prob'] ?? 0));            // Máximo mensajes diarios
 define('EXCLUDE_WS_MENU',           $settings['exclude_ws_menu'] ?? '');        // Excluidos de menu de ws
 
+if (!function_exists('require_cron_key')) {
+    // ponytail: CLI pasa directo; HTTP exige ?key=CRON_KEY. Protege endpoints de cron.
+    function require_cron_key(): void {
+        if (PHP_SAPI === 'cli') return;
+        $expected = defined('CRON_KEY') ? CRON_KEY : '';
+        $provided = $_GET['key'] ?? $_SERVER['HTTP_X_CRON_KEY'] ?? '';
+        if ($expected === '' || !hash_equals((string)$expected, (string)$provided)) {
+            http_response_code(403);
+            exit('Forbidden');
+        }
+    }
+}
+
 if (!function_exists('ws_outbox_migrate')) {
     // ponytail: migracion idempotente; tira silencioso si la columna ya existe
     function ws_outbox_migrate(): void {

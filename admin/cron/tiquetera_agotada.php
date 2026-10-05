@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../inc/config.php';
+if (!defined('CRON_RUNNING')) require_cron_key();
 
 // Clientes cuya tiquetera se agotó ayer (última entrada fue ayer y alcanzó el límite)
 try {

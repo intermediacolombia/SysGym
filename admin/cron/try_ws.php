@@ -9,6 +9,7 @@
 header('Content-Type: text/plain; charset=UTF-8');
 
 require_once __DIR__ . '/../../inc/config.php'; // $host,$dbname,$dbuser,$dbpass,$api_ws
+if (!defined('CRON_RUNNING')) require_cron_key();
 ws_outbox_migrate();
 
 $apiKey      = $api_ws;

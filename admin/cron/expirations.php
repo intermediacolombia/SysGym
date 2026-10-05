@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../inc/config.php';
+if (!defined('CRON_RUNNING')) require_cron_key();
 
 try {
    // Consulta para obtener los clientes cuyo vencimiento del plan es dentro de 7 días

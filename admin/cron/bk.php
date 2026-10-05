@@ -11,6 +11,7 @@ date_default_timezone_set('America/Bogota');
 
 // Cargar config.php (que a su vez carga url_bd.php)
 require_once __DIR__ . '/../../inc/config.php';
+if (!defined('CRON_RUNNING')) require_cron_key();
 
 // Extraer variables de BD desde $GLOBALS (donde config.php las deja)
 $host   = $GLOBALS['host']   ?? '';

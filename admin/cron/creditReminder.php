@@ -9,6 +9,7 @@
  */
 
 require_once __DIR__ . '/../../inc/config.php';
+if (!defined('CRON_RUNNING')) require_cron_key();
 
 try {
     // Conexión a la BD

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../inc/config.php';
+if (!defined('CRON_RUNNING')) require_cron_key();
 require_once __DIR__ . '/../../whatsapp/save_failed_ws.php';
 
 date_default_timezone_set('America/Bogota');

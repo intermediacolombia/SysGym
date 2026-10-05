@@ -6,6 +6,9 @@
  * Ejecutar via cron a las 12:00 AM diariamente.
  */
 
+require_once __DIR__ . '/../../inc/config.php';
+if (!defined('CRON_RUNNING')) require_cron_key();
+
 // __DIR__ = .../admin/cron → subir 2 niveles → raíz del proyecto
 $base = dirname(__DIR__, 2) . '/webhook/';
 
