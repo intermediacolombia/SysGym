@@ -68,10 +68,25 @@
     <?php endif; ?>
 
     <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Mensajes Pendientes', $_SESSION["user_permissions"])): ?>
-    <a href="<?= $url ?>/admin/ws_outbox/" class="sg-item" onclick="sgCloseSidebar()">
+    <?php
+      // ponytail: conteo directo; si crece mucho, cachear por minuto
+      $ws_pending_count = 0;
+      try { $ws_pending_count = (int) db()->query("SELECT COUNT(*) FROM ws_outbox")->fetchColumn(); } catch (Throwable $e) {}
+    ?>
+    <a href="<?= $url ?>/admin/ws_outbox/" class="sg-item<?= $ws_pending_count > 0 ? ' ws-pending-blink' : '' ?>" onclick="sgCloseSidebar()">
       <span class="sg-icon"><i class="fa fa-clock-o"></i></span>
       <span class="sg-label">Mensajes Pendientes</span>
+      <?php if ($ws_pending_count > 0): ?>
+        <span class="ws-pending-badge"><?= $ws_pending_count ?></span>
+      <?php endif; ?>
     </a>
+    <style>
+      .ws-pending-badge{display:inline-block;margin-left:8px;background:#e53935;color:#fff;border-radius:10px;padding:1px 8px;font-size:12px;font-weight:700;min-width:20px;text-align:center}
+      .ws-pending-blink{animation:wsBlink 1s ease-in-out infinite}
+      .ws-pending-blink .ws-pending-badge{animation:wsBadgePulse 1s ease-in-out infinite}
+      @keyframes wsBlink{0%,100%{background:transparent}50%{background:rgba(229,57,53,.18)}}
+      @keyframes wsBadgePulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(229,57,53,.7)}50%{transform:scale(1.15);box-shadow:0 0 0 6px rgba(229,57,53,0)}}
+    </style>
     <?php endif; ?>
 
     <?php if (isset($_SESSION["user_permissions"]) && in_array('Manejar Valoraciones', $_SESSION["user_permissions"])): ?>
