@@ -115,9 +115,11 @@ $fmt = function($n){ return '$ ' . number_format((float)$n, 0, ',', '.'); };
 </div>
 <script>
   window.addEventListener('load', function(){
-    if (!/noauto/.test(location.search)) {
-      setTimeout(function(){ window.print(); }, 250);
-    }
+    if (/noauto/.test(location.search)) return;
+    setTimeout(function(){
+      try { (window.frameElement ? window : window).focus(); } catch(e){}
+      window.print();
+    }, 300);
   });
 </script>
 </body>

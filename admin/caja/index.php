@@ -1217,6 +1217,15 @@ window.procesarVentaNormal = function(btn, pid, cant, precio, coste, totalConDes
             if (res.caja_id) {
               $('#btnReimprimirCierre').data('caja-id', res.caja_id).show();
               $('#btnCierreOk').data('caja-id', res.caja_id);
+              // Impresion automatica via iframe oculto (sin popups)
+              var ifr = document.getElementById('printFrameCierre');
+              if (!ifr) {
+                ifr = document.createElement('iframe');
+                ifr.id = 'printFrameCierre';
+                ifr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+                document.body.appendChild(ifr);
+              }
+              ifr.src = 'print_cierre.php?id=' + res.caja_id;
             }
           } else {
             Swal.fire('Error', res.message, 'error');
