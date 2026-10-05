@@ -768,7 +768,10 @@ $tab-border-radius: 35px;
         </div>
       </div>
       <div class="modal-footer border-0 py-3 px-4" style="background:#f8fafc">
-        <button type="button" class="btn btn-lg w-100 fw-bold" style="background:linear-gradient(135deg,#b91c1c,#ef4444);color:#fff;border:none;border-radius:10px" id="btnCierreOk">
+        <button type="button" class="btn btn-lg w-50 fw-bold me-2" style="background:#1e40af;color:#fff;border:none;border-radius:10px;display:none" id="btnReimprimirCierre">
+          <i class="fas fa-print me-2"></i>Reimprimir
+        </button>
+        <button type="button" class="btn btn-lg fw-bold flex-fill" style="background:linear-gradient(135deg,#b91c1c,#ef4444);color:#fff;border:none;border-radius:10px" id="btnCierreOk">
           <i class="fas fa-check me-2"></i>OK
         </button>
       </div>
@@ -1211,6 +1214,10 @@ window.procesarVentaNormal = function(btn, pid, cant, precio, coste, totalConDes
             });
             $('#cierreTransfDetalle').html(detalle || '<span class="text-muted">Sin transferencias</span>');
             $('#modalCierreSummary').modal('show');
+            if (res.caja_id) {
+              $('#btnReimprimirCierre').data('caja-id', res.caja_id).show();
+              window.open('print_cierre.php?id=' + res.caja_id, '_blank', 'width=420,height=640');
+            }
           } else {
             Swal.fire('Error', res.message, 'error');
           }
@@ -1222,6 +1229,11 @@ window.procesarVentaNormal = function(btn, pid, cant, precio, coste, totalConDes
   $('#btnCierreOk').on('click', function(){
     $('#modalCierreSummary').modal('hide');
     location.reload();
+  });
+
+  $('#btnReimprimirCierre').on('click', function(){
+    var id = $(this).data('caja-id');
+    if (id) window.open('print_cierre.php?id=' + id, '_blank', 'width=420,height=640');
   });
 
 	$('#clienteSearch').on('input', function () {

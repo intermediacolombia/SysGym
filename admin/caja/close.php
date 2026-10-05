@@ -96,6 +96,7 @@ if ($stmtUpdate->execute([
     echo json_encode([
         'status'             => 'success',
         'message'            => 'Caja cerrada exitosamente.',
+        'caja_id'            => (int)$cajaAbierta['id'],
         'base'               => $base,
         'efectivo'           => $efectivo,
         'egresos'            => $egresos,
