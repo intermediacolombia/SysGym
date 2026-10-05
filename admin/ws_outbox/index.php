@@ -12,6 +12,17 @@ ws_outbox_migrate();
 
 
 /* ======================= ENDPOINTS AJAX ======================= */
+if (isset($_GET['action']) && $_GET['action'] === 'count') {
+    header('Content-Type: application/json');
+    $counts = db()->query("SELECT status, COUNT(*) c FROM ws_outbox GROUP BY status")->fetchAll(PDO::FETCH_KEY_PAIR);
+    echo json_encode([
+        'pending' => (int)($counts['pending'] ?? 0),
+        'invalid' => (int)($counts['invalid'] ?? 0),
+        'total'   => (int)($counts['pending'] ?? 0) + (int)($counts['invalid'] ?? 0)
+    ]);
+    exit;
+}
+
 if (isset($_GET['action']) && $_GET['action'] === 'fetch') {
     $status = ($_GET['status'] ?? 'pending') === 'invalid' ? 'invalid' : 'pending';
     $stmt = db()->prepare("SELECT id, phonenumber, text, url, created_at, status, last_error FROM ws_outbox WHERE status = :s ORDER BY id DESC");
@@ -323,9 +334,14 @@ if (isset($_POST['action']) && $_POST['action'] === 'bulk_resend') {
 
 
 
+  <style>
+    .tab-count-badge{display:inline-block;background:#9e9e9e;color:#fff;border-radius:10px;padding:1px 8px;font-size:12px;font-weight:700;min-width:20px;text-align:center}
+    .tab-count-badge.alert{background:#e53935;color:#fff;animation:tabBadgePulse 1s ease-in-out infinite;padding:1px 8px}
+    @keyframes tabBadgePulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(229,57,53,.7)}50%{transform:scale(1.15);box-shadow:0 0 0 6px rgba(229,57,53,0)}}
+  </style>
   <ul class="nav nav-tabs mb-3" id="ws-tabs">
-    <li class="nav-item"><a class="nav-link active" data-status="pending" href="#">Pendientes <span class="badge bg-secondary ms-1" id="tab-count-pending">0</span></a></li>
-    <li class="nav-item"><a class="nav-link" data-status="invalid" href="#">Números inválidos <span class="badge bg-danger ms-1" id="tab-count-invalid">0</span></a></li>
+    <li class="nav-item"><a class="nav-link active" data-status="pending" href="#">Pendientes <span class="tab-count-badge ms-1" id="tab-count-pending">0</span></a></li>
+    <li class="nav-item"><a class="nav-link" data-status="invalid" href="#">Números inválidos <span class="tab-count-badge ms-1" id="tab-count-invalid">0</span></a></li>
   </ul>
 
   <table id="outbox-table" class="table table-striped table-bordered">
@@ -407,8 +423,8 @@ $(function(){
     ajax: function(d, cb){
       $.getJSON('index.php?action=fetch&status=' + currentStatus, function(res){
         if (res && res.counts) {
-          $('#tab-count-pending').text(res.counts.pending);
-          $('#tab-count-invalid').text(res.counts.invalid);
+          $('#tab-count-pending').text(res.counts.pending).toggleClass('alert', res.counts.pending > 0);
+          $('#tab-count-invalid').text(res.counts.invalid).toggleClass('alert', res.counts.invalid > 0);
         }
         cb(res);
       });

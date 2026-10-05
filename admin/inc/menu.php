@@ -69,19 +69,18 @@
 
     <?php if (isset($_SESSION["user_permissions"]) && in_array('Ver Mensajes Pendientes', $_SESSION["user_permissions"])): ?>
     <?php
-      // ponytail: conteo directo; si crece mucho, cachear por minuto
       $ws_pending_count = 0;
       try {
           ws_outbox_migrate();
           $ws_pending_count = (int) db()->query("SELECT COUNT(*) FROM ws_outbox")->fetchColumn();
       } catch (Throwable $e) {}
     ?>
-    <a href="<?= $url ?>/admin/ws_outbox/" class="sg-item<?= $ws_pending_count > 0 ? ' ws-pending-blink' : '' ?>" onclick="sgCloseSidebar()">
+    <a id="ws-pending-link" href="<?= $url ?>/admin/ws_outbox/"
+       class="sg-item<?= $ws_pending_count > 0 ? ' ws-pending-blink' : '' ?>"
+       onclick="sgCloseSidebar()">
       <span class="sg-icon"><i class="fa fa-clock-o"></i></span>
       <span class="sg-label">Mensajes Pendientes</span>
-      <?php if ($ws_pending_count > 0): ?>
-        <span class="ws-pending-badge"><?= $ws_pending_count ?></span>
-      <?php endif; ?>
+      <span id="ws-pending-badge" class="ws-pending-badge" style="<?= $ws_pending_count > 0 ? '' : 'display:none' ?>"><?= $ws_pending_count ?></span>
     </a>
     <style>
       .ws-pending-badge{display:inline-block;margin-left:8px;background:#e53935;color:#fff;border-radius:10px;padding:1px 8px;font-size:12px;font-weight:700;min-width:20px;text-align:center}
@@ -91,6 +90,31 @@
       @keyframes wsBlink{0%,100%{background:rgba(229,57,53,.35)}50%{background:rgba(229,57,53,.85)}}
       @keyframes wsBadgePulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,255,255,.7)}50%{transform:scale(1.15);box-shadow:0 0 0 6px rgba(255,255,255,0)}}
     </style>
+    <script>
+    (function(){
+      // ponytail: polling simple cada 20s; sin libs
+      var link = document.getElementById('ws-pending-link');
+      var badge = document.getElementById('ws-pending-badge');
+      if (!link || !badge) return;
+      function tick(){
+        fetch('<?= $url ?>/admin/ws_outbox/index.php?action=count', {credentials:'same-origin'})
+          .then(function(r){ return r.ok ? r.json() : null; })
+          .then(function(j){
+            if (!j) return;
+            var n = j.total || 0;
+            if (n > 0) {
+              badge.textContent = n;
+              badge.style.display = '';
+              link.classList.add('ws-pending-blink');
+            } else {
+              badge.style.display = 'none';
+              link.classList.remove('ws-pending-blink');
+            }
+          }).catch(function(){});
+      }
+      setInterval(tick, 20000);
+    })();
+    </script>
     <?php endif; ?>
 
     <?php if (isset($_SESSION["user_permissions"]) && in_array('Manejar Valoraciones', $_SESSION["user_permissions"])): ?>
