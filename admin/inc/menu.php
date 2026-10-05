@@ -85,8 +85,11 @@
     </a>
     <style>
       .ws-pending-badge{display:inline-block;margin-left:8px;background:#e53935;color:#fff;border-radius:10px;padding:1px 8px;font-size:12px;font-weight:700;min-width:20px;text-align:center}
-      .ws-pending-blink .ws-pending-badge{animation:wsBadgePulse 1s ease-in-out infinite}
-      @keyframes wsBadgePulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(229,57,53,.7)}50%{transform:scale(1.15);box-shadow:0 0 0 6px rgba(229,57,53,0)}}
+      .ws-pending-blink{animation:wsBlink 1s ease-in-out infinite;border-radius:6px}
+      .ws-pending-blink,.ws-pending-blink *{color:#fff !important}
+      .ws-pending-blink .ws-pending-badge{animation:wsBadgePulse 1s ease-in-out infinite;background:#fff;color:#e53935 !important}
+      @keyframes wsBlink{0%,100%{background:rgba(229,57,53,.35)}50%{background:rgba(229,57,53,.85)}}
+      @keyframes wsBadgePulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,255,255,.7)}50%{transform:scale(1.15);box-shadow:0 0 0 6px rgba(255,255,255,0)}}
     </style>
     <?php endif; ?>
 
