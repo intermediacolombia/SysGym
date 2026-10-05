@@ -153,7 +153,7 @@ try {
     $success = false;
     if (!$error && $httpCode >= 200 && $httpCode < 300) {
         $decoded = json_decode($response, true);
-        $success = !empty($decoded['success']);
+        $success = ws_sent_ok($decoded);
     }
 
     if (!$success) {

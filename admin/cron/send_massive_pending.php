@@ -266,7 +266,7 @@ if ($curlError) {
     $errorDetalle = "HTTP: $httpCode";
 } else {
     $decoded = json_decode($response, true);
-    if (!empty($decoded['success'])) {
+    if (ws_sent_ok($decoded)) {
         $exito = true;
     } else {
         $errorDetalle = "API: " . ($decoded['error'] ?? 'Sin respuesta de exito');

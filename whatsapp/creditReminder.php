@@ -64,7 +64,7 @@ if (isset($creditReminders) && is_array($creditReminders)) {
         $successFlag = false;
         if (!$error && $httpCode >= 200 && $httpCode < 300) {
             $decoded = json_decode($response, true);
-            $successFlag = !empty($decoded['success']);
+            $successFlag = ws_sent_ok($decoded);
         }
 
         // Si falla → guardar en ws_outbox (solo phone, text, url=null)

@@ -118,7 +118,7 @@ try {
             $successFlag = false;
             if (!$error && $httpCode >= 200 && $httpCode < 300) {
                 $decoded = json_decode($response, true);
-                $successFlag = !empty($decoded['success']);
+                $successFlag = ws_sent_ok($decoded);
             }
 
             if (!$successFlag) {

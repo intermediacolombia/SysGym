@@ -114,7 +114,7 @@ function wsSend($telefono, $mensaje, $pdfUrl = null) {
     $success = false;
     if ($code >= 200 && $code < 300) {
         $decoded = json_decode($response, true);
-        $success = !empty($decoded['success']);
+        $success = ws_sent_ok($decoded);
     }
     wlog("wsSend $telefono HTTP=$code success=" . ($success ? 'SI' : 'NO') . ($pdfUrl ? ' [PDF]' : '') . " msg=" . mb_substr($mensaje, 0, 60));
     return $success;

@@ -67,10 +67,19 @@ foreach ($rows as $row) {
     curl_close($ch);
 
     $successFlag = false;
+    $decoded = null;
     if (!$error && $httpCode >= 200 && $httpCode < 300) {
         $decoded = json_decode($response, true);
-        $successFlag = !empty($decoded['success']); // éxito real
+        $successFlag = ws_sent_ok($decoded);
     }
+
+    // ponytail: log temporal para capturar la respuesta real de la API
+    @file_put_contents(
+        __DIR__ . '/ws_api_debug.log',
+        '[' . date('Y-m-d H:i:s') . "] id={$row['id']} http=$httpCode ok=" . ($successFlag?'1':'0')
+            . ' resp=' . substr((string)$response, 0, 500) . "\n",
+        FILE_APPEND
+    );
 
     if ($successFlag) {
         // borrar definitivamente

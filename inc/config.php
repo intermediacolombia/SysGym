@@ -224,5 +224,21 @@ define('WA_MASS_LIMIT',      (int)($settings['wa_mass_limit'] ?? 50));         /
 define('WA_MASS_PROB',       (int)($settings['wa_mass_prob'] ?? 0));            // Máximo mensajes diarios
 define('EXCLUDE_WS_MENU',           $settings['exclude_ws_menu'] ?? '');        // Excluidos de menu de ws
 
+if (!function_exists('ws_sent_ok')) {
+    // ponytail: tolerante a cambios de la API; si truena, revisar log y ajustar aqui
+    function ws_sent_ok($decoded): bool {
+        if (!is_array($decoded)) return false;
+        if (!empty($decoded['success']))     return true;
+        if (!empty($decoded['sent']))        return true;
+        if (!empty($decoded['id']))          return true;
+        if (!empty($decoded['messageId']))   return true;
+        if (!empty($decoded['message_id'])) return true;
+        if (!empty($decoded['key']['id']))   return true;
+        $status = strtolower((string)($decoded['status'] ?? ''));
+        if (in_array($status, ['success','ok','sent','delivered','queued'], true)) return true;
+        return false;
+    }
+}
+
 ?>
 
