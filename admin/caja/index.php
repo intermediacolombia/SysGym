@@ -1215,8 +1215,9 @@ window.procesarVentaNormal = function(btn, pid, cant, precio, coste, totalConDes
             $('#cierreTransfDetalle').html(detalle || '<span class="text-muted">Sin transferencias</span>');
             $('#modalCierreSummary').modal('show');
             if (res.caja_id) {
-              $('#btnReimprimirCierre').data('caja-id', res.caja_id).show();
               $('#btnCierreOk').data('caja-id', res.caja_id);
+              <?php if (PRINT_CAJA_CLOSE): ?>
+              $('#btnReimprimirCierre').data('caja-id', res.caja_id).show();
               // Impresion automatica via iframe oculto (sin popups)
               var ifr = document.getElementById('printFrameCierre');
               if (!ifr) {
@@ -1226,6 +1227,7 @@ window.procesarVentaNormal = function(btn, pid, cant, precio, coste, totalConDes
                 document.body.appendChild(ifr);
               }
               ifr.src = 'print_cierre.php?id=' + res.caja_id;
+              <?php endif; ?>
             }
           } else {
             Swal.fire('Error', res.message, 'error');

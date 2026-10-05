@@ -180,6 +180,7 @@ define('CONSENT_FIRMANTE', $settings['consent_firmante'] ?? '');
 define('CONSENT_FIRMA_IMG', !empty($settings['consent_firma_img']) ? '/admin/uploads/' . $settings['consent_firma_img'] : '');
 define('DIRECCION_GYM', $settings['direccion_gym'] ?? '');
 define('CIUDAD_GYM', $settings['ciudad_gym'] ?? '');
+define('PRINT_CAJA_CLOSE', !empty($settings['print_caja_close']));
 define('CERT_TEMPLATE', $settings['cert_template'] ?? '');
 define('CERT_FIRMANTE', $settings['cert_firmante'] ?? '');
 define('CERT_CARGO', $settings['cert_cargo'] ?? '');
