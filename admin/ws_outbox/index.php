@@ -17,7 +17,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch') {
     $stmt = db()->prepare("SELECT id, phonenumber, text, url, created_at, status, last_error FROM ws_outbox WHERE status = :s ORDER BY id DESC");
     $stmt->execute([':s' => $status]);
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    echo json_encode(['data' => $data]);
+    $counts = db()->query("SELECT status, COUNT(*) c FROM ws_outbox GROUP BY status")->fetchAll(PDO::FETCH_KEY_PAIR);
+    echo json_encode([
+        'data' => $data,
+        'counts' => ['pending' => (int)($counts['pending'] ?? 0), 'invalid' => (int)($counts['invalid'] ?? 0)]
+    ]);
     exit;
 }
 
@@ -320,8 +324,8 @@ if (isset($_POST['action']) && $_POST['action'] === 'bulk_resend') {
 
 
   <ul class="nav nav-tabs mb-3" id="ws-tabs">
-    <li class="nav-item"><a class="nav-link active" data-status="pending" href="#">Pendientes</a></li>
-    <li class="nav-item"><a class="nav-link" data-status="invalid" href="#">Números inválidos</a></li>
+    <li class="nav-item"><a class="nav-link active" data-status="pending" href="#">Pendientes <span class="badge bg-secondary ms-1" id="tab-count-pending">0</span></a></li>
+    <li class="nav-item"><a class="nav-link" data-status="invalid" href="#">Números inválidos <span class="badge bg-danger ms-1" id="tab-count-invalid">0</span></a></li>
   </ul>
 
   <table id="outbox-table" class="table table-striped table-bordered">
@@ -400,7 +404,15 @@ $(function(){
   /* ========= DataTable ========= */
   var currentStatus = 'pending';
   var table = $('#outbox-table').DataTable({
-    ajax: function(d, cb){ $.getJSON('index.php?action=fetch&status=' + currentStatus, cb); },
+    ajax: function(d, cb){
+      $.getJSON('index.php?action=fetch&status=' + currentStatus, function(res){
+        if (res && res.counts) {
+          $('#tab-count-pending').text(res.counts.pending);
+          $('#tab-count-invalid').text(res.counts.invalid);
+        }
+        cb(res);
+      });
+    },
     columns: [
       {
       data: null,

@@ -73,7 +73,7 @@
       $ws_pending_count = 0;
       try {
           ws_outbox_migrate();
-          $ws_pending_count = (int) db()->query("SELECT COUNT(*) FROM ws_outbox WHERE status='pending'")->fetchColumn();
+          $ws_pending_count = (int) db()->query("SELECT COUNT(*) FROM ws_outbox")->fetchColumn();
       } catch (Throwable $e) {}
     ?>
     <a href="<?= $url ?>/admin/ws_outbox/" class="sg-item<?= $ws_pending_count > 0 ? ' ws-pending-blink' : '' ?>" onclick="sgCloseSidebar()">
