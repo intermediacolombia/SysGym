@@ -135,7 +135,13 @@ if ($caja['usuario_id'] != $id_user &&
     <button class="btn btn-primary" id="btnAbrirCajaEstado">
         <i class="material-icons" style="font-size:16px">attach_money</i> Abrir Caja
     </button>
-<?php endif; ?>	
+<?php endif; ?>
+
+<?php if (defined('PRINT_CAJA_CLOSE') && PRINT_CAJA_CLOSE && $caja['estado'] == 0): ?>
+    <a href="print_cierre.php?id=<?= (int)$caja['id'] ?>" target="_blank" class="btn btn-outline-primary">
+        <i class="fa fa-print"></i> Imprimir cierre
+    </a>
+<?php endif; ?>
 
   <div class="card shadow-sm">
     <div class="card-header bg-danger text-white">
