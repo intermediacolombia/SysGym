@@ -110,6 +110,9 @@ $fmt = function($n){ return '$ ' . number_format((float)$n, 0, ',', '.'); };
   <div class="row"><span>Total vendido:</span><span><?= $fmt($totalVendido) ?></span></div>
   <div class="row b"><span>Total cierre (base+ventas):</span><span><?= $fmt($totalCierre) ?></span></div>
   <hr>
+  <div class="row"><span>Sobrante:</span><span>_____________</span></div>
+  <div class="row"><span>Firma:</span><span>_____________</span></div>
+  <hr>
   <div class="center">Impreso: <?= date('Y-m-d H:i') ?></div>
   <div class="center" style="margin-top:14px">.</div>
 </div>
