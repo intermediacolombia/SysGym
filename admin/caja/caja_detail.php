@@ -138,9 +138,9 @@ if ($caja['usuario_id'] != $id_user &&
 <?php endif; ?>
 
 <?php if (defined('PRINT_CAJA_CLOSE') && PRINT_CAJA_CLOSE && $caja['estado'] == 0): ?>
-    <a href="print_cierre.php?id=<?= (int)$caja['id'] ?>" target="_blank" class="btn btn-outline-primary">
+    <button type="button" class="btn btn-outline-primary" onclick="window.open('print_cierre.php?id=<?= (int)$caja['id'] ?>','_blank','width=420,height=640')">
         <i class="fa fa-print"></i> Imprimir cierre
-    </a>
+    </button>
 <?php endif; ?>
 
   <div class="card shadow-sm">
