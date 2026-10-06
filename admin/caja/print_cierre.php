@@ -47,10 +47,10 @@ $fmt = function($n){ return '$ ' . number_format((float)$n, 0, ',', '.'); };
 <meta charset="UTF-8">
 <title>Cierre Caja #<?= $cid ?></title>
 <style>
-  @page { size: 80mm auto; margin: 2mm; }
+  @page { size: 80mm auto; margin: 3mm 5mm; }
   * { box-sizing: border-box; }
   html, body { margin:0; padding:0; }
-  body { font-family: 'Courier New', monospace; font-size: 12px; color:#000; width: 76mm; }
+  body { font-family: 'Courier New', monospace; font-size: 12px; color:#000; width: 70mm; }
   .center { text-align:center; }
   .b { font-weight:700; }
   .lg { font-size:14px; }
