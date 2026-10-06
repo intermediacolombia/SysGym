@@ -60,7 +60,7 @@ try {
         <th><i class="fa fa-clock-o"></i> Apertura</th>
         <th><i class="far fa-calendar-alt"></i> Cierre</th>
         <th><i class="fa fa-clock-o"></i> Cierre</th>
-        <th>Base</th><th>Total Vendido</th><th>Total en Caja</th><th>Estado</th>
+        <th>Base</th><th>Total Vendido</th><th>Total en Caja</th><th>Estado</th><th></th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -109,7 +109,15 @@ $(function () {
       {data:'monto_inicial', render:d=>'$'+parseFloat(d).toLocaleString('es-CO')},
       {data:'total_vendido', render:d=>'$'+parseFloat(d).toLocaleString('es-CO')},
       {data:'total_cierre' , render:d=>'$'+parseFloat(d).toLocaleString('es-CO')},
-      {data:'estado', render:d=>Number(d)===0?'Cerrada':'Abierta'}
+      {data:'estado', render:d=>Number(d)===0?'Cerrada':'Abierta'},
+      {data:'id', orderable:false, searchable:false, render:function(id,_,row){
+        <?php if (defined('PRINT_CAJA_CLOSE') && PRINT_CAJA_CLOSE): ?>
+        if (Number(row.estado)===0) {
+          return '<button class="btn btn-sm btn-outline-primary btnPrintCierre" data-id="'+id+'" title="Imprimir cierre"><i class="fa fa-print"></i></button>';
+        }
+        <?php endif; ?>
+        return '';
+      }}
     ],
     order: [[0,'desc']],
     pageLength:50,
@@ -124,9 +132,16 @@ $(function () {
   function recargar(){ tabla.ajax.reload(); }
 
   /*── 4. clic en fila → detalle ───────────────────────────────────*/
-  $('#cajas-table tbody').on('click','tr',function(){
+  $('#cajas-table tbody').on('click','tr',function(e){
+    if ($(e.target).closest('.btnPrintCierre').length) return;
     const d = tabla.row(this).data();
     if(d) window.location.href = 'caja_detail.php?id='+d.id;
+  });
+
+  $('#cajas-table tbody').on('click','.btnPrintCierre',function(e){
+    e.stopPropagation();
+    const id = $(this).data('id');
+    if(id) window.open('print_cierre.php?id='+id, '_blank', 'width=420,height=640');
   });
 	
 	/* botón LIMPIAR → vacía el input y muestra todas las cajas */
