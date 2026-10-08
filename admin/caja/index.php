@@ -1238,10 +1238,7 @@ window.procesarVentaNormal = function(btn, pid, cant, precio, coste, totalConDes
   });
 
   $('#btnCierreOk').on('click', function(){
-    <?php if (PRINT_CAJA_CLOSE): ?>
-    var id = $(this).data('caja-id');
-    if (id) window.open('print_cierre.php?id=' + id, '_blank', 'width=420,height=640');
-    <?php endif; ?>
+    // ponytail: impresion automatica ya ocurrio via iframe al cerrar; OK solo cierra modal
     $('#modalCierreSummary').modal('hide');
     location.reload();
   });
