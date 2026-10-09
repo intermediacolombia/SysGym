@@ -132,13 +132,16 @@ $totalCaja = $totalIngresos - $egresos;
 $(function() {
   const cajaId = '<?php echo (int)$caja_id; ?>';
 
-  // ?? Reloj
+  // Reloj
   function actualizarHora() {
     const d = new Date();
-    const h = d.getHours().toString().padStart(2,'0');
+    let h = d.getHours();
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    const hh = h.toString().padStart(2,'0');
     const m = d.getMinutes().toString().padStart(2,'0');
     const s = d.getSeconds().toString().padStart(2,'0');
-    $('#topbarHora').text(`?? ${h}:${m}:${s}`);
+    $('#topbarHora').text(`${hh}:${m}:${s} ${ampm}`);
   }
   actualizarHora();
   setInterval(actualizarHora, 1000);
