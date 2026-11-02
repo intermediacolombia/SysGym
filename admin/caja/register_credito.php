@@ -65,8 +65,8 @@ db()->beginTransaction();
 try {
     // 1. Registrar el crédito en la tabla creditos
     $stmtInsertCredito = db()->prepare("
-        INSERT INTO creditos (idCliente, fecha, valor, fecha_limite, descripcion, created_at, updated_at)
-        VALUES (:idCliente, :fecha, :valor, :fecha_limite, :descripcion, NOW(), NOW())
+        INSERT INTO creditos (idCliente, fecha, valor, fecha_limite, descripcion, tipo, created_at, updated_at)
+        VALUES (:idCliente, :fecha, :valor, :fecha_limite, :descripcion, 'producto', NOW(), NOW())
     ");
     $stmtInsertCredito->execute([
         ':idCliente' => $cliente_id,

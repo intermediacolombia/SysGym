@@ -76,6 +76,16 @@
         <small class="text-muted">Si está activo, al cerrar caja se abre automáticamente el diálogo de impresión de la tirilla.</small>
       </div>
 
+      <!-- SUSPENDER POR CREDITO MENSUALIDAD VENCIDO -->
+      <div class="mb-3">
+        <input type="hidden" name="suspender_por_credito_mensualidad" value="0">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="suspender_por_credito_mensualidad" name="suspender_por_credito_mensualidad" value="1" <?= (!empty($settings['suspender_por_credito_mensualidad']) ? 'checked' : '') ?>>
+          <label class="form-check-label" for="suspender_por_credito_mensualidad"><strong>Suspender acceso por mensualidad a crédito vencida</strong></label>
+        </div>
+        <small class="text-muted">Si está activo, el cliente no podrá registrar asistencia mientras tenga una mensualidad a crédito vencida. Los créditos de productos no bloquean el acceso.</small>
+      </div>
+
       <hr class="my-4">
 <!-- ===== COLORES DEL SISTEMA ===== -->
 <h5><i class="fas fa-palette me-2"></i>Colores del Sistema</h5>

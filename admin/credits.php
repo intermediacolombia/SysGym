@@ -56,6 +56,9 @@ fetch('gets_home/get_creditos_activos.php')
                 badgeClass = "badge-green";
             }
 
+            let tipoBg  = cr.tipo === 'producto' ? '#17a2b8' : '#fd7e14';
+            let tipoTxt = cr.tipo === 'producto' ? 'Producto' : 'Mensualidad';
+
             let html = `
             <div class="card-item" onclick="window.location.href='clients/detail.php?id=${cr.idCliente}'">
 
@@ -64,7 +67,10 @@ fetch('gets_home/get_creditos_activos.php')
                 </div>
 
                 <div class="card-info">
-                    <div class="card-title">${cr.nombres} ${cr.apellidos}</div>
+                    <div class="card-title">
+                        ${cr.nombres} ${cr.apellidos}
+                        <span style="display:inline-block;background:${tipoBg};color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;margin-left:6px;">${tipoTxt}</span>
+                    </div>
                     <div class="card-sub">
                         ${cr.descripcion} · ${cr.fecha}
                     </div>

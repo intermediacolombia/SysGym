@@ -25,7 +25,7 @@ try {
     // === 1. Recolectar información de los créditos seleccionados ===
     $placeholders = implode(',', array_fill(0, count($ids), '?'));
     $stmt = db()->prepare("
-        SELECT c.id, c.idCliente, c.valor, c.descripcion, c.fecha_limite,
+        SELECT c.id, c.idCliente, c.valor, c.descripcion, c.tipo, c.fecha_limite,
                cli.nombres, cli.apellidos, cli.identificacion, cli.dialCode, cli.telefono, cli.direccion, cli.notificaciones
         FROM creditos c
         INNER JOIN clientes cli ON cli.id = c.idCliente
@@ -93,6 +93,21 @@ try {
     $stmtVincular = db()->prepare("UPDATE creditos SET factura_id = ? WHERE id = ?");
     foreach ($creditosPagados as $c) {
         $stmtVincular->execute([$facturaIdNueva, $c['id']]);
+    }
+
+    // Si algún crédito pagado era mensualidad, reactivar membresía (sin tocar fechas)
+    $tuvoMensualidad = false;
+    foreach ($creditosPagados as $c) {
+        if (($c['tipo'] ?? 'mensualidad') === 'mensualidad') { $tuvoMensualidad = true; break; }
+    }
+    if ($tuvoMensualidad) {
+        db()->prepare("
+            UPDATE clientes
+            SET estado = 'activo', updated_at = NOW()
+            WHERE id = :id
+              AND estado = 'inactivo'
+              AND vencimiento_plan >= CURDATE()
+        ")->execute([':id' => $idCliente]);
     }
 
     // ✅ Confirmar la transacción antes de generar PDF / enviar WhatsApp

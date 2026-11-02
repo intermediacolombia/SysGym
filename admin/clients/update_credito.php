@@ -29,7 +29,7 @@ $payment_method = isset($_POST['paymentMethod']) ? trim($_POST['paymentMethod'])
 $bank = isset($_POST['bank']) ? trim($_POST['bank']) : '';
 
 // 1. Obtener el crédito actual y datos relacionados
-$stmt = db()->prepare("SELECT valor, idCliente, factura_id, fecha, descripcion FROM creditos WHERE id = :credit_id");
+$stmt = db()->prepare("SELECT valor, idCliente, factura_id, fecha, descripcion, tipo FROM creditos WHERE id = :credit_id");
 $stmt->execute([':credit_id' => $credit_id]);
 $credit = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -53,16 +53,17 @@ $stmtUpdate->execute([':credit_id' => $credit_id]);
 $new_credit_id = null;
 // 4. Si queda saldo, crear un nuevo crédito con ese saldo restante
 if ($new_valor > 0) {
-    $stmtInsert = db()->prepare("INSERT INTO creditos 
-        (idCliente, factura_id, fecha, valor, fecha_limite, estado, descripcion)
-        VALUES (:idCliente, :factura_id, :fecha, :valor, :fecha_limite, 0, :descripcion)");
+    $stmtInsert = db()->prepare("INSERT INTO creditos
+        (idCliente, factura_id, fecha, valor, fecha_limite, estado, descripcion, tipo)
+        VALUES (:idCliente, :factura_id, :fecha, :valor, :fecha_limite, 0, :descripcion, :tipo)");
     $stmtInsert->execute([
         ':idCliente'    => $credit['idCliente'],
         ':factura_id'   => $credit['factura_id'], // Se conserva la misma factura_id según la lógica
         ':fecha'        => date('Y-m-d'),
         ':valor'        => $new_valor,
         ':fecha_limite' => $fecha_limite,
-        ':descripcion'  => $descripcion ? $descripcion : $credit['descripcion']
+        ':descripcion'  => $descripcion ? $descripcion : $credit['descripcion'],
+        ':tipo'         => $credit['tipo']
     ]);
     $new_credit_id = db()->lastInsertId();
 }
@@ -172,6 +173,17 @@ $desc = json_encode([
 
 log_action('Pagar Credito', $desc, 'Clientes');
 // END LOGS
+
+// Reactivar membresía si era mensualidad y el plan aún no venció por fecha
+if ($credit['tipo'] === 'mensualidad') {
+    db()->prepare("
+        UPDATE clientes
+        SET estado = 'activo', updated_at = NOW()
+        WHERE id = :id
+          AND estado = 'inactivo'
+          AND vencimiento_plan >= CURDATE()
+    ")->execute([':id' => $credit['idCliente']]);
+}
 
 // 10. Enviar respuesta final
 echo json_encode([

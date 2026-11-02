@@ -52,8 +52,8 @@ try {
     $descripcion = implode(', ', array_map(fn($i) => $i['nombre'], $items));
 
     // 1. Crear crédito único por el total restante
-    $st = db()->prepare("INSERT INTO creditos (idCliente, fecha, valor, fecha_limite, descripcion, created_at, updated_at)
-        VALUES (:idCliente, :fecha, :valor, :fecha_limite, :descripcion, NOW(), NOW())");
+    $st = db()->prepare("INSERT INTO creditos (idCliente, fecha, valor, fecha_limite, descripcion, tipo, created_at, updated_at)
+        VALUES (:idCliente, :fecha, :valor, :fecha_limite, :descripcion, 'producto', NOW(), NOW())");
     $st->execute([
         ':idCliente'   => $cliente_id,
         ':fecha'       => date('Y-m-d'),

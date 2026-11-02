@@ -1095,7 +1095,15 @@ if ( ! $.fn.DataTable.isDataTable('#creditos-table') ) {
         }
       },
       { "data": "fecha_limite" },
-      { "data": "descripcion" }
+      {
+        "data": "descripcion",
+        "render": function(data, type, row) {
+          var tipo = (row.tipo || 'mensualidad');
+          var cls  = tipo === 'producto' ? 'bg-info' : 'bg-warning text-dark';
+          var txt  = tipo === 'producto' ? 'Producto' : 'Mensualidad';
+          return (data || '') + ' <span class="badge ' + cls + ' ms-1">' + txt + '</span>';
+        }
+      }
     ],
     "order": [[1, "desc"]],
     "language": {

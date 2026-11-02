@@ -48,6 +48,28 @@ try {
         exit;
     }
 
+    // Bloqueo por mensualidad a crédito vencida (si el setting está activo)
+    if (!empty($settings['suspender_por_credito_mensualidad'])) {
+        $stmtCred = db()->prepare("
+            SELECT IFNULL(SUM(valor),0) AS deuda
+            FROM creditos
+            WHERE idCliente = :id
+              AND estado = 0
+              AND deleted = 0
+              AND tipo = 'mensualidad'
+              AND fecha_limite < :hoy
+        ");
+        $stmtCred->execute([':id' => $cliente_id, ':hoy' => $hoy]);
+        $deuda = (float)$stmtCred->fetchColumn();
+        if ($deuda > 0) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Mensualidad a crédito vencida: $' . number_format($deuda, 0, ',', '.') . '. Pague para reactivar el acceso.'
+            ]);
+            exit;
+        }
+    }
+
     // Validar límite de entradas para tiqueteras
     if (($cliente['plan_tipo'] ?? '') === 'tiquetera' && !empty($cliente['tiquetera_factura_id'])) {
         $facturaActiva = (int)$cliente['tiquetera_factura_id'];

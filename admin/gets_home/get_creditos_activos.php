@@ -14,6 +14,7 @@ try {
             cli.imagen_perfil,
             c.fecha,
             c.descripcion,
+            c.tipo,
             c.valor,
             c.fecha_limite,
             DATEDIFF(c.fecha_limite, :hoy) AS dias_restantes
