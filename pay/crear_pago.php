@@ -22,6 +22,70 @@ try {
 
     if (!$cliente) die("Cliente no encontrado.");
 
+    // === PRIORIDAD 1: Crédito de mensualidad vencido → pagar solo el crédito ===
+    $stmtCred = db()->prepare("
+        SELECT IFNULL(SUM(valor), 0) AS total
+        FROM creditos
+        WHERE idCliente = :id
+          AND estado = 0 AND deleted = 0
+          AND tipo = 'mensualidad'
+          AND fecha_limite < CURDATE()
+    ");
+    $stmtCred->execute([':id' => $cliente_id]);
+    $deudaCredito = (float)$stmtCred->fetchColumn();
+
+    if ($deudaCredito > 0) {
+        $monto       = $deudaCredito;
+        $descripcion = "Pago crédito mensualidad - " . trim(($cliente['nombres'] ?? '') . ' ' . ($cliente['apellidos'] ?? ''));
+        $referencia  = "credito_{$cliente_id}_" . time();
+
+        // Registrar intento en pagos
+        $stmtInsert = db()->prepare("
+            INSERT INTO pagos (cliente_id, referencia, monto, estado, metodo_pago, raw_response, fecha_pago)
+            VALUES (:cid, :ref, :monto, 'Pending', 'mercadopago', NULL, :fecha)
+        ");
+        $stmtInsert->execute([
+            ':cid' => $cliente_id,
+            ':ref' => $referencia,
+            ':monto' => $monto,
+            ':fecha' => date('Y-m-d H:i:s')
+        ]);
+
+        // Preferencia MP
+        $preferenceClient = new PreferenceClient();
+        $preference = $preferenceClient->create([
+            "items" => [[
+                "title" => $descripcion,
+                "quantity" => 1,
+                "unit_price" => $monto,
+                "currency_id" => "COP"
+            ]],
+            "payer" => [
+                "name" => $cliente['nombres'],
+                "surname" => $cliente['apellidos'],
+                "email" => $cliente['email'] ?: "cliente@sysgym.com"
+            ],
+            "external_reference" => $referencia,
+            "back_urls" => [
+                "success" => $url . "/pay/pago_exitoso.php?id=" . $cliente_id,
+                "failure" => $url . "/pay/pago_fallido.php?id=" . $cliente_id,
+                "pending" => $url . "/pay/pago_pendiente.php?id=" . $cliente_id
+            ],
+            "auto_return" => "approved",
+            "notification_url" => $url . "/pay/webhook_mp.php"
+        ]);
+
+        header("Location: " . $preference->init_point);
+        exit;
+    }
+
+    // === PRIORIDAD 2: Plan vigente → bloquear ===
+    $vencPlan = !empty($cliente['vencimiento_plan']) ? new DateTime($cliente['vencimiento_plan']) : null;
+    if ($vencPlan && $vencPlan >= new DateTime('today') && ($cliente['estado'] ?? '') === 'activo') {
+        die("Tu plan sigue vigente hasta " . $vencPlan->format('d/m/Y') . ". No tienes pagos pendientes por ahora.");
+    }
+
+    // === PRIORIDAD 3: Plan vencido → pago de renovación (flujo original) ===
     $esTiquetera = ($cliente['plan_tipo'] ?? 'plan') === 'tiquetera';
 
     // === Obtener datos del plan o tiquetera ===

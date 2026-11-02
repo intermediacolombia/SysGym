@@ -65,8 +65,9 @@ if (!empty($data['type']) && $data['type'] === 'payment' && !empty($data['data']
         /* ==========================================================
            ACTUALIZAR O INSERTAR REGISTRO EN PAGOS (UPsert)
         =========================================================== */
-        if (preg_match('/pago_(\d+)_/', $ref, $match)) {
-            $cliente_id = (int)$match[1];
+        if (preg_match('/^(pago|credito)_(\d+)_/', $ref, $match)) {
+            $tipoRef    = $match[1];
+            $cliente_id = (int)$match[2];
 
             // ¿Existe ya el pago con esa referencia?
             $stmtCheck = db()->prepare("SELECT id FROM pagos WHERE referencia = :ref LIMIT 1");
@@ -117,8 +118,37 @@ $stmtUpdatePago->execute([
         /* ==========================================================
            PROCESAR SOLO PAGOS APROBADOS
         =========================================================== */
-        if ($estadoPago === 'approved' && preg_match('/pago_(\d+)_/', $ref, $match)) {
-            $cliente_id = (int)$match[1];
+        if ($estadoPago === 'approved' && preg_match('/^(pago|credito)_(\d+)_/', $ref, $match)) {
+            $tipoRef    = $match[1];
+            $cliente_id = (int)$match[2];
+
+            // === RAMA CRÉDITO: saldar créditos de mensualidad y reactivar sin tocar fechas ===
+            if ($tipoRef === 'credito') {
+                db()->prepare("
+                    UPDATE creditos
+                    SET estado = 1, updated_at = NOW()
+                    WHERE idCliente = :id
+                      AND estado = 0 AND deleted = 0
+                      AND tipo = 'mensualidad'
+                      AND fecha_limite < CURDATE()
+                ")->execute([':id' => $cliente_id]);
+
+                db()->prepare("
+                    UPDATE clientes
+                    SET estado = 'activo', updated_at = NOW()
+                    WHERE id = :id
+                      AND estado = 'inactivo'
+                      AND vencimiento_plan >= CURDATE()
+                ")->execute([':id' => $cliente_id]);
+
+                file_put_contents(__DIR__ . '/webhook_log.txt',
+                    date('Y-m-d H:i:s') . " 💳 Crédito pagado y cliente reactivado ID: $cliente_id\n",
+                    FILE_APPEND
+                );
+
+                http_response_code(200);
+                exit;
+            }
 
             // === Obtener datos del cliente ===
             $stmtCliente = db()->prepare("SELECT * FROM clientes WHERE id = :id AND borrado = 0 LIMIT 1");
