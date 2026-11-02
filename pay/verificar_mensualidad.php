@@ -19,6 +19,18 @@ if (!$cliente) {
 
 $esTiquetera = ($cliente['plan_tipo'] ?? 'plan') === 'tiquetera';
 
+// Crédito de mensualidad vencido (prioridad sobre estado del plan)
+$stmtCred = db()->prepare("
+    SELECT IFNULL(SUM(valor), 0)
+    FROM creditos
+    WHERE idCliente = :id
+      AND estado = 0 AND deleted = 0
+      AND tipo = 'mensualidad'
+      AND fecha_limite < CURDATE()
+");
+$stmtCred->execute([':id' => $cliente['id']]);
+$deudaCredito = (float)$stmtCred->fetchColumn();
+
 /* ── Iniciales ─────────────────────────────────────────── */
 $estado           = '';
 $color            = '';
@@ -157,11 +169,20 @@ if (empty($cliente['plan'])) {
     }
 }
 
+/* ── Crédito vencido tiene prioridad: siempre permite pagar ─ */
+if ($deudaCredito > 0) {
+    $estado           = 'Crédito de mensualidad vencido';
+    $color            = 'danger';
+    $mensaje          = 'Tienes un crédito de mensualidad vencido por ' . cop($deudaCredito) . '. Al pagarlo, tu acceso se reactiva de inmediato sin cambiar la fecha de vencimiento de tu plan.';
+    $mostrarBotonPago = true;
+    $precioBase       = $deudaCredito; // el botón mostrará este valor; el backend recalcula
+}
+
 /* ── Precio final ───────────────────────────────────────── */
 $adicional  = (float)(defined('ADDITIONAL_PERCENTAGE_PAYMENT') ? ADDITIONAL_PERCENTAGE_PAYMENT : 0);
 $valorFinal = $precioBase > 0 ? round($precioBase * (1 + ($adicional / 100)), 0) : 0;
 
-$labelBoton = $esTiquetera ? 'Renovar Tiquetera' : 'Pagar Membresía';
+$labelBoton = $deudaCredito > 0 ? 'Pagar Crédito' : ($esTiquetera ? 'Renovar Tiquetera' : 'Pagar Membresía');
 
 /* ── HTML de la tarjeta ─────────────────────────────────── */
 $html = '

@@ -15,7 +15,7 @@ switch (true) {
         include 'reset_webhook_logs.php';
         break;
 
-    case ($hora === '18:45'): // PRUEBA — revertir a 05:00
+    case ($minutos === 55): // PRUEBA — revertir a 05:00
         include 'suspendOverdueCredit.php';
         break;
 
