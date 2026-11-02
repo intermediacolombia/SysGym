@@ -95,23 +95,18 @@ function fechaBonita($fecha) {
     if (empty($fecha)) return 'No registrado';
 
     try {
-        $dt = new DateTime($fecha);
+        $dt = new DateTime($fecha, new DateTimeZone('America/Bogota'));
     } catch (Exception $e) {
         return 'Fecha inválida';
     }
 
-    $fmt = new IntlDateFormatter(
-        'es_ES',
-        IntlDateFormatter::LONG,
-        IntlDateFormatter::NONE,
-        'America/Bogota',
-        IntlDateFormatter::GREGORIAN,
-        "d 'de' MMMM 'de' yyyy"
-    );
-		$texto = $fmt->format($dt);
+    static $meses = [
+        1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril',
+        5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto',
+        9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'
+    ];
 
-		// Primera letra mayúscula y resto igual
-		return mb_convert_case($texto, MB_CASE_TITLE, "UTF-8");
+    return $dt->format('j') . ' de ' . $meses[(int)$dt->format('n')] . ' de ' . $dt->format('Y');
 }
 
 
@@ -162,6 +157,7 @@ $wa_creditReminder_day  = $settings['wa_creditReminder_day'] ?? '';
 $wa_creditReminder_hour = $settings['wa_creditReminder_hour'] ?? '';
 $wa_consent_pending       = $settings['wa_consent_pending'] ?? '';
 $wa_tiquetera_agotada     = $settings['wa_tiquetera_agotada'] ?? '';
+$wa_credit_suspended      = $settings['wa_credit_suspended'] ?? '';
 
 define('WA_API_URL', $settings['wa_api_url'] ?? '');
 # ===============================

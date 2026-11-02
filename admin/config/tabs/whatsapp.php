@@ -59,6 +59,10 @@
           'wa_tiquetera_agotada' => [
             'label' => 'Mensaje de tiquetera agotada',
             'campos' => '{nombres}, {apellidos}, {entradas}, {url_pago}'
+          ],
+          'wa_credit_suspended' => [
+            'label' => 'Mensaje de suspensión por mensualidad a crédito vencida',
+            'campos' => '{nombres}, {apellidos}, {total_credito}, {detalle_creditos}, {url_pago}'
           ]
         ];
 

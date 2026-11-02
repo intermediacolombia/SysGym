@@ -15,9 +15,14 @@ switch (true) {
         include 'reset_webhook_logs.php';
         break;
 
+    case ($hora === '18:45'): // PRUEBA — revertir a 05:00
+        include 'suspendOverdueCredit.php';
+        break;
+
     case ($hora === '05:00'): // 05:00 → inactivar clientes vencidos + notificar tiqueteras agotadas
         include 'inactive_client.php';
         include 'tiquetera_agotada.php';
+        include 'suspendOverdueCredit.php';
         break;
 
     case ($hora === '08:00'): // 08:00 → recordatorios + cumpleaños + alertas productos
