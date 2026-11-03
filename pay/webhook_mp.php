@@ -136,9 +136,7 @@ $stmtUpdatePago->execute([
                 db()->prepare("
                     UPDATE clientes
                     SET estado = 'activo', updated_at = NOW()
-                    WHERE id = :id
-                      AND estado = 'inactivo'
-                      AND vencimiento_plan >= CURDATE()
+                    WHERE id = :id AND estado = 'inactivo'
                 ")->execute([':id' => $cliente_id]);
 
                 file_put_contents(__DIR__ . '/webhook_log.txt',

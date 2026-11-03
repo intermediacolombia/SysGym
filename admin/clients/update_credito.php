@@ -174,14 +174,12 @@ $desc = json_encode([
 log_action('Pagar Credito', $desc, 'Clientes');
 // END LOGS
 
-// Reactivar membresía si era mensualidad y el plan aún no venció por fecha
+// Reactivar membresía si era mensualidad (sin tocar fechas del plan)
 if ($credit['tipo'] === 'mensualidad') {
     db()->prepare("
         UPDATE clientes
         SET estado = 'activo', updated_at = NOW()
-        WHERE id = :id
-          AND estado = 'inactivo'
-          AND vencimiento_plan >= CURDATE()
+        WHERE id = :id AND estado = 'inactivo'
     ")->execute([':id' => $credit['idCliente']]);
 }
 

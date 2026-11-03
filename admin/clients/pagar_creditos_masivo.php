@@ -104,9 +104,7 @@ try {
         db()->prepare("
             UPDATE clientes
             SET estado = 'activo', updated_at = NOW()
-            WHERE id = :id
-              AND estado = 'inactivo'
-              AND vencimiento_plan >= CURDATE()
+            WHERE id = :id AND estado = 'inactivo'
         ")->execute([':id' => $idCliente]);
     }
 
