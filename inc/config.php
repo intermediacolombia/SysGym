@@ -221,6 +221,8 @@ define('WA_MASS_LIMIT',      (int)($settings['wa_mass_limit'] ?? 50));         /
 define('WA_MASS_PROB',       (int)($settings['wa_mass_prob'] ?? 0));            // Máximo mensajes diarios
 define('EXCLUDE_WS_MENU',           $settings['exclude_ws_menu'] ?? '');        // Excluidos de menu de ws
 
+if (!defined('CRON_KEY')) define('CRON_KEY', 'sysgym-cron-2026-xpto9k');
+
 if (!function_exists('require_cron_key')) {
     // ponytail: CLI pasa directo; HTTP exige ?key=CRON_KEY. Protege endpoints de cron.
     function require_cron_key(): void {
